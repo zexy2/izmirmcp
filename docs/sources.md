@@ -38,6 +38,7 @@ Atıf bu adlarla yapılır:
 | İZBAN duyuruları (erişilemiyor) | İZBAN A.Ş. | `published_operator_notices` |
 | İzmir mahalle nüfusu (cinsiyete göre) | İzmir Büyükşehir Belediyesi | `published_neighborhood_demographics` |
 | İzmir mahalle bazlı bina sayıları | İzmir Büyükşehir Belediyesi | `published_building_stock` |
+| İzmir taksi durakları | İzmir Büyükşehir Belediyesi | `static_service_locations` |
 
 ## Katalog ve DataStore
 

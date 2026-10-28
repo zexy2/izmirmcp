@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 from typing import Any
 
+from app.connectors.city_layers import CityLayerConnector
 from app.connectors.eshot import EshotConnector
 from app.connectors.izmir_api import IzmirOpenApi
 from app.core.envelope import Freshness, Source, error_envelope, result_info, success_envelope
@@ -19,6 +20,7 @@ SUPPORTED_TYPES = (
     "izban_station",
     "ferry_pier",
     "bus_stop",
+    "taxi_stand",
 )
 
 # Only these layers publish text that can honestly identify a district. The
@@ -87,10 +89,12 @@ class NearbyService:
         settings: Settings,
         api: IzmirOpenApi | None = None,
         eshot: EshotConnector | None = None,
+        taxis: CityLayerConnector | None = None,
     ):
         self.settings = settings
         self.api = api or IzmirOpenApi(settings)
         self.eshot = eshot or EshotConnector(settings=settings)
+        self.taxis = taxis or CityLayerConnector(settings=settings)
 
     def _loaders(self) -> dict[str, tuple[Any, Source]]:
         return {
@@ -100,6 +104,7 @@ class NearbyService:
             "izban_station": (self.api.izban_stations, sources.IZBAN),
             "ferry_pier": (self.api.ferry_piers, sources.FERRY),
             "bus_stop": (self.eshot.stops, sources.ESHOT_STOPS),
+            "taxi_stand": (self.taxis.taxi_stands, sources.TAXI_STANDS),
         }
 
     @staticmethod
@@ -116,6 +121,11 @@ class NearbyService:
             return (
                 "EShot durak konumları yayımlanmış listedir; canlı varış için "
                 "izmir_bus_arrivals(stop_id=...) kullanın."
+            )
+        if kind == "taxi_stand":
+            return (
+                "Taksi durağı konumları yayımlanmış statik listedir; orada taksi "
+                "bulunması garanti değildir."
             )
         return f"{kind} konumları statik kaynaktır; canlı sefer durumu değildir."
 
@@ -429,4 +439,13 @@ class NearbyService:
             row.update({"active": item.get("active"), "car_ferry": item.get("car_ferry")})
         elif kind == "bus_stop":
             row.update({"routes": item.get("routes") or []})
+        elif kind == "taxi_stand":
+            row.update(
+                {
+                    "district": item.get("district"),
+                    "neighborhood": item.get("neighborhood"),
+                    "street": item.get("street"),
+                    "kapino": item.get("kapino"),
+                }
+            )
         return row

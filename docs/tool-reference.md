@@ -81,7 +81,7 @@ Otopark, nöbetçi eczane, metro/İZBAN istasyonu, vapur iskelesi ve ESHOT dura�
 | `place_district` | string \| null | hayır | Aynı adı taşıyan mahalleleri ayırmak için ilçe ipucu (örn. `Atatürk` + `Bornova`). Yalnızca `place` ile geçerli. |
 | `bbox` | number[] \| null | hayır | `[min_lon, min_lat, max_lon, max_lat]`; kenarlar dahil. |
 | `district` | string \| null | hayır | İlçe geneli; pratikte yalnızca eczane eşleşir. |
-| `types` | enum[] \| null | hayır | `parking`, `pharmacy`, `metro_station`, `izban_station`, `ferry_pier`, `bus_stop`. Varsayılan hepsi. |
+| `types` | enum[] \| null | hayır | `parking`, `pharmacy`, `metro_station`, `izban_station`, `ferry_pier`, `bus_stop`, `taxi_stand`. Varsayılan hepsi. |
 | `radius_m` | int \| null | hayır | Yalnızca `lat/lon`/`place`; varsayılan 1500 (`place` için 5000). |
 | `limit` | int \| null | hayır | |
 

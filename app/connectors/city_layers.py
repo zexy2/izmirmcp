@@ -27,6 +27,8 @@ LIBRARY_RESOURCE_ID = "0c1b15b9-3f52-4437-bc16-56d366045ef5"
 
 # Neighborhood profile layers, verified live on 2026-10-28. Both are keyed by
 # district + mahalle name and join cleanly onto the muhtarlık inventory.
+TAXI_STAND_RESOURCE_ID = "64a72577-5f4c-404c-8842-780d88f351df"
+
 BUILDING_RESOURCE_ID = "54af6862-2d36-48d0-838f-a42133e8b943"
 POPULATION_RESOURCE_ID = "7ef10678-8a84-4e43-9122-3ac15c818b51"
 
@@ -157,6 +159,23 @@ class CityLayerConnector:
             }
 
         return await self._layer("neighborhood_population", POPULATION_RESOURCE_ID, mapper)
+
+    async def taxi_stands(self) -> tuple[list[dict[str, Any]], CacheInfo]:
+        """Published taxi stand locations (district/mahalle/street labels)."""
+
+        def mapper(item: dict[str, Any]) -> dict[str, Any]:
+            return {
+                "id": str(item.get("_id")) if item.get("_id") is not None else None,
+                "name": (item.get("ADI") or "").strip() or None,
+                "district": (item.get("ILCE") or "").strip() or None,
+                "neighborhood": (item.get("MAHALLE") or "").strip() or None,
+                "street": (item.get("YOL") or "").strip() or None,
+                "kapino": (item.get("KAPINO") or "").strip() or None,
+                "lat": parse_coordinate(item.get("ENLEM")),
+                "lon": parse_coordinate(item.get("BOYLAM")),
+            }
+
+        return await self._layer("taxi_stands", TAXI_STAND_RESOURCE_ID, mapper)
 
     async def libraries(self) -> tuple[list[dict[str, Any]], CacheInfo]:
         def mapper(item: dict[str, Any]) -> dict[str, Any]:

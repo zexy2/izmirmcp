@@ -21,7 +21,7 @@ Varsayılan yüzey **19 salt okunur araçtır**:
 | `izmir_get_dataset` | Veri seti metadata'sı ve kaynak listesi. |
 | `izmir_get_resource_schema` | DataStore resource kolonları. |
 | `izmir_query_resource` | DataStore kayıtlarını filtre, serbest arama (`search`) ve sıralamayla getirir; SQL yok. |
-| `izmir_nearby` | Otopark, nöbetçi eczane, metro/İZBAN istasyonu, vapur iskelesi ve ESHOT durağı; yarıçap, `bbox` veya ilçe geneli. |
+| `izmir_nearby` | Otopark, nöbetçi eczane, metro/İZBAN istasyonu, vapur iskelesi, ESHOT durağı ve taksi durağı; yarıçap, `bbox` veya ilçe geneli. |
 | `izmir_water_status` | İZSU baraj dolulukları; arıza akışı için açık `source_unavailable`. |
 | `izmir_air_quality` | Tarih ve istasyon filtreli hava kalitesi ölçümleri. |
 | `izmir_transit_stations` | Metro, İZBAN ve İZDENİZ istasyon/iskele listesi. |
@@ -65,6 +65,7 @@ Her sonuç ortak zarfı taşır: `ok`, `summary`, `data`, `freshness`, `sources`
 | `izban.com.tr` duyuru sayfaları / RSS | İZBAN duyuruları | **302 → FileNotFound** — `unavailable` |
 | OpenStreetMap Nominatim | İlçe/mahalle referans noktaları | 2026-10-28'de alındı, ODbL |
 
+| CKAN `taksi-durak-bilgileri` (`64a72577-…`) | Taksi durakları (koordinatlı) | Çalışıyor |
 | CKAN `muhtarliklar` (`7d0b7f55-…`) | 1.292 muhtarlık → 1.219 mahalle referansı | Çalışıyor (2026-10-28) |
 | OpenStreetMap Nominatim | 30 ilçe + 24 simge yer | 2026-10-28'de alındı, ODbL |
 

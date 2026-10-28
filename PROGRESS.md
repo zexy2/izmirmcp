@@ -86,6 +86,12 @@ konteyner çalıştırması CI'da ilk kez koşacak. Dockerfile statik olarak
 429'u `source_unavailable` diye etiketliyordu. Artık üçü de ortak
 `source_failure_envelope` kullanıyor; strict `xfail` gerçek iddiaya çevrildi.
 
+### P9 — Taksi durakları (`izmir_nearby`) ✅ TAMAMLANDI
+Upstream'in `mobility_nearby` aracı bizde yoktu; İzmir'de moto-taksi/kültür
+merkezi katmanı doğrulanamadı ama **taksi durakları** gerçek ve koordinatlı.
+Yeni araç açmak yerine `izmir_nearby`'ye `taxi_stand` tipi eklendi (upstream de
+mobiliteyi ayrı bir nearby aracında topluyor). `types` üst sınırı 6 → 7.
+
 ### P8 — `izmir_query_resource` arama + sıralama ✅ TAMAMLANDI
 Sunucu `q` ve `sort` destekliyordu ama araç yalnızca `filters` kullanıyordu.
 Artık `search` (serbest metin, SQL değil) ve `sort` (`KOLON [asc|desc]`) var;

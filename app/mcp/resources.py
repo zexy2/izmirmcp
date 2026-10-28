@@ -46,6 +46,9 @@ SOURCE_CATALOG = (
      "İzmir Büyükşehir Belediyesi",
      "https://acikveri.bizizmir.com/dataset/ilcelere-ait-mahalle-bazli-bina-sayilari",
      "published_building_stock"),
+    ("taxi", "İzmir taksi durakları", "İzmir Büyükşehir Belediyesi",
+     "https://acikveri.bizizmir.com/dataset/taksi-durak-bilgileri",
+     "static_service_locations"),
     ("eshot_notices", "EShot hat duyuruları", "İzmir Büyükşehir Belediyesi / EShot",
      "https://acikveri.bizizmir.com/dataset/otobus-hattina-ait-duyurular",
      "published_line_notices"),
@@ -73,7 +76,7 @@ def _coverage(settings: Settings, actual_tools: set[str]) -> list[dict[str, Any]
         ("catalog", ["izmir_search_datasets", "izmir_get_dataset", "izmir_get_resource_schema",
                      "izmir_query_resource"], ["ckan"], "catalog_and_records",
          "Inspect the resource schema first; datastore_active is not proof of a working query."),
-        ("nearby", ["izmir_nearby"], ["openapi", "osm"], "mixed_snapshots_and_static_locations",
+        ("nearby", ["izmir_nearby"], ["openapi", "osm", "taxi"], "mixed_snapshots_and_static_locations",
          "Radius, bbox or district-wide. Bbox has no reference point, so distance_m is null "
          "and edges are inclusive. District mode covers pharmacy through its published region "
          "text only; parking and transit publish no district. Parking is a snapshot, pharmacy "

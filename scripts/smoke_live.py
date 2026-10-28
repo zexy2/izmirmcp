@@ -79,6 +79,8 @@ async def main() -> int:
         check("catalog_sort", CatalogService(settings=settings).query_resource(
             resource_id="3e63e16e-74a9-40f6-8ad3-043ad4fa4a16", sort="ADI desc", limit=2)),
         check("bus_stops", BusService(settings=settings).stops(query="Konak", limit=3)),
+        check("taxi_nearby", NearbyService(settings=settings).nearby(
+            lat=KONAK[0], lon=KONAK[1], types=["taxi_stand"], radius_m=1500, limit=3)),
         check("bus_nearby", BusService(settings=settings).stops(
             lat=KONAK[0], lon=KONAK[1], radius_m=300, limit=3)),
         check("bus_arrivals", BusService(settings=settings).arrivals(stop_id="10030", limit=3)),

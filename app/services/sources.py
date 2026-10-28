@@ -204,3 +204,11 @@ NEIGHBORHOOD_BUILDINGS = Source(
     dataset_id="ilcelere-ait-mahalle-bazli-bina-sayilari",
     resource_id="54af6862-2d36-48d0-838f-a42133e8b943",
 )
+TAXI_STANDS = Source(
+    name="İzmir taksi durakları",
+    publisher="İzmir Büyükşehir Belediyesi",
+    url="https://acikveri.bizizmir.com/dataset/taksi-durak-bilgileri",
+    scope="static_service_locations",
+    dataset_id="taksi-durak-bilgileri",
+    resource_id="64a72577-5f4c-404c-8842-780d88f351df",
+)

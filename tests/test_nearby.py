@@ -144,3 +144,45 @@ async def test_nearby_bus_stop_failure_keeps_other_sources():
     assert envelope["ok"] is True
     assert {row["kind"] for row in envelope["data"]} == {"metro_station"}
     assert any("bus_stop" in warning for warning in envelope["warnings"])
+
+
+class FakeTaxis:
+    async def taxi_stands(self):
+        return (
+            [
+                {"id": "1", "name": "Adliye Taksi Durağı", "district": "BAYRAKLI",
+                 "neighborhood": "ÇINARLI", "street": "ŞAPAR MURAT T.BAŞI", "kapino": "2/1",
+                 "lat": 38.448689398952, "lon": 27.178372372067},
+                {"id": "2", "name": "Uzak Taksi", "district": "ÇEŞME",
+                 "neighborhood": "MERKEZ", "street": None, "kapino": None,
+                 "lat": 38.30, "lon": 26.30},
+            ],
+            fresh(),
+        )
+
+
+@pytest.mark.asyncio
+async def test_nearby_supports_taxi_stands():
+    service = NearbyService(settings=get_settings(), api=FakeApi(), eshot=FakeEshot())
+    service.taxis = FakeTaxis()
+    envelope = await service.nearby(
+        lat=38.4487, lon=27.1784, types=["taxi_stand"], radius_m=500, limit=5,
+    )
+    assert envelope["ok"] is True
+    assert [row["id"] for row in envelope["data"]] == ["1"]
+    row = envelope["data"][0]
+    assert row["kind"] == "taxi_stand"
+    assert row["district"] == "BAYRAKLI"
+    assert row["distance_m"] < 100
+
+
+@pytest.mark.asyncio
+async def test_nearby_taxi_bbox_mode_has_no_distance():
+    service = NearbyService(settings=get_settings(), api=FakeApi(), eshot=FakeEshot())
+    service.taxis = FakeTaxis()
+    envelope = await service.bbox(
+        bbox=[27.17, 38.44, 27.19, 38.46], types=["taxi_stand"], limit=5,
+    )
+    assert envelope["ok"] is True
+    assert [row["id"] for row in envelope["data"]] == ["1"]
+    assert envelope["data"][0]["distance_m"] is None

@@ -52,7 +52,7 @@ class Settings:
     default_limit: int = 10
     max_limit: int = 50
     max_radius_m: int = 5_000
-    max_nearby_types: int = 6
+    max_nearby_types: int = 7
 
     ckan_base_url: str = "https://acikveri.bizizmir.com/api/3/action"
     ckan_catalog_cache_ttl_seconds: int = 21_600

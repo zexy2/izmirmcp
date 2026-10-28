@@ -27,7 +27,8 @@ from app.services.water import WaterService
 settings = get_settings()
 
 NearbyType = Literal[
-    "parking", "pharmacy", "metro_station", "izban_station", "ferry_pier", "bus_stop",
+    "parking", "pharmacy", "metro_station", "izban_station", "ferry_pier",
+    "bus_stop", "taxi_stand",
 ]
 TransitMode = Literal["metro", "izban", "izdeniz"]
 DisruptionOperator = Literal["eshot", "metro", "izdeniz", "izban"]
