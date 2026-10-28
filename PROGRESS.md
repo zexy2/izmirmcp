@@ -86,6 +86,15 @@ konteyner çalıştırması CI'da ilk kez koşacak. Dockerfile statik olarak
 429'u `source_unavailable` diye etiketliyordu. Artık üçü de ortak
 `source_failure_envelope` kullanıyor; strict `xfail` gerçek iddiaya çevrildi.
 
+### P8 — `izmir_query_resource` arama + sıralama ✅ TAMAMLANDI
+Sunucu `q` ve `sort` destekliyordu ama araç yalnızca `filters` kullanıyordu.
+Artık `search` (serbest metin, SQL değil) ve `sort` (`KOLON [asc|desc]`) var;
+ikisi de ağa çıkmadan doğrulanır ve kolon adı şemaya karşı kontrol edilir.
+Canlı ölçüm: pazar yerlerinde `search=Konak` 14 eşleşme (filtre 13).
+
+Yan bulgu: kaynak önbelleği süreç-global olduğu için testler sıraya bağımlıydı;
+`conftest.py`'ye autouse cache izolasyonu eklendi.
+
 ### P7 — `izmir_neighborhood_profile` (parity) ✅ TAMAMLANDI
 Upstream'in `istanbul_neighborhood_profile` karşılığı. İzmir'de birebir aynı üç
 katman (sosyal yardım / bina stok / deprem senaryosu) yok; bunun yerine
@@ -116,7 +125,7 @@ sorgularının çoğunu karşılıyor. Bu bilinçli bir sınır, eksik değil.
 | Metro ekipman/erişilebilirlik | `metro/ekipmanlar`, `metro/arizalar` → 404. |
 | İZSU arıza akışı | `izsu/arizakaynaklisukesintileri` → 500. `kind=faults` açıkça unavailable. |
 | Sosyal tesis nearby | "Sosyal tesis" adıyla yayımlanmış veri seti yok. |
-| Sınırlı SQL (datastore_query) | Bilinçli olarak yok; yalnız güvenli `filters` + limit. |
+| Sınırlı SQL (datastore_query) | **Bu CKAN'da sunucu tarafı yok**: `datastore_search_sql` → `"Action name not known"` (2026-10-28). Upstream'in kendi yaklaşımı (tam snapshot + yerel SQLite + allowlist) 20 MiB'a kadar kopya, ayrı bir altyapı ve kendi enjeksiyon yüzeyini gerektirir. Yalnızca güvenli `filters` + limit sunuluyor; bu bilinçli bir güvenlik tercihi. |
 | Legacy araç alias'ları | Yayımlanmış eski ad yok; alias gereksiz. |
 | İZDENİZ GTFS | ZIP HTML dönüyor; mevcut openapi sefer araçları kullanılıyor. |
 | İZBAN GTFS | 2023 feed, takvim 2025-01-01'de bitti; güncel değil. |

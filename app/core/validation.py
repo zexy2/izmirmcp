@@ -118,3 +118,45 @@ def validate_filters(filters: dict | None) -> dict | None:
         else:
             raise InputValidationError("filter values must be scalars or scalar lists", field="filters")
     return safe
+
+
+SORT_PATTERN = re.compile(r"\A([A-Za-z0-9_ .ÇĞİÖŞÜçğıöşü-]{1,80})(?:\s+(asc|desc))?\Z", re.IGNORECASE)
+
+
+def validate_search(value: str | None, *, max_length: int = 200) -> str | None:
+    """Validate a free-text DataStore ``q`` argument.
+
+    The server treats ``q`` as text, never SQL, but the value still ends up in a
+    query string; control characters and absurd lengths are rejected here.
+    """
+    if value is None:
+        return None
+    text = " ".join(str(value).split())
+    if not text:
+        return None
+    if len(text) > max_length:
+        raise InputValidationError(f"search must be <= {max_length} characters", field="search")
+    if any(ord(char) < 32 for char in text):
+        raise InputValidationError("search contains control characters", field="search")
+    return text
+
+
+def validate_sort(value: str | None) -> str | None:
+    """Allow ``COLUMN`` or ``COLUMN asc|desc`` only.
+
+    Only the *shape* is validated here; the column name is checked against the
+    resource schema by the service so an unknown column is a clear, local error.
+    """
+    if value is None:
+        return None
+    text = " ".join(str(value).split())
+    if not text:
+        return None
+    match = SORT_PATTERN.fullmatch(text)
+    if match is None:
+        raise InputValidationError(
+            "sort must be 'column' or 'column asc|desc' with a plain column name",
+            field="sort",
+        )
+    column, direction = match.group(1).strip(), (match.group(2) or "").lower()
+    return f"{column} {direction}".strip()

@@ -48,17 +48,25 @@ Bilinmeyen id → `not_found` (`field=resource_id`). `izmir_query_resource`'tan
 önce çağrılmalıdır.
 
 ### `izmir_query_resource`
-DataStore kayıtlarını güvenli filtre + limitle getirir. SQL (`datastore_search_sql`)
-bilinçli olarak yoktur.
+DataStore kayıtlarını güvenli filtre, serbest metin arama ve sıralamayla getirir.
+SQL (`datastore_search_sql`) **sunucuda yoktur** (`"Action name not known"`,
+2026-10-28) ve kabul edilmez.
 
 | Girdi | Tip | Zorunlu | Açıklama |
 |---|---|---|---|
 | `resource_id` | string | evet | DataStore aktif kaynak. |
-| `filters` | object \| null | hayır | En fazla 10 anahtar; değerler skaler/liste. |
+| `filters` | object \| null | hayır | Tam eşleşme; en fazla 10 anahtar, skaler/liste değer. |
+| `search` | string \| null | hayır | Sunucu tarafı serbest metin (`q`); en fazla 200 karakter, SQL değil. |
+| `sort` | string \| null | hayır | `KOLON` veya `KOLON asc\|desc`; kolon şemada olmalı. |
 | `limit` | int \| null | hayır | Kayıt sayısı. |
 
-Filtre anahtarı şemadaki kolonlarda yoksa `validation_error` (`field=filters`).
-`matched` kaynağın `total` değeridir.
+- Filtre anahtarı şemada yoksa `validation_error` (`field=filters`).
+- Sıralama deseni `KOLON [asc|desc]` biçiminde değilse `validation_error`
+  (`field=sort`); geçerli desen ama kolon şemada yoksa yine `validation_error`
+  (`field=sort`). İkisi de ağa çıkmadan reddedilir.
+- `search` boşlukları normalize edilir; 200 karakteri aşan veya kontrol
+  karakteri içeren değer reddedilir (`field=search`).
+- `matched` kaynağın `total` değeridir.
 
 ## Yakınlık ve hizmetler
 

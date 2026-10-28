@@ -8,6 +8,8 @@ from app.core.envelope import Freshness, Source, error_envelope, result_info, su
 from app.core.settings import Settings
 from app.core.source_cache import cached_source_data
 from app.core.validation import (
+    validate_search,
+    validate_sort,
     InputValidationError,
     resolve_limit,
     validate_filters,
@@ -115,19 +117,23 @@ class CatalogService:
         *,
         resource_id: str,
         filters: dict | None = None,
+        search: str | None = None,
+        sort: str | None = None,
         limit: int | None = None,
     ) -> dict[str, Any]:
         try:
             safe_limit = resolve_limit(limit, self.settings.default_limit, self.settings.max_limit)
             safe_id = validate_identifier(resource_id, field="resource_id")
             safe_filters = validate_filters(filters)
+            safe_search = validate_search(search)
+            safe_sort = validate_sort(sort)
         except InputValidationError as exc:
             return _validation_error(exc)
         try:
-            if safe_filters:
+            if safe_filters or safe_sort:
                 schema = await self._cached_datastore_search(resource_id=safe_id, limit=0)
                 known = [field.get("id") for field in schema.get("fields", []) if isinstance(field, dict)]
-                unknown = sorted(set(safe_filters) - set(known))
+                unknown = sorted(set(safe_filters or {}) - set(known))
                 if known and unknown:
                     return error_envelope(
                         summary="Unknown filter field(s).",
@@ -137,8 +143,26 @@ class CatalogService:
                         sources=[CKAN_SOURCE],
                         next_step="Inspect the resource schema and use advertised columns.",
                     )
+                if safe_sort and known:
+                    column = safe_sort.split(" ", 1)[0]
+                    if column not in known:
+                        return error_envelope(
+                            summary="Unknown sort column.",
+                            warning=(
+                                f"Unknown sort column '{column}'. Valid fields: "
+                                f"{', '.join(map(str, known))}"
+                            ),
+                            code="validation_error",
+                            field="sort",
+                            sources=[CKAN_SOURCE],
+                            next_step="Inspect the resource schema and sort by an advertised column.",
+                        )
             result = await self._cached_datastore_search(
-                resource_id=safe_id, filters=safe_filters, limit=safe_limit
+                resource_id=safe_id,
+                filters=safe_filters,
+                query=safe_search,
+                sort=safe_sort,
+                limit=safe_limit,
             )
         except CkanNotFoundError:
             return error_envelope(
@@ -156,7 +180,13 @@ class CatalogService:
             data=records,
             sources=[CKAN_SOURCE],
             freshness=Freshness(status="fresh", ttl_seconds=self.settings.ckan_resource_cache_ttl_seconds),
-            limits=[f"limit={safe_limit}", "source=CKAN datastore_search", "filters only"],
+            limits=[
+                f"limit={safe_limit}",
+                "source=CKAN datastore_search",
+                *( [f"q={safe_search[:60]}"] if safe_search else [] ),
+                *( [f"sort={safe_sort}"] if safe_sort else [] ),
+                "Sunucu tarafı SQL desteklenmez; yalnızca filtre, q ve sort.",
+            ],
             matched=result.get("total"),
         )
 
@@ -190,16 +220,30 @@ class CatalogService:
         limit: int,
         filters: dict | None = None,
         offset: int = 0,
+        query: str | None = None,
+        sort: str | None = None,
     ) -> dict[str, Any]:
         key = _cache_key(
             "ckan.datastore_search",
-            {"resource_id": resource_id, "limit": limit, "filters": filters or {}, "offset": offset},
+            {
+                "resource_id": resource_id,
+                "limit": limit,
+                "filters": filters or {},
+                "offset": offset,
+                "query": query,
+                "sort": sort,
+            },
         )
         value, _info = await cached_source_data(
             key,
             ttl_seconds=self.settings.ckan_resource_cache_ttl_seconds,
             loader=lambda: self.client.datastore_search(
-                resource_id=resource_id, limit=limit, filters=filters, offset=offset
+                resource_id=resource_id,
+                limit=limit,
+                filters=filters,
+                offset=offset,
+                query=query,
+                sort=sort,
             ),
         )
         return value

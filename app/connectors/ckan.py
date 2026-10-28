@@ -59,6 +59,8 @@ class CkanClient:
         limit: int,
         filters: dict[str, Any] | None = None,
         offset: int = 0,
+        query: str | None = None,
+        sort: str | None = None,
     ) -> dict[str, Any]:
         params: dict[str, Any] = {
             "resource_id": resource_id,
@@ -67,5 +69,9 @@ class CkanClient:
         }
         if filters:
             params["filters"] = json.dumps(filters, ensure_ascii=False)
+        if query:
+            params["q"] = query
+        if sort:
+            params["sort"] = sort
         result = await self._action("datastore_search", params)
         return result if isinstance(result, dict) else {}

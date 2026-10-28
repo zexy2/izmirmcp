@@ -74,6 +74,10 @@ async def main() -> int:
         check("izban", TransitService(settings=settings).schedule(mode="izban", from_id=1, to_id=2)),
         check("izdeniz", TransitService(settings=settings).schedule(mode="izdeniz", pier_id=1, day=1)),
         check("catalog", CatalogService(settings=settings).search_datasets(query="otopark", limit=3)),
+        check("catalog_search", CatalogService(settings=settings).query_resource(
+            resource_id="3e63e16e-74a9-40f6-8ad3-043ad4fa4a16", search="Konak", limit=3)),
+        check("catalog_sort", CatalogService(settings=settings).query_resource(
+            resource_id="3e63e16e-74a9-40f6-8ad3-043ad4fa4a16", sort="ADI desc", limit=2)),
         check("bus_stops", BusService(settings=settings).stops(query="Konak", limit=3)),
         check("bus_nearby", BusService(settings=settings).stops(
             lat=KONAK[0], lon=KONAK[1], radius_m=300, limit=3)),

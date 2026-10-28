@@ -90,14 +90,20 @@ async def izmir_get_resource_schema(resource_id: str) -> dict:
 async def izmir_query_resource(
     resource_id: str,
     filters: dict | None = None,
+    search: str | None = None,
+    sort: str | None = None,
     limit: int | None = None,
 ) -> dict:
-    """Query İzmir CKAN DataStore records with guarded filters and limits.
+    """Query İzmir CKAN DataStore records with guarded filters, search and sort.
 
-    Uses datastore_search, not SQL. Field names must come from the resource schema.
+    Uses ``datastore_search`` only: this CKAN does not expose
+    ``datastore_search_sql`` ("Action name not known"), so no SQL is accepted.
+    - `filters`: exact-match object; field names must come from the resource schema.
+    - `search`: free-text server-side match (`q`), not SQL.
+    - `sort`: ``COLUMN`` or ``COLUMN asc|desc``; the column must exist in the schema.
     """
     return await CatalogService(settings=get_settings()).query_resource(
-        resource_id=resource_id, filters=filters, limit=limit
+        resource_id=resource_id, filters=filters, search=search, sort=sort, limit=limit
     )
 
 

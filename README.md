@@ -20,7 +20,7 @@ Varsayılan yüzey **19 salt okunur araçtır**:
 | `izmir_search_datasets` | İzmir Açık Veri (CKAN) kataloğunda arama. |
 | `izmir_get_dataset` | Veri seti metadata'sı ve kaynak listesi. |
 | `izmir_get_resource_schema` | DataStore resource kolonları. |
-| `izmir_query_resource` | DataStore kayıtlarını güvenli filtre ve limitle getirir. |
+| `izmir_query_resource` | DataStore kayıtlarını filtre, serbest arama (`search`) ve sıralamayla getirir; SQL yok. |
 | `izmir_nearby` | Otopark, nöbetçi eczane, metro/İZBAN istasyonu, vapur iskelesi ve ESHOT durağı; yarıçap, `bbox` veya ilçe geneli. |
 | `izmir_water_status` | İZSU baraj dolulukları; arıza akışı için açık `source_unavailable`. |
 | `izmir_air_quality` | Tarih ve istasyon filtreli hava kalitesi ölçümleri. |

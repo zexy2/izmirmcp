@@ -30,7 +30,8 @@ class FakeClient:
             raise CkanNotFoundError("not found")
         return DATASET
 
-    async def datastore_search(self, *, resource_id, limit, filters=None, offset=0):
+    async def datastore_search(self, *, resource_id, limit, filters=None, offset=0,
+                               query=None, sort=None):
         if resource_id == "missing":
             raise CkanNotFoundError("not found")
         return {
@@ -79,3 +80,64 @@ async def test_query_returns_records_with_total():
     assert envelope["ok"] is True
     assert envelope["data"] == [{"ILCE": "Konak", "KAPASITE": 43}]
     assert envelope["result_info"]["matched"] == 1
+
+
+class SearchClient(FakeClient):
+    def __init__(self):
+        self.calls = []
+
+    async def datastore_search(self, *, resource_id, limit, filters=None, offset=0,
+                               query=None, sort=None):
+        self.calls.append(
+            {"resource_id": resource_id, "limit": limit, "filters": filters,
+             "offset": offset, "query": query, "sort": sort}
+        )
+        return {
+            "fields": [{"id": "ADI"}, {"id": "ILCE"}],
+            "records": [{"ADI": "Alsancak Pazaryeri", "ILCE": "KONAK"}],
+            "total": 3,
+        }
+
+
+@pytest.mark.asyncio
+async def test_query_resource_forwards_free_text_search():
+    client = SearchClient()
+    envelope = await CatalogService(settings=get_settings(), client=client).query_resource(
+        resource_id="res-1", search="Alsancak", limit=5
+    )
+    assert envelope["ok"] is True
+    last = client.calls[-1]
+    assert last["query"] == "Alsancak"
+    assert envelope["limits"] and any("q=" in item for item in envelope["limits"])
+
+
+@pytest.mark.asyncio
+async def test_query_resource_forwards_allowlisted_sort():
+    client = SearchClient()
+    envelope = await CatalogService(settings=get_settings(), client=client).query_resource(
+        resource_id="res-1", sort="ADI desc", limit=5
+    )
+    assert envelope["ok"] is True
+    assert client.calls[-1]["sort"] == "ADI desc"
+    assert envelope["limits"] and any("sort=" in item for item in envelope["limits"])
+
+
+@pytest.mark.asyncio
+async def test_query_resource_rejects_injected_sort():
+    client = SearchClient()
+    envelope = await CatalogService(settings=get_settings(), client=client).query_resource(
+        resource_id="res-1", sort='ADI"; DROP TABLE x--', limit=5
+    )
+    assert envelope["ok"] is False
+    assert envelope["error"]["code"] == "validation_error"
+    assert envelope["error"]["field"] == "sort"
+    assert not client.calls, "an invalid sort must not reach the network"
+
+
+@pytest.mark.asyncio
+async def test_query_resource_rejects_overlong_search():
+    envelope = await CatalogService(settings=get_settings(), client=SearchClient()).query_resource(
+        resource_id="res-1", search="x" * 500, limit=5
+    )
+    assert envelope["ok"] is False
+    assert envelope["error"]["field"] == "search"
