@@ -150,7 +150,9 @@ async def test_new_city_tools_are_advertised_with_expected_inputs():
     market = tools["izmir_market_schedule"].input_schema["properties"]
     assert {"day", "district", "lat", "lon", "radius_m", "limit"} == set(market)
     disruptions = tools["izmir_transport_disruptions"].input_schema["properties"]
-    assert {"line", "active_only", "limit"} == set(disruptions)
+    assert {"operator", "line", "active_only", "limit"} == set(disruptions)
+    allowed = json.dumps(disruptions["operator"], ensure_ascii=False)
+    assert {"eshot", "metro", "izdeniz", "izban"} <= {name for name in ("eshot","metro","izdeniz","izban") if name in allowed}
     services = tools["izmir_city_services_nearby"].input_schema["properties"]
     assert {"kinds", "lat", "lon", "place", "bbox", "district", "radius_m", "limit"} == set(
         services

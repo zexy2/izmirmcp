@@ -124,3 +124,21 @@ ESHOT_NOTICES = Source(
     scope="published_line_notices",
     dataset_id="otobus-hattina-ait-duyurular",
 )
+METRO_NOTICES = Source(
+    name="İzmir Metro duyuruları",
+    publisher="İzmir Metro A.Ş. / İZTEK",
+    url="https://www.izmirmetro.com.tr",
+    scope="published_operator_notices",
+)
+FERRY_NOTICES = Source(
+    name="İZDENİZ duyuruları",
+    publisher="İZDENİZ A.Ş.",
+    url="https://www.izdeniz.com.tr/duyurular",
+    scope="published_operator_notices",
+)
+IZBAN_NOTICES = Source(
+    name="İZBAN duyuruları (erişilemiyor)",
+    publisher="İZBAN A.Ş.",
+    url="https://www.izban.com.tr",
+    scope="published_operator_notices",
+)

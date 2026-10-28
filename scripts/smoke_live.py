@@ -21,12 +21,24 @@ from app.services.water import WaterService
 KONAK = (38.41872, 27.12827)
 
 
-async def check(label: str, coro) -> bool:
+async def check(label: str, coro, *, expect_unavailable: bool = False) -> bool:
+    """Report one live call. ``expect_unavailable`` marks a deliberately-dead source.
+
+    A documented-unavailable source is a pass only when the envelope says
+    ``source_unavailable``; any other failure is a real failure.
+    """
     try:
         envelope = await coro
     except Exception as exc:  # noqa: BLE001 - smoke script reports any failure
         print(f"FAIL {label}: {type(exc).__name__}: {exc}")
         return False
+    if expect_unavailable:
+        ok = (
+            envelope.get("ok") is False
+            and (envelope.get("error") or {}).get("code") == "source_unavailable"
+        )
+        print(f"{'OK' if ok else 'FAIL':5} {label}: {envelope.get('summary')}")
+        return ok
     status = "ok" if envelope.get("ok") else "error"
     print(f"{status.upper():5} {label}: {envelope.get('summary')}")
     if not envelope.get("ok"):
@@ -72,6 +84,12 @@ async def main() -> int:
             stop_id="10030", at="2026-10-05T08:00", limit=3)),
         check("market_day", MarketService(settings=settings).schedule(day="cumartesi", limit=3)),
         check("disruptions", DisruptionService(settings=settings).list(active_only=True, limit=3)),
+        check("disruptions_metro", DisruptionService(settings=settings).list(
+            operator="metro", limit=2)),
+        check("disruptions_izdeniz", DisruptionService(settings=settings).list(
+            operator="izdeniz", limit=2)),
+        check("disruptions_izban_unavailable", DisruptionService(settings=settings).list(
+            operator="izban", limit=2), expect_unavailable=True),
         check("city_wifi", CityServicesService(settings=settings).nearby(
             kinds=["wifi"], lat=KONAK[0], lon=KONAK[1], radius_m=800, limit=3)),
         check("city_library", CityServicesService(settings=settings).nearby(

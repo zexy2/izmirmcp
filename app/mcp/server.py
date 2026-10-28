@@ -29,6 +29,7 @@ NearbyType = Literal[
     "parking", "pharmacy", "metro_station", "izban_station", "ferry_pier", "bus_stop",
 ]
 TransitMode = Literal["metro", "izban", "izdeniz"]
+DisruptionOperator = Literal["eshot", "metro", "izdeniz", "izban"]
 
 
 def _validation(exc: InputValidationError) -> dict:
@@ -391,20 +392,27 @@ async def izmir_market_schedule(
 
 
 async def izmir_transport_disruptions(
+    operator: DisruptionOperator | None = None,
     line: str | None = None,
     active_only: bool = False,
     limit: int | None = None,
 ) -> dict:
-    """List published EShot bus line notices such as planned route changes.
+    """List published transport announcements for İzmir operators.
 
-    These are announcements, not live delays or vehicle status. `active` is
-    derived from the notice's own start/end dates against the system date.
+    Operators: eshot (bus line notices with start/end dates), metro (İzmir Metro
+    announcements) and izdeniz (ferry announcements). Omit `operator` to merge
+    all three. These are announcements, not live delays or vehicle telemetry.
+    `active` is computed only for ESHOT, which publishes a validity window;
+    for the others it is null because no window is published.
+
+    `operator="izban"` returns an explicit source_unavailable: İZBAN has no
+    reachable announcement feed (verified 2026-10-28).
     """
     settings = get_settings()
     try:
         safe_limit = resolve_limit(limit, settings.default_limit, settings.max_limit)
         return await DisruptionService(settings=settings).list(
-            line=line, active_only=bool(active_only), limit=safe_limit
+            operator=operator, line=line, active_only=bool(active_only), limit=safe_limit
         )
     except InputValidationError as exc:
         return _validation(exc)

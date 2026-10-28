@@ -31,7 +31,7 @@ Varsayılan yüzey **17 salt okunur araçtır**:
 | `izmir_bus_departures` | Bir durağın yayımlanmış GTFS planlı kalkışları; canlı ETA değildir. |
 | `izmir_bus_routes` | ESHOT GTFS hat özeti; `detail=true` ile hattın yönleri, sıralı durakları ve durak varyantları. |
 | `izmir_market_schedule` | Semt pazarı takvimi: gün, ilçe veya koordinat + yarıçap filtresi. |
-| `izmir_transport_disruptions` | ESHOT hat duyuruları ve planlı güzergâh değişiklikleri. |
+| `izmir_transport_disruptions` | ESHOT, Metro ve İZDENİZ duyuruları; operatör filtresi. |
 | `izmir_city_services_nearby` | WizmirNET WiFi, İzmirim Kart dolum noktası ve kütüphaneler; yarıçap, `bbox` veya ilçe geneli. |
 
 Her sonuç ortak zarfı taşır: `ok`, `summary`, `data`, `freshness`, `sources`,
@@ -60,6 +60,9 @@ Her sonuç ortak zarfı taşır: `ok`, `summary`, `data`, `freshness`, `sources`
 | CKAN `kablosuz-internet-baglanti-noktalari` (`60ca8451-…`) | 857 WizmirNET noktası | Çalışıyor (yinelenen satırlar var) |
 | CKAN `izmirim-kart-dolum-noktalari` (`7a3efbec-…`) | 1.120 dolum noktası | Çalışıyor (**2023 tarihli**) |
 | CKAN `izmir-buyuksehir-belediyesi-kutuphaneleri-bilgileri` (`0c1b15b9-…`) | 10 kütüphane | Çalışıyor (**koordinat yok**) |
+| `metrotramapi.iztek.tr/api/v1/announcements` | İzmir Metro duyuruları | Çalışıyor (doğrulamada boş liste) |
+| `coreapi.izdeniz.com.tr/api/v1/announcements` | İZDENİZ duyuruları | Çalışıyor (gerçek duyurular) |
+| `izban.com.tr` duyuru sayfaları / RSS | İZBAN duyuruları | **302 → FileNotFound** — `unavailable` |
 | OpenStreetMap Nominatim | İlçe/mahalle referans noktaları | 2026-10-28'de alındı, ODbL |
 
 İlçe ve mahalle konumları yaklaşık referans noktalarıdır; adres çözümleme değildir.
@@ -197,6 +200,19 @@ Ayrıntı ve sınırlar raporda.
     metninden, kütüphaneler ilçe alanından eşleşir. Eşleşme yoksa bu "o ilçede
     hizmet yok" kanıtı değildir.
   Eşleşme sayısı ve kesilme `result_info` içinde bildirilir.
+- `izmir_transport_disruptions` dört operatör tanır: `eshot`, `metro`,
+  `izdeniz`, `izban`. `operator` verilmezse ilk üçü birleştirilir. Bunlar
+  **duyurudur**; canlı gecikme, araç konumu veya arıza telemetrisi değildir.
+- Yalnızca ESHOT makine-okunur geçerlilik penceresi (başlangıç/bitiş) yayımlar;
+  bu yüzden `active` **yalnızca ESHOT satırlarında** hesaplanır. Metro ve
+  İZDENİZ'de `active` **null** döner — "etkin değil" değil, "bilinmiyor".
+- **İZBAN için erişilebilir duyuru akışı yoktur.** `Rss.aspx` ve
+  `Sayfalar/Single.aspx` sayfaları HTTP 302 ile `FileNotFound.htm`'e
+  yönlendiriyor, `metrotramapi`'de İZBAN duyuru yolu 404. Bu yüzden
+  `operator="izban"` her zaman `source_unavailable` döner; duyuru yok sayılmaz.
+- Erişilemeyen veya boş dönen operatör sonuçtan düşer ve `warnings` içinde açıkça
+  bildirilir; "o operatörde aksaklık yok" sonucu çıkarılmaz. Toplam eşleşme ve
+  kesilme `result_info` ile raporlanır.
 - Şehir geneli trafik indeksi, kaza/olay verisi ve rota planlayıcı yoktur.
 - İZSU arıza/kesinti akışı kaynakta 500 döndüğü için veri üretilmez.
 - Hava kalitesi kaynağı koordinat ve birim yayımlamaz; AQI hesabı yapılmaz.

@@ -16,13 +16,15 @@ Bu dosya döngünün hafızasıdır. Her pass sonunda güncellenir.
 | GTFS tarifesi | `izmir_bus_departures` (SQLite stop_times), `izmir_bus_routes(detail=true)` | `0db0421` |
 | Alan modları | `izmir_nearby` ve `izmir_city_services_nearby` bbox + ilçe | `0db0421` |
 | HTTP sertleştirme | gövde tavanı, hız sınırı, eşzamanlılık, auth, CORS, log, gerçek `/readyz` | `27f1177` |
+| P1 operatör duyuruları | Metro + İZDENİZ duyuruları bağlandı; İZBAN kanıtla unavailable | bu pass |
 
 ## Sırada (öncelik sırasıyla)
 
-### P1 — Çok operatörlü ulaşım aksaklıkları
-Şu an yalnızca ESHOT hat duyuruları var. Metro, İZBAN ve İZDENİZ için
-makine-okunur duyuru/aksaklık ucu araştırılacak. Her operatör ayrı `sources[]`
-kaydı taşır; erişilemeyen operatör `unavailable` döner, "sorun yok" sayılmaz.
+### P1 — Çok operatörlü ulaşım aksaklıkları ✅ TAMAMLANDI
+Metro (`metrotramapi.iztek.tr/api/v1/announcements`) ve İZDENİZ
+(`coreapi.izdeniz.com.tr/api/v1/announcements`) bağlandı. İZBAN'ın erişilebilir
+akışı yok (302→FileNotFound, 404); `operator="izban"` açık `source_unavailable`.
+Kanıt: `reports/operator-duyuru-kaynaklari.md`.
 
 ### P2 — Paketleme ve yayın hazırlığı
 - `Dockerfile` + `.dockerignore`
@@ -59,6 +61,7 @@ değil, farklılaşma. Ancak P0–P4 bittikten sonra.
 | Legacy araç alias'ları | Yayımlanmış eski ad yok; alias gereksiz. |
 | İZDENİZ GTFS | ZIP HTML dönüyor; mevcut openapi sefer araçları kullanılıyor. |
 | İZBAN GTFS | 2023 feed, takvim 2025-01-01'de bitti; güncel değil. |
+| İZBAN duyuruları | RSS ve tüm `Single.aspx` sayfaları 302→FileNotFound; metrotramapi'de yol 404. `unavailable`. |
 
 ## Bilinen riskler
 
