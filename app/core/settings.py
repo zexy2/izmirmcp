@@ -15,6 +15,21 @@ def _env_float(name: str, default: float) -> float:
         return default
 
 
+def _env_list(name: str) -> tuple[str, ...]:
+    """Comma-separated env value; empty entries are dropped, order is preserved."""
+    raw = os.getenv(name)
+    if raw is None:
+        return ()
+    return tuple(item.strip() for item in raw.split(",") if item.strip())
+
+
+def _env_bool(name: str, default: bool) -> bool:
+    raw = os.getenv(name)
+    if raw is None or not raw.strip():
+        return default
+    return raw.strip().casefold() in {"1", "true", "yes", "on"}
+
+
 def _env_int(name: str, default: int) -> int:
     raw = os.getenv(name)
     if raw is None or not raw.strip():
@@ -82,6 +97,15 @@ class Settings:
     city_layer_stale_if_error_seconds: int = 604_800
 
     mcp_max_body_bytes: int = 1_000_000
+
+    client_max_body_bytes: int = 1_000_000
+    client_rate_limit_capacity: int = 60
+    client_rate_limit_refill_per_second: float = 1.0
+    client_rate_limit_max_clients: int = 10_000
+    client_max_concurrent_requests: int = 32
+    mcp_api_keys: tuple[str, ...] = ()
+    mcp_cors_allowed_origins: tuple[str, ...] = ()
+    access_log_enabled: bool = True
 
 @lru_cache(maxsize=1)
 def get_settings() -> Settings:
@@ -157,4 +181,16 @@ def get_settings() -> Settings:
         database_path=os.getenv(
             "IZMIR_MCP_DATABASE_PATH", ".data/izmir_mcp.sqlite3"
         ),
+        client_max_body_bytes=_env_int("IZMIR_MCP_CLIENT_MAX_BODY_BYTES", 1_000_000),
+        client_rate_limit_capacity=_env_int("IZMIR_MCP_CLIENT_RATE_LIMIT_CAPACITY", 60),
+        client_rate_limit_refill_per_second=_env_float(
+            "IZMIR_MCP_CLIENT_RATE_LIMIT_REFILL_PER_SECOND", 1.0
+        ),
+        client_rate_limit_max_clients=_env_int("IZMIR_MCP_CLIENT_RATE_LIMIT_MAX_CLIENTS", 10_000),
+        client_max_concurrent_requests=_env_int(
+            "IZMIR_MCP_CLIENT_MAX_CONCURRENT_REQUESTS", 32
+        ),
+        mcp_api_keys=_env_list("IZMIR_MCP_API_KEYS"),
+        mcp_cors_allowed_origins=_env_list("IZMIR_MCP_CORS_ALLOWED_ORIGINS"),
+        access_log_enabled=_env_bool("IZMIR_MCP_ACCESS_LOG_ENABLED", True),
     )

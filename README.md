@@ -79,10 +79,42 @@ python -m app.main
 
 Yerel uçlar:
 
-- `GET /healthz`
-- `GET /readyz`
-- `GET /status`
+- `GET /healthz` — süreç ayakta mı (kimlik doğrulaması istemez).
+- `GET /readyz` — yerel hazırlık: araç yüzeyi kuruldu mu. **Kaynak sağlığı
+  ölçmez**; `upstream_health: "not_checked"` döner ve yalnızca yerel durumu
+  bildirir. Hazır değilse `503`.
+- `GET /status` — araç listesi, limitler, hız sınırı/sayaç telemetrisi.
+  API anahtarı yapılandırıldıysa korumalıdır.
 - `POST /mcp/` (Streamable HTTP MCP)
+
+### HTTP yüzeyi sertleştirmesi
+
+| Koruma | Varsayılan | Ayar |
+|---|---|---|
+| Gövde tavanı | 1 MB | `IZMIR_MCP_CLIENT_MAX_BODY_BYTES` |
+| İstemci başına hız sınırı | 60 istek, 1/sn dolum | `IZMIR_MCP_CLIENT_RATE_LIMIT_CAPACITY`, `..._REFILL_PER_SECOND` |
+| Eşzamanlılık sınırı | 32 | `IZMIR_MCP_CLIENT_MAX_CONCURRENT_REQUESTS` |
+| Bearer API anahtarı | kapalı | `IZMIR_MCP_API_KEYS` |
+| Tarayıcı Origin allowlist | boş (Origin gönderen reddedilir) | `IZMIR_MCP_CORS_ALLOWED_ORIGINS` |
+| Yapısal erişim logu | açık | `IZMIR_MCP_ACCESS_LOG_ENABLED` |
+
+Aşım durumları zarfla değil, HTTP durum koduyla döner: `413 payload_too_large`,
+`429 rate_limited` (+`Retry-After`), `503 server_busy`, `403 origin_not_allowed`,
+`401 unauthorized` (+`WWW-Authenticate`).
+
+Sınırlar ve dürüst notlar:
+
+- Hız sınırı ve sayaçlar **süreç içi** ve uçucudur. Çok işçili (multi-worker)
+  dağıtımda her işçi kendi bütçesini uygular; toplam sınırı için önüne bir
+  reverse proxy koyun.
+- `X-Forwarded-For` yalnızca sunucu loopback'e bağlıyken dikkate alınır;
+  aksi halde istemci kimliği doğrudan bağlantı adresidir.
+- Erişim logu yöntem, yol, durum ve süre yazar; sorgu dizesi, gövde, başlık ve
+  API anahtarı **hiçbir zaman** loglanmaz.
+- Origin allowlist boşken tarayıcı istekleri reddedilir; CLI/stdio MCP
+  istemcileri (Origin başlığı göndermeyenler) etkilenmez.
+- Bu katman bir yetkilendirme sunucusu değildir; statik anahtar karşılaştırması
+  yapar, OAuth/döner anahtar yoktur.
 
 Yerel GTFS tarife deposu varsayılan olarak `.data/izmir_mcp.sqlite3` altında
 tutulur; `IZMIR_MCP_DATABASE_PATH` ile değiştirilebilir ve git dışındadır.
