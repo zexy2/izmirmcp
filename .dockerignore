@@ -1,0 +1,33 @@
+# Local state and virtualenvs never enter the image.
+.data/
+.data
+.venv/
+.venv
+
+# VCS, caches, build output
+.git/
+.git
+.github/
+.pytest_cache/
+.ruff_cache/
+__pycache__/
+**/__pycache__/
+*.pyc
+*.egg-info/
+build/
+dist/
+.env
+.DS_Store
+
+# Not needed at run time (the wheel carries app/data/places.json, not tests)
+tests/
+reports/
+scripts/
+docs/
+*.md
+!README.md
+
+# Local runtime leftovers
+.venv
+*.sqlite3
+*.sqlite3.*

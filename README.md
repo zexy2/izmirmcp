@@ -122,6 +122,31 @@ Sınırlar ve dürüst notlar:
 Yerel GTFS tarife deposu varsayılan olarak `.data/izmir_mcp.sqlite3` altında
 tutulur; `IZMIR_MCP_DATABASE_PATH` ile değiştirilebilir ve git dışındadır.
 
+## Docker
+
+```bash
+docker build -t izmir-mcp .
+docker run -p 8000:8000 -v izmir-data:/data izmir-mcp
+curl -s http://127.0.0.1:8000/readyz
+```
+
+İmaj `python:3.11-slim` (digest pinli), root olmayan `izmir` kullanıcısı ve
+`/data` hacmi kullanır. `.data/` ve `.venv/` imaja **girmez**; GTFS deposu
+konteyner ilk açılışta `docker/entrypoint.sh` ile yayımlanmış arşivden yeniden
+kurulur. Kurulum başarısız olursa konteyner durmaz: tarife araçları dürüst
+`source_unavailable` döner, diğer araçlar çalışmaya devam eder. Kurulumu
+atlamak için `IZMIR_MCP_SKIP_GTFS_BUILD=1`.
+
+stdio için aynı imaj: `docker run --rm -i izmir-mcp python -m app.stdio`.
+
+### CI ve registry
+
+- `.github/workflows/ci.yml`: pytest, canlı smoke (bloklamaz), import ve araç
+  yüzeyi kontrolü, sunucuyu başlatıp `/healthz`+`/readyz` probe'u, ardından
+  imaj derleme ve konteyner içinde healthz kontrolü.
+- `server.json`: MCP registry manifesti (pypi stdio paketi + OCI imaj).
+- `CHANGELOG.md`: sürüm geçmişi.
+
 ## MCP istemcisine ekleme
 
 Yerel stdio kaydı (Freebuff/Codex/Claude Code benzeri istemciler):
@@ -147,7 +172,7 @@ http://127.0.0.1:8000/mcp/
 ## Testler
 
 ```bash
-pytest
+.venv/bin/python -m pytest -q
 ```
 
 Testler dış kaynağa bağlanmaz; konnektörler sahte istemcilerle değiştirilir.

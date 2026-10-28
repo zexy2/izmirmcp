@@ -8,13 +8,20 @@ the required members, the row budget and the schema all validate.
 
 Only published timetable data is stored. There is no realtime feed, no invented
 ETA and no fallback row when a source member is missing.
+
+The store is local state and is kept out of the container image. It is rebuilt
+from the published archive at run time, either lazily by ``izmir_bus_departures``
+or eagerly with ``python -m app.storage.gtfs_schedule`` (used by the image
+entrypoint so the first query does not pay the build cost).
 """
 from __future__ import annotations
 
+import argparse
 import csv
 import io
 import os
 import sqlite3
+import sys
 import tempfile
 import zipfile
 from datetime import date, datetime, time, timedelta, timezone
@@ -22,12 +29,17 @@ from pathlib import Path
 from typing import Any, Iterable
 from zoneinfo import ZoneInfo
 
+import httpx
+
 ISTANBUL = ZoneInfo("Europe/Istanbul")
 WEEKDAY_COLUMNS = (
     "monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday",
 )
 REQUIRED_MEMBERS = ("stops.txt", "routes.txt", "trips.txt", "stop_times.txt", "calendar.txt")
 ZIP_SIGNATURES = (b"PK\x03\x04", b"PK\x05\x06", b"PK\x07\x08")
+# www.eshot.gov.tr answers 406 to an open ``Accept`` for the zip; ``*/*`` works.
+GTFS_ACCEPT = "*/*"
+GTFS_FETCH_TIMEOUT_SECONDS = 120.0
 INT_META_KEYS = frozenset(
     {
         "stops_rows", "routes_rows", "trips_rows", "stop_times_rows",
@@ -752,3 +764,71 @@ def _int_or_none(value: Any) -> int | None:
         return int(str(value).strip())
     except (TypeError, ValueError):
         return None
+
+
+def _fetch(url: str, *, max_bytes: int | None = None) -> bytes:
+    """Download the GTFS archive with the headers the source actually accepts."""
+    response = httpx.get(
+        url,
+        headers={"Accept": GTFS_ACCEPT, "User-Agent": "izmir-mcp-gtfs-build/1"},
+        timeout=GTFS_FETCH_TIMEOUT_SECONDS,
+        follow_redirects=True,
+    )
+    response.raise_for_status()
+    content = response.content
+    if max_bytes is not None and len(content) > max_bytes:
+        raise GtfsScheduleError(f"archive exceeds its byte budget ({len(content)} bytes)")
+    return content
+
+
+def _default_database() -> Path:
+    from app.core.settings import get_settings
+
+    return Path(get_settings().database_path)
+
+
+def _default_url() -> str:
+    from app.core.settings import get_settings
+
+    return get_settings().eshot_gtfs_url
+
+
+def _parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        prog="python -m app.storage.gtfs_schedule",
+        description=(
+            "Build the local GTFS timetable SQLite store from the published "
+            "EShot archive. Nothing is written when the archive is invalid."
+        ),
+    )
+    parser.add_argument("--database", help="target SQLite path (default: settings)")
+    parser.add_argument("--url", help="GTFS zip URL (default: settings)")
+    parser.add_argument(
+        "--max-bytes", type=int, default=None,
+        help="reject archives larger than this many bytes",
+    )
+    return parser
+
+
+def main(argv: list[str] | None = None) -> int:
+    """Build the store eagerly; return 0 on success, 2 on any failure."""
+    args = _parser().parse_args(argv)
+    database = Path(args.database) if args.database else _default_database()
+    url = args.url or _default_url()
+    try:
+        archive = _fetch(url, max_bytes=args.max_bytes)
+        metadata = GtfsScheduleStore(database).rebuild(archive, source_url=url)
+    except (GtfsScheduleError, OSError, httpx.HTTPError, ValueError) as exc:
+        print(f"gtfs store build failed: {type(exc).__name__}: {exc}", file=sys.stderr)
+        return 2
+    print(
+        "gtfs store built: "
+        f"{database} stop_times_rows={metadata.get('stop_times_rows')} "
+        f"calendar_start={metadata.get('calendar_start') or 'unknown'} "
+        f"calendar_end={metadata.get('calendar_end') or 'unknown'}"
+    )
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

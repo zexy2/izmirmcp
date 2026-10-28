@@ -162,7 +162,8 @@ class McpCorsApplication(Starlette):
 app = create_app()
 
 
-if __name__ == "__main__":
+def run() -> None:
+    """Console entry point (``izmir-mcp``)."""
     settings = get_settings()
     uvicorn.run(
         "app.main:app",
@@ -171,3 +172,7 @@ if __name__ == "__main__":
         proxy_headers=True,
         forwarded_allow_ips="127.0.0.1",
     )
+
+
+if __name__ == "__main__":
+    run()
