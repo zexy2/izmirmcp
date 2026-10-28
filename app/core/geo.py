@@ -72,7 +72,43 @@ def has_name_token(value: str | None, name: str) -> bool:
     return wanted in tokens
 
 
+def valid_lat_lon(lat: float | None, lon: float | None) -> bool:
+    """True only for a finite, in-range coordinate pair.
+
+    Connectors use this to drop source rows that carry a number shaped like a
+    coordinate but impossible as one (latitude 999). Skipping is honest: such a
+    row can never be placed on a map or matched by a radius query.
+    """
+    for value, low, high in ((lat, -90.0, 90.0), (lon, -180.0, 180.0)):
+        if value is None or isinstance(value, bool) or not isinstance(value, (int, float)):
+            return False
+        if not math.isfinite(value) or not low <= value <= high:
+            return False
+    return True
+
+
 def haversine_m(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+    """Great-circle metres between two WGS84 points.
+
+    Every argument must be a finite in-range coordinate. A ``NaN`` input used to
+    travel silently through the trigonometry and come back as a plausible-but
+    invented distance (~half the globe), and ``inf`` raised a bare ``ValueError``
+    from ``math``. Both are programming/data errors, so they are rejected up
+    front with one clear exception rather than producing a number nobody can
+    trust.
+    """
+    for name, value, low, high in (
+        ("lat1", lat1, -90.0, 90.0),
+        ("lon1", lon1, -180.0, 180.0),
+        ("lat2", lat2, -90.0, 90.0),
+        ("lon2", lon2, -180.0, 180.0),
+    ):
+        if isinstance(value, bool) or not isinstance(value, (int, float)):
+            raise TypeError(f"{name} must be a number")
+        if not math.isfinite(value):
+            raise ValueError(f"{name} must be finite")
+        if not low <= value <= high:
+            raise ValueError(f"{name} must be between {low} and {high}")
     phi1, phi2 = math.radians(lat1), math.radians(lat2)
     d_phi = phi2 - phi1
     d_lambda = math.radians(lon2 - lon1)

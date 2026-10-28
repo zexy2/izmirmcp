@@ -5,6 +5,7 @@ from typing import Any
 
 from app.connectors.http import get_json
 from app.core.envelope import finite_number
+from app.core.geo import valid_lat_lon
 from app.core.settings import Settings
 from app.core.source_cache import CacheInfo, cached_source_data
 
@@ -13,6 +14,19 @@ WEEKDAYS = ("monday", "tuesday", "wednesday", "thursday", "friday", "saturday", 
 
 def _as_float(value: Any) -> float | None:
     return finite_number(value)
+
+
+def _coordinates(lat_value: Any, lon_value: Any) -> tuple[float, float] | None:
+    """Return a valid WGS84 pair, or ``None`` when it is not placeable.
+
+    A source row with latitude 999 is not a location; keeping it would put a
+    point off the globe in every downstream distance and rectangle query.
+    """
+    lat = finite_number(lat_value)
+    lon = finite_number(lon_value)
+    if not valid_lat_lon(lat, lon):
+        return None
+    return lat, lon
 
 
 def _as_bool(value: Any) -> bool | None:
@@ -52,14 +66,14 @@ class IzmirOpenApi:
         today = WEEKDAYS[date.today().weekday()]
         rows = []
         for item in payload if isinstance(payload, list) else []:
-            lat = _as_float(item.get("lat"))
-            lon = _as_float(item.get("lng"))
+            pair = _coordinates(item.get("lat"), item.get("lng"))
+            if pair is None:
+                continue
+            lat, lon = pair
             occupancy = item.get("occupancy") or {}
             total = occupancy.get("total") or {}
             free = total.get("free")
             occupied = total.get("occupied")
-            if lat is None or lon is None:
-                continue
             capacity = None
             if isinstance(free, int) and isinstance(occupied, int):
                 capacity = free + occupied
@@ -85,10 +99,10 @@ class IzmirOpenApi:
         payload, info = await self._cached("ibb/nobetcieczaneler", "openapi.pharmacies")
         rows = []
         for item in payload if isinstance(payload, list) else []:
-            lat = _as_float(item.get("LokasyonX"))
-            lon = _as_float(item.get("LokasyonY"))
-            if lat is None or lon is None:
+            pair = _coordinates(item.get("LokasyonX"), item.get("LokasyonY"))
+            if pair is None:
                 continue
+            lat, lon = pair
             rows.append(
                 {
                     "id": item.get("EczaneId") if item.get("EczaneId") not in (None, -1, 0) else None,
@@ -146,10 +160,10 @@ class IzmirOpenApi:
         payload, info = await self._cached("izdeniz/iskeleler", "openapi.izdeniz.piers")
         rows = []
         for item in payload if isinstance(payload, list) else []:
-            lat = _as_float(item.get("Enlem"))
-            lon = _as_float(item.get("Boylam"))
-            if lat is None or lon is None:
+            pair = _coordinates(item.get("Enlem"), item.get("Boylam"))
+            if pair is None:
                 continue
+            lat, lon = pair
             rows.append(
                 {
                     "id": item.get("IskeleId"),
@@ -255,10 +269,10 @@ class IzmirOpenApi:
 def _station_rows(payload: Any, *, order_key: str) -> list[dict[str, Any]]:
     rows = []
     for item in payload if isinstance(payload, list) else []:
-        lat = _as_float(item.get("Enlem"))
-        lon = _as_float(item.get("Boylam"))
-        if lat is None or lon is None:
+        pair = _coordinates(item.get("Enlem"), item.get("Boylam"))
+        if pair is None:
             continue
+        lat, lon = pair
         rows.append(
             {
                 "id": item.get("IstasyonId"),

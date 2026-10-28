@@ -15,6 +15,7 @@ from typing import Any
 from app.connectors.ckan import CkanClient
 from app.connectors.http import SourceError, get_text
 from app.core.envelope import finite_number
+from app.core.geo import valid_lat_lon
 from app.core.settings import Settings
 from app.core.source_cache import CacheInfo, cached_source_data
 
@@ -34,7 +35,12 @@ POPULATION_RESOURCE_ID = "7ef10678-8a84-4e43-9122-3ac15c818b51"
 
 
 def parse_coordinate(value: Any) -> float | None:
-    """Parse a decimal WGS84 coordinate that may use a Turkish decimal comma."""
+    """Parse a decimal number that may use a Turkish decimal comma.
+
+    This only answers "is this a finite decimal number". Range checking needs
+    both axes at once (a latitude of 999 is a number but not a location), so
+    layers call :func:`parse_lat_lon` instead of this helper.
+    """
     if isinstance(value, bool) or not isinstance(value, (str, int, float)):
         return None
     if isinstance(value, str):
@@ -43,6 +49,23 @@ def parse_coordinate(value: Any) -> float | None:
             return None
         value = text
     return finite_number(value)
+
+
+def parse_lat_lon(lat_value: Any, lon_value: Any) -> tuple[float, float] | None:
+    """Return a valid WGS84 pair, or ``None`` when the row is not placeable."""
+    lat = parse_coordinate(lat_value)
+    lon = parse_coordinate(lon_value)
+    if not valid_lat_lon(lat, lon):
+        return None
+    return lat, lon
+
+
+def _lat_lon(lat_value: Any, lon_value: Any) -> dict[str, float | None]:
+    """Mapper helper: spread a validated pair, or nulls when unusable."""
+    pair = parse_lat_lon(lat_value, lon_value)
+    if pair is None:
+        return {"lat": None, "lon": None}
+    return {"lat": pair[0], "lon": pair[1]}
 
 
 def parse_gtfs_style_bool(value: Any) -> bool | None:
@@ -100,8 +123,7 @@ class CityLayerConnector:
                 "name": (item.get("ADI") or "").strip() or None,
                 "district": (item.get("ILCE") or "").strip() or None,
                 "neighborhood": (item.get("MAHALLE") or "").strip() or None,
-                "lat": parse_coordinate(item.get("ENLEM")),
-                "lon": parse_coordinate(item.get("BOYLAM")),
+                **_lat_lon(item.get("ENLEM"), item.get("BOYLAM")),
                 "note": " ".join((item.get("ACIKLAMA") or "").split()) or None,
                 "street": (item.get("YOL") or "").strip() or None,
             }
@@ -116,8 +138,7 @@ class CityLayerConnector:
                 "district": (item.get("ILCE") or "").strip() or None,
                 "neighborhood": (item.get("MAHALLE") or "").strip() or None,
                 "street": (item.get("YOL") or "").strip() or None,
-                "lat": parse_coordinate(item.get("ENLEM")),
-                "lon": parse_coordinate(item.get("BOYLAM")),
+                **_lat_lon(item.get("ENLEM"), item.get("BOYLAM")),
             }
 
         return await self._layer("wifi", WIFI_RESOURCE_ID, mapper)
@@ -128,8 +149,7 @@ class CityLayerConnector:
                 "id": str(item.get("_id")) if item.get("_id") is not None else None,
                 "address": " ".join((item.get("ADDRESS") or "").split()) or None,
                 "name": "İzmirim Kart dolum noktası",
-                "lat": parse_coordinate(item.get("LATITUDE")),
-                "lon": parse_coordinate(item.get("LONGITUDE")),
+                **_lat_lon(item.get("LATITUDE"), item.get("LONGITUDE")),
             }
 
         return await self._layer("izmirim_card", IZMIRIM_CARD_RESOURCE_ID, mapper)
@@ -171,8 +191,7 @@ class CityLayerConnector:
                 "neighborhood": (item.get("MAHALLE") or "").strip() or None,
                 "street": (item.get("YOL") or "").strip() or None,
                 "kapino": (item.get("KAPINO") or "").strip() or None,
-                "lat": parse_coordinate(item.get("ENLEM")),
-                "lon": parse_coordinate(item.get("BOYLAM")),
+                **_lat_lon(item.get("ENLEM"), item.get("BOYLAM")),
             }
 
         return await self._layer("taxi_stands", TAXI_STAND_RESOURCE_ID, mapper)
@@ -244,22 +263,39 @@ def parse_market_days(note: str | None) -> list[str]:
     """Extract weekday names from the free-text market note.
 
     The note is prose ("Cumartesi günü kurulmaktadır", sometimes misspelled), so
-    only explicit Turkish weekday words are matched. Absence of a match yields an
-    empty list plus an ``unknown`` confidence upstream, never a guessed day.
+    only explicit Turkish weekday words are matched.
+
+    Matching is token-based, not substring-based. A naive ``str.find`` is wrong
+    here because "cumartesi" contains "cuma" and "pazartesi" contains "pazar":
+    it reports Saturday as Friday+Saturday and Monday as Monday+Sunday, which
+    makes a ``day=pazar`` query return Monday markets. Tokens are split on
+    non-letters and the *longest* matching token wins, so an exact weekday word
+    is never shadowed by a shorter word inside it.
+
+    Absence of a match yields an empty list plus ``unknown`` confidence upstream,
+    never a guessed day.
     """
     if not note:
         return []
-    folded = note.casefold()
     from app.core.geo import normalize_name
 
-    folded = normalize_name(folded)
+    folded = normalize_name(str(note))
+    tokens = [token for token in re.split(r"[^a-z0-9]+", folded) if token]
+
+    # Longest first so "cumartesi" is consumed before "cuma" can match inside it.
+    ordered = sorted(
+        ((token, day) for day, group in MARKET_DAY_TOKENS for token in group),
+        key=lambda pair: len(pair[0]),
+        reverse=True,
+    )
     found: list[tuple[int, str]] = []
-    for day, tokens in MARKET_DAY_TOKENS:
-        for token in tokens:
-            index = folded.find(token)
-            if index >= 0:
-                found.append((index, day))
-                break
+    claimed: set[int] = set()
+    for token, day in ordered:
+        for index, word in enumerate(tokens):
+            if index in claimed or word != token:
+                continue
+            claimed.add(index)
+            found.append((index, day))
     return [day for _index, day in sorted(found)]
 
 
