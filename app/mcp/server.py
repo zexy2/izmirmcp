@@ -104,6 +104,7 @@ async def izmir_nearby(
     lat: float | None = None,
     lon: float | None = None,
     place: str | None = None,
+    place_district: str | None = None,
     bbox: list[float] | None = None,
     district: str | None = None,
     types: list[NearbyType] | None = None,
@@ -162,10 +163,15 @@ async def izmir_nearby(
                 district=district, types=selected, limit=safe_limit
             )
         reference_label = None
+        if place_district is not None and place is None:
+            raise InputValidationError(
+                "place_district is only valid with place", field="place_district"
+            )
         if place is not None:
-            resolved = PlaceResolver().resolve(place)
+            resolved = PlaceResolver().resolve(place, district=place_district)
             lat, lon = resolved.lat, resolved.lon
-            reference_label = f"{resolved.name} ({resolved.kind} reference point)"
+            where = f"{resolved.name}, {resolved.district}" if resolved.district else resolved.name
+            reference_label = f"{where} ({resolved.kind} reference point)"
         elif lat is None or lon is None:
             raise InputValidationError(
                 "supply lat/lon, place, bbox or district (for example place='Konak')",
@@ -349,15 +355,22 @@ async def izmir_bus_routes(
 CityServiceKind = Literal["wifi", "izmirim_card", "library"]
 
 
-def _require_point(lat: float | None, lon: float | None, place: str | None) -> tuple[float, float, str | None]:
-    settings = get_settings()
+def _require_point(
+    lat: float | None,
+    lon: float | None,
+    place: str | None,
+    place_district: str | None = None,
+) -> tuple[float, float, str | None]:
     if (lat is None) != (lon is None):
         raise InputValidationError("lat and lon must be supplied together", field="lat")
     if place is not None and lat is not None:
         raise InputValidationError("place cannot be combined with lat/lon", field="place")
+    if place_district is not None and place is None:
+        raise InputValidationError("place_district is only valid with place", field="place_district")
     if place is not None:
-        resolved = PlaceResolver().resolve(place)
-        return resolved.lat, resolved.lon, f"{resolved.name} ({resolved.kind} reference point)"
+        resolved = PlaceResolver().resolve(place, district=place_district)
+        where = f"{resolved.name}, {resolved.district}" if resolved.district else resolved.name
+        return resolved.lat, resolved.lon, f"{where} ({resolved.kind} reference point)"
     if lat is None or lon is None:
         raise InputValidationError(
             "supply lat/lon or place (for example place='Konak')", field="place"
@@ -423,6 +436,7 @@ async def izmir_city_services_nearby(
     lat: float | None = None,
     lon: float | None = None,
     place: str | None = None,
+    place_district: str | None = None,
     bbox: list[float] | None = None,
     district: str | None = None,
     radius_m: int | None = None,
@@ -474,7 +488,9 @@ async def izmir_city_services_nearby(
             return await CityServicesService(settings=settings).district(
                 district=district, kinds=selected, limit=safe_limit
             )
-        resolved_lat, resolved_lon, reference_label = _require_point(lat, lon, place)
+        resolved_lat, resolved_lon, reference_label = _require_point(
+            lat, lon, place, place_district
+        )
         if radius_m is None:
             safe_radius = settings.max_radius_m if place is not None else 1500
         else:

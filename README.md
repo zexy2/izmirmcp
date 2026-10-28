@@ -65,6 +65,9 @@ Her sonuç ortak zarfı taşır: `ok`, `summary`, `data`, `freshness`, `sources`
 | `izban.com.tr` duyuru sayfaları / RSS | İZBAN duyuruları | **302 → FileNotFound** — `unavailable` |
 | OpenStreetMap Nominatim | İlçe/mahalle referans noktaları | 2026-10-28'de alındı, ODbL |
 
+| CKAN `muhtarliklar` (`7d0b7f55-…`) | 1.292 muhtarlık → 1.219 mahalle referansı | Çalışıyor (2026-10-28) |
+| OpenStreetMap Nominatim | 30 ilçe + 24 simge yer | 2026-10-28'de alındı, ODbL |
+
 İlçe ve mahalle konumları yaklaşık referans noktalarıdır; adres çözümleme değildir.
 Eczane listesi günlüktür ve telefonla teyit gerektirir. Otopark boş yer sayıları
 anlık bildirimdir. İstasyon ve durak konumları statiktir; canlı sefer durumu değildir.
@@ -277,6 +280,15 @@ Ayrıntı ve sınırlar raporda.
 - Erişilemeyen veya boş dönen operatör sonuçtan düşer ve `warnings` içinde açıkça
   bildirilir; "o operatörde aksaklık yok" sonucu çıkarılmaz. Toplam eşleşme ve
   kesilme `result_info` ile raporlanır.
+- Mahalle çözümlemesi İzmir Büyükşehir Belediyesi'nin muhtarlık envanterine
+  dayanır (1.292 kayıt → 1.219 benzersiz mahalle, 30 ilçe). Nokta, muhtarlık
+  konumunun **mahalle başına ortalamasıdır**; mahalle sınırı veya kapı adresi
+  değildir.
+- Aynı mahalle adı birden çok ilçede geçebilir (`Atatürk` 17 ilçede). Bu
+  durumda `place` tek başına `validation_error` döner ve adayları listeler;
+  `place_district` ile ilçe verilmelidir. Sessizce ilk eşleşme seçilmez.
+- İlçe adıyla aynı adı taşıyan mahallelerde ilçe yorumu kazanır (`Konak`
+  mahallesi değil, Konak ilçesi).
 - Şehir geneli trafik indeksi, kaza/olay verisi ve rota planlayıcı yoktur.
 - İZSU arıza/kesinti akışı kaynakta 500 döndüğü için veri üretilmez.
 - Hava kalitesi kaynağı koordinat ve birim yayımlamaz; AQI hesabı yapılmaz.

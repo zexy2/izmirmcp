@@ -36,8 +36,8 @@ async def test_nearby_schema_exposes_place_and_types():
     server = create_mcp_server(get_settings())
     nearby = next(tool for tool in await server.list_tools() if tool.name == "izmir_nearby")
     properties = nearby.input_schema["properties"]
-    assert {"lat", "lon", "place", "bbox", "district", "types", "radius_m",
-            "limit"} == set(properties)
+    assert {"lat", "lon", "place", "place_district", "bbox", "district", "types",
+            "radius_m", "limit"} == set(properties)
     assert nearby.input_schema.get("required", []) == []
 
 
@@ -154,9 +154,8 @@ async def test_new_city_tools_are_advertised_with_expected_inputs():
     allowed = json.dumps(disruptions["operator"], ensure_ascii=False)
     assert {"eshot", "metro", "izdeniz", "izban"} <= {name for name in ("eshot","metro","izdeniz","izban") if name in allowed}
     services = tools["izmir_city_services_nearby"].input_schema["properties"]
-    assert {"kinds", "lat", "lon", "place", "bbox", "district", "radius_m", "limit"} == set(
-        services
-    )
+    assert {"kinds", "lat", "lon", "place", "place_district", "bbox", "district",
+            "radius_m", "limit"} == set(services)
 
 
 @pytest.mark.asyncio

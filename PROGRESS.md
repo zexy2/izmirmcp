@@ -19,6 +19,7 @@ Bu dosya döngünün hafızasıdır. Her pass sonunda güncellenir.
 | P1 operatör duyuruları | Metro + İZDENİZ duyuruları bağlandı; İZBAN kanıtla unavailable | `be740c0` |
 | P2 paketleme | Dockerfile + .dockerignore + entrypoint, server.json, CI, CHANGELOG, console script | `5097c3d` |
 | P3 dokümantasyon | `docs/` beş belge + `tests/test_docs.py` kilit testleri | `ca18f3f` |
+| P5 mahalle envanteri | 24 → 1.219 mahalle referansı (muhtarlıklar), `place_district` ile belirsizlik çözümü | bu pass |
 | P4 sözleşme + güvenlik | zarf conformance (17 araç), keşif yüzeyi şeması, auth/origin/gövde/XFF testleri; 3 serviste sızan kaynak hatası ve XFF liste atlatması düzeltildi; tüm servislerde 429→`source_rate_limited` | bu pass |
 
 ## Sırada (öncelik sırasıyla)

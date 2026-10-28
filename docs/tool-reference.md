@@ -69,7 +69,8 @@ Otopark, nöbetçi eczane, metro/İZBAN istasyonu, vapur iskelesi ve ESHOT dura�
 | Girdi | Tip | Zorunlu | Açıklama |
 |---|---|---|---|
 | `lat`/`lon` | number \| null | birlikte | Yarıçap modu; `place` ile birlikte kullanılamaz. |
-| `place` | string \| null | hayır | Yayımlanmış ilçe/mahalle referans noktası (örn. `Konak`). Varsayılan yarıçap `max_radius_m`. |
+| `place` | string \| null | hayır | Yayımlanmış ilçe/mahalle referans noktası (örn. `Konak`, `Abdi İpekçi`). Varsayılan yarıçap `max_radius_m`. |
+| `place_district` | string \| null | hayır | Aynı adı taşıyan mahalleleri ayırmak için ilçe ipucu (örn. `Atatürk` + `Bornova`). Yalnızca `place` ile geçerli. |
 | `bbox` | number[] \| null | hayır | `[min_lon, min_lat, max_lon, max_lat]`; kenarlar dahil. |
 | `district` | string \| null | hayır | İlçe geneli; pratikte yalnızca eczane eşleşir. |
 | `types` | enum[] \| null | hayır | `parking`, `pharmacy`, `metro_station`, `izban_station`, `ferry_pier`, `bus_stop`. Varsayılan hepsi. |
@@ -83,6 +84,9 @@ Otopark, nöbetçi eczane, metro/İZBAN istasyonu, vapur iskelesi ve ESHOT dura�
   seçili türler elenirse `validation_error` (`field=types`).
 - `place` çözümlenemezse `validation_error` (`field=place`). Referans noktası
   yaklaşıktır; uyarı eklenir.
+- Mahalle adları 1.219 kayıtlık yayımlanmış muhtarlık envanterinden gelir.
+  Aynı ad birden çok ilçede geçiyorsa (`Atatürk` 17 ilçede) `place_district`
+  zorunludur; aksi halde `validation_error` adayları listeler.
 
 ### `izmir_city_services_nearby`
 WizmirNET WiFi, İzmirim Kart dolum noktası ve kütüphaneler. `izmir_nearby` ile
@@ -91,7 +95,7 @@ aynı üç konum modu.
 | Girdi | Tip | Zorunlu | Açıklama |
 |---|---|---|---|
 | `kinds` | enum[] \| null | hayır | `wifi`, `izmirim_card`, `library`. Varsayılan hepsi. |
-| `lat`/`lon`, `place`, `bbox`, `district`, `radius_m`, `limit` | — | — | `izmir_nearby` ile aynı kurallar. |
+| `kinds`, `lat`, `lon`, `place`, `place_district`, `bbox`, `district`, `radius_m`, `limit` | — | — | `izmir_nearby` ile aynı konum kuralları. |
 
 Kapsam farkı: `bbox` modunda **yalnızca** WiFi ve İzmirim Kart aranır; kütüphane
 katmanı koordinat yayımlamadığı için dikdörtgene hiç girmez. `district`

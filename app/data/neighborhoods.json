@@ -1,0 +1,8543 @@
+{
+ "source": "İzmir Büyükşehir Belediyesi Açık Veri Portalı — Muhtarlıklar (datastore_search)",
+ "dataset": "muhtarliklar",
+ "resource_id": "7d0b7f55-9ec2-4e35-91f8-0fd0aceefa18",
+ "retrieved": "2026-10-28",
+ "license": "Izmir Metropolitan Municipality Open Data License",
+ "precision": "Muhtarlık noktasının ilçe+mahalle başına ortalaması; mahalle sınırı değil, yaklaşık referans noktasıdır.",
+ "places": [
+  {
+   "name": "Atatürk",
+   "district": "Aliağa",
+   "kind": "neighborhood",
+   "lat": 38.79744,
+   "lon": 26.964154
+  },
+  {
+   "name": "Aşağışakran",
+   "district": "Aliağa",
+   "kind": "neighborhood",
+   "lat": 38.92261,
+   "lon": 27.097051
+  },
+  {
+   "name": "B.hayrettin Paşa",
+   "district": "Aliağa",
+   "kind": "neighborhood",
+   "lat": 38.702448,
+   "lon": 27.025638
+  },
+  {
+   "name": "Bahçedere",
+   "district": "Aliağa",
+   "kind": "neighborhood",
+   "lat": 38.902595,
+   "lon": 27.11106
+  },
+  {
+   "name": "Bozköy",
+   "district": "Aliağa",
+   "kind": "neighborhood",
+   "lat": 38.720185,
+   "lon": 26.964454
+  },
+  {
+   "name": "Fatih",
+   "district": "Aliağa",
+   "kind": "neighborhood",
+   "lat": 38.702251,
+   "lon": 27.025702
+  },
+  {
+   "name": "Güzelhisar",
+   "district": "Aliağa",
+   "kind": "neighborhood",
+   "lat": 38.774142,
+   "lon": 27.019193
+  },
+  {
+   "name": "Hacıömerli",
+   "district": "Aliağa",
+   "kind": "neighborhood",
+   "lat": 38.871049,
+   "lon": 27.064899
+  },
+  {
+   "name": "Horozgediği",
+   "district": "Aliağa",
+   "kind": "neighborhood",
+   "lat": 38.734667,
+   "lon": 26.922369
+  },
+  {
+   "name": "Kalabak",
+   "district": "Aliağa",
+   "kind": "neighborhood",
+   "lat": 38.843252,
+   "lon": 27.119521
+  },
+  {
+   "name": "Kapukaya",
+   "district": "Aliağa",
+   "kind": "neighborhood",
+   "lat": 38.872154,
+   "lon": 27.152196
+  },
+  {
+   "name": "Karakuzu",
+   "district": "Aliağa",
+   "kind": "neighborhood",
+   "lat": 38.761572,
+   "lon": 27.107868
+  },
+  {
+   "name": "Karaköy",
+   "district": "Aliağa",
+   "kind": "neighborhood",
+   "lat": 38.796204,
+   "lon": 27.071796
+  },
+  {
+   "name": "Kazım Dirik",
+   "district": "Aliağa",
+   "kind": "neighborhood",
+   "lat": 38.799318,
+   "lon": 26.969015
+  },
+  {
+   "name": "Kültür",
+   "district": "Aliağa",
+   "kind": "neighborhood",
+   "lat": 38.800962,
+   "lon": 26.974307
+  },
+  {
+   "name": "Mimar Sinan",
+   "district": "Aliağa",
+   "kind": "neighborhood",
+   "lat": 38.702229,
+   "lon": 27.02754
+  },
+  {
+   "name": "Samurlu",
+   "district": "Aliağa",
+   "kind": "neighborhood",
+   "lat": 38.766231,
+   "lon": 26.984038
+  },
+  {
+   "name": "Siteler",
+   "district": "Aliağa",
+   "kind": "neighborhood",
+   "lat": 38.791437,
+   "lon": 26.962309
+  },
+  {
+   "name": "Uzunhasanlar",
+   "district": "Aliağa",
+   "kind": "neighborhood",
+   "lat": 38.774118,
+   "lon": 27.085207
+  },
+  {
+   "name": "Yalı",
+   "district": "Aliağa",
+   "kind": "neighborhood",
+   "lat": 38.818358,
+   "lon": 26.983578
+  },
+  {
+   "name": "Yeni",
+   "district": "Aliağa",
+   "kind": "neighborhood",
+   "lat": 38.794669,
+   "lon": 26.979636
+  },
+  {
+   "name": "Yukarı Şehitkemal",
+   "district": "Aliağa",
+   "kind": "neighborhood",
+   "lat": 38.730259,
+   "lon": 27.007384
+  },
+  {
+   "name": "Yüksekköy",
+   "district": "Aliağa",
+   "kind": "neighborhood",
+   "lat": 38.891464,
+   "lon": 27.149623
+  },
+  {
+   "name": "Çakmaklı",
+   "district": "Aliağa",
+   "kind": "neighborhood",
+   "lat": 38.746535,
+   "lon": 26.910611
+  },
+  {
+   "name": "Çaltılıdere",
+   "district": "Aliağa",
+   "kind": "neighborhood",
+   "lat": 38.854883,
+   "lon": 27.037221
+  },
+  {
+   "name": "Çıtak",
+   "district": "Aliağa",
+   "kind": "neighborhood",
+   "lat": 38.757125,
+   "lon": 27.057877
+  },
+  {
+   "name": "Çoraklar",
+   "district": "Aliağa",
+   "kind": "neighborhood",
+   "lat": 38.833631,
+   "lon": 27.077341
+  },
+  {
+   "name": "Örnekkent",
+   "district": "Aliağa",
+   "kind": "neighborhood",
+   "lat": 38.781796,
+   "lon": 26.987546
+  },
+  {
+   "name": "Şakran Hasbi Efendi",
+   "district": "Aliağa",
+   "kind": "neighborhood",
+   "lat": 38.885199,
+   "lon": 27.072181
+  },
+  {
+   "name": "Şakran Sayfiye",
+   "district": "Aliağa",
+   "kind": "neighborhood",
+   "lat": 38.885587,
+   "lon": 27.063254
+  },
+  {
+   "name": "Şehitkemal",
+   "district": "Aliağa",
+   "kind": "neighborhood",
+   "lat": 38.725371,
+   "lon": 26.982604
+  },
+  {
+   "name": "Bahçelerarası",
+   "district": "Balçova",
+   "kind": "neighborhood",
+   "lat": 38.40077,
+   "lon": 27.05015
+  },
+  {
+   "name": "Eğitim",
+   "district": "Balçova",
+   "kind": "neighborhood",
+   "lat": 38.396086,
+   "lon": 27.061525
+  },
+  {
+   "name": "Fevzi Çakmak",
+   "district": "Balçova",
+   "kind": "neighborhood",
+   "lat": 38.385283,
+   "lon": 27.058108
+  },
+  {
+   "name": "Korutürk",
+   "district": "Balçova",
+   "kind": "neighborhood",
+   "lat": 38.393103,
+   "lon": 27.041183
+  },
+  {
+   "name": "Onur",
+   "district": "Balçova",
+   "kind": "neighborhood",
+   "lat": 38.389343,
+   "lon": 27.056479
+  },
+  {
+   "name": "Teleferik",
+   "district": "Balçova",
+   "kind": "neighborhood",
+   "lat": 38.384208,
+   "lon": 27.057219
+  },
+  {
+   "name": "Çetin Emeç",
+   "district": "Balçova",
+   "kind": "neighborhood",
+   "lat": 38.38366,
+   "lon": 27.058325
+  },
+  {
+   "name": "İnciraltı",
+   "district": "Balçova",
+   "kind": "neighborhood",
+   "lat": 38.409895,
+   "lon": 27.034357
+  },
+  {
+   "name": "Alankıyı",
+   "district": "Bayındır",
+   "kind": "neighborhood",
+   "lat": 38.285231,
+   "lon": 27.628497
+  },
+  {
+   "name": "Alanköy",
+   "district": "Bayındır",
+   "kind": "neighborhood",
+   "lat": 38.245055,
+   "lon": 27.779489
+  },
+  {
+   "name": "Arıkbaşı",
+   "district": "Bayındır",
+   "kind": "neighborhood",
+   "lat": 38.182365,
+   "lon": 27.493978
+  },
+  {
+   "name": "Atatürk",
+   "district": "Bayındır",
+   "kind": "neighborhood",
+   "lat": 38.192393,
+   "lon": 27.556058
+  },
+  {
+   "name": "Balcılar",
+   "district": "Bayındır",
+   "kind": "neighborhood",
+   "lat": 38.28303,
+   "lon": 27.577104
+  },
+  {
+   "name": "Bıyıklar",
+   "district": "Bayındır",
+   "kind": "neighborhood",
+   "lat": 38.222395,
+   "lon": 27.651807
+  },
+  {
+   "name": "Buruncuk",
+   "district": "Bayındır",
+   "kind": "neighborhood",
+   "lat": 38.198401,
+   "lon": 27.714567
+  },
+  {
+   "name": "Camii",
+   "district": "Bayındır",
+   "kind": "neighborhood",
+   "lat": 38.223741,
+   "lon": 27.647577
+  },
+  {
+   "name": "Cumhuriyet",
+   "district": "Bayındır",
+   "kind": "neighborhood",
+   "lat": 38.192085,
+   "lon": 27.5554
+  },
+  {
+   "name": "Demircilik",
+   "district": "Bayındır",
+   "kind": "neighborhood",
+   "lat": 38.220198,
+   "lon": 27.653043
+  },
+  {
+   "name": "Dereköy",
+   "district": "Bayındır",
+   "kind": "neighborhood",
+   "lat": 38.249291,
+   "lon": 27.684988
+  },
+  {
+   "name": "Dernekli",
+   "district": "Bayındır",
+   "kind": "neighborhood",
+   "lat": 38.269794,
+   "lon": 27.546972
+  },
+  {
+   "name": "Elifli",
+   "district": "Bayındır",
+   "kind": "neighborhood",
+   "lat": 38.19987,
+   "lon": 27.580644
+  },
+  {
+   "name": "Ergenli",
+   "district": "Bayındır",
+   "kind": "neighborhood",
+   "lat": 38.240887,
+   "lon": 27.691169
+  },
+  {
+   "name": "Fatih",
+   "district": "Bayındır",
+   "kind": "neighborhood",
+   "lat": 38.218663,
+   "lon": 27.648973
+  },
+  {
+   "name": "Fırınlı",
+   "district": "Bayındır",
+   "kind": "neighborhood",
+   "lat": 38.194059,
+   "lon": 27.605441
+  },
+  {
+   "name": "Gaziler",
+   "district": "Bayındır",
+   "kind": "neighborhood",
+   "lat": 38.239355,
+   "lon": 27.755466
+  },
+  {
+   "name": "Hacı Beşir",
+   "district": "Bayındır",
+   "kind": "neighborhood",
+   "lat": 38.223764,
+   "lon": 27.651607
+  },
+  {
+   "name": "Hacı İbrahim",
+   "district": "Bayındır",
+   "kind": "neighborhood",
+   "lat": 38.220366,
+   "lon": 27.645367
+  },
+  {
+   "name": "Hasköy",
+   "district": "Bayındır",
+   "kind": "neighborhood",
+   "lat": 38.143038,
+   "lon": 27.502515
+  },
+  {
+   "name": "Hatay",
+   "district": "Bayındır",
+   "kind": "neighborhood",
+   "lat": 38.223868,
+   "lon": 27.638408
+  },
+  {
+   "name": "Havuzbaşı",
+   "district": "Bayındır",
+   "kind": "neighborhood",
+   "lat": 38.169271,
+   "lon": 27.470353
+  },
+  {
+   "name": "Hisarlık",
+   "district": "Bayındır",
+   "kind": "neighborhood",
+   "lat": 38.270312,
+   "lon": 27.652754
+  },
+  {
+   "name": "Kabaağaç",
+   "district": "Bayındır",
+   "kind": "neighborhood",
+   "lat": 38.252938,
+   "lon": 27.751528
+  },
+  {
+   "name": "Karahalilli",
+   "district": "Bayındır",
+   "kind": "neighborhood",
+   "lat": 38.195401,
+   "lon": 27.615482
+  },
+  {
+   "name": "Karahayıt",
+   "district": "Bayındır",
+   "kind": "neighborhood",
+   "lat": 38.245797,
+   "lon": 27.750335
+  },
+  {
+   "name": "Karapınar",
+   "district": "Bayındır",
+   "kind": "neighborhood",
+   "lat": 38.229106,
+   "lon": 27.750597
+  },
+  {
+   "name": "Karaveliler",
+   "district": "Bayındır",
+   "kind": "neighborhood",
+   "lat": 38.188853,
+   "lon": 27.550081
+  },
+  {
+   "name": "Kızılcaağaç",
+   "district": "Bayındır",
+   "kind": "neighborhood",
+   "lat": 38.243278,
+   "lon": 27.637776
+  },
+  {
+   "name": "Kızılcaova",
+   "district": "Bayındır",
+   "kind": "neighborhood",
+   "lat": 38.206172,
+   "lon": 27.512536
+  },
+  {
+   "name": "Kızılkeçili",
+   "district": "Bayındır",
+   "kind": "neighborhood",
+   "lat": 38.32188,
+   "lon": 27.791739
+  },
+  {
+   "name": "Kızıloba",
+   "district": "Bayındır",
+   "kind": "neighborhood",
+   "lat": 38.278277,
+   "lon": 27.68453
+  },
+  {
+   "name": "Kurt",
+   "district": "Bayındır",
+   "kind": "neighborhood",
+   "lat": 38.222438,
+   "lon": 27.649321
+  },
+  {
+   "name": "Lütuflar",
+   "district": "Bayındır",
+   "kind": "neighborhood",
+   "lat": 38.270354,
+   "lon": 27.804726
+  },
+  {
+   "name": "Mektep",
+   "district": "Bayındır",
+   "kind": "neighborhood",
+   "lat": 38.173529,
+   "lon": 27.495601
+  },
+  {
+   "name": "Mithatpaşa",
+   "district": "Bayındır",
+   "kind": "neighborhood",
+   "lat": 38.220323,
+   "lon": 27.64969
+  },
+  {
+   "name": "Necati Uza",
+   "district": "Bayındır",
+   "kind": "neighborhood",
+   "lat": 38.16826,
+   "lon": 27.488451
+  },
+  {
+   "name": "Orta",
+   "district": "Bayındır",
+   "kind": "neighborhood",
+   "lat": 38.226793,
+   "lon": 27.648544
+  },
+  {
+   "name": "Osmanlar",
+   "district": "Bayındır",
+   "kind": "neighborhood",
+   "lat": 38.301102,
+   "lon": 27.559916
+  },
+  {
+   "name": "Pınarlı",
+   "district": "Bayındır",
+   "kind": "neighborhood",
+   "lat": 38.160649,
+   "lon": 27.742712
+  },
+  {
+   "name": "Sadıkpaşa",
+   "district": "Bayındır",
+   "kind": "neighborhood",
+   "lat": 38.212969,
+   "lon": 27.642352
+  },
+  {
+   "name": "Sarıyurt",
+   "district": "Bayındır",
+   "kind": "neighborhood",
+   "lat": 38.282954,
+   "lon": 27.712278
+  },
+  {
+   "name": "Söğütören",
+   "district": "Bayındır",
+   "kind": "neighborhood",
+   "lat": 38.225545,
+   "lon": 27.575021
+  },
+  {
+   "name": "Tokatbaşı",
+   "district": "Bayındır",
+   "kind": "neighborhood",
+   "lat": 38.164157,
+   "lon": 27.615915
+  },
+  {
+   "name": "Turan",
+   "district": "Bayındır",
+   "kind": "neighborhood",
+   "lat": 38.225675,
+   "lon": 27.678889
+  },
+  {
+   "name": "Yakacık",
+   "district": "Bayındır",
+   "kind": "neighborhood",
+   "lat": 38.205998,
+   "lon": 27.703551
+  },
+  {
+   "name": "Yakapınar",
+   "district": "Bayındır",
+   "kind": "neighborhood",
+   "lat": 38.210123,
+   "lon": 27.541573
+  },
+  {
+   "name": "Yeni",
+   "district": "Bayındır",
+   "kind": "neighborhood",
+   "lat": 38.223505,
+   "lon": 27.639073
+  },
+  {
+   "name": "Yenice",
+   "district": "Bayındır",
+   "kind": "neighborhood",
+   "lat": 38.225641,
+   "lon": 27.650237
+  },
+  {
+   "name": "Yeşilova",
+   "district": "Bayındır",
+   "kind": "neighborhood",
+   "lat": 38.167491,
+   "lon": 27.561752
+  },
+  {
+   "name": "Yusuflu",
+   "district": "Bayındır",
+   "kind": "neighborhood",
+   "lat": 38.183591,
+   "lon": 27.688815
+  },
+  {
+   "name": "Zeytinova",
+   "district": "Bayındır",
+   "kind": "neighborhood",
+   "lat": 38.205386,
+   "lon": 27.727345
+  },
+  {
+   "name": "Çamlıbel",
+   "district": "Bayındır",
+   "kind": "neighborhood",
+   "lat": 38.24671,
+   "lon": 27.586455
+  },
+  {
+   "name": "Çenikler",
+   "district": "Bayındır",
+   "kind": "neighborhood",
+   "lat": 38.243232,
+   "lon": 27.730339
+  },
+  {
+   "name": "Çınar",
+   "district": "Bayındır",
+   "kind": "neighborhood",
+   "lat": 38.227232,
+   "lon": 27.647578
+  },
+  {
+   "name": "Çınardibi",
+   "district": "Bayındır",
+   "kind": "neighborhood",
+   "lat": 38.290856,
+   "lon": 27.51841
+  },
+  {
+   "name": "Çırpı Cami",
+   "district": "Bayındır",
+   "kind": "neighborhood",
+   "lat": 38.162962,
+   "lon": 27.497677
+  },
+  {
+   "name": "Çiftçigediği",
+   "district": "Bayındır",
+   "kind": "neighborhood",
+   "lat": 38.200502,
+   "lon": 27.50285
+  },
+  {
+   "name": "İbrahimçavuş",
+   "district": "Bayındır",
+   "kind": "neighborhood",
+   "lat": 38.167294,
+   "lon": 27.495856
+  },
+  {
+   "name": "75. Yıl",
+   "district": "Bayraklı",
+   "kind": "neighborhood",
+   "lat": 38.474329,
+   "lon": 27.156668
+  },
+  {
+   "name": "Adalet",
+   "district": "Bayraklı",
+   "kind": "neighborhood",
+   "lat": 38.45894,
+   "lon": 27.174808
+  },
+  {
+   "name": "Alpaslan",
+   "district": "Bayraklı",
+   "kind": "neighborhood",
+   "lat": 38.470366,
+   "lon": 27.16699
+  },
+  {
+   "name": "Bayraklı",
+   "district": "Bayraklı",
+   "kind": "neighborhood",
+   "lat": 38.463917,
+   "lon": 27.164604
+  },
+  {
+   "name": "Cengizhan",
+   "district": "Bayraklı",
+   "kind": "neighborhood",
+   "lat": 38.47477,
+   "lon": 27.167039
+  },
+  {
+   "name": "Doğançay",
+   "district": "Bayraklı",
+   "kind": "neighborhood",
+   "lat": 38.497614,
+   "lon": 27.155426
+  },
+  {
+   "name": "Emek",
+   "district": "Bayraklı",
+   "kind": "neighborhood",
+   "lat": 38.470386,
+   "lon": 27.125833
+  },
+  {
+   "name": "Gümüşpala",
+   "district": "Bayraklı",
+   "kind": "neighborhood",
+   "lat": 38.469939,
+   "lon": 27.13538
+  },
+  {
+   "name": "Körfez",
+   "district": "Bayraklı",
+   "kind": "neighborhood",
+   "lat": 38.489913,
+   "lon": 27.132623
+  },
+  {
+   "name": "Manavkuyu",
+   "district": "Bayraklı",
+   "kind": "neighborhood",
+   "lat": 38.460222,
+   "lon": 27.191685
+  },
+  {
+   "name": "Mansuroğlu",
+   "district": "Bayraklı",
+   "kind": "neighborhood",
+   "lat": 38.457149,
+   "lon": 27.19146
+  },
+  {
+   "name": "Muhittin Erener",
+   "district": "Bayraklı",
+   "kind": "neighborhood",
+   "lat": 38.4731,
+   "lon": 27.175017
+  },
+  {
+   "name": "Onur",
+   "district": "Bayraklı",
+   "kind": "neighborhood",
+   "lat": 38.482093,
+   "lon": 27.127819
+  },
+  {
+   "name": "Org.nafiz Gürman",
+   "district": "Bayraklı",
+   "kind": "neighborhood",
+   "lat": 38.477678,
+   "lon": 27.140406
+  },
+  {
+   "name": "Osmangazi",
+   "district": "Bayraklı",
+   "kind": "neighborhood",
+   "lat": 38.469735,
+   "lon": 27.186109
+  },
+  {
+   "name": "Postacılar",
+   "district": "Bayraklı",
+   "kind": "neighborhood",
+   "lat": 38.482104,
+   "lon": 27.119563
+  },
+  {
+   "name": "R.şevket İnce",
+   "district": "Bayraklı",
+   "kind": "neighborhood",
+   "lat": 38.475977,
+   "lon": 27.177681
+  },
+  {
+   "name": "Soğukkuyu",
+   "district": "Bayraklı",
+   "kind": "neighborhood",
+   "lat": 38.474912,
+   "lon": 27.117261
+  },
+  {
+   "name": "Tepekule",
+   "district": "Bayraklı",
+   "kind": "neighborhood",
+   "lat": 38.466386,
+   "lon": 27.178325
+  },
+  {
+   "name": "Turan",
+   "district": "Bayraklı",
+   "kind": "neighborhood",
+   "lat": 38.465045,
+   "lon": 27.146938
+  },
+  {
+   "name": "Yamanlar",
+   "district": "Bayraklı",
+   "kind": "neighborhood",
+   "lat": 38.479791,
+   "lon": 27.129167
+  },
+  {
+   "name": "Çay",
+   "district": "Bayraklı",
+   "kind": "neighborhood",
+   "lat": 38.468029,
+   "lon": 27.179997
+  },
+  {
+   "name": "Çiçek",
+   "district": "Bayraklı",
+   "kind": "neighborhood",
+   "lat": 38.465625,
+   "lon": 27.16733
+  },
+  {
+   "name": "Ahmetbeyler",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.177269,
+   "lon": 27.274412
+  },
+  {
+   "name": "Akçenger",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.308961,
+   "lon": 27.293121
+  },
+  {
+   "name": "Alacalar",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.113462,
+   "lon": 27.093114
+  },
+  {
+   "name": "Alhatlı",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.288005,
+   "lon": 27.384977
+  },
+  {
+   "name": "Alibeyli",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.224654,
+   "lon": 27.382941
+  },
+  {
+   "name": "Armağanlar",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.055305,
+   "lon": 27.185379
+  },
+  {
+   "name": "Atatürk",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.103162,
+   "lon": 27.187365
+  },
+  {
+   "name": "Atmaca",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.122224,
+   "lon": 27.177041
+  },
+  {
+   "name": "Atçılar",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 38.906676,
+   "lon": 27.200274
+  },
+  {
+   "name": "Avunduk",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 38.995449,
+   "lon": 27.209462
+  },
+  {
+   "name": "Avunduruk",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.211741,
+   "lon": 27.204889
+  },
+  {
+   "name": "Ayaskent",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.186213,
+   "lon": 27.333017
+  },
+  {
+   "name": "Ayvatlar",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.266273,
+   "lon": 26.981298
+  },
+  {
+   "name": "Aziziye",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.195366,
+   "lon": 27.33649
+  },
+  {
+   "name": "Aşağıbey",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.250035,
+   "lon": 26.96607
+  },
+  {
+   "name": "Aşağıcuma",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.270353,
+   "lon": 27.013996
+  },
+  {
+   "name": "Aşağıılgındere",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.251415,
+   "lon": 27.466779
+  },
+  {
+   "name": "Aşağıkırıklar",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.031802,
+   "lon": 27.043742
+  },
+  {
+   "name": "Balaban",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 38.95354,
+   "lon": 27.202329
+  },
+  {
+   "name": "Bayramcılar",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 38.924415,
+   "lon": 27.246888
+  },
+  {
+   "name": "Bekirler",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 38.943069,
+   "lon": 27.278264
+  },
+  {
+   "name": "Bozköy",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.030078,
+   "lon": 27.108589
+  },
+  {
+   "name": "Bozyerler",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 38.969891,
+   "lon": 27.116437
+  },
+  {
+   "name": "Bölcek",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.182087,
+   "lon": 27.424504
+  },
+  {
+   "name": "Cevaplı",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.022988,
+   "lon": 27.156531
+  },
+  {
+   "name": "Dağıstan",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.131678,
+   "lon": 27.299528
+  },
+  {
+   "name": "Demircidere",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.265033,
+   "lon": 26.919943
+  },
+  {
+   "name": "Dereköy",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.276743,
+   "lon": 27.324571
+  },
+  {
+   "name": "Doğancı",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.195895,
+   "lon": 27.301345
+  },
+  {
+   "name": "Durmuşlar",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.266662,
+   "lon": 27.373356
+  },
+  {
+   "name": "Ertuğrul",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.115237,
+   "lon": 27.180273
+  },
+  {
+   "name": "Eğrigöl",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.05154,
+   "lon": 27.121071
+  },
+  {
+   "name": "Eğiller",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.261993,
+   "lon": 27.339562
+  },
+  {
+   "name": "Fatih",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.102137,
+   "lon": 27.167568
+  },
+  {
+   "name": "Ferizler",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.194038,
+   "lon": 27.292838
+  },
+  {
+   "name": "Fevzipaşa",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.10323,
+   "lon": 27.19703
+  },
+  {
+   "name": "Gaylan",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.045133,
+   "lon": 27.193508
+  },
+  {
+   "name": "Gaziosmanpaşa",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.110224,
+   "lon": 27.185623
+  },
+  {
+   "name": "Gazipaşa",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.119101,
+   "lon": 27.177037
+  },
+  {
+   "name": "Göbeller",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.252152,
+   "lon": 27.019063
+  },
+  {
+   "name": "Gökçeyurt",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.199564,
+   "lon": 27.188317
+  },
+  {
+   "name": "Göçbeyli",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.222826,
+   "lon": 27.402154
+  },
+  {
+   "name": "Gültepe",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.325259,
+   "lon": 27.32579
+  },
+  {
+   "name": "Güneşli",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.343101,
+   "lon": 27.125401
+  },
+  {
+   "name": "Hacıhamzalar",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.292706,
+   "lon": 27.044939
+  },
+  {
+   "name": "Hacılar (dereköy Bucağı)",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.324874,
+   "lon": 27.271051
+  },
+  {
+   "name": "Hacılar (ismailli Bucağı)",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 38.965034,
+   "lon": 27.241105
+  },
+  {
+   "name": "Halilağalar",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.331438,
+   "lon": 27.304177
+  },
+  {
+   "name": "Hamzalısüleymaniye",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.155127,
+   "lon": 27.201172
+  },
+  {
+   "name": "Hisarköy",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.256453,
+   "lon": 26.994766
+  },
+  {
+   "name": "Ilgıncaber",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.246016,
+   "lon": 27.455531
+  },
+  {
+   "name": "Kadıköy",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.181321,
+   "lon": 27.367969
+  },
+  {
+   "name": "Kaleardı",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.168718,
+   "lon": 27.19217
+  },
+  {
+   "name": "Kaplan (göçbeyli Bucağı)",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.307246,
+   "lon": 27.4107
+  },
+  {
+   "name": "Kaplan (yukarıbey Bucağı)",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.234286,
+   "lon": 26.958369
+  },
+  {
+   "name": "Kapukaya",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.174629,
+   "lon": 27.145761
+  },
+  {
+   "name": "Karahıdırlı",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.046534,
+   "lon": 27.157101
+  },
+  {
+   "name": "Karalar",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.318039,
+   "lon": 27.322027
+  },
+  {
+   "name": "Karaveliler",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.288918,
+   "lon": 27.148868
+  },
+  {
+   "name": "Katrancı",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.321966,
+   "lon": 27.312147
+  },
+  {
+   "name": "Kaşıkçı",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.071556,
+   "lon": 27.23012
+  },
+  {
+   "name": "Kıranlı",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.301561,
+   "lon": 27.158248
+  },
+  {
+   "name": "Kırcalar",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.321461,
+   "lon": 27.337041
+  },
+  {
+   "name": "Kızıltepe",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 38.941242,
+   "lon": 27.134008
+  },
+  {
+   "name": "Kocahaliller",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 38.935198,
+   "lon": 27.285135
+  },
+  {
+   "name": "Kocaköy",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 38.943888,
+   "lon": 27.296011
+  },
+  {
+   "name": "Koyuneli",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 38.975111,
+   "lon": 27.175389
+  },
+  {
+   "name": "Kozluca",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.24341,
+   "lon": 27.428914
+  },
+  {
+   "name": "Kurfallı",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.017792,
+   "lon": 27.072471
+  },
+  {
+   "name": "Kurtuluş",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.122223,
+   "lon": 27.186329
+  },
+  {
+   "name": "Küçükkaya",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.092981,
+   "lon": 27.134296
+  },
+  {
+   "name": "Mahmudiye",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.221873,
+   "lon": 27.220669
+  },
+  {
+   "name": "Maltepe",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.110246,
+   "lon": 27.174917
+  },
+  {
+   "name": "Maruflar",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.010534,
+   "lon": 27.211894
+  },
+  {
+   "name": "Muratlar",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.268413,
+   "lon": 27.449097
+  },
+  {
+   "name": "Narlıca",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.095383,
+   "lon": 27.069865
+  },
+  {
+   "name": "Okçular",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.28567,
+   "lon": 26.964832
+  },
+  {
+   "name": "Oruşlar",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.356457,
+   "lon": 27.325093
+  },
+  {
+   "name": "Ovacık",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.072418,
+   "lon": 27.073039
+  },
+  {
+   "name": "Paşaköy",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.219023,
+   "lon": 27.303838
+  },
+  {
+   "name": "Pınarköy",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.099014,
+   "lon": 27.047829
+  },
+  {
+   "name": "Pirveliler",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.273614,
+   "lon": 27.244443
+  },
+  {
+   "name": "Rahmanlar",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 38.920275,
+   "lon": 27.3196
+  },
+  {
+   "name": "Sarıcalar",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.216404,
+   "lon": 27.447642
+  },
+  {
+   "name": "Sarıcaoğlu",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.318975,
+   "lon": 27.376135
+  },
+  {
+   "name": "Sarıdere",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.01566,
+   "lon": 27.099807
+  },
+  {
+   "name": "Sağancı",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.091455,
+   "lon": 27.031603
+  },
+  {
+   "name": "Seklik",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 38.884608,
+   "lon": 27.218883
+  },
+  {
+   "name": "Selçuk",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.122814,
+   "lon": 27.177994
+  },
+  {
+   "name": "Süleymanlı",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.063968,
+   "lon": 27.065212
+  },
+  {
+   "name": "Sindel",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.077925,
+   "lon": 27.199962
+  },
+  {
+   "name": "Talatpaşa",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.123479,
+   "lon": 27.182418
+  },
+  {
+   "name": "Tavukçukuru",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 38.950965,
+   "lon": 27.265623
+  },
+  {
+   "name": "Tekkedere",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 38.993515,
+   "lon": 27.065243
+  },
+  {
+   "name": "Tepeköy",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.08736,
+   "lon": 27.107491
+  },
+  {
+   "name": "Terzihaliller",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.289939,
+   "lon": 27.067889
+  },
+  {
+   "name": "Tırmanlar",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.297478,
+   "lon": 27.276993
+  },
+  {
+   "name": "Topallar",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.341601,
+   "lon": 27.334995
+  },
+  {
+   "name": "Turabey",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.121089,
+   "lon": 27.181841
+  },
+  {
+   "name": "Tiyelti",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.122652,
+   "lon": 27.155356
+  },
+  {
+   "name": "Ulucamii",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.125374,
+   "lon": 27.182845
+  },
+  {
+   "name": "Yalnızdam",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.269323,
+   "lon": 27.438036
+  },
+  {
+   "name": "Yalnızev",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.092278,
+   "lon": 27.125512
+  },
+  {
+   "name": "Yenikent",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.009451,
+   "lon": 27.057993
+  },
+  {
+   "name": "Yeniler",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.276628,
+   "lon": 27.361882
+  },
+  {
+   "name": "Yerlitahtacı",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.151683,
+   "lon": 27.136122
+  },
+  {
+   "name": "Yortanlı",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.249949,
+   "lon": 27.265641
+  },
+  {
+   "name": "Yukarıada",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.376575,
+   "lon": 27.341711
+  },
+  {
+   "name": "Yukarıbey",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.251613,
+   "lon": 27.091713
+  },
+  {
+   "name": "Yukarıcuma",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.317274,
+   "lon": 27.094905
+  },
+  {
+   "name": "Yukarıkırıklar",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.189062,
+   "lon": 27.234681
+  },
+  {
+   "name": "Zağnoz",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.180849,
+   "lon": 27.34714
+  },
+  {
+   "name": "Zeytindağ",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 38.968369,
+   "lon": 27.071862
+  },
+  {
+   "name": "Çakırlar",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.144113,
+   "lon": 27.11756
+  },
+  {
+   "name": "Çalıbahçe",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.001234,
+   "lon": 27.109857
+  },
+  {
+   "name": "Çaltıkoru",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.238131,
+   "lon": 27.323554
+  },
+  {
+   "name": "Çamavlu",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.319452,
+   "lon": 27.140755
+  },
+  {
+   "name": "Çamköy",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.088045,
+   "lon": 27.080316
+  },
+  {
+   "name": "Çamoba",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.25288,
+   "lon": 27.393739
+  },
+  {
+   "name": "Çeltikçi",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.269951,
+   "lon": 27.309311
+  },
+  {
+   "name": "Çobanlar",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.306069,
+   "lon": 27.241317
+  },
+  {
+   "name": "Çürükbağlar",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.26305,
+   "lon": 27.229789
+  },
+  {
+   "name": "Çitköy",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.180599,
+   "lon": 27.278053
+  },
+  {
+   "name": "Öksüzler",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 38.969236,
+   "lon": 27.254409
+  },
+  {
+   "name": "Örenli",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.223774,
+   "lon": 27.267861
+  },
+  {
+   "name": "Örlemiş",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 38.940434,
+   "lon": 27.118339
+  },
+  {
+   "name": "Ürkütler",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.356484,
+   "lon": 27.371253
+  },
+  {
+   "name": "Üçtepe",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.23941,
+   "lon": 27.246568
+  },
+  {
+   "name": "İkizler",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.349654,
+   "lon": 27.310074
+  },
+  {
+   "name": "İncecikler",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.183725,
+   "lon": 27.153641
+  },
+  {
+   "name": "İneşir",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.335865,
+   "lon": 27.382302
+  },
+  {
+   "name": "İnkılap",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.116718,
+   "lon": 27.180194
+  },
+  {
+   "name": "İslamsaray",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 39.122426,
+   "lon": 27.182125
+  },
+  {
+   "name": "İsmailli",
+   "district": "Bergama",
+   "kind": "neighborhood",
+   "lat": 38.932281,
+   "lon": 27.213799
+  },
+  {
+   "name": "Adaküre",
+   "district": "Beydağ",
+   "kind": "neighborhood",
+   "lat": 38.072619,
+   "lon": 28.201799
+  },
+  {
+   "name": "Aktepe",
+   "district": "Beydağ",
+   "kind": "neighborhood",
+   "lat": 38.093141,
+   "lon": 28.214601
+  },
+  {
+   "name": "Alakeçili",
+   "district": "Beydağ",
+   "kind": "neighborhood",
+   "lat": 38.084691,
+   "lon": 28.192388
+  },
+  {
+   "name": "Atatürk",
+   "district": "Beydağ",
+   "kind": "neighborhood",
+   "lat": 38.086202,
+   "lon": 28.211353
+  },
+  {
+   "name": "Bakırköy",
+   "district": "Beydağ",
+   "kind": "neighborhood",
+   "lat": 38.124714,
+   "lon": 28.252551
+  },
+  {
+   "name": "Beyköy",
+   "district": "Beydağ",
+   "kind": "neighborhood",
+   "lat": 38.071981,
+   "lon": 28.20953
+  },
+  {
+   "name": "Cumhuriyet",
+   "district": "Beydağ",
+   "kind": "neighborhood",
+   "lat": 38.08585,
+   "lon": 28.209009
+  },
+  {
+   "name": "Erikli",
+   "district": "Beydağ",
+   "kind": "neighborhood",
+   "lat": 38.063942,
+   "lon": 28.236164
+  },
+  {
+   "name": "Eğridere",
+   "district": "Beydağ",
+   "kind": "neighborhood",
+   "lat": 38.133856,
+   "lon": 28.301326
+  },
+  {
+   "name": "Halıköy",
+   "district": "Beydağ",
+   "kind": "neighborhood",
+   "lat": 38.089449,
+   "lon": 28.168523
+  },
+  {
+   "name": "Karaoba",
+   "district": "Beydağ",
+   "kind": "neighborhood",
+   "lat": 38.117345,
+   "lon": 28.27101
+  },
+  {
+   "name": "Kurudere",
+   "district": "Beydağ",
+   "kind": "neighborhood",
+   "lat": 38.139653,
+   "lon": 28.238755
+  },
+  {
+   "name": "Menderes",
+   "district": "Beydağ",
+   "kind": "neighborhood",
+   "lat": 38.104117,
+   "lon": 28.203384
+  },
+  {
+   "name": "Mutaflar",
+   "district": "Beydağ",
+   "kind": "neighborhood",
+   "lat": 38.074193,
+   "lon": 28.253077
+  },
+  {
+   "name": "Palamutçuk",
+   "district": "Beydağ",
+   "kind": "neighborhood",
+   "lat": 38.071814,
+   "lon": 28.275158
+  },
+  {
+   "name": "Sarıkaya",
+   "district": "Beydağ",
+   "kind": "neighborhood",
+   "lat": 38.116214,
+   "lon": 28.178002
+  },
+  {
+   "name": "Tabaklar",
+   "district": "Beydağ",
+   "kind": "neighborhood",
+   "lat": 38.064583,
+   "lon": 28.228042
+  },
+  {
+   "name": "Yağcılar",
+   "district": "Beydağ",
+   "kind": "neighborhood",
+   "lat": 38.092441,
+   "lon": 28.151945
+  },
+  {
+   "name": "Yeniyurt",
+   "district": "Beydağ",
+   "kind": "neighborhood",
+   "lat": 38.066814,
+   "lon": 28.221321
+  },
+  {
+   "name": "Yeşiltepe",
+   "district": "Beydağ",
+   "kind": "neighborhood",
+   "lat": 38.112258,
+   "lon": 28.296529
+  },
+  {
+   "name": "Yukarıaktepe",
+   "district": "Beydağ",
+   "kind": "neighborhood",
+   "lat": 38.095521,
+   "lon": 28.294361
+  },
+  {
+   "name": "Yukarıtosunlar",
+   "district": "Beydağ",
+   "kind": "neighborhood",
+   "lat": 38.116641,
+   "lon": 28.156742
+  },
+  {
+   "name": "Çamlık",
+   "district": "Beydağ",
+   "kind": "neighborhood",
+   "lat": 38.064688,
+   "lon": 28.274704
+  },
+  {
+   "name": "Çomaklar",
+   "district": "Beydağ",
+   "kind": "neighborhood",
+   "lat": 38.05804,
+   "lon": 28.248385
+  },
+  {
+   "name": "Çiftlikköy",
+   "district": "Beydağ",
+   "kind": "neighborhood",
+   "lat": 38.142477,
+   "lon": 28.207721
+  },
+  {
+   "name": "Atatürk",
+   "district": "Bornova",
+   "kind": "neighborhood",
+   "lat": 38.476108,
+   "lon": 27.205582
+  },
+  {
+   "name": "Barbaros",
+   "district": "Bornova",
+   "kind": "neighborhood",
+   "lat": 38.436003,
+   "lon": 27.193665
+  },
+  {
+   "name": "Beşyol",
+   "district": "Bornova",
+   "kind": "neighborhood",
+   "lat": 38.533921,
+   "lon": 27.292798
+  },
+  {
+   "name": "Birlik",
+   "district": "Bornova",
+   "kind": "neighborhood",
+   "lat": 38.427152,
+   "lon": 27.197453
+  },
+  {
+   "name": "Doğanlar",
+   "district": "Bornova",
+   "kind": "neighborhood",
+   "lat": 38.449449,
+   "lon": 27.248838
+  },
+  {
+   "name": "Egemenlik",
+   "district": "Bornova",
+   "kind": "neighborhood",
+   "lat": 38.42706,
+   "lon": 27.229462
+  },
+  {
+   "name": "Ergene",
+   "district": "Bornova",
+   "kind": "neighborhood",
+   "lat": 38.468474,
+   "lon": 27.219474
+  },
+  {
+   "name": "Erzene",
+   "district": "Bornova",
+   "kind": "neighborhood",
+   "lat": 38.468092,
+   "lon": 27.221964
+  },
+  {
+   "name": "Evka 3",
+   "district": "Bornova",
+   "kind": "neighborhood",
+   "lat": 38.467606,
+   "lon": 27.248341
+  },
+  {
+   "name": "Evka 4",
+   "district": "Bornova",
+   "kind": "neighborhood",
+   "lat": 38.488745,
+   "lon": 27.214301
+  },
+  {
+   "name": "Eğridere",
+   "district": "Bornova",
+   "kind": "neighborhood",
+   "lat": 38.501497,
+   "lon": 27.216893
+  },
+  {
+   "name": "Gazi Osman Paşa",
+   "district": "Bornova",
+   "kind": "neighborhood",
+   "lat": 38.435014,
+   "lon": 27.193911
+  },
+  {
+   "name": "Gökdere",
+   "district": "Bornova",
+   "kind": "neighborhood",
+   "lat": 38.378509,
+   "lon": 27.240294
+  },
+  {
+   "name": "Gürpınar",
+   "district": "Bornova",
+   "kind": "neighborhood",
+   "lat": 38.427642,
+   "lon": 27.265742
+  },
+  {
+   "name": "Işıklar",
+   "district": "Bornova",
+   "kind": "neighborhood",
+   "lat": 38.424747,
+   "lon": 27.231118
+  },
+  {
+   "name": "Karacaoğlan",
+   "district": "Bornova",
+   "kind": "neighborhood",
+   "lat": 38.441753,
+   "lon": 27.206176
+  },
+  {
+   "name": "Karaçam",
+   "district": "Bornova",
+   "kind": "neighborhood",
+   "lat": 38.517732,
+   "lon": 27.271074
+  },
+  {
+   "name": "Kavaklıdere",
+   "district": "Bornova",
+   "kind": "neighborhood",
+   "lat": 38.449489,
+   "lon": 27.315328
+  },
+  {
+   "name": "Kayadibi",
+   "district": "Bornova",
+   "kind": "neighborhood",
+   "lat": 38.517146,
+   "lon": 27.23921
+  },
+  {
+   "name": "Kazımdirik",
+   "district": "Bornova",
+   "kind": "neighborhood",
+   "lat": 38.462156,
+   "lon": 27.21074
+  },
+  {
+   "name": "Kemalpaşa",
+   "district": "Bornova",
+   "kind": "neighborhood",
+   "lat": 38.431185,
+   "lon": 27.274412
+  },
+  {
+   "name": "Kızılay",
+   "district": "Bornova",
+   "kind": "neighborhood",
+   "lat": 38.472787,
+   "lon": 27.218436
+  },
+  {
+   "name": "Koşukavak",
+   "district": "Bornova",
+   "kind": "neighborhood",
+   "lat": 38.429939,
+   "lon": 27.194759
+  },
+  {
+   "name": "Kurudere",
+   "district": "Bornova",
+   "kind": "neighborhood",
+   "lat": 38.547064,
+   "lon": 27.251104
+  },
+  {
+   "name": "Laka",
+   "district": "Bornova",
+   "kind": "neighborhood",
+   "lat": 38.487933,
+   "lon": 27.18765
+  },
+  {
+   "name": "Merkez",
+   "district": "Bornova",
+   "kind": "neighborhood",
+   "lat": 38.416637,
+   "lon": 27.201409
+  },
+  {
+   "name": "Meriç",
+   "district": "Bornova",
+   "kind": "neighborhood",
+   "lat": 38.424791,
+   "lon": 27.187856
+  },
+  {
+   "name": "Mevlana",
+   "district": "Bornova",
+   "kind": "neighborhood",
+   "lat": 38.448319,
+   "lon": 27.230521
+  },
+  {
+   "name": "Naldöken",
+   "district": "Bornova",
+   "kind": "neighborhood",
+   "lat": 38.455594,
+   "lon": 27.268882
+  },
+  {
+   "name": "Rafet Paşa",
+   "district": "Bornova",
+   "kind": "neighborhood",
+   "lat": 38.442267,
+   "lon": 27.195418
+  },
+  {
+   "name": "Sarnıçköy",
+   "district": "Bornova",
+   "kind": "neighborhood",
+   "lat": 38.546825,
+   "lon": 27.275279
+  },
+  {
+   "name": "Serintepe",
+   "district": "Bornova",
+   "kind": "neighborhood",
+   "lat": 38.423173,
+   "lon": 27.195494
+  },
+  {
+   "name": "Tuna",
+   "district": "Bornova",
+   "kind": "neighborhood",
+   "lat": 38.43144,
+   "lon": 27.190127
+  },
+  {
+   "name": "Yakaköy",
+   "district": "Bornova",
+   "kind": "neighborhood",
+   "lat": 38.512116,
+   "lon": 27.322265
+  },
+  {
+   "name": "Yeşilova",
+   "district": "Bornova",
+   "kind": "neighborhood",
+   "lat": 38.434739,
+   "lon": 27.207322
+  },
+  {
+   "name": "Yeşilçam",
+   "district": "Bornova",
+   "kind": "neighborhood",
+   "lat": 38.447057,
+   "lon": 27.29844
+  },
+  {
+   "name": "Yıldırım Beyazıt",
+   "district": "Bornova",
+   "kind": "neighborhood",
+   "lat": 38.439245,
+   "lon": 27.187263
+  },
+  {
+   "name": "Yunus Emre",
+   "district": "Bornova",
+   "kind": "neighborhood",
+   "lat": 38.44296,
+   "lon": 27.229393
+  },
+  {
+   "name": "Zafer",
+   "district": "Bornova",
+   "kind": "neighborhood",
+   "lat": 38.423511,
+   "lon": 27.204797
+  },
+  {
+   "name": "Çamkule",
+   "district": "Bornova",
+   "kind": "neighborhood",
+   "lat": 38.414501,
+   "lon": 27.189712
+  },
+  {
+   "name": "Çamiçi",
+   "district": "Bornova",
+   "kind": "neighborhood",
+   "lat": 38.516447,
+   "lon": 27.22045
+  },
+  {
+   "name": "Çınar",
+   "district": "Bornova",
+   "kind": "neighborhood",
+   "lat": 38.439466,
+   "lon": 27.185772
+  },
+  {
+   "name": "Çiçekli",
+   "district": "Bornova",
+   "kind": "neighborhood",
+   "lat": 38.499059,
+   "lon": 27.284097
+  },
+  {
+   "name": "Ümit",
+   "district": "Bornova",
+   "kind": "neighborhood",
+   "lat": 38.442379,
+   "lon": 27.25957
+  },
+  {
+   "name": "İnönü",
+   "district": "Bornova",
+   "kind": "neighborhood",
+   "lat": 38.481514,
+   "lon": 27.214243
+  },
+  {
+   "name": "29 Ekim",
+   "district": "Buca",
+   "kind": "neighborhood",
+   "lat": 38.364486,
+   "lon": 27.271675
+  },
+  {
+   "name": "Adatepe",
+   "district": "Buca",
+   "kind": "neighborhood",
+   "lat": 38.386008,
+   "lon": 27.179749
+  },
+  {
+   "name": "Akıncılar",
+   "district": "Buca",
+   "kind": "neighborhood",
+   "lat": 38.386094,
+   "lon": 27.144843
+  },
+  {
+   "name": "Atatürk",
+   "district": "Buca",
+   "kind": "neighborhood",
+   "lat": 38.380234,
+   "lon": 27.178626
+  },
+  {
+   "name": "Barış",
+   "district": "Buca",
+   "kind": "neighborhood",
+   "lat": 38.394255,
+   "lon": 27.160405
+  },
+  {
+   "name": "Belenbaşı",
+   "district": "Buca",
+   "kind": "neighborhood",
+   "lat": 38.310171,
+   "lon": 27.281158
+  },
+  {
+   "name": "Buca Koop",
+   "district": "Buca",
+   "kind": "neighborhood",
+   "lat": 38.369024,
+   "lon": 27.188789
+  },
+  {
+   "name": "Cumhuriyet",
+   "district": "Buca",
+   "kind": "neighborhood",
+   "lat": 38.394046,
+   "lon": 27.194084
+  },
+  {
+   "name": "Doğancılar",
+   "district": "Buca",
+   "kind": "neighborhood",
+   "lat": 38.301373,
+   "lon": 27.341565
+  },
+  {
+   "name": "Dumlupınar",
+   "district": "Buca",
+   "kind": "neighborhood",
+   "lat": 38.386342,
+   "lon": 27.171385
+  },
+  {
+   "name": "Dicle",
+   "district": "Buca",
+   "kind": "neighborhood",
+   "lat": 38.399881,
+   "lon": 27.162201
+  },
+  {
+   "name": "Efeler",
+   "district": "Buca",
+   "kind": "neighborhood",
+   "lat": 38.386656,
+   "lon": 27.154854
+  },
+  {
+   "name": "Fırat",
+   "district": "Buca",
+   "kind": "neighborhood",
+   "lat": 38.376573,
+   "lon": 27.14714
+  },
+  {
+   "name": "Gaziler",
+   "district": "Buca",
+   "kind": "neighborhood",
+   "lat": 38.391678,
+   "lon": 27.181558
+  },
+  {
+   "name": "Göksu",
+   "district": "Buca",
+   "kind": "neighborhood",
+   "lat": 38.366053,
+   "lon": 27.147574
+  },
+  {
+   "name": "Güven",
+   "district": "Buca",
+   "kind": "neighborhood",
+   "lat": 38.392591,
+   "lon": 27.151388
+  },
+  {
+   "name": "Hürriyet",
+   "district": "Buca",
+   "kind": "neighborhood",
+   "lat": 38.396858,
+   "lon": 27.14515
+  },
+  {
+   "name": "Karacaağaç",
+   "district": "Buca",
+   "kind": "neighborhood",
+   "lat": 38.28713,
+   "lon": 27.282782
+  },
+  {
+   "name": "Karanfil",
+   "district": "Buca",
+   "kind": "neighborhood",
+   "lat": 38.390115,
+   "lon": 27.186752
+  },
+  {
+   "name": "Kaynaklar Merkez",
+   "district": "Buca",
+   "kind": "neighborhood",
+   "lat": 38.363888,
+   "lon": 27.282975
+  },
+  {
+   "name": "Kırklar",
+   "district": "Buca",
+   "kind": "neighborhood",
+   "lat": 38.318353,
+   "lon": 27.31806
+  },
+  {
+   "name": "Kozağaç",
+   "district": "Buca",
+   "kind": "neighborhood",
+   "lat": 38.381919,
+   "lon": 27.168995
+  },
+  {
+   "name": "Kuruçeşme",
+   "district": "Buca",
+   "kind": "neighborhood",
+   "lat": 38.36977,
+   "lon": 27.19283
+  },
+  {
+   "name": "Laleli",
+   "district": "Buca",
+   "kind": "neighborhood",
+   "lat": 38.398648,
+   "lon": 27.153686
+  },
+  {
+   "name": "Menderes",
+   "district": "Buca",
+   "kind": "neighborhood",
+   "lat": 38.392571,
+   "lon": 27.170241
+  },
+  {
+   "name": "Murathan",
+   "district": "Buca",
+   "kind": "neighborhood",
+   "lat": 38.40134,
+   "lon": 27.196496
+  },
+  {
+   "name": "Mustafa Kemal",
+   "district": "Buca",
+   "kind": "neighborhood",
+   "lat": 38.362288,
+   "lon": 27.149728
+  },
+  {
+   "name": "Seyhan",
+   "district": "Buca",
+   "kind": "neighborhood",
+   "lat": 38.379077,
+   "lon": 27.143464
+  },
+  {
+   "name": "Ufuk",
+   "district": "Buca",
+   "kind": "neighborhood",
+   "lat": 38.40319,
+   "lon": 27.165854
+  },
+  {
+   "name": "Vali Rahmi Bey",
+   "district": "Buca",
+   "kind": "neighborhood",
+   "lat": 38.389294,
+   "lon": 27.164735
+  },
+  {
+   "name": "Yaylacık",
+   "district": "Buca",
+   "kind": "neighborhood",
+   "lat": 38.389118,
+   "lon": 27.176621
+  },
+  {
+   "name": "Yenigün",
+   "district": "Buca",
+   "kind": "neighborhood",
+   "lat": 38.376601,
+   "lon": 27.163218
+  },
+  {
+   "name": "Yeşilbağlar",
+   "district": "Buca",
+   "kind": "neighborhood",
+   "lat": 38.370615,
+   "lon": 27.148154
+  },
+  {
+   "name": "Yıldız",
+   "district": "Buca",
+   "kind": "neighborhood",
+   "lat": 38.374338,
+   "lon": 27.17824
+  },
+  {
+   "name": "Yıldızlar",
+   "district": "Buca",
+   "kind": "neighborhood",
+   "lat": 38.309817,
+   "lon": 27.232029
+  },
+  {
+   "name": "Yiğitler",
+   "district": "Buca",
+   "kind": "neighborhood",
+   "lat": 38.394322,
+   "lon": 27.156097
+  },
+  {
+   "name": "Zafer",
+   "district": "Buca",
+   "kind": "neighborhood",
+   "lat": 38.353884,
+   "lon": 27.227739
+  },
+  {
+   "name": "Çaldıran",
+   "district": "Buca",
+   "kind": "neighborhood",
+   "lat": 38.402203,
+   "lon": 27.149348
+  },
+  {
+   "name": "Çamlık",
+   "district": "Buca",
+   "kind": "neighborhood",
+   "lat": 38.402144,
+   "lon": 27.156799
+  },
+  {
+   "name": "Çamlıkule",
+   "district": "Buca",
+   "kind": "neighborhood",
+   "lat": 38.374701,
+   "lon": 27.168722
+  },
+  {
+   "name": "Çamlıpınar",
+   "district": "Buca",
+   "kind": "neighborhood",
+   "lat": 38.369458,
+   "lon": 27.164367
+  },
+  {
+   "name": "Çağdaş",
+   "district": "Buca",
+   "kind": "neighborhood",
+   "lat": 38.397375,
+   "lon": 27.191215
+  },
+  {
+   "name": "İnkılap",
+   "district": "Buca",
+   "kind": "neighborhood",
+   "lat": 38.392067,
+   "lon": 27.147492
+  },
+  {
+   "name": "İnönü",
+   "district": "Buca",
+   "kind": "neighborhood",
+   "lat": 38.360155,
+   "lon": 27.14638
+  },
+  {
+   "name": "İzkent",
+   "district": "Buca",
+   "kind": "neighborhood",
+   "lat": 38.399006,
+   "lon": 27.18946
+  },
+  {
+   "name": "Şirinkapı",
+   "district": "Buca",
+   "kind": "neighborhood",
+   "lat": 38.396538,
+   "lon": 27.180001
+  },
+  {
+   "name": "Bademli",
+   "district": "Dikili",
+   "kind": "neighborhood",
+   "lat": 39.02788,
+   "lon": 26.823896
+  },
+  {
+   "name": "Bahçeli",
+   "district": "Dikili",
+   "kind": "neighborhood",
+   "lat": 39.205841,
+   "lon": 26.819148
+  },
+  {
+   "name": "Cumhuriyet",
+   "district": "Dikili",
+   "kind": "neighborhood",
+   "lat": 39.075762,
+   "lon": 26.890157
+  },
+  {
+   "name": "Deliktaş",
+   "district": "Dikili",
+   "kind": "neighborhood",
+   "lat": 38.988987,
+   "lon": 26.927261
+  },
+  {
+   "name": "Demirtaş",
+   "district": "Dikili",
+   "kind": "neighborhood",
+   "lat": 39.00197,
+   "lon": 26.944699
+  },
+  {
+   "name": "Denizköy",
+   "district": "Dikili",
+   "kind": "neighborhood",
+   "lat": 38.953654,
+   "lon": 26.810522
+  },
+  {
+   "name": "Esentepe",
+   "district": "Dikili",
+   "kind": "neighborhood",
+   "lat": 39.023402,
+   "lon": 26.911106
+  },
+  {
+   "name": "Gazipaşa",
+   "district": "Dikili",
+   "kind": "neighborhood",
+   "lat": 39.063608,
+   "lon": 26.881307
+  },
+  {
+   "name": "Gökçeağıl",
+   "district": "Dikili",
+   "kind": "neighborhood",
+   "lat": 39.168787,
+   "lon": 26.874938
+  },
+  {
+   "name": "Kabakum",
+   "district": "Dikili",
+   "kind": "neighborhood",
+   "lat": 39.127977,
+   "lon": 26.882607
+  },
+  {
+   "name": "Katıralanı",
+   "district": "Dikili",
+   "kind": "neighborhood",
+   "lat": 39.008763,
+   "lon": 26.877482
+  },
+  {
+   "name": "Kıratlı",
+   "district": "Dikili",
+   "kind": "neighborhood",
+   "lat": 39.168595,
+   "lon": 26.856675
+  },
+  {
+   "name": "Kıroba",
+   "district": "Dikili",
+   "kind": "neighborhood",
+   "lat": 39.108878,
+   "lon": 26.956401
+  },
+  {
+   "name": "Kızılçukur",
+   "district": "Dikili",
+   "kind": "neighborhood",
+   "lat": 39.10424,
+   "lon": 26.920714
+  },
+  {
+   "name": "Kocaoba",
+   "district": "Dikili",
+   "kind": "neighborhood",
+   "lat": 39.100168,
+   "lon": 26.973023
+  },
+  {
+   "name": "Mazılı",
+   "district": "Dikili",
+   "kind": "neighborhood",
+   "lat": 39.112442,
+   "lon": 26.964884
+  },
+  {
+   "name": "Merdivenli",
+   "district": "Dikili",
+   "kind": "neighborhood",
+   "lat": 38.996119,
+   "lon": 26.850298
+  },
+  {
+   "name": "Nebiler",
+   "district": "Dikili",
+   "kind": "neighborhood",
+   "lat": 39.159699,
+   "lon": 26.901281
+  },
+  {
+   "name": "Salihler",
+   "district": "Dikili",
+   "kind": "neighborhood",
+   "lat": 39.179552,
+   "lon": 26.851197
+  },
+  {
+   "name": "Salimbey",
+   "district": "Dikili",
+   "kind": "neighborhood",
+   "lat": 39.070116,
+   "lon": 26.889248
+  },
+  {
+   "name": "Samanlıkköy",
+   "district": "Dikili",
+   "kind": "neighborhood",
+   "lat": 39.118765,
+   "lon": 27.015669
+  },
+  {
+   "name": "Uzunburun",
+   "district": "Dikili",
+   "kind": "neighborhood",
+   "lat": 39.031951,
+   "lon": 26.90873
+  },
+  {
+   "name": "Yahşibey",
+   "district": "Dikili",
+   "kind": "neighborhood",
+   "lat": 39.032208,
+   "lon": 26.840896
+  },
+  {
+   "name": "Yaylayurt",
+   "district": "Dikili",
+   "kind": "neighborhood",
+   "lat": 38.957688,
+   "lon": 26.920318
+  },
+  {
+   "name": "Yenice",
+   "district": "Dikili",
+   "kind": "neighborhood",
+   "lat": 39.104822,
+   "lon": 27.011083
+  },
+  {
+   "name": "Çandarlı",
+   "district": "Dikili",
+   "kind": "neighborhood",
+   "lat": 38.935854,
+   "lon": 26.935364
+  },
+  {
+   "name": "Çağlan",
+   "district": "Dikili",
+   "kind": "neighborhood",
+   "lat": 39.133107,
+   "lon": 27.012691
+  },
+  {
+   "name": "Çukuralanı",
+   "district": "Dikili",
+   "kind": "neighborhood",
+   "lat": 39.185865,
+   "lon": 26.939151
+  },
+  {
+   "name": "İslamlar",
+   "district": "Dikili",
+   "kind": "neighborhood",
+   "lat": 39.125204,
+   "lon": 26.905189
+  },
+  {
+   "name": "İsmetpaşa",
+   "district": "Dikili",
+   "kind": "neighborhood",
+   "lat": 39.07071,
+   "lon": 26.888488
+  },
+  {
+   "name": "Atatürk",
+   "district": "Foça",
+   "kind": "neighborhood",
+   "lat": 38.668237,
+   "lon": 26.754184
+  },
+  {
+   "name": "Cumhuriyet",
+   "district": "Foça",
+   "kind": "neighborhood",
+   "lat": 38.732201,
+   "lon": 26.888848
+  },
+  {
+   "name": "Fatih",
+   "district": "Foça",
+   "kind": "neighborhood",
+   "lat": 38.750264,
+   "lon": 26.826484
+  },
+  {
+   "name": "Ilıpınar",
+   "district": "Foça",
+   "kind": "neighborhood",
+   "lat": 38.69011,
+   "lon": 26.918201
+  },
+  {
+   "name": "Kazım Dirik",
+   "district": "Foça",
+   "kind": "neighborhood",
+   "lat": 38.659032,
+   "lon": 26.85271
+  },
+  {
+   "name": "Koca Mehmetler",
+   "district": "Foça",
+   "kind": "neighborhood",
+   "lat": 38.695874,
+   "lon": 26.853769
+  },
+  {
+   "name": "Kozbeyli",
+   "district": "Foça",
+   "kind": "neighborhood",
+   "lat": 38.71546,
+   "lon": 26.89336
+  },
+  {
+   "name": "Mareşal Fevzi Çakmak",
+   "district": "Foça",
+   "kind": "neighborhood",
+   "lat": 38.650459,
+   "lon": 26.903034
+  },
+  {
+   "name": "Mustafa Kemal Atatürk",
+   "district": "Foça",
+   "kind": "neighborhood",
+   "lat": 38.740222,
+   "lon": 26.838548
+  },
+  {
+   "name": "Yenibağarası",
+   "district": "Foça",
+   "kind": "neighborhood",
+   "lat": 38.663417,
+   "lon": 26.843018
+  },
+  {
+   "name": "Yeniköy",
+   "district": "Foça",
+   "kind": "neighborhood",
+   "lat": 38.690308,
+   "lon": 26.902153
+  },
+  {
+   "name": "Aktepe",
+   "district": "Gaziemir",
+   "kind": "neighborhood",
+   "lat": 38.355648,
+   "lon": 27.12835
+  },
+  {
+   "name": "Atatürk",
+   "district": "Gaziemir",
+   "kind": "neighborhood",
+   "lat": 38.29618,
+   "lon": 27.174043
+  },
+  {
+   "name": "Atıfbey",
+   "district": "Gaziemir",
+   "kind": "neighborhood",
+   "lat": 38.321753,
+   "lon": 27.13125
+  },
+  {
+   "name": "Beyazevler",
+   "district": "Gaziemir",
+   "kind": "neighborhood",
+   "lat": 38.338178,
+   "lon": 27.143591
+  },
+  {
+   "name": "Binbaşı Reşatbey",
+   "district": "Gaziemir",
+   "kind": "neighborhood",
+   "lat": 38.353563,
+   "lon": 27.135659
+  },
+  {
+   "name": "Dokuz Eylül",
+   "district": "Gaziemir",
+   "kind": "neighborhood",
+   "lat": 38.326025,
+   "lon": 27.139258
+  },
+  {
+   "name": "Emrez",
+   "district": "Gaziemir",
+   "kind": "neighborhood",
+   "lat": 38.355673,
+   "lon": 27.128409
+  },
+  {
+   "name": "Fatih",
+   "district": "Gaziemir",
+   "kind": "neighborhood",
+   "lat": 38.302537,
+   "lon": 27.164616
+  },
+  {
+   "name": "Gazi",
+   "district": "Gaziemir",
+   "kind": "neighborhood",
+   "lat": 38.323852,
+   "lon": 27.131889
+  },
+  {
+   "name": "Gazikent",
+   "district": "Gaziemir",
+   "kind": "neighborhood",
+   "lat": 38.311311,
+   "lon": 27.136985
+  },
+  {
+   "name": "Hürriyet",
+   "district": "Gaziemir",
+   "kind": "neighborhood",
+   "lat": 38.298936,
+   "lon": 27.17892
+  },
+  {
+   "name": "Irmak",
+   "district": "Gaziemir",
+   "kind": "neighborhood",
+   "lat": 38.322822,
+   "lon": 27.124143
+  },
+  {
+   "name": "Menderes",
+   "district": "Gaziemir",
+   "kind": "neighborhood",
+   "lat": 38.29737,
+   "lon": 27.167768
+  },
+  {
+   "name": "Sevgi",
+   "district": "Gaziemir",
+   "kind": "neighborhood",
+   "lat": 38.307604,
+   "lon": 27.138594
+  },
+  {
+   "name": "Yeşil",
+   "district": "Gaziemir",
+   "kind": "neighborhood",
+   "lat": 38.317754,
+   "lon": 27.129847
+  },
+  {
+   "name": "Zafer",
+   "district": "Gaziemir",
+   "kind": "neighborhood",
+   "lat": 38.334792,
+   "lon": 27.105241
+  },
+  {
+   "name": "Kahramandere",
+   "district": "Güzelbahçe",
+   "kind": "neighborhood",
+   "lat": 38.358954,
+   "lon": 26.885267
+  },
+  {
+   "name": "Küçükkaya",
+   "district": "Güzelbahçe",
+   "kind": "neighborhood",
+   "lat": 38.330526,
+   "lon": 26.895345
+  },
+  {
+   "name": "Maltepe",
+   "district": "Güzelbahçe",
+   "kind": "neighborhood",
+   "lat": 38.383876,
+   "lon": 26.924299
+  },
+  {
+   "name": "Mustafa Kemal Paşa",
+   "district": "Güzelbahçe",
+   "kind": "neighborhood",
+   "lat": 38.341545,
+   "lon": 26.872908
+  },
+  {
+   "name": "Payamlı",
+   "district": "Güzelbahçe",
+   "kind": "neighborhood",
+   "lat": 38.317573,
+   "lon": 26.924263
+  },
+  {
+   "name": "Siteler",
+   "district": "Güzelbahçe",
+   "kind": "neighborhood",
+   "lat": 38.373075,
+   "lon": 26.861303
+  },
+  {
+   "name": "Yaka",
+   "district": "Güzelbahçe",
+   "kind": "neighborhood",
+   "lat": 38.361387,
+   "lon": 26.895201
+  },
+  {
+   "name": "Yalı",
+   "district": "Güzelbahçe",
+   "kind": "neighborhood",
+   "lat": 38.376642,
+   "lon": 26.889907
+  },
+  {
+   "name": "Yelki",
+   "district": "Güzelbahçe",
+   "kind": "neighborhood",
+   "lat": 38.341532,
+   "lon": 26.866227
+  },
+  {
+   "name": "Çamlı",
+   "district": "Güzelbahçe",
+   "kind": "neighborhood",
+   "lat": 38.314845,
+   "lon": 26.859763
+  },
+  {
+   "name": "Çelebi",
+   "district": "Güzelbahçe",
+   "kind": "neighborhood",
+   "lat": 38.358761,
+   "lon": 26.88663
+  },
+  {
+   "name": "Abdi İpekçi",
+   "district": "Karabağlar",
+   "kind": "neighborhood",
+   "lat": 38.366615,
+   "lon": 27.119591
+  },
+  {
+   "name": "Adnan Süvari",
+   "district": "Karabağlar",
+   "kind": "neighborhood",
+   "lat": 38.391992,
+   "lon": 27.093794
+  },
+  {
+   "name": "Ali Fuat Cebesoy",
+   "district": "Karabağlar",
+   "kind": "neighborhood",
+   "lat": 38.381726,
+   "lon": 27.112562
+  },
+  {
+   "name": "Ali Fuat Erden",
+   "district": "Karabağlar",
+   "kind": "neighborhood",
+   "lat": 38.369837,
+   "lon": 27.09656
+  },
+  {
+   "name": "Arap Hasan",
+   "district": "Karabağlar",
+   "kind": "neighborhood",
+   "lat": 38.399998,
+   "lon": 27.106819
+  },
+  {
+   "name": "Aydın",
+   "district": "Karabağlar",
+   "kind": "neighborhood",
+   "lat": 38.368758,
+   "lon": 27.133791
+  },
+  {
+   "name": "Aşık Veysel",
+   "district": "Karabağlar",
+   "kind": "neighborhood",
+   "lat": 38.384125,
+   "lon": 27.139952
+  },
+  {
+   "name": "Bahar",
+   "district": "Karabağlar",
+   "kind": "neighborhood",
+   "lat": 38.395379,
+   "lon": 27.12685
+  },
+  {
+   "name": "Bahriye Üçok",
+   "district": "Karabağlar",
+   "kind": "neighborhood",
+   "lat": 38.378952,
+   "lon": 27.100951
+  },
+  {
+   "name": "Bahçelievler",
+   "district": "Karabağlar",
+   "kind": "neighborhood",
+   "lat": 38.40404,
+   "lon": 27.118967
+  },
+  {
+   "name": "Barış",
+   "district": "Karabağlar",
+   "kind": "neighborhood",
+   "lat": 38.381014,
+   "lon": 27.123839
+  },
+  {
+   "name": "Basın Sitesi",
+   "district": "Karabağlar",
+   "kind": "neighborhood",
+   "lat": 38.400151,
+   "lon": 27.100304
+  },
+  {
+   "name": "Bozyaka",
+   "district": "Karabağlar",
+   "kind": "neighborhood",
+   "lat": 38.388297,
+   "lon": 27.119399
+  },
+  {
+   "name": "Cennetoğlu",
+   "district": "Karabağlar",
+   "kind": "neighborhood",
+   "lat": 38.389604,
+   "lon": 27.132284
+  },
+  {
+   "name": "Cennetçeşme",
+   "district": "Karabağlar",
+   "kind": "neighborhood",
+   "lat": 38.36037,
+   "lon": 27.089808
+  },
+  {
+   "name": "Devrim",
+   "district": "Karabağlar",
+   "kind": "neighborhood",
+   "lat": 38.368531,
+   "lon": 27.107797
+  },
+  {
+   "name": "Doğanay",
+   "district": "Karabağlar",
+   "kind": "neighborhood",
+   "lat": 38.396827,
+   "lon": 27.11914
+  },
+  {
+   "name": "Esenlik",
+   "district": "Karabağlar",
+   "kind": "neighborhood",
+   "lat": 38.396364,
+   "lon": 27.114821
+  },
+  {
+   "name": "Esenyalı",
+   "district": "Karabağlar",
+   "kind": "neighborhood",
+   "lat": 38.393493,
+   "lon": 27.089136
+  },
+  {
+   "name": "Fahrettin Altay",
+   "district": "Karabağlar",
+   "kind": "neighborhood",
+   "lat": 38.395759,
+   "lon": 27.068245
+  },
+  {
+   "name": "General Asım Gündüz",
+   "district": "Karabağlar",
+   "kind": "neighborhood",
+   "lat": 38.393422,
+   "lon": 27.131749
+  },
+  {
+   "name": "General Kazım Özalp",
+   "district": "Karabağlar",
+   "kind": "neighborhood",
+   "lat": 38.389039,
+   "lon": 27.078033
+  },
+  {
+   "name": "Gülyaka",
+   "district": "Karabağlar",
+   "kind": "neighborhood",
+   "lat": 38.391657,
+   "lon": 27.119665
+  },
+  {
+   "name": "Günaltay",
+   "district": "Karabağlar",
+   "kind": "neighborhood",
+   "lat": 38.376773,
+   "lon": 27.11504
+  },
+  {
+   "name": "Karabağlar",
+   "district": "Karabağlar",
+   "kind": "neighborhood",
+   "lat": 38.381842,
+   "lon": 27.129813
+  },
+  {
+   "name": "Kavacık",
+   "district": "Karabağlar",
+   "kind": "neighborhood",
+   "lat": 38.310428,
+   "lon": 26.95838
+  },
+  {
+   "name": "Kazım Karabekir",
+   "district": "Karabağlar",
+   "kind": "neighborhood",
+   "lat": 38.391255,
+   "lon": 27.112679
+  },
+  {
+   "name": "Kibar",
+   "district": "Karabağlar",
+   "kind": "neighborhood",
+   "lat": 38.3769,
+   "lon": 27.10882
+  },
+  {
+   "name": "Limontepe",
+   "district": "Karabağlar",
+   "kind": "neighborhood",
+   "lat": 38.377742,
+   "lon": 27.09989
+  },
+  {
+   "name": "Maliyeciler",
+   "district": "Karabağlar",
+   "kind": "neighborhood",
+   "lat": 38.386789,
+   "lon": 27.095274
+  },
+  {
+   "name": "Metin Oktay",
+   "district": "Karabağlar",
+   "kind": "neighborhood",
+   "lat": 38.389299,
+   "lon": 27.094691
+  },
+  {
+   "name": "Muammer Akar",
+   "district": "Karabağlar",
+   "kind": "neighborhood",
+   "lat": 38.393029,
+   "lon": 27.077996
+  },
+  {
+   "name": "Osman Aksüner",
+   "district": "Karabağlar",
+   "kind": "neighborhood",
+   "lat": 38.391734,
+   "lon": 27.135113
+  },
+  {
+   "name": "Poligon",
+   "district": "Karabağlar",
+   "kind": "neighborhood",
+   "lat": 38.392897,
+   "lon": 27.082931
+  },
+  {
+   "name": "Refet Bele",
+   "district": "Karabağlar",
+   "kind": "neighborhood",
+   "lat": 38.389685,
+   "lon": 27.111731
+  },
+  {
+   "name": "Reis",
+   "district": "Karabağlar",
+   "kind": "neighborhood",
+   "lat": 38.397768,
+   "lon": 27.116917
+  },
+  {
+   "name": "Salih Omurtak",
+   "district": "Karabağlar",
+   "kind": "neighborhood",
+   "lat": 38.383459,
+   "lon": 27.10041
+  },
+  {
+   "name": "Sarıyer",
+   "district": "Karabağlar",
+   "kind": "neighborhood",
+   "lat": 38.386171,
+   "lon": 27.128118
+  },
+  {
+   "name": "Selvili",
+   "district": "Karabağlar",
+   "kind": "neighborhood",
+   "lat": 38.376811,
+   "lon": 27.129102
+  },
+  {
+   "name": "Sevgi",
+   "district": "Karabağlar",
+   "kind": "neighborhood",
+   "lat": 38.384169,
+   "lon": 27.115304
+  },
+  {
+   "name": "Tahsin Yazıcı",
+   "district": "Karabağlar",
+   "kind": "neighborhood",
+   "lat": 38.387408,
+   "lon": 27.109407
+  },
+  {
+   "name": "Tırazlı",
+   "district": "Karabağlar",
+   "kind": "neighborhood",
+   "lat": 38.319204,
+   "lon": 27.061125
+  },
+  {
+   "name": "Umut",
+   "district": "Karabağlar",
+   "kind": "neighborhood",
+   "lat": 38.37291,
+   "lon": 27.10634
+  },
+  {
+   "name": "Uzundere",
+   "district": "Karabağlar",
+   "kind": "neighborhood",
+   "lat": 38.352095,
+   "lon": 27.098944
+  },
+  {
+   "name": "Uğur Mumcu",
+   "district": "Karabağlar",
+   "kind": "neighborhood",
+   "lat": 38.382306,
+   "lon": 27.126425
+  },
+  {
+   "name": "Vatan",
+   "district": "Karabağlar",
+   "kind": "neighborhood",
+   "lat": 38.396918,
+   "lon": 27.105882
+  },
+  {
+   "name": "Yaşar Kemal",
+   "district": "Karabağlar",
+   "kind": "neighborhood",
+   "lat": 38.353921,
+   "lon": 27.082424
+  },
+  {
+   "name": "Yunus Emre",
+   "district": "Karabağlar",
+   "kind": "neighborhood",
+   "lat": 38.370233,
+   "lon": 27.131421
+  },
+  {
+   "name": "Yurdoğlu",
+   "district": "Karabağlar",
+   "kind": "neighborhood",
+   "lat": 38.361712,
+   "lon": 27.097903
+  },
+  {
+   "name": "Yüzbaşı Şerafettin",
+   "district": "Karabağlar",
+   "kind": "neighborhood",
+   "lat": 38.363208,
+   "lon": 27.098614
+  },
+  {
+   "name": "Çalıkuşu",
+   "district": "Karabağlar",
+   "kind": "neighborhood",
+   "lat": 38.392222,
+   "lon": 27.128449
+  },
+  {
+   "name": "Üçkuyular",
+   "district": "Karabağlar",
+   "kind": "neighborhood",
+   "lat": 38.394663,
+   "lon": 27.073054
+  },
+  {
+   "name": "İhsan Alyanak",
+   "district": "Karabağlar",
+   "kind": "neighborhood",
+   "lat": 38.368059,
+   "lon": 27.122868
+  },
+  {
+   "name": "Şehitler",
+   "district": "Karabağlar",
+   "kind": "neighborhood",
+   "lat": 38.386513,
+   "lon": 27.091145
+  },
+  {
+   "name": "Anbarseki",
+   "district": "Karaburun",
+   "kind": "neighborhood",
+   "lat": 38.613794,
+   "lon": 26.52378
+  },
+  {
+   "name": "Bozköy",
+   "district": "Karaburun",
+   "kind": "neighborhood",
+   "lat": 38.656694,
+   "lon": 26.468224
+  },
+  {
+   "name": "Eğlenhoca",
+   "district": "Karaburun",
+   "kind": "neighborhood",
+   "lat": 38.542565,
+   "lon": 26.569616
+  },
+  {
+   "name": "Hasseki",
+   "district": "Karaburun",
+   "kind": "neighborhood",
+   "lat": 38.664612,
+   "lon": 26.415677
+  },
+  {
+   "name": "Kösedere",
+   "district": "Karaburun",
+   "kind": "neighborhood",
+   "lat": 38.547803,
+   "lon": 26.552693
+  },
+  {
+   "name": "Küçükbahçe",
+   "district": "Karaburun",
+   "kind": "neighborhood",
+   "lat": 38.564547,
+   "lon": 26.37372
+  },
+  {
+   "name": "Merkez",
+   "district": "Karaburun",
+   "kind": "neighborhood",
+   "lat": 38.635635,
+   "lon": 26.509526
+  },
+  {
+   "name": "Mordoğan",
+   "district": "Karaburun",
+   "kind": "neighborhood",
+   "lat": 38.518604,
+   "lon": 26.625515
+  },
+  {
+   "name": "Parlak",
+   "district": "Karaburun",
+   "kind": "neighborhood",
+   "lat": 38.60997,
+   "lon": 26.398069
+  },
+  {
+   "name": "Salman",
+   "district": "Karaburun",
+   "kind": "neighborhood",
+   "lat": 38.571082,
+   "lon": 26.368125
+  },
+  {
+   "name": "Sarpıncık",
+   "district": "Karaburun",
+   "kind": "neighborhood",
+   "lat": 38.65424,
+   "lon": 26.402433
+  },
+  {
+   "name": "Saip",
+   "district": "Karaburun",
+   "kind": "neighborhood",
+   "lat": 38.623139,
+   "lon": 26.51856
+  },
+  {
+   "name": "Tepeboz",
+   "district": "Karaburun",
+   "kind": "neighborhood",
+   "lat": 38.671955,
+   "lon": 26.440116
+  },
+  {
+   "name": "Yayla",
+   "district": "Karaburun",
+   "kind": "neighborhood",
+   "lat": 38.574448,
+   "lon": 26.45505
+  },
+  {
+   "name": "İnecik",
+   "district": "Karaburun",
+   "kind": "neighborhood",
+   "lat": 38.550193,
+   "lon": 26.5653
+  },
+  {
+   "name": "İskele",
+   "district": "Karaburun",
+   "kind": "neighborhood",
+   "lat": 38.643575,
+   "lon": 26.513337
+  },
+  {
+   "name": "Aksoy",
+   "district": "Karşıyaka",
+   "kind": "neighborhood",
+   "lat": 38.453985,
+   "lon": 27.108403
+  },
+  {
+   "name": "Alaybey",
+   "district": "Karşıyaka",
+   "kind": "neighborhood",
+   "lat": 38.458028,
+   "lon": 27.123335
+  },
+  {
+   "name": "Atakent",
+   "district": "Karşıyaka",
+   "kind": "neighborhood",
+   "lat": 38.465437,
+   "lon": 27.08865
+  },
+  {
+   "name": "Bahariye",
+   "district": "Karşıyaka",
+   "kind": "neighborhood",
+   "lat": 38.460911,
+   "lon": 27.121573
+  },
+  {
+   "name": "Bahriye Üçok",
+   "district": "Karşıyaka",
+   "kind": "neighborhood",
+   "lat": 38.46142,
+   "lon": 27.110136
+  },
+  {
+   "name": "Bahçelievler",
+   "district": "Karşıyaka",
+   "kind": "neighborhood",
+   "lat": 38.465768,
+   "lon": 27.127132
+  },
+  {
+   "name": "Bostanlı",
+   "district": "Karşıyaka",
+   "kind": "neighborhood",
+   "lat": 38.460048,
+   "lon": 27.101194
+  },
+  {
+   "name": "Cumhuriyet",
+   "district": "Karşıyaka",
+   "kind": "neighborhood",
+   "lat": 38.483178,
+   "lon": 27.098586
+  },
+  {
+   "name": "Dedebaşı",
+   "district": "Karşıyaka",
+   "kind": "neighborhood",
+   "lat": 38.469858,
+   "lon": 27.107637
+  },
+  {
+   "name": "Demirköprü",
+   "district": "Karşıyaka",
+   "kind": "neighborhood",
+   "lat": 38.469358,
+   "lon": 27.098265
+  },
+  {
+   "name": "Donanmacı",
+   "district": "Karşıyaka",
+   "kind": "neighborhood",
+   "lat": 38.454223,
+   "lon": 27.117658
+  },
+  {
+   "name": "Fikri Altay",
+   "district": "Karşıyaka",
+   "kind": "neighborhood",
+   "lat": 38.472936,
+   "lon": 27.102169
+  },
+  {
+   "name": "Goncalar",
+   "district": "Karşıyaka",
+   "kind": "neighborhood",
+   "lat": 38.463866,
+   "lon": 27.105063
+  },
+  {
+   "name": "Latife Hanım",
+   "district": "Karşıyaka",
+   "kind": "neighborhood",
+   "lat": 38.495307,
+   "lon": 27.11915
+  },
+  {
+   "name": "Mavişehir",
+   "district": "Karşıyaka",
+   "kind": "neighborhood",
+   "lat": 38.471847,
+   "lon": 27.079381
+  },
+  {
+   "name": "Mustafa Kemal",
+   "district": "Karşıyaka",
+   "kind": "neighborhood",
+   "lat": 38.49381,
+   "lon": 27.096258
+  },
+  {
+   "name": "Nergiz",
+   "district": "Karşıyaka",
+   "kind": "neighborhood",
+   "lat": 38.462462,
+   "lon": 27.105052
+  },
+  {
+   "name": "Sancaklı",
+   "district": "Karşıyaka",
+   "kind": "neighborhood",
+   "lat": 38.518532,
+   "lon": 27.152857
+  },
+  {
+   "name": "Tersane",
+   "district": "Karşıyaka",
+   "kind": "neighborhood",
+   "lat": 38.463841,
+   "lon": 27.128267
+  },
+  {
+   "name": "Yalı",
+   "district": "Karşıyaka",
+   "kind": "neighborhood",
+   "lat": 38.46973,
+   "lon": 27.093778
+  },
+  {
+   "name": "Yamanlar",
+   "district": "Karşıyaka",
+   "kind": "neighborhood",
+   "lat": 38.542171,
+   "lon": 27.132369
+  },
+  {
+   "name": "Zübeyde Hanım",
+   "district": "Karşıyaka",
+   "kind": "neighborhood",
+   "lat": 38.488488,
+   "lon": 27.108366
+  },
+  {
+   "name": "Örnekköy",
+   "district": "Karşıyaka",
+   "kind": "neighborhood",
+   "lat": 38.480495,
+   "lon": 27.110476
+  },
+  {
+   "name": "İmbatlı",
+   "district": "Karşıyaka",
+   "kind": "neighborhood",
+   "lat": 38.473873,
+   "lon": 27.110382
+  },
+  {
+   "name": "Şemikler",
+   "district": "Karşıyaka",
+   "kind": "neighborhood",
+   "lat": 38.473689,
+   "lon": 27.097265
+  },
+  {
+   "name": "Akalan",
+   "district": "Kemalpaşa",
+   "kind": "neighborhood",
+   "lat": 38.463846,
+   "lon": 27.483098
+  },
+  {
+   "name": "Ansızca",
+   "district": "Kemalpaşa",
+   "kind": "neighborhood",
+   "lat": 38.481202,
+   "lon": 27.404333
+  },
+  {
+   "name": "Armutlu 85.yıl Cumhuriyet",
+   "district": "Kemalpaşa",
+   "kind": "neighborhood",
+   "lat": 38.404234,
+   "lon": 27.532018
+  },
+  {
+   "name": "Armutlu Hürriyet",
+   "district": "Kemalpaşa",
+   "kind": "neighborhood",
+   "lat": 38.405214,
+   "lon": 27.532595
+  },
+  {
+   "name": "Atatürk",
+   "district": "Kemalpaşa",
+   "kind": "neighborhood",
+   "lat": 38.428433,
+   "lon": 27.40953
+  },
+  {
+   "name": "Aşağı Yenmiş",
+   "district": "Kemalpaşa",
+   "kind": "neighborhood",
+   "lat": 38.45856,
+   "lon": 27.43759
+  },
+  {
+   "name": "Aşağıkızılca",
+   "district": "Kemalpaşa",
+   "kind": "neighborhood",
+   "lat": 38.397773,
+   "lon": 27.513797
+  },
+  {
+   "name": "Bayramlı",
+   "district": "Kemalpaşa",
+   "kind": "neighborhood",
+   "lat": 38.32169,
+   "lon": 27.536821
+  },
+  {
+   "name": "Bağyurdu 29 Ekim",
+   "district": "Kemalpaşa",
+   "kind": "neighborhood",
+   "lat": 38.414261,
+   "lon": 27.638183
+  },
+  {
+   "name": "Bağyurdu Kemal Atatürk",
+   "district": "Kemalpaşa",
+   "kind": "neighborhood",
+   "lat": 38.411014,
+   "lon": 27.622326
+  },
+  {
+   "name": "Beşpınar",
+   "district": "Kemalpaşa",
+   "kind": "neighborhood",
+   "lat": 38.519039,
+   "lon": 27.451587
+  },
+  {
+   "name": "Cumalı",
+   "district": "Kemalpaşa",
+   "kind": "neighborhood",
+   "lat": 38.316987,
+   "lon": 27.461522
+  },
+  {
+   "name": "Damlacık",
+   "district": "Kemalpaşa",
+   "kind": "neighborhood",
+   "lat": 38.498623,
+   "lon": 27.378052
+  },
+  {
+   "name": "Dereköy",
+   "district": "Kemalpaşa",
+   "kind": "neighborhood",
+   "lat": 38.338328,
+   "lon": 27.455648
+  },
+  {
+   "name": "Gökyaka",
+   "district": "Kemalpaşa",
+   "kind": "neighborhood",
+   "lat": 38.327459,
+   "lon": 27.459699
+  },
+  {
+   "name": "Gökçeyurt",
+   "district": "Kemalpaşa",
+   "kind": "neighborhood",
+   "lat": 38.433396,
+   "lon": 27.684273
+  },
+  {
+   "name": "Halilbeyli",
+   "district": "Kemalpaşa",
+   "kind": "neighborhood",
+   "lat": 38.439977,
+   "lon": 27.667124
+  },
+  {
+   "name": "Hamzababa",
+   "district": "Kemalpaşa",
+   "kind": "neighborhood",
+   "lat": 38.419329,
+   "lon": 27.708882
+  },
+  {
+   "name": "Kamberler",
+   "district": "Kemalpaşa",
+   "kind": "neighborhood",
+   "lat": 38.336913,
+   "lon": 27.572509
+  },
+  {
+   "name": "Kızılüzüm",
+   "district": "Kemalpaşa",
+   "kind": "neighborhood",
+   "lat": 38.438339,
+   "lon": 27.366648
+  },
+  {
+   "name": "Kuyucak",
+   "district": "Kemalpaşa",
+   "kind": "neighborhood",
+   "lat": 38.488604,
+   "lon": 27.390635
+  },
+  {
+   "name": "Mehmet Akif Ersoy",
+   "district": "Kemalpaşa",
+   "kind": "neighborhood",
+   "lat": 38.428472,
+   "lon": 27.419923
+  },
+  {
+   "name": "Nazarköy",
+   "district": "Kemalpaşa",
+   "kind": "neighborhood",
+   "lat": 38.384849,
+   "lon": 27.443692
+  },
+  {
+   "name": "Ovacık",
+   "district": "Kemalpaşa",
+   "kind": "neighborhood",
+   "lat": 38.354106,
+   "lon": 27.681024
+  },
+  {
+   "name": "Sarılar",
+   "district": "Kemalpaşa",
+   "kind": "neighborhood",
+   "lat": 38.415066,
+   "lon": 27.657067
+  },
+  {
+   "name": "Sarıçalı",
+   "district": "Kemalpaşa",
+   "kind": "neighborhood",
+   "lat": 38.440436,
+   "lon": 27.695324
+  },
+  {
+   "name": "Sekiz Eylül",
+   "district": "Kemalpaşa",
+   "kind": "neighborhood",
+   "lat": 38.43064,
+   "lon": 27.412098
+  },
+  {
+   "name": "Soğukpınar",
+   "district": "Kemalpaşa",
+   "kind": "neighborhood",
+   "lat": 38.420319,
+   "lon": 27.42744
+  },
+  {
+   "name": "Sütçüler",
+   "district": "Kemalpaşa",
+   "kind": "neighborhood",
+   "lat": 38.455625,
+   "lon": 27.454302
+  },
+  {
+   "name": "Sinancılar",
+   "district": "Kemalpaşa",
+   "kind": "neighborhood",
+   "lat": 38.416861,
+   "lon": 27.663423
+  },
+  {
+   "name": "Ulucak Cumhuriyet",
+   "district": "Kemalpaşa",
+   "kind": "neighborhood",
+   "lat": 38.47858,
+   "lon": 27.356343
+  },
+  {
+   "name": "Ulucak Mustafa Kemal Atatürk",
+   "district": "Kemalpaşa",
+   "kind": "neighborhood",
+   "lat": 38.478976,
+   "lon": 27.357153
+  },
+  {
+   "name": "Ulucak İstiklal",
+   "district": "Kemalpaşa",
+   "kind": "neighborhood",
+   "lat": 38.480351,
+   "lon": 27.358962
+  },
+  {
+   "name": "Vişneli",
+   "district": "Kemalpaşa",
+   "kind": "neighborhood",
+   "lat": 38.34144,
+   "lon": 27.397614
+  },
+  {
+   "name": "Yenmiş",
+   "district": "Kemalpaşa",
+   "kind": "neighborhood",
+   "lat": 38.485718,
+   "lon": 27.429087
+  },
+  {
+   "name": "Yenikurudere",
+   "district": "Kemalpaşa",
+   "kind": "neighborhood",
+   "lat": 38.340052,
+   "lon": 27.609003
+  },
+  {
+   "name": "Yeşilköy",
+   "district": "Kemalpaşa",
+   "kind": "neighborhood",
+   "lat": 38.315308,
+   "lon": 27.460785
+  },
+  {
+   "name": "Yeşilyurt",
+   "district": "Kemalpaşa",
+   "kind": "neighborhood",
+   "lat": 38.428052,
+   "lon": 27.6756
+  },
+  {
+   "name": "Yukarıkızılca Merkez",
+   "district": "Kemalpaşa",
+   "kind": "neighborhood",
+   "lat": 38.38576,
+   "lon": 27.498744
+  },
+  {
+   "name": "Yiğitler",
+   "district": "Kemalpaşa",
+   "kind": "neighborhood",
+   "lat": 38.412803,
+   "lon": 27.61366
+  },
+  {
+   "name": "Zeamet",
+   "district": "Kemalpaşa",
+   "kind": "neighborhood",
+   "lat": 38.416235,
+   "lon": 27.69069
+  },
+  {
+   "name": "Çambel",
+   "district": "Kemalpaşa",
+   "kind": "neighborhood",
+   "lat": 38.466949,
+   "lon": 27.518306
+  },
+  {
+   "name": "Çınarköy",
+   "district": "Kemalpaşa",
+   "kind": "neighborhood",
+   "lat": 38.430537,
+   "lon": 27.398774
+  },
+  {
+   "name": "Ören 75.yıl Cumhuriyet",
+   "district": "Kemalpaşa",
+   "kind": "neighborhood",
+   "lat": 38.409039,
+   "lon": 27.592008
+  },
+  {
+   "name": "Örnekköy",
+   "district": "Kemalpaşa",
+   "kind": "neighborhood",
+   "lat": 38.41946,
+   "lon": 27.467197
+  },
+  {
+   "name": "Arpadere",
+   "district": "Kınık",
+   "kind": "neighborhood",
+   "lat": 38.999596,
+   "lon": 27.464394
+  },
+  {
+   "name": "Arpaseki",
+   "district": "Kınık",
+   "kind": "neighborhood",
+   "lat": 39.097264,
+   "lon": 27.490396
+  },
+  {
+   "name": "Aziziye",
+   "district": "Kınık",
+   "kind": "neighborhood",
+   "lat": 39.109483,
+   "lon": 27.484481
+  },
+  {
+   "name": "Aşağı",
+   "district": "Kınık",
+   "kind": "neighborhood",
+   "lat": 39.086887,
+   "lon": 27.381195
+  },
+  {
+   "name": "Bademalan",
+   "district": "Kınık",
+   "kind": "neighborhood",
+   "lat": 38.996083,
+   "lon": 27.316856
+  },
+  {
+   "name": "Balaban",
+   "district": "Kınık",
+   "kind": "neighborhood",
+   "lat": 39.06327,
+   "lon": 27.262339
+  },
+  {
+   "name": "Bağalan",
+   "district": "Kınık",
+   "kind": "neighborhood",
+   "lat": 39.061511,
+   "lon": 27.423482
+  },
+  {
+   "name": "Büyükoba",
+   "district": "Kınık",
+   "kind": "neighborhood",
+   "lat": 39.045279,
+   "lon": 27.467867
+  },
+  {
+   "name": "Cumalı",
+   "district": "Kınık",
+   "kind": "neighborhood",
+   "lat": 39.133398,
+   "lon": 27.475839
+  },
+  {
+   "name": "Değirmencieli",
+   "district": "Kınık",
+   "kind": "neighborhood",
+   "lat": 39.083755,
+   "lon": 27.44934
+  },
+  {
+   "name": "Dündarlı",
+   "district": "Kınık",
+   "kind": "neighborhood",
+   "lat": 39.10175,
+   "lon": 27.304106
+  },
+  {
+   "name": "Elmadere",
+   "district": "Kınık",
+   "kind": "neighborhood",
+   "lat": 39.028867,
+   "lon": 27.484822
+  },
+  {
+   "name": "Fatih",
+   "district": "Kınık",
+   "kind": "neighborhood",
+   "lat": 39.090258,
+   "lon": 27.384754
+  },
+  {
+   "name": "Hamzahocalı",
+   "district": "Kınık",
+   "kind": "neighborhood",
+   "lat": 39.123277,
+   "lon": 27.462293
+  },
+  {
+   "name": "Işıklar",
+   "district": "Kınık",
+   "kind": "neighborhood",
+   "lat": 39.081478,
+   "lon": 27.325758
+  },
+  {
+   "name": "Kalemköy",
+   "district": "Kınık",
+   "kind": "neighborhood",
+   "lat": 39.044345,
+   "lon": 27.501074
+  },
+  {
+   "name": "Karadere",
+   "district": "Kınık",
+   "kind": "neighborhood",
+   "lat": 38.965966,
+   "lon": 27.451099
+  },
+  {
+   "name": "Karatekeli",
+   "district": "Kınık",
+   "kind": "neighborhood",
+   "lat": 39.066952,
+   "lon": 27.29815
+  },
+  {
+   "name": "Kocaömer",
+   "district": "Kınık",
+   "kind": "neighborhood",
+   "lat": 39.084709,
+   "lon": 27.424937
+  },
+  {
+   "name": "Kodukburun",
+   "district": "Kınık",
+   "kind": "neighborhood",
+   "lat": 39.040263,
+   "lon": 27.346331
+  },
+  {
+   "name": "Köseler",
+   "district": "Kınık",
+   "kind": "neighborhood",
+   "lat": 39.012065,
+   "lon": 27.375011
+  },
+  {
+   "name": "Mıstıklar",
+   "district": "Kınık",
+   "kind": "neighborhood",
+   "lat": 39.026628,
+   "lon": 27.380874
+  },
+  {
+   "name": "Musacalı",
+   "district": "Kınık",
+   "kind": "neighborhood",
+   "lat": 39.036194,
+   "lon": 27.237347
+  },
+  {
+   "name": "Poyracık",
+   "district": "Kınık",
+   "kind": "neighborhood",
+   "lat": 39.090283,
+   "lon": 27.349621
+  },
+  {
+   "name": "Sucahlı",
+   "district": "Kınık",
+   "kind": "neighborhood",
+   "lat": 39.075644,
+   "lon": 27.287224
+  },
+  {
+   "name": "Taştepe",
+   "district": "Kınık",
+   "kind": "neighborhood",
+   "lat": 39.10704,
+   "lon": 27.46759
+  },
+  {
+   "name": "Türkcedit",
+   "district": "Kınık",
+   "kind": "neighborhood",
+   "lat": 39.085074,
+   "lon": 27.383857
+  },
+  {
+   "name": "Yayakent",
+   "district": "Kınık",
+   "kind": "neighborhood",
+   "lat": 39.087109,
+   "lon": 27.307694
+  },
+  {
+   "name": "Yaylaköy",
+   "district": "Kınık",
+   "kind": "neighborhood",
+   "lat": 39.03283,
+   "lon": 27.512165
+  },
+  {
+   "name": "Çaltı",
+   "district": "Kınık",
+   "kind": "neighborhood",
+   "lat": 39.099488,
+   "lon": 27.441881
+  },
+  {
+   "name": "Çanköy",
+   "district": "Kınık",
+   "kind": "neighborhood",
+   "lat": 39.015467,
+   "lon": 27.433993
+  },
+  {
+   "name": "Çiftlikköy",
+   "district": "Kınık",
+   "kind": "neighborhood",
+   "lat": 39.034327,
+   "lon": 27.272567
+  },
+  {
+   "name": "Örtülü",
+   "district": "Kınık",
+   "kind": "neighborhood",
+   "lat": 38.962252,
+   "lon": 27.348302
+  },
+  {
+   "name": "İbrahimağa",
+   "district": "Kınık",
+   "kind": "neighborhood",
+   "lat": 39.011186,
+   "lon": 27.26048
+  },
+  {
+   "name": "19 Mayıs",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.407031,
+   "lon": 27.144525
+  },
+  {
+   "name": "2.kadriye",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.404002,
+   "lon": 27.136868
+  },
+  {
+   "name": "26 Ağustos",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.413313,
+   "lon": 27.168807
+  },
+  {
+   "name": "Akdeniz",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.423012,
+   "lon": 27.134647
+  },
+  {
+   "name": "Akın Simav",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.406067,
+   "lon": 27.110317
+  },
+  {
+   "name": "Akıncı",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.420786,
+   "lon": 27.14359
+  },
+  {
+   "name": "Alsancak",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.435192,
+   "lon": 27.142763
+  },
+  {
+   "name": "Altay",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.414099,
+   "lon": 27.137058
+  },
+  {
+   "name": "Altıntaş",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.406319,
+   "lon": 27.121434
+  },
+  {
+   "name": "Ali Reis",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.41606,
+   "lon": 27.142041
+  },
+  {
+   "name": "Anadolu",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.416977,
+   "lon": 27.178142
+  },
+  {
+   "name": "Atamer",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.410782,
+   "lon": 27.178864
+  },
+  {
+   "name": "Atilla",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.405877,
+   "lon": 27.126682
+  },
+  {
+   "name": "Aziziye",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.410996,
+   "lon": 27.135332
+  },
+  {
+   "name": "Ballıkuyu",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.415929,
+   "lon": 27.151864
+  },
+  {
+   "name": "Barbaros",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.409845,
+   "lon": 27.12229
+  },
+  {
+   "name": "Bozkurt",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.414312,
+   "lon": 27.132689
+  },
+  {
+   "name": "Cengiz Topel",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.420167,
+   "lon": 27.171531
+  },
+  {
+   "name": "Dolaplıkuyu",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.411952,
+   "lon": 27.135759
+  },
+  {
+   "name": "Duatepe",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.407272,
+   "lon": 27.134394
+  },
+  {
+   "name": "Ege",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.429165,
+   "lon": 27.153747
+  },
+  {
+   "name": "Emir Sultan",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.420719,
+   "lon": 27.167149
+  },
+  {
+   "name": "Fatih",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.410878,
+   "lon": 27.127597
+  },
+  {
+   "name": "Faik Paşa",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.420491,
+   "lon": 27.14484
+  },
+  {
+   "name": "Ferahlı",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.411675,
+   "lon": 27.1657
+  },
+  {
+   "name": "Fevzi Paşa",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.415462,
+   "lon": 27.130926
+  },
+  {
+   "name": "Göztepe",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.400801,
+   "lon": 27.094312
+  },
+  {
+   "name": "Güney",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.421116,
+   "lon": 27.160281
+  },
+  {
+   "name": "Güneş",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.417565,
+   "lon": 27.135428
+  },
+  {
+   "name": "Güneşli",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.402277,
+   "lon": 27.127573
+  },
+  {
+   "name": "Güzelyalı",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.397008,
+   "lon": 27.082908
+  },
+  {
+   "name": "Güzelyurt",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.42035,
+   "lon": 27.135952
+  },
+  {
+   "name": "Halkapınar",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.431038,
+   "lon": 27.163903
+  },
+  {
+   "name": "Hasan Özdemir",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.4061,
+   "lon": 27.140525
+  },
+  {
+   "name": "Hurşidiye",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.420525,
+   "lon": 27.138735
+  },
+  {
+   "name": "Huzur",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.416509,
+   "lon": 27.174123
+  },
+  {
+   "name": "Hilal",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.424712,
+   "lon": 27.157951
+  },
+  {
+   "name": "Kahramanlar",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.426903,
+   "lon": 27.151162
+  },
+  {
+   "name": "Kestelli",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.41685,
+   "lon": 27.134946
+  },
+  {
+   "name": "Kılıç Reis",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.405479,
+   "lon": 27.117704
+  },
+  {
+   "name": "Kocakapı",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.419299,
+   "lon": 27.149933
+  },
+  {
+   "name": "Kocatepe",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.405476,
+   "lon": 27.128711
+  },
+  {
+   "name": "Konak",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.417668,
+   "lon": 27.131426
+  },
+  {
+   "name": "Kosova",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.414903,
+   "lon": 27.149653
+  },
+  {
+   "name": "Kubilay",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.418653,
+   "lon": 27.144508
+  },
+  {
+   "name": "Kurtuluş",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.420302,
+   "lon": 27.140231
+  },
+  {
+   "name": "Kültür",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.433484,
+   "lon": 27.141344
+  },
+  {
+   "name": "Küçükada",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.411033,
+   "lon": 27.158
+  },
+  {
+   "name": "Lale",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.406355,
+   "lon": 27.150988
+  },
+  {
+   "name": "Levent",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.418423,
+   "lon": 27.166531
+  },
+  {
+   "name": "Mecidiye",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.41199,
+   "lon": 27.124379
+  },
+  {
+   "name": "Mehmet Akif",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.410298,
+   "lon": 27.172812
+  },
+  {
+   "name": "Mehmet Ali Akman",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.396871,
+   "lon": 27.074643
+  },
+  {
+   "name": "Mehtap",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.403802,
+   "lon": 27.15556
+  },
+  {
+   "name": "Mersinli",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.43723,
+   "lon": 27.177491
+  },
+  {
+   "name": "Murat",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.416797,
+   "lon": 27.182629
+  },
+  {
+   "name": "Murat Reis",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.404843,
+   "lon": 27.112139
+  },
+  {
+   "name": "Millet",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.414566,
+   "lon": 27.177434
+  },
+  {
+   "name": "Mimar Sinan",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.43265,
+   "lon": 27.150273
+  },
+  {
+   "name": "Mirali",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.419729,
+   "lon": 27.147023
+  },
+  {
+   "name": "Mithatpaşa",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.40626,
+   "lon": 27.108984
+  },
+  {
+   "name": "Namık Kemal",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.412203,
+   "lon": 27.129244
+  },
+  {
+   "name": "Odunkapı",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.414624,
+   "lon": 27.131577
+  },
+  {
+   "name": "Oğuzlar",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.42217,
+   "lon": 27.148596
+  },
+  {
+   "name": "Pazaryeri",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.418475,
+   "lon": 27.141744
+  },
+  {
+   "name": "Piri Reis",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.404238,
+   "lon": 27.11526
+  },
+  {
+   "name": "Sakarya",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.416984,
+   "lon": 27.136008
+  },
+  {
+   "name": "Saygı",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.412846,
+   "lon": 27.174634
+  },
+  {
+   "name": "Selçuk",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.410961,
+   "lon": 27.131964
+  },
+  {
+   "name": "Sümer",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.415356,
+   "lon": 27.12959
+  },
+  {
+   "name": "Süvari",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.416062,
+   "lon": 27.138694
+  },
+  {
+   "name": "Tan",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.415138,
+   "lon": 27.134513
+  },
+  {
+   "name": "Trakya",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.418882,
+   "lon": 27.177454
+  },
+  {
+   "name": "Tuzcu",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.414585,
+   "lon": 27.134901
+  },
+  {
+   "name": "Türkyılmaz",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.4152,
+   "lon": 27.132905
+  },
+  {
+   "name": "Ulubatlı",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.408133,
+   "lon": 27.167371
+  },
+  {
+   "name": "Umurbey",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.437474,
+   "lon": 27.158485
+  },
+  {
+   "name": "Uğur",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.417056,
+   "lon": 27.133053
+  },
+  {
+   "name": "Yeni",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.417104,
+   "lon": 27.13835
+  },
+  {
+   "name": "Yenidoğan",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.416973,
+   "lon": 27.15669
+  },
+  {
+   "name": "Yenigün",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.421158,
+   "lon": 27.137887
+  },
+  {
+   "name": "Yenişehir",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.427791,
+   "lon": 27.161134
+  },
+  {
+   "name": "Yeşildere",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.413176,
+   "lon": 27.154475
+  },
+  {
+   "name": "Yeşiltepe",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.412575,
+   "lon": 27.124587
+  },
+  {
+   "name": "Yıldız",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.415072,
+   "lon": 27.130243
+  },
+  {
+   "name": "Zafertepe",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.397831,
+   "lon": 27.131736
+  },
+  {
+   "name": "Zeybek",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.415955,
+   "lon": 27.17143
+  },
+  {
+   "name": "Zeytinlik",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.419669,
+   "lon": 27.165333
+  },
+  {
+   "name": "Çankaya",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.40441,
+   "lon": 27.100827
+  },
+  {
+   "name": "Çınarlı",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.441674,
+   "lon": 27.179899
+  },
+  {
+   "name": "Çınartepe",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.409051,
+   "lon": 27.179441
+  },
+  {
+   "name": "Çimentepe",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.404513,
+   "lon": 27.13336
+  },
+  {
+   "name": "Ülkü",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.415984,
+   "lon": 27.136868
+  },
+  {
+   "name": "İsmet Kaptan",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.424495,
+   "lon": 27.139674
+  },
+  {
+   "name": "İsmet Paşa",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.405178,
+   "lon": 27.162799
+  },
+  {
+   "name": "Şehit Nedim Tuğaltay",
+   "district": "Konak",
+   "kind": "neighborhood",
+   "lat": 38.414578,
+   "lon": 27.13328
+  },
+  {
+   "name": "Ahmetler",
+   "district": "Kiraz",
+   "kind": "neighborhood",
+   "lat": 38.111674,
+   "lon": 28.412672
+  },
+  {
+   "name": "Akpınar",
+   "district": "Kiraz",
+   "kind": "neighborhood",
+   "lat": 38.230429,
+   "lon": 28.382852
+  },
+  {
+   "name": "Altınoluk",
+   "district": "Kiraz",
+   "kind": "neighborhood",
+   "lat": 38.225638,
+   "lon": 28.354901
+  },
+  {
+   "name": "Arkacılar",
+   "district": "Kiraz",
+   "kind": "neighborhood",
+   "lat": 38.208621,
+   "lon": 28.205698
+  },
+  {
+   "name": "Avunduruk",
+   "district": "Kiraz",
+   "kind": "neighborhood",
+   "lat": 38.182262,
+   "lon": 28.273529
+  },
+  {
+   "name": "Aydoğdu",
+   "district": "Kiraz",
+   "kind": "neighborhood",
+   "lat": 38.240561,
+   "lon": 28.251616
+  },
+  {
+   "name": "Bahçearası",
+   "district": "Kiraz",
+   "kind": "neighborhood",
+   "lat": 38.225818,
+   "lon": 28.452558
+  },
+  {
+   "name": "Başaran",
+   "district": "Kiraz",
+   "kind": "neighborhood",
+   "lat": 38.26429,
+   "lon": 28.272243
+  },
+  {
+   "name": "Ceritler",
+   "district": "Kiraz",
+   "kind": "neighborhood",
+   "lat": 38.246003,
+   "lon": 28.201816
+  },
+  {
+   "name": "Cevizli",
+   "district": "Kiraz",
+   "kind": "neighborhood",
+   "lat": 38.230875,
+   "lon": 28.456904
+  },
+  {
+   "name": "Cumhuriyet",
+   "district": "Kiraz",
+   "kind": "neighborhood",
+   "lat": 38.229858,
+   "lon": 28.206702
+  },
+  {
+   "name": "Dokuzlar",
+   "district": "Kiraz",
+   "kind": "neighborhood",
+   "lat": 38.296491,
+   "lon": 28.141166
+  },
+  {
+   "name": "Doğancılar",
+   "district": "Kiraz",
+   "kind": "neighborhood",
+   "lat": 38.205598,
+   "lon": 28.456393
+  },
+  {
+   "name": "Emenler",
+   "district": "Kiraz",
+   "kind": "neighborhood",
+   "lat": 38.279113,
+   "lon": 28.18253
+  },
+  {
+   "name": "Gedik",
+   "district": "Kiraz",
+   "kind": "neighborhood",
+   "lat": 38.237669,
+   "lon": 28.150701
+  },
+  {
+   "name": "Haliller",
+   "district": "Kiraz",
+   "kind": "neighborhood",
+   "lat": 38.184461,
+   "lon": 28.289573
+  },
+  {
+   "name": "Hisar",
+   "district": "Kiraz",
+   "kind": "neighborhood",
+   "lat": 38.24085,
+   "lon": 28.191768
+  },
+  {
+   "name": "Kaleköy",
+   "district": "Kiraz",
+   "kind": "neighborhood",
+   "lat": 38.198857,
+   "lon": 28.297433
+  },
+  {
+   "name": "Karabağ",
+   "district": "Kiraz",
+   "kind": "neighborhood",
+   "lat": 38.253007,
+   "lon": 28.177299
+  },
+  {
+   "name": "Karabulu",
+   "district": "Kiraz",
+   "kind": "neighborhood",
+   "lat": 38.137454,
+   "lon": 28.421256
+  },
+  {
+   "name": "Karaburç",
+   "district": "Kiraz",
+   "kind": "neighborhood",
+   "lat": 38.233016,
+   "lon": 28.29855
+  },
+  {
+   "name": "Karaman",
+   "district": "Kiraz",
+   "kind": "neighborhood",
+   "lat": 38.16325,
+   "lon": 28.213541
+  },
+  {
+   "name": "Kırköy",
+   "district": "Kiraz",
+   "kind": "neighborhood",
+   "lat": 38.229744,
+   "lon": 28.197306
+  },
+  {
+   "name": "Kibar",
+   "district": "Kiraz",
+   "kind": "neighborhood",
+   "lat": 38.214293,
+   "lon": 28.414344
+  },
+  {
+   "name": "Mavidere",
+   "district": "Kiraz",
+   "kind": "neighborhood",
+   "lat": 38.13563,
+   "lon": 28.34049
+  },
+  {
+   "name": "Mersinlidere",
+   "district": "Kiraz",
+   "kind": "neighborhood",
+   "lat": 38.146433,
+   "lon": 28.301728
+  },
+  {
+   "name": "Olgunlar",
+   "district": "Kiraz",
+   "kind": "neighborhood",
+   "lat": 38.155625,
+   "lon": 28.366841
+  },
+  {
+   "name": "Ovacık",
+   "district": "Kiraz",
+   "kind": "neighborhood",
+   "lat": 38.306445,
+   "lon": 28.267276
+  },
+  {
+   "name": "Pınarbaşı",
+   "district": "Kiraz",
+   "kind": "neighborhood",
+   "lat": 38.272587,
+   "lon": 28.214361
+  },
+  {
+   "name": "Sarıkaya",
+   "district": "Kiraz",
+   "kind": "neighborhood",
+   "lat": 38.208698,
+   "lon": 28.354031
+  },
+  {
+   "name": "Sarısu",
+   "district": "Kiraz",
+   "kind": "neighborhood",
+   "lat": 38.283154,
+   "lon": 28.316695
+  },
+  {
+   "name": "Saçlı",
+   "district": "Kiraz",
+   "kind": "neighborhood",
+   "lat": 38.256,
+   "lon": 28.181177
+  },
+  {
+   "name": "Sırımlı",
+   "district": "Kiraz",
+   "kind": "neighborhood",
+   "lat": 38.159511,
+   "lon": 28.328128
+  },
+  {
+   "name": "Solaklar",
+   "district": "Kiraz",
+   "kind": "neighborhood",
+   "lat": 38.197883,
+   "lon": 28.357464
+  },
+  {
+   "name": "Suludere",
+   "district": "Kiraz",
+   "kind": "neighborhood",
+   "lat": 38.247914,
+   "lon": 28.235976
+  },
+  {
+   "name": "Taşlıyatak",
+   "district": "Kiraz",
+   "kind": "neighborhood",
+   "lat": 38.160148,
+   "lon": 28.433661
+  },
+  {
+   "name": "Tekbıçaklar",
+   "district": "Kiraz",
+   "kind": "neighborhood",
+   "lat": 38.184782,
+   "lon": 28.318458
+  },
+  {
+   "name": "Tumbullar",
+   "district": "Kiraz",
+   "kind": "neighborhood",
+   "lat": 38.147426,
+   "lon": 28.438355
+  },
+  {
+   "name": "Umurcalı",
+   "district": "Kiraz",
+   "kind": "neighborhood",
+   "lat": 38.195358,
+   "lon": 28.245162
+  },
+  {
+   "name": "Umurlu",
+   "district": "Kiraz",
+   "kind": "neighborhood",
+   "lat": 38.121635,
+   "lon": 28.434901
+  },
+  {
+   "name": "Uzunköy",
+   "district": "Kiraz",
+   "kind": "neighborhood",
+   "lat": 38.282162,
+   "lon": 28.234168
+  },
+  {
+   "name": "Veliler",
+   "district": "Kiraz",
+   "kind": "neighborhood",
+   "lat": 38.263747,
+   "lon": 28.196177
+  },
+  {
+   "name": "Yağlar",
+   "district": "Kiraz",
+   "kind": "neighborhood",
+   "lat": 38.182598,
+   "lon": 28.20284
+  },
+  {
+   "name": "Yeni",
+   "district": "Kiraz",
+   "kind": "neighborhood",
+   "lat": 38.228356,
+   "lon": 28.200413
+  },
+  {
+   "name": "Yeniköy",
+   "district": "Kiraz",
+   "kind": "neighborhood",
+   "lat": 38.191105,
+   "lon": 28.259735
+  },
+  {
+   "name": "Yenişehir",
+   "district": "Kiraz",
+   "kind": "neighborhood",
+   "lat": 38.163391,
+   "lon": 28.239219
+  },
+  {
+   "name": "Yeşildere",
+   "district": "Kiraz",
+   "kind": "neighborhood",
+   "lat": 38.273878,
+   "lon": 28.160342
+  },
+  {
+   "name": "Çanakçı",
+   "district": "Kiraz",
+   "kind": "neighborhood",
+   "lat": 38.264082,
+   "lon": 28.258128
+  },
+  {
+   "name": "Çatak",
+   "district": "Kiraz",
+   "kind": "neighborhood",
+   "lat": 38.288862,
+   "lon": 28.164546
+  },
+  {
+   "name": "Çayağzı",
+   "district": "Kiraz",
+   "kind": "neighborhood",
+   "lat": 38.218962,
+   "lon": 28.303711
+  },
+  {
+   "name": "Çömlekçi",
+   "district": "Kiraz",
+   "kind": "neighborhood",
+   "lat": 38.241571,
+   "lon": 28.263084
+  },
+  {
+   "name": "Ören",
+   "district": "Kiraz",
+   "kind": "neighborhood",
+   "lat": 38.247581,
+   "lon": 28.423157
+  },
+  {
+   "name": "Örencik",
+   "district": "Kiraz",
+   "kind": "neighborhood",
+   "lat": 38.14795,
+   "lon": 28.393315
+  },
+  {
+   "name": "İstiklal",
+   "district": "Kiraz",
+   "kind": "neighborhood",
+   "lat": 38.231432,
+   "lon": 28.204008
+  },
+  {
+   "name": "İğdeli",
+   "district": "Kiraz",
+   "kind": "neighborhood",
+   "lat": 38.217581,
+   "lon": 28.378958
+  },
+  {
+   "name": "Şemsiler",
+   "district": "Kiraz",
+   "kind": "neighborhood",
+   "lat": 38.216495,
+   "lon": 28.218022
+  },
+  {
+   "name": "Ahmetbeyli",
+   "district": "Menderes",
+   "kind": "neighborhood",
+   "lat": 38.023846,
+   "lon": 27.186115
+  },
+  {
+   "name": "Akçaköy",
+   "district": "Menderes",
+   "kind": "neighborhood",
+   "lat": 38.25797,
+   "lon": 27.10153
+  },
+  {
+   "name": "Ata",
+   "district": "Menderes",
+   "kind": "neighborhood",
+   "lat": 38.290163,
+   "lon": 27.132185
+  },
+  {
+   "name": "Ataköy",
+   "district": "Menderes",
+   "kind": "neighborhood",
+   "lat": 38.091313,
+   "lon": 27.166557
+  },
+  {
+   "name": "Bulgurca",
+   "district": "Menderes",
+   "kind": "neighborhood",
+   "lat": 38.216326,
+   "lon": 27.229952
+  },
+  {
+   "name": "Cüneytbey",
+   "district": "Menderes",
+   "kind": "neighborhood",
+   "lat": 38.2506,
+   "lon": 27.132854
+  },
+  {
+   "name": "Dereköy",
+   "district": "Menderes",
+   "kind": "neighborhood",
+   "lat": 38.246181,
+   "lon": 27.112971
+  },
+  {
+   "name": "Develi",
+   "district": "Menderes",
+   "kind": "neighborhood",
+   "lat": 38.20395,
+   "lon": 27.166782
+  },
+  {
+   "name": "Efemçukuru",
+   "district": "Menderes",
+   "kind": "neighborhood",
+   "lat": 38.280866,
+   "lon": 26.96845
+  },
+  {
+   "name": "Gazipaşa",
+   "district": "Menderes",
+   "kind": "neighborhood",
+   "lat": 38.265215,
+   "lon": 27.143013
+  },
+  {
+   "name": "Gölcükler",
+   "district": "Menderes",
+   "kind": "neighborhood",
+   "lat": 38.259276,
+   "lon": 27.144428
+  },
+  {
+   "name": "Gölova",
+   "district": "Menderes",
+   "kind": "neighborhood",
+   "lat": 38.032427,
+   "lon": 27.242161
+  },
+  {
+   "name": "Görece Cumhuriyet",
+   "district": "Menderes",
+   "kind": "neighborhood",
+   "lat": 38.278764,
+   "lon": 27.123769
+  },
+  {
+   "name": "Gümüldür Cumhuriyet",
+   "district": "Menderes",
+   "kind": "neighborhood",
+   "lat": 38.076221,
+   "lon": 26.990223
+  },
+  {
+   "name": "Gümüldür Fevzi Çakmak",
+   "district": "Menderes",
+   "kind": "neighborhood",
+   "lat": 38.075199,
+   "lon": 27.017549
+  },
+  {
+   "name": "Gümüldür İnönü",
+   "district": "Menderes",
+   "kind": "neighborhood",
+   "lat": 38.072782,
+   "lon": 27.02984
+  },
+  {
+   "name": "Hürriyet",
+   "district": "Menderes",
+   "kind": "neighborhood",
+   "lat": 38.288584,
+   "lon": 27.123552
+  },
+  {
+   "name": "Karakuyu",
+   "district": "Menderes",
+   "kind": "neighborhood",
+   "lat": 38.132196,
+   "lon": 27.236422
+  },
+  {
+   "name": "Keler",
+   "district": "Menderes",
+   "kind": "neighborhood",
+   "lat": 38.166127,
+   "lon": 27.056904
+  },
+  {
+   "name": "Kemalpaşa",
+   "district": "Menderes",
+   "kind": "neighborhood",
+   "lat": 38.252567,
+   "lon": 27.13411
+  },
+  {
+   "name": "Kısık",
+   "district": "Menderes",
+   "kind": "neighborhood",
+   "lat": 38.277793,
+   "lon": 27.186594
+  },
+  {
+   "name": "Kuyucak",
+   "district": "Menderes",
+   "kind": "neighborhood",
+   "lat": 38.191066,
+   "lon": 26.992093
+  },
+  {
+   "name": "Küner",
+   "district": "Menderes",
+   "kind": "neighborhood",
+   "lat": 38.210854,
+   "lon": 27.128577
+  },
+  {
+   "name": "Mithatpaşa",
+   "district": "Menderes",
+   "kind": "neighborhood",
+   "lat": 38.251599,
+   "lon": 27.135844
+  },
+  {
+   "name": "Orta",
+   "district": "Menderes",
+   "kind": "neighborhood",
+   "lat": 38.049917,
+   "lon": 27.053969
+  },
+  {
+   "name": "Oğlananası Atatürk",
+   "district": "Menderes",
+   "kind": "neighborhood",
+   "lat": 38.239983,
+   "lon": 27.224218
+  },
+  {
+   "name": "Sancaklı",
+   "district": "Menderes",
+   "kind": "neighborhood",
+   "lat": 38.142174,
+   "lon": 27.16764
+  },
+  {
+   "name": "Tekeli Fevzi Çakmak",
+   "district": "Menderes",
+   "kind": "neighborhood",
+   "lat": 38.187535,
+   "lon": 27.18985
+  },
+  {
+   "name": "Yeniköy",
+   "district": "Menderes",
+   "kind": "neighborhood",
+   "lat": 38.215909,
+   "lon": 27.043855
+  },
+  {
+   "name": "Çakaltepe",
+   "district": "Menderes",
+   "kind": "neighborhood",
+   "lat": 38.070993,
+   "lon": 27.211927
+  },
+  {
+   "name": "Çamönü",
+   "district": "Menderes",
+   "kind": "neighborhood",
+   "lat": 38.102781,
+   "lon": 27.155298
+  },
+  {
+   "name": "Çatalca",
+   "district": "Menderes",
+   "kind": "neighborhood",
+   "lat": 38.25937,
+   "lon": 27.069937
+  },
+  {
+   "name": "Çukuraltı",
+   "district": "Menderes",
+   "kind": "neighborhood",
+   "lat": 38.021359,
+   "lon": 27.096968
+  },
+  {
+   "name": "Çile",
+   "district": "Menderes",
+   "kind": "neighborhood",
+   "lat": 38.045853,
+   "lon": 27.189747
+  },
+  {
+   "name": "Çileme",
+   "district": "Menderes",
+   "kind": "neighborhood",
+   "lat": 38.14994,
+   "lon": 27.178956
+  },
+  {
+   "name": "Özdere Cumhuriyet",
+   "district": "Menderes",
+   "kind": "neighborhood",
+   "lat": 38.016382,
+   "lon": 27.127838
+  },
+  {
+   "name": "Şaşal",
+   "district": "Menderes",
+   "kind": "neighborhood",
+   "lat": 38.1805,
+   "lon": 27.115183
+  },
+  {
+   "name": "29 Ekim",
+   "district": "Menemen",
+   "kind": "neighborhood",
+   "lat": 38.546216,
+   "lon": 27.038646
+  },
+  {
+   "name": "30 Ağustos",
+   "district": "Menemen",
+   "kind": "neighborhood",
+   "lat": 38.557381,
+   "lon": 27.045362
+  },
+  {
+   "name": "75.yıl Cumhuriyet",
+   "district": "Menemen",
+   "kind": "neighborhood",
+   "lat": 38.628336,
+   "lon": 26.908944
+  },
+  {
+   "name": "9 Eylül",
+   "district": "Menemen",
+   "kind": "neighborhood",
+   "lat": 38.538696,
+   "lon": 27.035726
+  },
+  {
+   "name": "Ahıhıdır",
+   "district": "Menemen",
+   "kind": "neighborhood",
+   "lat": 38.608429,
+   "lon": 27.064656
+  },
+  {
+   "name": "Alaniçi",
+   "district": "Menemen",
+   "kind": "neighborhood",
+   "lat": 38.60967,
+   "lon": 27.206469
+  },
+  {
+   "name": "Atatürk",
+   "district": "Menemen",
+   "kind": "neighborhood",
+   "lat": 38.597321,
+   "lon": 27.059575
+  },
+  {
+   "name": "Ayvacık",
+   "district": "Menemen",
+   "kind": "neighborhood",
+   "lat": 38.612291,
+   "lon": 27.19089
+  },
+  {
+   "name": "Bağcılar",
+   "district": "Menemen",
+   "kind": "neighborhood",
+   "lat": 38.619816,
+   "lon": 27.200328
+  },
+  {
+   "name": "Belen",
+   "district": "Menemen",
+   "kind": "neighborhood",
+   "lat": 38.636979,
+   "lon": 27.101336
+  },
+  {
+   "name": "Bozalan",
+   "district": "Menemen",
+   "kind": "neighborhood",
+   "lat": 38.704104,
+   "lon": 27.195493
+  },
+  {
+   "name": "Buruncuk",
+   "district": "Menemen",
+   "kind": "neighborhood",
+   "lat": 38.665314,
+   "lon": 27.025491
+  },
+  {
+   "name": "Cumhuriyet",
+   "district": "Menemen",
+   "kind": "neighborhood",
+   "lat": 38.573154,
+   "lon": 27.061309
+  },
+  {
+   "name": "Değirmendere",
+   "district": "Menemen",
+   "kind": "neighborhood",
+   "lat": 38.625206,
+   "lon": 27.149705
+  },
+  {
+   "name": "Doğa",
+   "district": "Menemen",
+   "kind": "neighborhood",
+   "lat": 38.649603,
+   "lon": 27.090933
+  },
+  {
+   "name": "Emiralem Merkez",
+   "district": "Menemen",
+   "kind": "neighborhood",
+   "lat": 38.621195,
+   "lon": 27.145477
+  },
+  {
+   "name": "Esatpaşa",
+   "district": "Menemen",
+   "kind": "neighborhood",
+   "lat": 38.602362,
+   "lon": 27.075118
+  },
+  {
+   "name": "Fatih",
+   "district": "Menemen",
+   "kind": "neighborhood",
+   "lat": 38.685581,
+   "lon": 27.032339
+  },
+  {
+   "name": "Gaybi",
+   "district": "Menemen",
+   "kind": "neighborhood",
+   "lat": 38.608297,
+   "lon": 27.06773
+  },
+  {
+   "name": "Gazi",
+   "district": "Menemen",
+   "kind": "neighborhood",
+   "lat": 38.573922,
+   "lon": 27.068366
+  },
+  {
+   "name": "Gazi Mustafa Kemal",
+   "district": "Menemen",
+   "kind": "neighborhood",
+   "lat": 38.581326,
+   "lon": 26.974114
+  },
+  {
+   "name": "Göktepe",
+   "district": "Menemen",
+   "kind": "neighborhood",
+   "lat": 38.60958,
+   "lon": 27.162164
+  },
+  {
+   "name": "Gölcük",
+   "district": "Menemen",
+   "kind": "neighborhood",
+   "lat": 38.585402,
+   "lon": 27.082057
+  },
+  {
+   "name": "Görece",
+   "district": "Menemen",
+   "kind": "neighborhood",
+   "lat": 38.649733,
+   "lon": 27.164633
+  },
+  {
+   "name": "Günerli",
+   "district": "Menemen",
+   "kind": "neighborhood",
+   "lat": 38.568243,
+   "lon": 26.998289
+  },
+  {
+   "name": "Hasanlar",
+   "district": "Menemen",
+   "kind": "neighborhood",
+   "lat": 38.640628,
+   "lon": 27.124918
+  },
+  {
+   "name": "Hatundere",
+   "district": "Menemen",
+   "kind": "neighborhood",
+   "lat": 38.700776,
+   "lon": 27.043435
+  },
+  {
+   "name": "Haykıran",
+   "district": "Menemen",
+   "kind": "neighborhood",
+   "lat": 38.63925,
+   "lon": 27.116705
+  },
+  {
+   "name": "Irmak",
+   "district": "Menemen",
+   "kind": "neighborhood",
+   "lat": 38.589216,
+   "lon": 27.079791
+  },
+  {
+   "name": "Karaorman",
+   "district": "Menemen",
+   "kind": "neighborhood",
+   "lat": 38.606344,
+   "lon": 27.231749
+  },
+  {
+   "name": "Kasımpaşa",
+   "district": "Menemen",
+   "kind": "neighborhood",
+   "lat": 38.608686,
+   "lon": 27.073773
+  },
+  {
+   "name": "Kazımpaşa",
+   "district": "Menemen",
+   "kind": "neighborhood",
+   "lat": 38.603622,
+   "lon": 27.068638
+  },
+  {
+   "name": "Kemal Atatürk",
+   "district": "Menemen",
+   "kind": "neighborhood",
+   "lat": 38.577298,
+   "lon": 27.07274
+  },
+  {
+   "name": "Kesik",
+   "district": "Menemen",
+   "kind": "neighborhood",
+   "lat": 38.616885,
+   "lon": 26.995768
+  },
+  {
+   "name": "Kır",
+   "district": "Menemen",
+   "kind": "neighborhood",
+   "lat": 38.62571,
+   "lon": 27.165768
+  },
+  {
+   "name": "Mermerli",
+   "district": "Menemen",
+   "kind": "neighborhood",
+   "lat": 38.611225,
+   "lon": 27.069356
+  },
+  {
+   "name": "Musabey",
+   "district": "Menemen",
+   "kind": "neighborhood",
+   "lat": 38.636764,
+   "lon": 27.008348
+  },
+  {
+   "name": "Süleymanlı",
+   "district": "Menemen",
+   "kind": "neighborhood",
+   "lat": 38.635189,
+   "lon": 27.178179
+  },
+  {
+   "name": "Süzbeyli",
+   "district": "Menemen",
+   "kind": "neighborhood",
+   "lat": 38.53728,
+   "lon": 26.911769
+  },
+  {
+   "name": "Telekler",
+   "district": "Menemen",
+   "kind": "neighborhood",
+   "lat": 38.66253,
+   "lon": 27.215718
+  },
+  {
+   "name": "Turgutlar",
+   "district": "Menemen",
+   "kind": "neighborhood",
+   "lat": 38.714094,
+   "lon": 27.164036
+  },
+  {
+   "name": "Tuzçullu",
+   "district": "Menemen",
+   "kind": "neighborhood",
+   "lat": 38.550349,
+   "lon": 26.939324
+  },
+  {
+   "name": "Tülbentli",
+   "district": "Menemen",
+   "kind": "neighborhood",
+   "lat": 38.608199,
+   "lon": 27.068746
+  },
+  {
+   "name": "Ulus",
+   "district": "Menemen",
+   "kind": "neighborhood",
+   "lat": 38.577282,
+   "lon": 27.067214
+  },
+  {
+   "name": "Uğur Mumcu",
+   "district": "Menemen",
+   "kind": "neighborhood",
+   "lat": 38.601506,
+   "lon": 27.081212
+  },
+  {
+   "name": "Villakent",
+   "district": "Menemen",
+   "kind": "neighborhood",
+   "lat": 38.605354,
+   "lon": 26.918158
+  },
+  {
+   "name": "Yahşelli",
+   "district": "Menemen",
+   "kind": "neighborhood",
+   "lat": 38.610896,
+   "lon": 27.108911
+  },
+  {
+   "name": "Yanıkköy",
+   "district": "Menemen",
+   "kind": "neighborhood",
+   "lat": 38.654718,
+   "lon": 27.081681
+  },
+  {
+   "name": "Yayla",
+   "district": "Menemen",
+   "kind": "neighborhood",
+   "lat": 38.622122,
+   "lon": 27.136637
+  },
+  {
+   "name": "Yeşil Pınar",
+   "district": "Menemen",
+   "kind": "neighborhood",
+   "lat": 38.583729,
+   "lon": 27.09381
+  },
+  {
+   "name": "Yıldırım",
+   "district": "Menemen",
+   "kind": "neighborhood",
+   "lat": 38.684863,
+   "lon": 27.031031
+  },
+  {
+   "name": "Zafer",
+   "district": "Menemen",
+   "kind": "neighborhood",
+   "lat": 38.604324,
+   "lon": 27.070703
+  },
+  {
+   "name": "Zeytinlik",
+   "district": "Menemen",
+   "kind": "neighborhood",
+   "lat": 38.585259,
+   "lon": 27.079945
+  },
+  {
+   "name": "Çaltı",
+   "district": "Menemen",
+   "kind": "neighborhood",
+   "lat": 38.618634,
+   "lon": 27.227096
+  },
+  {
+   "name": "Çavuş",
+   "district": "Menemen",
+   "kind": "neighborhood",
+   "lat": 38.636249,
+   "lon": 27.025915
+  },
+  {
+   "name": "Çukurköy",
+   "district": "Menemen",
+   "kind": "neighborhood",
+   "lat": 38.696008,
+   "lon": 27.11777
+  },
+  {
+   "name": "İncirli Pınar",
+   "district": "Menemen",
+   "kind": "neighborhood",
+   "lat": 38.583603,
+   "lon": 27.081002
+  },
+  {
+   "name": "İstiklal",
+   "district": "Menemen",
+   "kind": "neighborhood",
+   "lat": 38.554866,
+   "lon": 27.055553
+  },
+  {
+   "name": "İğnedere",
+   "district": "Menemen",
+   "kind": "neighborhood",
+   "lat": 38.656371,
+   "lon": 27.159071
+  },
+  {
+   "name": "2. İnönü",
+   "district": "Narlıdere",
+   "kind": "neighborhood",
+   "lat": 38.388374,
+   "lon": 27.013483
+  },
+  {
+   "name": "Altıevler",
+   "district": "Narlıdere",
+   "kind": "neighborhood",
+   "lat": 38.406159,
+   "lon": 26.995087
+  },
+  {
+   "name": "Atatürk",
+   "district": "Narlıdere",
+   "kind": "neighborhood",
+   "lat": 38.389904,
+   "lon": 27.017427
+  },
+  {
+   "name": "Huzur",
+   "district": "Narlıdere",
+   "kind": "neighborhood",
+   "lat": 38.395743,
+   "lon": 26.992302
+  },
+  {
+   "name": "Ilıca",
+   "district": "Narlıdere",
+   "kind": "neighborhood",
+   "lat": 38.392276,
+   "lon": 27.023762
+  },
+  {
+   "name": "Limanreis",
+   "district": "Narlıdere",
+   "kind": "neighborhood",
+   "lat": 38.382366,
+   "lon": 26.933971
+  },
+  {
+   "name": "Narlı",
+   "district": "Narlıdere",
+   "kind": "neighborhood",
+   "lat": 38.393747,
+   "lon": 27.00387
+  },
+  {
+   "name": "Sahilevleri",
+   "district": "Narlıdere",
+   "kind": "neighborhood",
+   "lat": 38.408021,
+   "lon": 27.005553
+  },
+  {
+   "name": "Yenikale",
+   "district": "Narlıdere",
+   "kind": "neighborhood",
+   "lat": 38.396197,
+   "lon": 27.011761
+  },
+  {
+   "name": "Çamtepe",
+   "district": "Narlıdere",
+   "kind": "neighborhood",
+   "lat": 38.392736,
+   "lon": 27.012405
+  },
+  {
+   "name": "Akarca",
+   "district": "Seferihisar",
+   "kind": "neighborhood",
+   "lat": 38.144604,
+   "lon": 26.827172
+  },
+  {
+   "name": "Atatürk",
+   "district": "Seferihisar",
+   "kind": "neighborhood",
+   "lat": 38.06843,
+   "lon": 26.904956
+  },
+  {
+   "name": "Bengiler",
+   "district": "Seferihisar",
+   "kind": "neighborhood",
+   "lat": 38.079202,
+   "lon": 26.955882
+  },
+  {
+   "name": "Beyler",
+   "district": "Seferihisar",
+   "kind": "neighborhood",
+   "lat": 38.229621,
+   "lon": 26.925967
+  },
+  {
+   "name": "Camikebir",
+   "district": "Seferihisar",
+   "kind": "neighborhood",
+   "lat": 38.195431,
+   "lon": 26.83821
+  },
+  {
+   "name": "Cumhuriyet",
+   "district": "Seferihisar",
+   "kind": "neighborhood",
+   "lat": 38.069702,
+   "lon": 26.909677
+  },
+  {
+   "name": "Düzce",
+   "district": "Seferihisar",
+   "kind": "neighborhood",
+   "lat": 38.241622,
+   "lon": 26.816604
+  },
+  {
+   "name": "Gödence",
+   "district": "Seferihisar",
+   "kind": "neighborhood",
+   "lat": 38.269945,
+   "lon": 26.918161
+  },
+  {
+   "name": "Gölcük",
+   "district": "Seferihisar",
+   "kind": "neighborhood",
+   "lat": 38.271136,
+   "lon": 26.904971
+  },
+  {
+   "name": "Hıdırlık",
+   "district": "Seferihisar",
+   "kind": "neighborhood",
+   "lat": 38.194783,
+   "lon": 26.837826
+  },
+  {
+   "name": "Kavakdere",
+   "district": "Seferihisar",
+   "kind": "neighborhood",
+   "lat": 38.127629,
+   "lon": 26.910631
+  },
+  {
+   "name": "Orhanlı",
+   "district": "Seferihisar",
+   "kind": "neighborhood",
+   "lat": 38.167179,
+   "lon": 26.952317
+  },
+  {
+   "name": "Payamlı",
+   "district": "Seferihisar",
+   "kind": "neighborhood",
+   "lat": 38.075177,
+   "lon": 26.929655
+  },
+  {
+   "name": "Sığacık",
+   "district": "Seferihisar",
+   "kind": "neighborhood",
+   "lat": 38.193402,
+   "lon": 26.784654
+  },
+  {
+   "name": "Tepecik",
+   "district": "Seferihisar",
+   "kind": "neighborhood",
+   "lat": 38.181506,
+   "lon": 26.835606
+  },
+  {
+   "name": "Turgut",
+   "district": "Seferihisar",
+   "kind": "neighborhood",
+   "lat": 38.2586,
+   "lon": 26.806872
+  },
+  {
+   "name": "Ulamış",
+   "district": "Seferihisar",
+   "kind": "neighborhood",
+   "lat": 38.247019,
+   "lon": 26.842386
+  },
+  {
+   "name": "Çamtepe",
+   "district": "Seferihisar",
+   "kind": "neighborhood",
+   "lat": 38.284734,
+   "lon": 26.94269
+  },
+  {
+   "name": "Çolak İbrahim Bey",
+   "district": "Seferihisar",
+   "kind": "neighborhood",
+   "lat": 38.198945,
+   "lon": 26.838179
+  },
+  {
+   "name": "İhsaniye",
+   "district": "Seferihisar",
+   "kind": "neighborhood",
+   "lat": 38.275763,
+   "lon": 26.808565
+  },
+  {
+   "name": "Acarlar",
+   "district": "Selçuk",
+   "kind": "neighborhood",
+   "lat": 37.914833,
+   "lon": 27.36312
+  },
+  {
+   "name": "Atatürk",
+   "district": "Selçuk",
+   "kind": "neighborhood",
+   "lat": 37.947458,
+   "lon": 27.370318
+  },
+  {
+   "name": "Barutçu",
+   "district": "Selçuk",
+   "kind": "neighborhood",
+   "lat": 38.012377,
+   "lon": 27.326986
+  },
+  {
+   "name": "Belevi",
+   "district": "Selçuk",
+   "kind": "neighborhood",
+   "lat": 38.014157,
+   "lon": 27.448601
+  },
+  {
+   "name": "Gökçealan",
+   "district": "Selçuk",
+   "kind": "neighborhood",
+   "lat": 37.840916,
+   "lon": 27.389229
+  },
+  {
+   "name": "Havutçulu",
+   "district": "Selçuk",
+   "kind": "neighborhood",
+   "lat": 37.883334,
+   "lon": 27.417462
+  },
+  {
+   "name": "Sultaniye",
+   "district": "Selçuk",
+   "kind": "neighborhood",
+   "lat": 37.882664,
+   "lon": 27.33496
+  },
+  {
+   "name": "Zeytinköy",
+   "district": "Selçuk",
+   "kind": "neighborhood",
+   "lat": 37.991338,
+   "lon": 27.282332
+  },
+  {
+   "name": "Çamlık",
+   "district": "Selçuk",
+   "kind": "neighborhood",
+   "lat": 37.885119,
+   "lon": 27.382113
+  },
+  {
+   "name": "Şirince",
+   "district": "Selçuk",
+   "kind": "neighborhood",
+   "lat": 37.94216,
+   "lon": 27.433919
+  },
+  {
+   "name": "Ahmetli",
+   "district": "Torbalı",
+   "kind": "neighborhood",
+   "lat": 38.082661,
+   "lon": 27.355847
+  },
+  {
+   "name": "Alpkent",
+   "district": "Torbalı",
+   "kind": "neighborhood",
+   "lat": 38.168778,
+   "lon": 27.354945
+  },
+  {
+   "name": "Arslanlar",
+   "district": "Torbalı",
+   "kind": "neighborhood",
+   "lat": 38.165308,
+   "lon": 27.417021
+  },
+  {
+   "name": "Atalan",
+   "district": "Torbalı",
+   "kind": "neighborhood",
+   "lat": 38.10894,
+   "lon": 27.467899
+  },
+  {
+   "name": "Atatürk",
+   "district": "Torbalı",
+   "kind": "neighborhood",
+   "lat": 38.151114,
+   "lon": 27.369928
+  },
+  {
+   "name": "Ayrancılar",
+   "district": "Torbalı",
+   "kind": "neighborhood",
+   "lat": 38.239978,
+   "lon": 27.280894
+  },
+  {
+   "name": "Bahçelievler",
+   "district": "Torbalı",
+   "kind": "neighborhood",
+   "lat": 38.231765,
+   "lon": 27.291801
+  },
+  {
+   "name": "Bozköy",
+   "district": "Torbalı",
+   "kind": "neighborhood",
+   "lat": 38.271689,
+   "lon": 27.361467
+  },
+  {
+   "name": "Bülbüldere",
+   "district": "Torbalı",
+   "kind": "neighborhood",
+   "lat": 38.103417,
+   "lon": 27.500222
+  },
+  {
+   "name": "Cumhuriyet",
+   "district": "Torbalı",
+   "kind": "neighborhood",
+   "lat": 38.158262,
+   "lon": 27.351387
+  },
+  {
+   "name": "Dağkızılca",
+   "district": "Torbalı",
+   "kind": "neighborhood",
+   "lat": 38.309377,
+   "lon": 27.389598
+  },
+  {
+   "name": "Dağteke",
+   "district": "Torbalı",
+   "kind": "neighborhood",
+   "lat": 38.247614,
+   "lon": 27.509929
+  },
+  {
+   "name": "Demirci",
+   "district": "Torbalı",
+   "kind": "neighborhood",
+   "lat": 38.281286,
+   "lon": 27.288407
+  },
+  {
+   "name": "Düverlik",
+   "district": "Torbalı",
+   "kind": "neighborhood",
+   "lat": 38.217915,
+   "lon": 27.449074
+  },
+  {
+   "name": "Dirmil",
+   "district": "Torbalı",
+   "kind": "neighborhood",
+   "lat": 38.244186,
+   "lon": 27.42561
+  },
+  {
+   "name": "Ertuğrul",
+   "district": "Torbalı",
+   "kind": "neighborhood",
+   "lat": 38.157812,
+   "lon": 27.360889
+  },
+  {
+   "name": "Eğerci",
+   "district": "Torbalı",
+   "kind": "neighborhood",
+   "lat": 38.14155,
+   "lon": 27.389785
+  },
+  {
+   "name": "Fevzi Çakmak",
+   "district": "Torbalı",
+   "kind": "neighborhood",
+   "lat": 38.242367,
+   "lon": 27.282561
+  },
+  {
+   "name": "Gazi Mustafa Kemal",
+   "district": "Torbalı",
+   "kind": "neighborhood",
+   "lat": 38.2394,
+   "lon": 27.391463
+  },
+  {
+   "name": "Göllüce",
+   "district": "Torbalı",
+   "kind": "neighborhood",
+   "lat": 38.094293,
+   "lon": 27.483159
+  },
+  {
+   "name": "Helvacı",
+   "district": "Torbalı",
+   "kind": "neighborhood",
+   "lat": 38.243596,
+   "lon": 27.472515
+  },
+  {
+   "name": "Kaplancık",
+   "district": "Torbalı",
+   "kind": "neighborhood",
+   "lat": 38.164845,
+   "lon": 27.29403
+  },
+  {
+   "name": "Karakızlar",
+   "district": "Torbalı",
+   "kind": "neighborhood",
+   "lat": 38.280682,
+   "lon": 27.440975
+  },
+  {
+   "name": "Karakuyu",
+   "district": "Torbalı",
+   "kind": "neighborhood",
+   "lat": 38.240515,
+   "lon": 27.389725
+  },
+  {
+   "name": "Karaot",
+   "district": "Torbalı",
+   "kind": "neighborhood",
+   "lat": 38.295628,
+   "lon": 27.437172
+  },
+  {
+   "name": "Karşıyaka",
+   "district": "Torbalı",
+   "kind": "neighborhood",
+   "lat": 38.145818,
+   "lon": 27.37271
+  },
+  {
+   "name": "Kazım Karabekir",
+   "district": "Torbalı",
+   "kind": "neighborhood",
+   "lat": 38.197523,
+   "lon": 27.235888
+  },
+  {
+   "name": "Kırbaş",
+   "district": "Torbalı",
+   "kind": "neighborhood",
+   "lat": 38.117992,
+   "lon": 27.445421
+  },
+  {
+   "name": "Kuşçuburun",
+   "district": "Torbalı",
+   "kind": "neighborhood",
+   "lat": 38.216467,
+   "lon": 27.326819
+  },
+  {
+   "name": "Muratbey",
+   "district": "Torbalı",
+   "kind": "neighborhood",
+   "lat": 38.148547,
+   "lon": 27.360264
+  },
+  {
+   "name": "Naime",
+   "district": "Torbalı",
+   "kind": "neighborhood",
+   "lat": 38.095223,
+   "lon": 27.434775
+  },
+  {
+   "name": "Ormanköy",
+   "district": "Torbalı",
+   "kind": "neighborhood",
+   "lat": 38.249739,
+   "lon": 27.457054
+  },
+  {
+   "name": "Ortaköy",
+   "district": "Torbalı",
+   "kind": "neighborhood",
+   "lat": 38.213148,
+   "lon": 27.369958
+  },
+  {
+   "name": "Pamukyazı",
+   "district": "Torbalı",
+   "kind": "neighborhood",
+   "lat": 38.11947,
+   "lon": 27.40682
+  },
+  {
+   "name": "Sağlık",
+   "district": "Torbalı",
+   "kind": "neighborhood",
+   "lat": 38.084841,
+   "lon": 27.399853
+  },
+  {
+   "name": "Saipler",
+   "district": "Torbalı",
+   "kind": "neighborhood",
+   "lat": 38.266157,
+   "lon": 27.36918
+  },
+  {
+   "name": "Subaşı",
+   "district": "Torbalı",
+   "kind": "neighborhood",
+   "lat": 38.105641,
+   "lon": 27.43595
+  },
+  {
+   "name": "Taşkesik",
+   "district": "Torbalı",
+   "kind": "neighborhood",
+   "lat": 38.171701,
+   "lon": 27.445268
+  },
+  {
+   "name": "Tepeköy",
+   "district": "Torbalı",
+   "kind": "neighborhood",
+   "lat": 38.15118,
+   "lon": 27.369922
+  },
+  {
+   "name": "Torbalı",
+   "district": "Torbalı",
+   "kind": "neighborhood",
+   "lat": 38.17175,
+   "lon": 27.347864
+  },
+  {
+   "name": "Tulum",
+   "district": "Torbalı",
+   "kind": "neighborhood",
+   "lat": 38.086864,
+   "lon": 27.425386
+  },
+  {
+   "name": "Türkmenköy",
+   "district": "Torbalı",
+   "kind": "neighborhood",
+   "lat": 38.248708,
+   "lon": 27.263647
+  },
+  {
+   "name": "Yazıbaşı",
+   "district": "Torbalı",
+   "kind": "neighborhood",
+   "lat": 38.240187,
+   "lon": 27.318902
+  },
+  {
+   "name": "Yedi Eylül",
+   "district": "Torbalı",
+   "kind": "neighborhood",
+   "lat": 38.166847,
+   "lon": 27.371309
+  },
+  {
+   "name": "Yemişlik",
+   "district": "Torbalı",
+   "kind": "neighborhood",
+   "lat": 38.143177,
+   "lon": 27.366959
+  },
+  {
+   "name": "Yeni",
+   "district": "Torbalı",
+   "kind": "neighborhood",
+   "lat": 38.135972,
+   "lon": 27.37405
+  },
+  {
+   "name": "Yeniköy",
+   "district": "Torbalı",
+   "kind": "neighborhood",
+   "lat": 38.122154,
+   "lon": 27.330405
+  },
+  {
+   "name": "Yeşilköy",
+   "district": "Torbalı",
+   "kind": "neighborhood",
+   "lat": 38.264238,
+   "lon": 27.245061
+  },
+  {
+   "name": "Yoğurtçular",
+   "district": "Torbalı",
+   "kind": "neighborhood",
+   "lat": 38.268866,
+   "lon": 27.282934
+  },
+  {
+   "name": "Çakırbeyli",
+   "district": "Torbalı",
+   "kind": "neighborhood",
+   "lat": 38.283857,
+   "lon": 27.382223
+  },
+  {
+   "name": "Çamlıca",
+   "district": "Torbalı",
+   "kind": "neighborhood",
+   "lat": 38.210707,
+   "lon": 27.412217
+  },
+  {
+   "name": "Çapak",
+   "district": "Torbalı",
+   "kind": "neighborhood",
+   "lat": 38.231946,
+   "lon": 27.352495
+  },
+  {
+   "name": "Çaybaşı",
+   "district": "Torbalı",
+   "kind": "neighborhood",
+   "lat": 38.134511,
+   "lon": 27.376998
+  },
+  {
+   "name": "Özbey",
+   "district": "Torbalı",
+   "kind": "neighborhood",
+   "lat": 38.131746,
+   "lon": 27.322872
+  },
+  {
+   "name": "İnönü",
+   "district": "Torbalı",
+   "kind": "neighborhood",
+   "lat": 38.237531,
+   "lon": 27.279838
+  },
+  {
+   "name": "Şehitler",
+   "district": "Torbalı",
+   "kind": "neighborhood",
+   "lat": 38.148236,
+   "lon": 27.402055
+  },
+  {
+   "name": "4 Eylül",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 38.089262,
+   "lon": 27.72462
+  },
+  {
+   "name": "Akkoyunlu",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 38.124568,
+   "lon": 27.656907
+  },
+  {
+   "name": "Akmescit",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 38.000454,
+   "lon": 27.704153
+  },
+  {
+   "name": "Akyurt",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 38.020868,
+   "lon": 27.600361
+  },
+  {
+   "name": "Akçaşehir",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 38.050952,
+   "lon": 27.631206
+  },
+  {
+   "name": "Alacalı",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 38.093701,
+   "lon": 27.600481
+  },
+  {
+   "name": "Alaylı",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 38.052609,
+   "lon": 27.582648
+  },
+  {
+   "name": "Armutlu",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 38.027274,
+   "lon": 27.694539
+  },
+  {
+   "name": "Ayaklıkırı",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 38.087323,
+   "lon": 27.536631
+  },
+  {
+   "name": "Bahariye",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 38.082371,
+   "lon": 27.736642
+  },
+  {
+   "name": "Başköy",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 37.997758,
+   "lon": 27.659449
+  },
+  {
+   "name": "Boynuyoğun",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 38.086195,
+   "lon": 27.782631
+  },
+  {
+   "name": "Büyükkale",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 38.031523,
+   "lon": 27.559547
+  },
+  {
+   "name": "Büyükkemerdere",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 38.047768,
+   "lon": 27.789339
+  },
+  {
+   "name": "Büyükkömürcü",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 38.020036,
+   "lon": 27.760593
+  },
+  {
+   "name": "Cambazlı",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 38.068887,
+   "lon": 27.767944
+  },
+  {
+   "name": "Cumhuriyet",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 38.085194,
+   "lon": 27.731095
+  },
+  {
+   "name": "Dallık",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 38.061932,
+   "lon": 27.798739
+  },
+  {
+   "name": "Dağdere",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 38.00085,
+   "lon": 27.751402
+  },
+  {
+   "name": "Dere",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 38.087257,
+   "lon": 27.735637
+  },
+  {
+   "name": "Derebaşı",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 38.181836,
+   "lon": 27.782037
+  },
+  {
+   "name": "Dereli",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 38.086045,
+   "lon": 27.844443
+  },
+  {
+   "name": "Doyranlı",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 38.179785,
+   "lon": 27.822782
+  },
+  {
+   "name": "Duatepe",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 38.082149,
+   "lon": 27.748706
+  },
+  {
+   "name": "Dumlupınar",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 38.083066,
+   "lon": 27.730284
+  },
+  {
+   "name": "Dündarlı",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 38.002082,
+   "lon": 27.778074
+  },
+  {
+   "name": "Dibekçi",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 37.989068,
+   "lon": 27.820847
+  },
+  {
+   "name": "Ertuğrul",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 38.081866,
+   "lon": 27.730768
+  },
+  {
+   "name": "Eskioba",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 38.111067,
+   "lon": 27.615332
+  },
+  {
+   "name": "Eğridere",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 38.057774,
+   "lon": 27.89862
+  },
+  {
+   "name": "Fatih",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 38.094305,
+   "lon": 27.720628
+  },
+  {
+   "name": "Gökçen",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 38.112849,
+   "lon": 27.872413
+  },
+  {
+   "name": "Halkapınar",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 38.001995,
+   "lon": 27.490716
+  },
+  {
+   "name": "Hasançavuşlar",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 38.058414,
+   "lon": 27.52374
+  },
+  {
+   "name": "Hisarlık",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 38.073871,
+   "lon": 27.693371
+  },
+  {
+   "name": "Işıklar",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 38.102473,
+   "lon": 27.543739
+  },
+  {
+   "name": "Işıklı",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 38.095532,
+   "lon": 27.793469
+  },
+  {
+   "name": "Kahrat",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 38.134907,
+   "lon": 27.863405
+  },
+  {
+   "name": "Kaplan",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 38.068988,
+   "lon": 27.723799
+  },
+  {
+   "name": "Karaca Ali",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 38.086127,
+   "lon": 27.75635
+  },
+  {
+   "name": "Karateke",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 38.127592,
+   "lon": 27.675446
+  },
+  {
+   "name": "Kırtepe",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 38.110916,
+   "lon": 27.887658
+  },
+  {
+   "name": "Kızılcahavlu",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 38.15033,
+   "lon": 27.888344
+  },
+  {
+   "name": "Kocaaliler",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 38.098152,
+   "lon": 27.915135
+  },
+  {
+   "name": "Kurtuluş",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 38.087651,
+   "lon": 27.735847
+  },
+  {
+   "name": "Kurşak",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 38.06874,
+   "lon": 27.566326
+  },
+  {
+   "name": "Kürdüllü",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 38.082673,
+   "lon": 27.826763
+  },
+  {
+   "name": "Küçükburun",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 37.991115,
+   "lon": 27.789647
+  },
+  {
+   "name": "Küçükkale",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 38.024567,
+   "lon": 27.51605
+  },
+  {
+   "name": "Küçükkemerdere",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 38.039031,
+   "lon": 27.794446
+  },
+  {
+   "name": "Küçükkömürcü",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 38.023176,
+   "lon": 27.753634
+  },
+  {
+   "name": "Kireli",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 38.099419,
+   "lon": 27.833561
+  },
+  {
+   "name": "Mahmutlar",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 38.130219,
+   "lon": 27.625152
+  },
+  {
+   "name": "Mehmetler",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 38.009891,
+   "lon": 27.501704
+  },
+  {
+   "name": "Musalar",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 37.99744,
+   "lon": 27.735497
+  },
+  {
+   "name": "Ortaköy",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 38.020247,
+   "lon": 27.681145
+  },
+  {
+   "name": "Osmancık",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 38.067704,
+   "lon": 27.889761
+  },
+  {
+   "name": "Paşa",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 38.086334,
+   "lon": 27.740285
+  },
+  {
+   "name": "Peşrefli",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 38.099153,
+   "lon": 27.852654
+  },
+  {
+   "name": "Sarılar",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 38.093996,
+   "lon": 27.905217
+  },
+  {
+   "name": "Saruhanlı",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 38.085385,
+   "lon": 27.882709
+  },
+  {
+   "name": "Somak",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 37.987765,
+   "lon": 27.771202
+  },
+  {
+   "name": "Toki",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 38.125283,
+   "lon": 27.727156
+  },
+  {
+   "name": "Topalak",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 38.014172,
+   "lon": 27.700722
+  },
+  {
+   "name": "Toparlar",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 37.983639,
+   "lon": 27.746724
+  },
+  {
+   "name": "Turan",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 38.084043,
+   "lon": 27.723538
+  },
+  {
+   "name": "Turgutlu",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 38.133753,
+   "lon": 27.63658
+  },
+  {
+   "name": "Yamandere",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 38.03373,
+   "lon": 27.818364
+  },
+  {
+   "name": "Yemişler",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 38.029567,
+   "lon": 27.680387
+  },
+  {
+   "name": "Yeni",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 38.087034,
+   "lon": 27.735068
+  },
+  {
+   "name": "Yenioba",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 38.097359,
+   "lon": 27.582416
+  },
+  {
+   "name": "Yeniçiftlik",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 38.122902,
+   "lon": 27.503791
+  },
+  {
+   "name": "Yenişehir",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 38.06935,
+   "lon": 27.901441
+  },
+  {
+   "name": "Yeğenli",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 38.125685,
+   "lon": 27.923044
+  },
+  {
+   "name": "Çayırlı",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 38.073433,
+   "lon": 27.652864
+  },
+  {
+   "name": "Çeriközü",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 37.979099,
+   "lon": 27.793285
+  },
+  {
+   "name": "Çobanköy",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 38.088322,
+   "lon": 27.890835
+  },
+  {
+   "name": "Çukurköy",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 38.056043,
+   "lon": 27.697473
+  },
+  {
+   "name": "Çiniyeri",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 38.088503,
+   "lon": 27.803688
+  },
+  {
+   "name": "Üzümler",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 38.017837,
+   "lon": 27.514394
+  },
+  {
+   "name": "İbni Melek",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 38.087195,
+   "lon": 27.723689
+  },
+  {
+   "name": "İhsaniye",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 38.089979,
+   "lon": 27.74467
+  },
+  {
+   "name": "İpekçiler",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 38.089254,
+   "lon": 27.740093
+  },
+  {
+   "name": "İstiklal",
+   "district": "Tire",
+   "kind": "neighborhood",
+   "lat": 38.089675,
+   "lon": 27.746787
+  },
+  {
+   "name": "Altıntaş",
+   "district": "Urla",
+   "kind": "neighborhood",
+   "lat": 38.320666,
+   "lon": 26.756975
+  },
+  {
+   "name": "Atatürk",
+   "district": "Urla",
+   "kind": "neighborhood",
+   "lat": 38.359962,
+   "lon": 26.78224
+  },
+  {
+   "name": "Bademler",
+   "district": "Urla",
+   "kind": "neighborhood",
+   "lat": 38.274667,
+   "lon": 26.82984
+  },
+  {
+   "name": "Balıklıova",
+   "district": "Urla",
+   "kind": "neighborhood",
+   "lat": 38.427722,
+   "lon": 26.58397
+  },
+  {
+   "name": "Barbaros",
+   "district": "Urla",
+   "kind": "neighborhood",
+   "lat": 38.323564,
+   "lon": 26.579903
+  },
+  {
+   "name": "Birgi",
+   "district": "Urla",
+   "kind": "neighborhood",
+   "lat": 38.302101,
+   "lon": 26.554334
+  },
+  {
+   "name": "Demircili",
+   "district": "Urla",
+   "kind": "neighborhood",
+   "lat": 38.227925,
+   "lon": 26.686502
+  },
+  {
+   "name": "Denizli",
+   "district": "Urla",
+   "kind": "neighborhood",
+   "lat": 38.391511,
+   "lon": 26.74768
+  },
+  {
+   "name": "Gülbahçe",
+   "district": "Urla",
+   "kind": "neighborhood",
+   "lat": 38.33261,
+   "lon": 26.645152
+  },
+  {
+   "name": "Güvendik",
+   "district": "Urla",
+   "kind": "neighborhood",
+   "lat": 38.394016,
+   "lon": 26.741987
+  },
+  {
+   "name": "Hacı İsa",
+   "district": "Urla",
+   "kind": "neighborhood",
+   "lat": 38.323771,
+   "lon": 26.766726
+  },
+  {
+   "name": "Kadıovacık",
+   "district": "Urla",
+   "kind": "neighborhood",
+   "lat": 38.343107,
+   "lon": 26.553622
+  },
+  {
+   "name": "Kalabak",
+   "district": "Urla",
+   "kind": "neighborhood",
+   "lat": 38.359494,
+   "lon": 26.816304
+  },
+  {
+   "name": "Kuşçular",
+   "district": "Urla",
+   "kind": "neighborhood",
+   "lat": 38.301711,
+   "lon": 26.750386
+  },
+  {
+   "name": "M.fevzi Çakmak",
+   "district": "Urla",
+   "kind": "neighborhood",
+   "lat": 38.368001,
+   "lon": 26.836356
+  },
+  {
+   "name": "Nohutalan",
+   "district": "Urla",
+   "kind": "neighborhood",
+   "lat": 38.299226,
+   "lon": 26.525852
+  },
+  {
+   "name": "Ovacık",
+   "district": "Urla",
+   "kind": "neighborhood",
+   "lat": 38.297304,
+   "lon": 26.806279
+  },
+  {
+   "name": "Torasan",
+   "district": "Urla",
+   "kind": "neighborhood",
+   "lat": 38.321459,
+   "lon": 26.708886
+  },
+  {
+   "name": "Uzunkuyu",
+   "district": "Urla",
+   "kind": "neighborhood",
+   "lat": 38.284456,
+   "lon": 26.55112
+  },
+  {
+   "name": "Yaka",
+   "district": "Urla",
+   "kind": "neighborhood",
+   "lat": 38.322949,
+   "lon": 26.762135
+  },
+  {
+   "name": "Yağcılar",
+   "district": "Urla",
+   "kind": "neighborhood",
+   "lat": 38.257886,
+   "lon": 26.681511
+  },
+  {
+   "name": "Yelaltı",
+   "district": "Urla",
+   "kind": "neighborhood",
+   "lat": 38.323994,
+   "lon": 26.768496
+  },
+  {
+   "name": "Yeni",
+   "district": "Urla",
+   "kind": "neighborhood",
+   "lat": 38.322423,
+   "lon": 26.765088
+  },
+  {
+   "name": "Yenice",
+   "district": "Urla",
+   "kind": "neighborhood",
+   "lat": 38.322375,
+   "lon": 26.76972
+  },
+  {
+   "name": "Zeytinalanı",
+   "district": "Urla",
+   "kind": "neighborhood",
+   "lat": 38.367794,
+   "lon": 26.838513
+  },
+  {
+   "name": "Zeytineli",
+   "district": "Urla",
+   "kind": "neighborhood",
+   "lat": 38.238959,
+   "lon": 26.503288
+  },
+  {
+   "name": "Zeytinler",
+   "district": "Urla",
+   "kind": "neighborhood",
+   "lat": 38.28438,
+   "lon": 26.561554
+  },
+  {
+   "name": "Çamlıçay",
+   "district": "Urla",
+   "kind": "neighborhood",
+   "lat": 38.372275,
+   "lon": 26.850671
+  },
+  {
+   "name": "Özbek",
+   "district": "Urla",
+   "kind": "neighborhood",
+   "lat": 38.36544,
+   "lon": 26.706975
+  },
+  {
+   "name": "İskele",
+   "district": "Urla",
+   "kind": "neighborhood",
+   "lat": 38.362976,
+   "lon": 26.773979
+  },
+  {
+   "name": "İçmeler",
+   "district": "Urla",
+   "kind": "neighborhood",
+   "lat": 38.312101,
+   "lon": 26.70458
+  },
+  {
+   "name": "Şirinkent",
+   "district": "Urla",
+   "kind": "neighborhood",
+   "lat": 38.35741,
+   "lon": 26.839271
+  },
+  {
+   "name": "16 Eylül",
+   "district": "Çeşme",
+   "kind": "neighborhood",
+   "lat": 38.327658,
+   "lon": 26.305953
+  },
+  {
+   "name": "Alaçatı",
+   "district": "Çeşme",
+   "kind": "neighborhood",
+   "lat": 38.284022,
+   "lon": 26.375238
+  },
+  {
+   "name": "Altınkum",
+   "district": "Çeşme",
+   "kind": "neighborhood",
+   "lat": 38.287989,
+   "lon": 26.266031
+  },
+  {
+   "name": "Altınyunus",
+   "district": "Çeşme",
+   "kind": "neighborhood",
+   "lat": 38.319615,
+   "lon": 26.341864
+  },
+  {
+   "name": "Ardıç",
+   "district": "Çeşme",
+   "kind": "neighborhood",
+   "lat": 38.320629,
+   "lon": 26.386614
+  },
+  {
+   "name": "Boyalık",
+   "district": "Çeşme",
+   "kind": "neighborhood",
+   "lat": 38.321248,
+   "lon": 26.329998
+  },
+  {
+   "name": "Celal Bayar",
+   "district": "Çeşme",
+   "kind": "neighborhood",
+   "lat": 38.30674,
+   "lon": 26.375745
+  },
+  {
+   "name": "Dalyan",
+   "district": "Çeşme",
+   "kind": "neighborhood",
+   "lat": 38.355826,
+   "lon": 26.312669
+  },
+  {
+   "name": "Fahrettinpaşa",
+   "district": "Çeşme",
+   "kind": "neighborhood",
+   "lat": 38.316337,
+   "lon": 26.318613
+  },
+  {
+   "name": "Germiyan",
+   "district": "Çeşme",
+   "kind": "neighborhood",
+   "lat": 38.315095,
+   "lon": 26.465629
+  },
+  {
+   "name": "Ildır",
+   "district": "Çeşme",
+   "kind": "neighborhood",
+   "lat": 38.382679,
+   "lon": 26.476895
+  },
+  {
+   "name": "Ilıca",
+   "district": "Çeşme",
+   "kind": "neighborhood",
+   "lat": 38.307539,
+   "lon": 26.361328
+  },
+  {
+   "name": "Karaköy",
+   "district": "Çeşme",
+   "kind": "neighborhood",
+   "lat": 38.275057,
+   "lon": 26.484256
+  },
+  {
+   "name": "Musalla",
+   "district": "Çeşme",
+   "kind": "neighborhood",
+   "lat": 38.323731,
+   "lon": 26.302628
+  },
+  {
+   "name": "Ovacık",
+   "district": "Çeşme",
+   "kind": "neighborhood",
+   "lat": 38.28755,
+   "lon": 26.313737
+  },
+  {
+   "name": "Reisdere",
+   "district": "Çeşme",
+   "kind": "neighborhood",
+   "lat": 38.315803,
+   "lon": 26.416326
+  },
+  {
+   "name": "Sakarya",
+   "district": "Çeşme",
+   "kind": "neighborhood",
+   "lat": 38.331897,
+   "lon": 26.307671
+  },
+  {
+   "name": "Yalı",
+   "district": "Çeşme",
+   "kind": "neighborhood",
+   "lat": 38.331309,
+   "lon": 26.421492
+  },
+  {
+   "name": "Çakabey",
+   "district": "Çeşme",
+   "kind": "neighborhood",
+   "lat": 38.312345,
+   "lon": 26.344503
+  },
+  {
+   "name": "Çiftlik",
+   "district": "Çeşme",
+   "kind": "neighborhood",
+   "lat": 38.292367,
+   "lon": 26.2809
+  },
+  {
+   "name": "Üniversite",
+   "district": "Çeşme",
+   "kind": "neighborhood",
+   "lat": 38.356117,
+   "lon": 26.313558
+  },
+  {
+   "name": "İsmet İnönü",
+   "district": "Çeşme",
+   "kind": "neighborhood",
+   "lat": 38.32446,
+   "lon": 26.309685
+  },
+  {
+   "name": "Şifne",
+   "district": "Çeşme",
+   "kind": "neighborhood",
+   "lat": 38.31797,
+   "lon": 26.402935
+  },
+  {
+   "name": "Ahmet Efendi",
+   "district": "Çiğli",
+   "kind": "neighborhood",
+   "lat": 38.521156,
+   "lon": 27.039267
+  },
+  {
+   "name": "Ahmet Taner Kışlalı",
+   "district": "Çiğli",
+   "kind": "neighborhood",
+   "lat": 38.496199,
+   "lon": 27.088539
+  },
+  {
+   "name": "Atatürk",
+   "district": "Çiğli",
+   "kind": "neighborhood",
+   "lat": 38.518044,
+   "lon": 27.061658
+  },
+  {
+   "name": "Ataşehir",
+   "district": "Çiğli",
+   "kind": "neighborhood",
+   "lat": 38.491818,
+   "lon": 27.061773
+  },
+  {
+   "name": "Aydınlıkevler",
+   "district": "Çiğli",
+   "kind": "neighborhood",
+   "lat": 38.490738,
+   "lon": 27.083164
+  },
+  {
+   "name": "Balatçık",
+   "district": "Çiğli",
+   "kind": "neighborhood",
+   "lat": 38.512738,
+   "lon": 27.044286
+  },
+  {
+   "name": "Cumhuriyet",
+   "district": "Çiğli",
+   "kind": "neighborhood",
+   "lat": 38.537755,
+   "lon": 27.053268
+  },
+  {
+   "name": "Egekent",
+   "district": "Çiğli",
+   "kind": "neighborhood",
+   "lat": 38.506029,
+   "lon": 27.060804
+  },
+  {
+   "name": "Esentepe",
+   "district": "Çiğli",
+   "kind": "neighborhood",
+   "lat": 38.506527,
+   "lon": 27.052482
+  },
+  {
+   "name": "Evka-2",
+   "district": "Çiğli",
+   "kind": "neighborhood",
+   "lat": 38.500043,
+   "lon": 27.085956
+  },
+  {
+   "name": "Evka-5",
+   "district": "Çiğli",
+   "kind": "neighborhood",
+   "lat": 38.519346,
+   "lon": 27.054247
+  },
+  {
+   "name": "Evka-6",
+   "district": "Çiğli",
+   "kind": "neighborhood",
+   "lat": 38.502648,
+   "lon": 27.089636
+  },
+  {
+   "name": "Harmandalı Gazi Mustafa Kemal Atatürk",
+   "district": "Çiğli",
+   "kind": "neighborhood",
+   "lat": 38.533901,
+   "lon": 27.053974
+  },
+  {
+   "name": "Kaklıç",
+   "district": "Çiğli",
+   "kind": "neighborhood",
+   "lat": 38.508684,
+   "lon": 26.987492
+  },
+  {
+   "name": "Köyiçi",
+   "district": "Çiğli",
+   "kind": "neighborhood",
+   "lat": 38.494939,
+   "lon": 27.063064
+  },
+  {
+   "name": "Küçük Çiğli",
+   "district": "Çiğli",
+   "kind": "neighborhood",
+   "lat": 38.504559,
+   "lon": 27.051946
+  },
+  {
+   "name": "Maltepe",
+   "district": "Çiğli",
+   "kind": "neighborhood",
+   "lat": 38.491576,
+   "lon": 27.072938
+  },
+  {
+   "name": "Sasalı Merkez",
+   "district": "Çiğli",
+   "kind": "neighborhood",
+   "lat": 38.496671,
+   "lon": 26.950723
+  },
+  {
+   "name": "Uğur Mumcu",
+   "district": "Çiğli",
+   "kind": "neighborhood",
+   "lat": 38.524234,
+   "lon": 27.045824
+  },
+  {
+   "name": "Yakakent",
+   "district": "Çiğli",
+   "kind": "neighborhood",
+   "lat": 38.501827,
+   "lon": 27.073633
+  },
+  {
+   "name": "Yeni Mahalle",
+   "district": "Çiğli",
+   "kind": "neighborhood",
+   "lat": 38.49383,
+   "lon": 27.059735
+  },
+  {
+   "name": "Çağdaş",
+   "district": "Çiğli",
+   "kind": "neighborhood",
+   "lat": 38.50416,
+   "lon": 27.058323
+  },
+  {
+   "name": "İnönü",
+   "district": "Çiğli",
+   "kind": "neighborhood",
+   "lat": 38.526916,
+   "lon": 27.047655
+  },
+  {
+   "name": "İzkent",
+   "district": "Çiğli",
+   "kind": "neighborhood",
+   "lat": 38.510869,
+   "lon": 27.064981
+  },
+  {
+   "name": "Şirintepe",
+   "district": "Çiğli",
+   "kind": "neighborhood",
+   "lat": 38.492963,
+   "lon": 27.067521
+  },
+  {
+   "name": "Akıncılar",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.22892,
+   "lon": 27.973361
+  },
+  {
+   "name": "Alaşarlı",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.149949,
+   "lon": 28.153268
+  },
+  {
+   "name": "Anafartalar",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.234795,
+   "lon": 27.980163
+  },
+  {
+   "name": "Artıcak",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.345742,
+   "lon": 28.002007
+  },
+  {
+   "name": "Atatürk",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.228209,
+   "lon": 27.979755
+  },
+  {
+   "name": "Bademli",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.079079,
+   "lon": 28.058901
+  },
+  {
+   "name": "Balabanlı",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.139352,
+   "lon": 27.955125
+  },
+  {
+   "name": "Bayırlı",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.354999,
+   "lon": 28.03452
+  },
+  {
+   "name": "Bebekler",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.285967,
+   "lon": 27.927903
+  },
+  {
+   "name": "Beyazıtlar",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.244502,
+   "lon": 28.040692
+  },
+  {
+   "name": "Bıçakçı",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.069301,
+   "lon": 28.104843
+  },
+  {
+   "name": "Bozcayaka",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.117055,
+   "lon": 27.978483
+  },
+  {
+   "name": "Bozdağ",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.339588,
+   "lon": 28.076226
+  },
+  {
+   "name": "Bucak",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.231321,
+   "lon": 28.105615
+  },
+  {
+   "name": "Bülbüller",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.229069,
+   "lon": 27.83494
+  },
+  {
+   "name": "Büyükavulcuk",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.230316,
+   "lon": 28.033483
+  },
+  {
+   "name": "Birgi",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.252205,
+   "lon": 28.064558
+  },
+  {
+   "name": "Cevizalan",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.253927,
+   "lon": 28.119487
+  },
+  {
+   "name": "Cumhuriyet",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.223951,
+   "lon": 27.974496
+  },
+  {
+   "name": "Demircili",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.215919,
+   "lon": 27.904991
+  },
+  {
+   "name": "Demirdere",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.016903,
+   "lon": 28.002522
+  },
+  {
+   "name": "Dereuzunyer",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.281829,
+   "lon": 27.929069
+  },
+  {
+   "name": "Dolaylar",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.276234,
+   "lon": 27.986318
+  },
+  {
+   "name": "Emmioğlu",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.226849,
+   "lon": 27.96971
+  },
+  {
+   "name": "Emirli",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.105935,
+   "lon": 28.119145
+  },
+  {
+   "name": "Ertuğrul",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.17368,
+   "lon": 28.057228
+  },
+  {
+   "name": "Gereli",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.200732,
+   "lon": 28.047367
+  },
+  {
+   "name": "Gerçekli",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.217642,
+   "lon": 28.066055
+  },
+  {
+   "name": "Gölcük",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.270276,
+   "lon": 28.002216
+  },
+  {
+   "name": "Güney",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.016392,
+   "lon": 27.977652
+  },
+  {
+   "name": "Günlüce",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.272928,
+   "lon": 27.955376
+  },
+  {
+   "name": "Hacıhasan",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.277055,
+   "lon": 28.077129
+  },
+  {
+   "name": "Hamam",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.01342,
+   "lon": 27.990383
+  },
+  {
+   "name": "Horzum",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.37987,
+   "lon": 27.901991
+  },
+  {
+   "name": "Hürriyet",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.224355,
+   "lon": 27.98012
+  },
+  {
+   "name": "Işık",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.225095,
+   "lon": 27.882971
+  },
+  {
+   "name": "Karadoğan",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.247702,
+   "lon": 27.910437
+  },
+  {
+   "name": "Karakova",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.174862,
+   "lon": 27.940234
+  },
+  {
+   "name": "Kayaköy",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.204491,
+   "lon": 27.820222
+  },
+  {
+   "name": "Kaymakçı",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.164879,
+   "lon": 28.115372
+  },
+  {
+   "name": "Kazanlı",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.137673,
+   "lon": 27.94049
+  },
+  {
+   "name": "Kemenler",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.102906,
+   "lon": 28.086413
+  },
+  {
+   "name": "Kemer",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.284015,
+   "lon": 28.095204
+  },
+  {
+   "name": "Kerpiçlik",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.297552,
+   "lon": 27.828709
+  },
+  {
+   "name": "Kızılca",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.29727,
+   "lon": 27.844273
+  },
+  {
+   "name": "Kızılcaavlu",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.141454,
+   "lon": 28.153605
+  },
+  {
+   "name": "Kışla",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.201412,
+   "lon": 28.06205
+  },
+  {
+   "name": "Konaklı",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.110825,
+   "lon": 27.996721
+  },
+  {
+   "name": "Kurucuova",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.180348,
+   "lon": 28.089023
+  },
+  {
+   "name": "Kutlubeyler",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.246942,
+   "lon": 28.097891
+  },
+  {
+   "name": "Kuvvetli",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.234795,
+   "lon": 27.966092
+  },
+  {
+   "name": "Köfündere",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.206375,
+   "lon": 28.154503
+  },
+  {
+   "name": "Köseler",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.25723,
+   "lon": 27.888813
+  },
+  {
+   "name": "Küre",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.063326,
+   "lon": 27.978733
+  },
+  {
+   "name": "Küçükavulcuk",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.242299,
+   "lon": 28.035857
+  },
+  {
+   "name": "Küçükören",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.030199,
+   "lon": 27.994542
+  },
+  {
+   "name": "Mescitli",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.134543,
+   "lon": 28.074526
+  },
+  {
+   "name": "Meşrutiyet",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.228834,
+   "lon": 27.968439
+  },
+  {
+   "name": "Mursallı",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.268067,
+   "lon": 27.985727
+  },
+  {
+   "name": "Mimar Sinan",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.228985,
+   "lon": 27.969551
+  },
+  {
+   "name": "Ocaklı",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.228448,
+   "lon": 28.010603
+  },
+  {
+   "name": "Orhangazi",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.163136,
+   "lon": 28.172197
+  },
+  {
+   "name": "Ortaköy",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.253904,
+   "lon": 27.927706
+  },
+  {
+   "name": "Ovacık",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.311723,
+   "lon": 28.052232
+  },
+  {
+   "name": "Ovakent",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.106929,
+   "lon": 28.021156
+  },
+  {
+   "name": "Oğuzlar",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.271995,
+   "lon": 28.017549
+  },
+  {
+   "name": "Pirinççi",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.082006,
+   "lon": 28.080978
+  },
+  {
+   "name": "Sekiköy",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.227404,
+   "lon": 27.854918
+  },
+  {
+   "name": "Seyrekli",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.18889,
+   "lon": 27.916333
+  },
+  {
+   "name": "Suçıktı",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.2966,
+   "lon": 27.892456
+  },
+  {
+   "name": "Süleyman Demirel",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.242142,
+   "lon": 27.986162
+  },
+  {
+   "name": "Süleymanlar",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.28113,
+   "lon": 27.855206
+  },
+  {
+   "name": "Tekke",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.338475,
+   "lon": 28.062461
+  },
+  {
+   "name": "Tosunlar",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.286542,
+   "lon": 27.90299
+  },
+  {
+   "name": "Türkmen",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.229117,
+   "lon": 27.962709
+  },
+  {
+   "name": "Türkönü",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.191846,
+   "lon": 28.054892
+  },
+  {
+   "name": "Umurbey",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.227181,
+   "lon": 27.971463
+  },
+  {
+   "name": "Uzundere",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.19177,
+   "lon": 28.127096
+  },
+  {
+   "name": "Veliler",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.257053,
+   "lon": 27.841952
+  },
+  {
+   "name": "Yeniceköy",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.242541,
+   "lon": 27.949156
+  },
+  {
+   "name": "Yeniköy",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.23233,
+   "lon": 27.898466
+  },
+  {
+   "name": "Yeşilköy",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.138438,
+   "lon": 28.173266
+  },
+  {
+   "name": "Yılanlı",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.295781,
+   "lon": 28.124764
+  },
+  {
+   "name": "Yolüstü",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.210101,
+   "lon": 28.025832
+  },
+  {
+   "name": "Yusufdere",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.219998,
+   "lon": 27.828348
+  },
+  {
+   "name": "Zafer",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.232243,
+   "lon": 27.985202
+  },
+  {
+   "name": "Çamlıca",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.089411,
+   "lon": 27.955533
+  },
+  {
+   "name": "Çamyayla",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.368378,
+   "lon": 27.941305
+  },
+  {
+   "name": "Çayır",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.002998,
+   "lon": 28.010679
+  },
+  {
+   "name": "Çaylı",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.153585,
+   "lon": 28.144463
+  },
+  {
+   "name": "Çağlayan",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.282523,
+   "lon": 27.98881
+  },
+  {
+   "name": "Çobanlar",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.316459,
+   "lon": 27.95626
+  },
+  {
+   "name": "Üzümlü",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.26897,
+   "lon": 27.92428
+  },
+  {
+   "name": "Üç Eylül",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.224899,
+   "lon": 27.965828
+  },
+  {
+   "name": "Üçkonak",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.250267,
+   "lon": 28.087519
+  },
+  {
+   "name": "İlkkurşun",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.175306,
+   "lon": 27.859112
+  },
+  {
+   "name": "İnönü",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.232022,
+   "lon": 27.973825
+  },
+  {
+   "name": "Şirinköy",
+   "district": "Ödemiş",
+   "kind": "neighborhood",
+   "lat": 38.223705,
+   "lon": 27.868983
+  }
+ ]
+}

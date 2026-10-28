@@ -125,7 +125,8 @@ penceresi yayımlar; `active` bu yüzden yalnızca ESHOT'ta hesaplanır.
 
 | Kaynak | Kullanım | Lisans |
 |---|---|---|
-| OpenStreetMap Nominatim | 54 ilçe/mahalle referans noktası (`app/data/places.json`) | ODbL 1.0 (© OpenStreetMap contributors) |
+| OpenStreetMap Nominatim | 30 ilçe + 24 seçili simge yer (`app/data/places.json`) | ODbL 1.0 (© OpenStreetMap contributors) |
+| CKAN `muhtarliklar` (`7d0b7f55-…`) | 1.219 mahalle referans noktası (`app/data/neighborhoods.json`) | Izmir Metropolitan Municipality Open Data License |
 
 Retrieved 2026-10-28. Bunlar yaklaşık alan merkezleridir, **adres geocoding
 değildir**; araçlar `place` modunda bunu uyarı olarak bildirir.
