@@ -1,0 +1,195 @@
+# İzmir MCP
+
+İzmir'e dair açık şehir verilerini MCP destekleyen ajanlara ve geliştirici
+araçlarına tek bir sunucu üzerinden açan, salt okunur bir Model Context Protocol
+sunucusu.
+
+Bu proje [istanbulmcp](https://github.com/Batu1-1an/istanbulmcp) mimarisi ve
+yanıt sözleşmesi örnek alınarak İzmir için yeniden kurulmuştur. İstanbul'a özgü
+İBB/İETT/İSKİ/İSPARK konnektörleri yerine yalnızca doğrulanmış İzmir kaynakları
+kullanılır; İzmir'de karşılığı olmayan yetenekler (şehir geneli trafik indeksi,
+İBB mahalle profili, İstanbulkart) bilinçli olarak yoktur.
+
+## Kapsam
+
+Varsayılan yüzey **16 salt okunur araçtır**:
+
+| Araç | İşlev |
+|---|---|
+| `izmir_health` | Yerel hazırlık ve yayımlanan limitler. Kaynak sağlığı ölçmez. |
+| `izmir_search_datasets` | İzmir Açık Veri (CKAN) kataloğunda arama. |
+| `izmir_get_dataset` | Veri seti metadata'sı ve kaynak listesi. |
+| `izmir_get_resource_schema` | DataStore resource kolonları. |
+| `izmir_query_resource` | DataStore kayıtlarını güvenli filtre ve limitle getirir. |
+| `izmir_nearby` | Yakındaki otopark, nöbetçi eczane, metro/İZBAN istasyonu, vapur iskelesi ve ESHOT durağı. |
+| `izmir_water_status` | İZSU baraj dolulukları; arıza akışı için açık `source_unavailable`. |
+| `izmir_air_quality` | Tarih ve istasyon filtreli hava kalitesi ölçümleri. |
+| `izmir_transit_stations` | Metro, İZBAN ve İZDENİZ istasyon/iskele listesi. |
+| `izmir_transit_schedule` | Yayımlanmış tarife: metro sıklığı, İZBAN ve İZDENİZ seferleri. |
+| `izmir_bus_stops` | ESHOT duraklarını ada göre ara; koordinat + yarıçap ile yakındaki durakları listele. |
+| `izmir_bus_arrivals` | Bir durağa yaklaşan otobüslerin anlık konumu ve kalan durak sayısı. |
+| `izmir_bus_routes` | ESHOT GTFS kaynağından hat özeti (sefer sayısı, servis takvimi). |
+| `izmir_market_schedule` | Semt pazarı takvimi: gün, ilçe veya koordinat + yarıçap filtresi. |
+| `izmir_transport_disruptions` | ESHOT hat duyuruları ve planlı güzergâh değişiklikleri. |
+| `izmir_city_services_nearby` | Yakındaki WizmirNET WiFi, İzmirim Kart dolum noktası ve kütüphaneler. |
+
+Her sonuç ortak zarfı taşır: `ok`, `summary`, `data`, `freshness`, `sources`,
+`limits`, `warnings`, `next_queries`, `error`, `result_info`.
+
+## Veri kaynakları
+
+| Kaynak | Kullanım | Durum |
+|---|---|---|
+| `acikveri.bizizmir.com` (CKAN) | Katalog, metadata, DataStore | Çalışıyor (2026-10-28) |
+| `openapi.izmir.bel.tr/api/ibb/izum/otoparklar` | İZELMAN/İZUM otopark doluluğu | Çalışıyor |
+| `openapi.izmir.bel.tr/api/ibb/nobetcieczaneler` | Nöbetçi eczane listesi | Çalışıyor |
+| `openapi.izmir.bel.tr/api/ibb/cevre/havadegerleri/{tarih}` | Hava kalitesi | Çalışıyor |
+| `openapi.izmir.bel.tr/api/metro/istasyonlar` + `/metro/sefersaatleri` | Metro | Çalışıyor |
+| `openapi.izmir.bel.tr/api/izban/istasyonlar` + `/izban/sefersaatleri/{from}/{to}` | İZBAN | Çalışıyor |
+| `openapi.izmir.bel.tr/api/izdeniz/iskeleler` + sefer uçları | İZDENİZ | Çalışıyor |
+| `openfiles.izmir.bel.tr/.../izsu-baraj-doluluk-oranlari.csv` | Baraj doluluğu | Çalışıyor |
+| `openapi.izmir.bel.tr/api/izsu/barajdurum` | Baraj JSON | **HTTP 500** — kullanılmıyor |
+| `openapi.izmir.bel.tr/api/izsu/arizakaynaklisukesintileri` | Su kesintisi | **HTTP 500** — açıkça `unavailable` |
+| CKAN `eshot-otobus-duraklari` (`0c791266-…`, DataStore) | 11.965 ESHOT durağı | Çalışıyor |
+| `openapi.izmir.bel.tr/api/iztek/duragayaklasanotobusler/{durakId}` | Canlı yaklaşan otobüs | Çalışıyor (ETA yok, hız sınırlı) |
+| `www.eshot.gov.tr/gtfs/bus-eshot-gtfs.zip` | ESHOT GTFS (hat/sefer) | Çalışıyor — **takvim 2026-10-09'da bitiyor** |
+| `www.izdeniz.com.tr/gtfs/ship-izdeniz-gtfs.zip` | İZDENİZ GTFS | **HTML dönüyor** — kullanılmıyor |
+| CKAN `semt-pazar-yerleri` (`3e63e16e-…`) | 186 pazar yeri, koordinat + serbest metin gün notu | Çalışıyor |
+| `openfiles.izmir.bel.tr/211488/docs/eshot-otobus-hat-duyurulari.csv` | 124 ESHOT hat duyurusu | Çalışıyor |
+| CKAN `kablosuz-internet-baglanti-noktalari` (`60ca8451-…`) | 857 WizmirNET noktası | Çalışıyor (yinelenen satırlar var) |
+| CKAN `izmirim-kart-dolum-noktalari` (`7a3efbec-…`) | 1.120 dolum noktası | Çalışıyor (**2023 tarihli**) |
+| CKAN `izmir-buyuksehir-belediyesi-kutuphaneleri-bilgileri` (`0c1b15b9-…`) | 10 kütüphane | Çalışıyor (**koordinat yok**) |
+| OpenStreetMap Nominatim | İlçe/mahalle referans noktaları | 2026-10-28'de alındı, ODbL |
+
+İlçe ve mahalle konumları yaklaşık referans noktalarıdır; adres çözümleme değildir.
+Eczane listesi günlüktür ve telefonla teyit gerektirir. Otopark boş yer sayıları
+anlık bildirimdir. İstasyon ve durak konumları statiktir; canlı sefer durumu değildir.
+ESHot kaynak araştırmasının tam kanıtı:
+[reports/eshot-ulasim-kaynak-arastirmasi.md](reports/eshot-ulasim-kaynak-arastirmasi.md).
+
+## Kurulum
+
+```bash
+python3.11 -m venv .venv
+source .venv/bin/activate
+pip install -e ".[dev]"
+python -m app.main
+```
+
+Yerel uçlar:
+
+- `GET /healthz`
+- `GET /readyz`
+- `GET /status`
+- `POST /mcp/` (Streamable HTTP MCP)
+
+## MCP istemcisine ekleme
+
+Yerel stdio kaydı (Freebuff/Codex/Claude Code benzeri istemciler):
+
+```json
+{
+  "mcpServers": {
+    "izmir": {
+      "command": "/mutlak/yol/izmirmcp/.venv/bin/python",
+      "args": ["-m", "app.stdio"]
+    }
+  }
+}
+```
+
+`app.stdio` masaüstü istemciler için stdio taşıması açar; `app.main` ise
+Streamable HTTP sunucusunu çalıştırır:
+
+```text
+http://127.0.0.1:8000/mcp/
+```
+
+## Testler
+
+```bash
+pytest
+```
+
+Testler dış kaynağa bağlanmaz; konnektörler sahte istemcilerle değiştirilir.
+Canlı kaynak doğrulaması isteğe bağlıdır:
+
+```bash
+.venv/bin/python scripts/smoke_live.py
+```
+
+## REA ile doğrulama
+
+Katalog katmanı kurulmadan önce portal, REA 6.8.0 ile CDP üzerinden statik
+olarak incelendi. Kanıt dosyası ve bulgular:
+
+- [REA inceleme raporu](reports/rea-open-data-portal.md)
+- [REA kanıt paketi](reports/rea-open-data-portal-evidence.json)
+
+REA portalın 11 script'ini ve 239.183 AST düğümünü analiz etti; statik pakette
+sabit CKAN yolu bulunmadı. Bu nedenle uçlar ayrıca doğrudan HTTP ile doğrulandı.
+Ayrıntı ve sınırlar raporda.
+
+## Sınırlar
+
+- Şehir geneli trafik indeksi, kaza/olay verisi ve rota planlayıcı yoktur.
+- İZSU arıza/kesinti akışı kaynakta 500 döndüğü için veri üretilmez.
+- Hava kalitesi kaynağı koordinat ve birim yayımlamaz; AQI hesabı yapılmaz.
+- Metro tarifesi istasyon çifti değil, saat aralığı ve sefer sıklığıdır.
+- İZDENİZ `day` değeri kaynağın kendi gün kimliğidir; haftanın günü olduğu
+  varsayılmaz.
+- ESHOT varış akışı **ETA/dakika yayımlamaz**; yalnızca kalan durak sayısı ve
+  anlık araç konumu döner. Yaklaşan otobüs uçları geçersiz durakta da `200` +
+  boş dizi döndüğü için boş yanıt "sefer yok" kanıtı sayılmaz; zarf uyarı taşır.
+- İZTEK ardışık yoğun isteklerde `429` döndürdü; bağlantı bu nedenle yumuşak bir
+  hız sınırıyla ve 20 saniyelik önbellekle çalışır.
+- ESHOT GTFS `calendar.txt`'teki servis penceresi **2026-10-09'da bitmiş**
+  durumdadır (doğrulama: 2026-10-28). `izmir_bus_routes` her yanıtta
+  `calendar_end` ve "tarife güncel olmayabilir" uyarısını döndürür.
+- ESHOT GTFS `stop_times.txt` (~2,1M satır, 85 MB) istek anında okunmaz; bu
+  yüzden **otobüs kalkış saatleri yayımlanmaz**, yalnızca hat ve sefer sayısı.
+- İZDENİZ GTFS ZIP bağlantısı `text/html` döndürdüğü için vapur GTFS kapsamı
+  yoktur; mevcut İZDENİZ sefer araçları openapi kaynaklarını kullanır.
+- Metro, tramvay ve İZBAN GTFS'leri indirilip doğrulandı ancak bağlanmadı:
+  İZBAN feed'i 2023 tarihli ve takvimi 2025-01-01'de bittiği için güncel
+  değildir.
+- Belgesiz `/api/eshot/...`, `/api/iztek/hatlar` gibi tahmini yollar `404`
+  döndüğü için kullanılmaz. `ibb/cbs/noktayayakinduraklar` projeksiyon
+  parametreleri doğrulanamadığı için bağlanmadı.
+- Semt pazarı kurulma günü yalnızca kaynağın serbest metninden (`ACIKLAMA`)
+  çıkarılır. Metinden gün çıkmayan kayıtlar `day_confidence="unknown"` ile
+  listelenir; gün uydurulmaz ve "o gün pazar yok" sonucu kanıt sayılmaz.
+- ESHOT hat duyuruları canlı gecikme/araç durumu değildir. `active` alanı
+  yalnızca duyurunun kendi başlangıç/bitiş tarihini sistem tarihiyle
+  karşılaştırır.
+- Kütüphane katmanı **koordinat yayımlamaz**; bu nedenle `distance_m` ve
+  `maps_url` null döner, yarıçap filtresi uygulanamaz. Adres ve ilçe verilir.
+- WizmirNET ve İzmirim Kart katmanlarında kaynak aynı konumu birden çok satırla
+  yayımlıyor; aynı konum/adres tekilleştirilir ve yinelenen satır sayısı uyarıda
+  bildirilir.
+- İzmirim Kart dolum noktaları **2023-08-21** tarihli statik yayımdır; nokta
+  kapanmış olabilir.
+- **Canlı trafik indeksi İzmir'de yok**: `openapi.izmir.bel.tr/api/ibb/trafikyogunluk`
+  `404` döner. Yalnızca geçmişe dönük `ana-arterler-gunluk-hiz-ve-sure-verileri`
+  (XLSX) ve 2023 tarihli `trafik-kameralari` vardır; ikisi de bağlanmadı.
+- **Metro ekipman/arıza verisi yok**: `metro/ekipmanlar` ve `metro/arizalar`
+  `404` döner. İstanbul'daki `metro_accessibility_status` aracının karşılığı yok.
+- "Sosyal tesis" adıyla yayımlanmış bir veri seti bulunmadı; upstream'deki
+  `sosyal_tesis_nearby` aracının birebir karşılığı yoktur.
+- Serbest SQL (`datastore_query`) bilinçli olarak yoktur; yalnızca güvenli
+  `filters` ve limit kullanılır.
+
+## Kaynak ve lisans
+
+Bu proje, [istanbulmcp](https://github.com/Batu1-1an/istanbulmcp) deposunun
+mimarisinden ve yanıt sözleşmesinden esinlenir. Zarf, doğrulama, önbellek ve MCP
+kayıt katmanındaki bazı yardımcılar o projedeki yaklaşımdan uyarlanmıştır;
+İBB/İETT/İSKİ/İSPARK konnektörlerinden kod alınmamıştır.
+
+Upstream depoda bir LICENSE dosyası bulunmadığı için yeniden kullanım koşulları
+belirsizdir. Bu projeyi yayımlamadan veya dağıtmadan önce upstream sahibinden izin
+alınmalı ya da ortak çekirdek modüller yeniden yazılmalıdır.
+
+Şehir verilerinin lisansları yayıncı kurumlara aittir; açık erişim lisans izni
+anlamına gelmez. İlçe/mahalle referans noktaları OpenStreetMap katkıcılarına aittir
+(ODbL 1.0).

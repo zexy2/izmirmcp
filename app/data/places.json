@@ -1,0 +1,331 @@
+{
+  "source": "OpenStreetMap Nominatim search, retrieved 2026-10-28",
+  "license": "ODbL 1.0 (OpenStreetMap contributors)",
+  "precision": "Approximate administrative/neighborhood reference point, not an address geocoder.",
+  "places": [
+    {
+      "name": "Aliağa",
+      "kind": "district",
+      "lat": 38.80343,
+      "lon": 26.97137
+    },
+    {
+      "name": "Balçova",
+      "kind": "district",
+      "lat": 38.39531,
+      "lon": 27.05787
+    },
+    {
+      "name": "Bayındır",
+      "kind": "district",
+      "lat": 38.21277,
+      "lon": 27.64899
+    },
+    {
+      "name": "Bayraklı",
+      "kind": "district",
+      "lat": 38.46391,
+      "lon": 27.1644
+    },
+    {
+      "name": "Bergama",
+      "kind": "district",
+      "lat": 39.11895,
+      "lon": 27.17736
+    },
+    {
+      "name": "Beydağ",
+      "kind": "district",
+      "lat": 38.08703,
+      "lon": 28.21069
+    },
+    {
+      "name": "Bornova",
+      "kind": "district",
+      "lat": 38.46619,
+      "lon": 27.21919
+    },
+    {
+      "name": "Buca",
+      "kind": "district",
+      "lat": 38.38349,
+      "lon": 27.16865
+    },
+    {
+      "name": "Çeşme",
+      "kind": "district",
+      "lat": 38.3244,
+      "lon": 26.30296
+    },
+    {
+      "name": "Çiğli",
+      "kind": "district",
+      "lat": 38.49166,
+      "lon": 27.06343
+    },
+    {
+      "name": "Dikili",
+      "kind": "district",
+      "lat": 39.07497,
+      "lon": 26.88925
+    },
+    {
+      "name": "Foça",
+      "kind": "district",
+      "lat": 38.66892,
+      "lon": 26.75477
+    },
+    {
+      "name": "Gaziemir",
+      "kind": "district",
+      "lat": 38.32628,
+      "lon": 27.13997
+    },
+    {
+      "name": "Güzelbahçe",
+      "kind": "district",
+      "lat": 38.37552,
+      "lon": 26.87555
+    },
+    {
+      "name": "Karabağlar",
+      "kind": "district",
+      "lat": 38.39899,
+      "lon": 27.12693
+    },
+    {
+      "name": "Karaburun",
+      "kind": "district",
+      "lat": 38.63544,
+      "lon": 26.5098
+    },
+    {
+      "name": "Karşıyaka",
+      "kind": "district",
+      "lat": 38.45664,
+      "lon": 27.11783
+    },
+    {
+      "name": "Kemalpaşa",
+      "kind": "district",
+      "lat": 38.46946,
+      "lon": 27.40021
+    },
+    {
+      "name": "Kınık",
+      "kind": "district",
+      "lat": 39.0876,
+      "lon": 27.38048
+    },
+    {
+      "name": "Kiraz",
+      "kind": "district",
+      "lat": 38.23037,
+      "lon": 28.20158
+    },
+    {
+      "name": "Konak",
+      "kind": "district",
+      "lat": 38.41872,
+      "lon": 27.12827
+    },
+    {
+      "name": "Menderes",
+      "kind": "district",
+      "lat": 38.25516,
+      "lon": 27.13814
+    },
+    {
+      "name": "Menemen",
+      "kind": "district",
+      "lat": 38.60336,
+      "lon": 27.07643
+    },
+    {
+      "name": "Narlıdere",
+      "kind": "district",
+      "lat": 38.39544,
+      "lon": 27.0011
+    },
+    {
+      "name": "Ödemiş",
+      "kind": "district",
+      "lat": 38.22205,
+      "lon": 27.96557
+    },
+    {
+      "name": "Seferihisar",
+      "kind": "district",
+      "lat": 38.19503,
+      "lon": 26.83422
+    },
+    {
+      "name": "Selçuk",
+      "kind": "district",
+      "lat": 37.94796,
+      "lon": 27.3685
+    },
+    {
+      "name": "Tire",
+      "kind": "district",
+      "lat": 38.09249,
+      "lon": 27.7278
+    },
+    {
+      "name": "Torbalı",
+      "kind": "district",
+      "lat": 38.17012,
+      "lon": 27.34734
+    },
+    {
+      "name": "Urla",
+      "kind": "district",
+      "lat": 38.32282,
+      "lon": 26.7673
+    },
+    {
+      "name": "Alsancak",
+      "kind": "neighborhood",
+      "lat": 38.43863,
+      "lon": 27.14812
+    },
+    {
+      "name": "Karşıyaka Çarşı",
+      "kind": "neighborhood",
+      "lat": 38.45664,
+      "lon": 27.11783
+    },
+    {
+      "name": "Bostanlı",
+      "kind": "neighborhood",
+      "lat": 38.45703,
+      "lon": 27.09836
+    },
+    {
+      "name": "Bornova Merkez",
+      "kind": "neighborhood",
+      "lat": 38.46619,
+      "lon": 27.21919
+    },
+    {
+      "name": "Buca Merkez",
+      "kind": "neighborhood",
+      "lat": 38.38349,
+      "lon": 27.16865
+    },
+    {
+      "name": "Gaziemir Merkez",
+      "kind": "neighborhood",
+      "lat": 38.32628,
+      "lon": 27.13997
+    },
+    {
+      "name": "Balçova Merkez",
+      "kind": "neighborhood",
+      "lat": 38.39531,
+      "lon": 27.05787
+    },
+    {
+      "name": "Narlıdere Merkez",
+      "kind": "neighborhood",
+      "lat": 38.39544,
+      "lon": 27.0011
+    },
+    {
+      "name": "Güzelbahçe Merkez",
+      "kind": "neighborhood",
+      "lat": 38.37552,
+      "lon": 26.87555
+    },
+    {
+      "name": "Konak Meydanı",
+      "kind": "neighborhood",
+      "lat": 38.41901,
+      "lon": 27.12864
+    },
+    {
+      "name": "Kemeraltı",
+      "kind": "neighborhood",
+      "lat": 38.41918,
+      "lon": 27.13269
+    },
+    {
+      "name": "Kültürpark",
+      "kind": "neighborhood",
+      "lat": 38.42789,
+      "lon": 27.14553
+    },
+    {
+      "name": "Basmane",
+      "kind": "neighborhood",
+      "lat": 38.42245,
+      "lon": 27.1439
+    },
+    {
+      "name": "Halkapınar",
+      "kind": "neighborhood",
+      "lat": 38.43522,
+      "lon": 27.16885
+    },
+    {
+      "name": "Üçkuyular",
+      "kind": "neighborhood",
+      "lat": 38.40311,
+      "lon": 27.07149
+    },
+    {
+      "name": "Fahrettin Altay",
+      "kind": "neighborhood",
+      "lat": 38.39792,
+      "lon": 27.06943
+    },
+    {
+      "name": "Şirinyer",
+      "kind": "neighborhood",
+      "lat": 38.39195,
+      "lon": 27.14725
+    },
+    {
+      "name": "Göztepe",
+      "kind": "neighborhood",
+      "lat": 38.39731,
+      "lon": 27.09185
+    },
+    {
+      "name": "İnciraltı",
+      "kind": "neighborhood",
+      "lat": 38.40869,
+      "lon": 27.03515
+    },
+    {
+      "name": "Alaçatı",
+      "kind": "neighborhood",
+      "lat": 38.28476,
+      "lon": 26.37452
+    },
+    {
+      "name": "Sığacık",
+      "kind": "neighborhood",
+      "lat": 38.19319,
+      "lon": 26.78601
+    },
+    {
+      "name": "Adnan Menderes Havalimanı",
+      "kind": "neighborhood",
+      "lat": 38.29304,
+      "lon": 27.14868
+    },
+    {
+      "name": "İzmir Otogar",
+      "kind": "neighborhood",
+      "lat": 38.43109,
+      "lon": 27.2142
+    },
+    {
+      "name": "Ege Üniversitesi",
+      "kind": "neighborhood",
+      "lat": 38.45969,
+      "lon": 27.22884
+    }
+  ]
+}
