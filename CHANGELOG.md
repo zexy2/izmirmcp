@@ -8,6 +8,8 @@ Bu proje [Semantic Versioning](https://semver.org/lang/tr/) izler.
 
 ### Eklendi
 
+- `docs/` dokümantasyon seti: yanıt sözleşmesi, araç referansı, dağıtım,
+  kaynaklar ve izleme. `tests/test_docs.py` bu belgeleri koda karşı kilitler.
 - 17 salt okunur MCP aracı: katalog (4), yakındaki hizmetler, İZSU baraj,
   hava kalitesi, metro/İZBAN/İZDENİZ, ESHOT durak/varış/tarife/hat detayı,
   semt pazarı takvimi, çok operatörlü ulaşım duyuruları, şehir hizmetleri.

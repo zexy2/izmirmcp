@@ -71,6 +71,18 @@ anlık bildirimdir. İstasyon ve durak konumları statiktir; canlı sefer durumu
 ESHot kaynak araştırmasının tam kanıtı:
 [reports/eshot-ulasim-kaynak-arastirmasi.md](reports/eshot-ulasim-kaynak-arastirmasi.md).
 
+## Dokümantasyon
+
+Aşağıdaki belgeler doğrudan koddan türetilir ve `tests/test_docs.py` ile koda
+karşı kilitlenir:
+
+- [Yanıt sözleşmesi](docs/response-contract.md) — zarf alanları, hata
+  taksonomisi, `result_info`.
+- [Araç referansı](docs/tool-reference.md) — 17 aracın girdi/çıktı sözleşmesi.
+- [Dağıtım](docs/deployment.md) — ortam değişkenleri, auth, CORS, Docker.
+- [Kaynaklar](docs/sources.md) — kaynak envanteri, durum ve lisans.
+- [İzleme](docs/monitoring.md) — `/healthz`, `/readyz`, `/status`, log formatı.
+
 ## Kurulum
 
 ```bash

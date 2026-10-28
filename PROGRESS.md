@@ -1,7 +1,7 @@
 # PROGRESS — İzmir MCP
 
 Son güncelleme: 2026-10-28
-Durum: **17 araç, 151 test, 21/21 canlı smoke.** Mission: upstream parity
+Durum: **17 araç, 200 test, canlı smoke yeşil.** Mission: upstream parity
 (olabildiğince, İzmir verisi olan kadarıyla).
 
 Bu dosya döngünün hafızasıdır. Her pass sonunda güncellenir.
@@ -17,7 +17,8 @@ Bu dosya döngünün hafızasıdır. Her pass sonunda güncellenir.
 | Alan modları | `izmir_nearby` ve `izmir_city_services_nearby` bbox + ilçe | `0db0421` |
 | HTTP sertleştirme | gövde tavanı, hız sınırı, eşzamanlılık, auth, CORS, log, gerçek `/readyz` | `27f1177` |
 | P1 operatör duyuruları | Metro + İZDENİZ duyuruları bağlandı; İZBAN kanıtla unavailable | `be740c0` |
-| P2 paketleme | Dockerfile + .dockerignore + entrypoint, server.json, CI, CHANGELOG, console script | bu pass |
+| P2 paketleme | Dockerfile + .dockerignore + entrypoint, server.json, CI, CHANGELOG, console script | `5097c3d` |
+| P3 dokümantasyon | `docs/` beş belge + `tests/test_docs.py` kilit testleri | bu pass |
 
 ## Sırada (öncelik sırasıyla)
 
@@ -37,13 +38,16 @@ console script'leri.
 konteyner çalıştırması CI'da ilk kez koşacak. Dockerfile statik olarak
 `tests/test_packaging.py` ile kilitlendi.
 
-### P3 — Dokümantasyon seti (`docs/`)
-Upstream'de 18 doküman var. İzmir için gerçekten gerekli olanlar:
-- `response-contract.md` — zarf sözleşmesi
-- `tool-reference.md` — 17 aracın girdi/çıktı sözleşmesi
-- `deployment.md` — env değişkenleri, auth, CORS, çok işçili notlar
-- `sources.md` — kaynak envanteri ve lisans durumu
-- `monitoring.md` — `/healthz`, `/readyz`, `/status`, log formatı
+### P3 — Dokümantasyon seti (`docs/`) ✅ TAMAMLANDI
+- `response-contract.md` — zarf alanları, hata taksonomisi, `result_info` scope'ları.
+- `tool-reference.md` — 17 aracın girdi şeması (canlı `input_schema`'dan) ve
+  davranış sözleşmesi.
+- `deployment.md` — 38 env değişkeni, auth, CORS, guard kodları, Docker, CLI.
+- `sources.md` — kanonik `Source.name` tablosu, uçlar, durum, lisans (ODbL).
+- `monitoring.md` — `/healthz`, `/readyz`, `/status`, guard kodları, log formatı.
+- `tests/test_docs.py` — belgeleri koda karşı kilitler: zarf alanları, hata
+  kodları, scope'lar, araç girdileri, env değişkenleri, kaynak adları, uçlar ve
+  log alanları koddan türetilir. Doc drift'i testi kırar.
 
 ### P4 — Sözleşme ve güvenlik testleri
 - Tüm araçların zarf alanlarını doğrulayan conformance testi
