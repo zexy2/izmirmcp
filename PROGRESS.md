@@ -123,6 +123,32 @@ Nominatim'i birincil geocoder yapmak kullanım politikası, önbellek ve hız
 sınırı yükü getirir; yayımlanmış envanter (30 ilçe + 1.219 mahalle) İzmir
 sorgularının çoğunu karşılıyor. Bu bilinçli bir sınır, eksik değil.
 
+## Parity tablosu (upstream → izmirmcp)
+
+Son durum: **19 araç**, upstream'in 16 aracından gerçek veri karşılığı olanların
+tamamı karşılandı.
+
+| Upstream aracı | izmirmcp karşılığı | Durum |
+|---|---|---|
+| `health` | `izmir_health` | ✅ |
+| `search_datasets` / `get_dataset` / `get_resource_schema` | aynı adlar | ✅ |
+| `query_resource` | `izmir_query_resource` (+ `search`, `sort`) | ✅ daha geniş |
+| `nearby` | `izmir_nearby` (+ bbox/ilçe/taksi) | ✅ daha geniş |
+| `mobility_nearby` | `izmir_nearby(types=["taxi_stand"])` | ✅ kısmi (taksi) |
+| `city_services_nearby` | `izmir_city_services_nearby` (+ bbox/ilçe) | ✅ daha geniş |
+| `neighborhood_profile` | `izmir_neighborhood_profile` | ✅ farklı katmanlar |
+| `market_schedule` | `izmir_market_schedule` | ✅ |
+| `water_status` | `izmir_water_status` | ✅ (arıza kanıtlı 500) |
+| `transport_disruptions` | `izmir_transport_disruptions` (4 operatör) | ✅ |
+| `transit_line` | `izmir_bus_routes(detail=true)` | ✅ otobüs; metro/İZBAN hat detayı yok |
+| `traffic_status` | — | ❌ `404`, kaynak yok |
+| `metro_accessibility_status` | — | ❌ `metro/ekipmanlar` `404` |
+| `datastore_query` (SQL) | — | ❌ `datastore_search_sql` bu CKAN'da yok |
+
+**Yalnız izmirmcp'de olanlar:** `izmir_air_quality`, `izmir_transit_stations`,
+`izmir_transit_schedule`, `izmir_bus_stops`, `izmir_bus_arrivals`,
+`izmir_bus_departures`, `izmir_bus_routes`, `izmir_gtfs_status`.
+
 ## Bilinçli boşluklar (yapılmayacak, kanıtlı)
 
 | Upstream yeteneği | İzmir durumu |
