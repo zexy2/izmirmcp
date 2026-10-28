@@ -163,3 +163,20 @@ def test_changelog_opens_with_current_version_and_packaging_entry():
     assert version in first_heading, first_heading
     assert "Docker" in text
     assert "server.json" in text
+
+
+def test_wheel_can_actually_be_built():
+    """`pip install .` in the Dockerfile builds a wheel; a broken wheel config
+    (for example force-including a path already covered by ``packages``) fails
+    there but not under an editable install, so assert the config directly."""
+    config = _pyproject()["tool"]["hatch"]["build"]["targets"]["wheel"]
+    forced = config.get("force-include", {})
+    packages = config.get("packages", [])
+    for source in forced:
+        assert not any(
+            source == package or source.startswith(package.rstrip("/") + "/")
+            for package in packages
+        ), (
+            f"force-include '{source}' duplicates a path inside packages {packages}; "
+            "hatchling fails with 'A second file is being added to the wheel archive'"
+        )

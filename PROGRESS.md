@@ -36,9 +36,20 @@ anında GTFS kurulumu), `.dockerignore`, `docker/entrypoint.sh`, `server.json`,
 `.github/workflows/ci.yml`, `CHANGELOG.md`, `izmir-mcp` / `izmir-mcp-stdio`
 console script'leri.
 
-**Doğrulanmadı:** Docker daemon bu makinede yanıt vermedi; imaj derlemesi ve
-konteyner çalıştırması CI'da ilk kez koşacak. Dockerfile statik olarak
-`tests/test_packaging.py` ile kilitlendi.
+**Doğrulandı (2026-10-28):** imaj gerçekten derlendi ve çalıştırıldı
+(`izmir-mcp:local`, 276 MB, arm64). Konteyner `healthy`; 19 araç; `/healthz`,
+`/readyz`, `/status` 200; `/mcp/` Streamable HTTP çalışıyor; GTFS deposu
+konteyner içinde kuruldu (2.108.736 stop_times); non-root `uid=10001`; `/data`
+hacmi yazılabilir; stdio transport konteyner içinde el sıkışıyor; auth açıkken
+`401/200` doğru.
+
+**Bu doğrulamada bulunan gerçek hata:** `pyproject.toml` hem `packages = ["app"]`
+hem `force-include "app/data"` içeriyordu. Editable kurulum bunu gizliyordu ama
+gerçek wheel üretimi `ValueError: A second file is being added to the wheel
+archive: app/data/neighborhoods.json` ile ölüyordu — yani `pip install .`
+(Dockerfile'ın tek kurulum adımı) her ortamda bozuktu. `force-include` kaldırıldı
+ve `tests/test_packaging.py::test_wheel_can_actually_be_built` bu sınıf hatayı
+statik olarak kilitliyor.
 
 ### P3 — Dokümantasyon seti (`docs/`) ✅ TAMAMLANDI
 - `response-contract.md` — zarf alanları, hata taksonomisi, `result_info` scope'ları.
@@ -169,6 +180,6 @@ tamamı karşılandı.
   birkaç saniye sürer. `.data/` yoksa yeniden kurulur.
 - Hız sınırı ve sayaçlar süreç içi; çok işçili dağıtımda işçi başına bütçe.
 - Lisans: depoda LICENSE yok. Upstream'de de yok. Yayımlamadan önce karar gerekli.
-- Docker imajı henüz yerelde derlenmedi (daemon yanıt vermedi); CI'da ilk
-  derleme gerçek sınavdır. `server.json` imaj adı
-  `ghcr.io/batu1-1an/izmir-mcp:0.1.0` — registry'ye push yapılmadı.
+- Docker imajı yerelde derlenip çalıştırıldı, ancak `ghcr.io` registry'sine
+  push yapılmadı; `server.json` içindeki `ghcr.io/batu1-1an/izmir-mcp:0.1.0`
+  imajı henüz yayımlanmadı.

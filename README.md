@@ -149,7 +149,9 @@ curl -s http://127.0.0.1:8000/readyz
 ```
 
 İmaj `python:3.11-slim` (digest pinli), root olmayan `izmir` kullanıcısı ve
-`/data` hacmi kullanır. `.data/` ve `.venv/` imaja **girmez**; GTFS deposu
+`/data` hacmi kullanır. 2026-10-28'de derlenip çalıştırıldı: konteyner
+`healthy`, 19 araç, GTFS deposu açılışta kuruldu, stdio ve HTTP transportları
+aynı imajda çalışıyor. `.data/` ve `.venv/` imaja **girmez**; GTFS deposu
 konteyner ilk açılışta `docker/entrypoint.sh` ile yayımlanmış arşivden yeniden
 kurulur. Kurulum başarısız olursa konteyner durmaz: tarife araçları dürüst
 `source_unavailable` döner, diğer araçlar çalışmaya devam eder. Kurulumu
