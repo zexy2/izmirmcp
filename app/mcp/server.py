@@ -103,17 +103,24 @@ async def izmir_nearby(
     lat: float | None = None,
     lon: float | None = None,
     place: str | None = None,
+    bbox: list[float] | None = None,
+    district: str | None = None,
     types: list[NearbyType] | None = None,
     radius_m: int | None = None,
     limit: int | None = None,
 ) -> dict:
-    """Find nearby İzmir parking, pharmacies, metro stations, İZBAN stations and ferry piers.
+    """Find İzmir services by radius, rectangle or district-wide list.
 
-    Supply either coordinates or `place` (a district or neighborhood reference
-    point such as Konak, Karşıyaka, Alsancak, Bornova Merkez). Reference points are
-    approximate, not address geocoding. Parking occupancy is a snapshot; pharmacy
-    rosters are daily and should be confirmed by phone. Static locations are not
-    live service status.
+    Supply exactly one location mode:
+    - `lat`+`lon`, or `place` (an approximate district/neighborhood reference
+      point such as Konak, Karşıyaka, Alsancak) with an optional `radius_m`.
+    - `bbox` as `[min_lon, min_lat, max_lon, max_lat]`; all edges are inclusive,
+      there is no reference point, and `distance_m` is null.
+    - `district` for a district-wide list without distances. Currently only
+      pharmacy publishes a usable district/region label; other selected types
+      are skipped with a warning because their sources publish no district.
+    Parking occupancy is a snapshot; pharmacy rosters are daily and should be
+    confirmed by phone. Static locations are not live service status.
     """
     settings = get_settings()
     try:
@@ -122,6 +129,19 @@ async def izmir_nearby(
             raise InputValidationError("lat and lon must be supplied together", field="lat")
         if place is not None and lat is not None:
             raise InputValidationError("place cannot be combined with lat/lon", field="place")
+        location_modes = sum(
+            [bbox is not None, district is not None, place is not None, lat is not None]
+        )
+        if location_modes > 1:
+            raise InputValidationError(
+                "bbox, district, place and lat/lon are mutually exclusive; supply one mode",
+                field="bbox" if bbox is not None else "district",
+            )
+        if (bbox is not None or district is not None) and radius_m is not None:
+            raise InputValidationError(
+                "radius_m applies only to lat/lon or place mode, not bbox/district",
+                field="radius_m",
+            )
         selected = list(SUPPORTED_TYPES) if types is None else list(types)
         if not selected or any(kind not in SUPPORTED_TYPES for kind in selected):
             raise InputValidationError(
@@ -132,6 +152,14 @@ async def izmir_nearby(
             raise InputValidationError(
                 f"types must contain <= {settings.max_nearby_types} items", field="types"
             )
+        if bbox is not None:
+            return await NearbyService(settings=settings).bbox(
+                bbox=bbox, types=selected, limit=safe_limit
+            )
+        if district is not None:
+            return await NearbyService(settings=settings).district(
+                district=district, types=selected, limit=safe_limit
+            )
         reference_label = None
         if place is not None:
             resolved = PlaceResolver().resolve(place)
@@ -139,7 +167,8 @@ async def izmir_nearby(
             reference_label = f"{resolved.name} ({resolved.kind} reference point)"
         elif lat is None or lon is None:
             raise InputValidationError(
-                "supply lat/lon or place (for example place='Konak')", field="place"
+                "supply lat/lon, place, bbox or district (for example place='Konak')",
+                field="place",
             )
         validate_lat_lon(lat, lon)
         if radius_m is None:
@@ -269,15 +298,49 @@ async def izmir_bus_arrivals(stop_id: str, limit: int | None = None) -> dict:
         return _validation(exc)
 
 
-async def izmir_bus_routes(query: str | None = None, limit: int | None = None) -> dict:
-    """List EShot routes from the published GTFS feed, optionally filtered by name.
+async def izmir_bus_departures(
+    stop_id: str,
+    at: str | None = None,
+    line: str | None = None,
+    limit: int | None = None,
+) -> dict:
+    """Return scheduled GTFS departures from one EShot stop from `at` onwards.
 
-    The feed's service calendar may be out of date; `calendar_end` and warnings
-    show the verified window. GTFS `stop_times` are not loaded, so no departure
-    times are returned.
+    `at` accepts `HH:MM` (Europe/Istanbul) or an ISO-8601 date/time; it defaults
+    to now. `stop_id` must come from `izmir_bus_stops`. Results are published
+    timetable times, never live ETAs, and every answer carries the feed's
+    `calendar_end`. The EShot calendar currently ends on 2026-10-09, so dates
+    after that return no timetable rows with an explicit staleness warning.
     """
     try:
-        return await BusService(settings=get_settings()).routes(query=query, limit=limit)
+        return await BusService(settings=get_settings()).departures(
+            stop_id=str(stop_id or "").strip(), at=at, line=line, limit=limit
+        )
+    except InputValidationError as exc:
+        return _validation(exc)
+
+
+async def izmir_bus_routes(
+    query: str | None = None,
+    detail: bool = False,
+    direction: str | None = None,
+    limit: int | None = None,
+) -> dict:
+    """List EShot routes, or return one line's ordered stops per direction.
+
+    `detail=true` requires `query` to be an exact line code or route id and
+    returns every published stop pattern for each `direction_id`, in
+    `stop_sequence` order. `direction` (`0` or `1`) filters to one direction and
+    is only valid with `detail=true`; `limit` then does not truncate patterns.
+    The feed's service calendar may be out of date; `calendar_end`, limits and
+    warnings show the verified window. Stop names and headsigns come from the
+    feed and are never invented. Scheduled stop departures are returned by
+    `izmir_bus_departures`.
+    """
+    try:
+        return await BusService(settings=get_settings()).routes(
+            query=query, detail=detail, direction=direction, limit=limit
+        )
     except InputValidationError as exc:
         return _validation(exc)
 
@@ -352,15 +415,22 @@ async def izmir_city_services_nearby(
     lat: float | None = None,
     lon: float | None = None,
     place: str | None = None,
+    bbox: list[float] | None = None,
+    district: str | None = None,
     radius_m: int | None = None,
     limit: int | None = None,
 ) -> dict:
     """Find WizmirNET WiFi points, İzmirim Kart top-up points and libraries.
 
-    Supply coordinates or `place`. `kinds` defaults to all three. WiFi and card
-    points carry published coordinates; the library layer has no coordinates, so
-    libraries are listed by district and address and cannot be radius-filtered.
-    All three are static snapshots, not live open/closed status.
+    Supply exactly one location mode:
+    - `lat`+`lon`, or `place` with an optional `radius_m` (distance-ranked).
+    - `bbox` as `[min_lon, min_lat, max_lon, max_lat]`; edges inclusive, no
+      reference point, `distance_m` is null. The library layer publishes no
+      coordinates and therefore never appears in a rectangle.
+    - `district` for a district-wide list; matching uses the source's own
+      district field or address text, not an administrative boundary.
+    `kinds` defaults to all three. All three are static snapshots, not live
+    open/closed status.
     """
     settings = get_settings()
     try:
@@ -370,6 +440,31 @@ async def izmir_city_services_nearby(
             raise InputValidationError(
                 f"kinds must be a non-empty subset of: {', '.join(CITY_SERVICE_KINDS)}",
                 field="kinds",
+            )
+        if (lat is None) != (lon is None):
+            raise InputValidationError("lat and lon must be supplied together", field="lat")
+        if place is not None and lat is not None:
+            raise InputValidationError("place cannot be combined with lat/lon", field="place")
+        location_modes = sum(
+            [bbox is not None, district is not None, place is not None, lat is not None]
+        )
+        if location_modes > 1:
+            raise InputValidationError(
+                "bbox, district, place and lat/lon are mutually exclusive; supply one mode",
+                field="bbox" if bbox is not None else "district",
+            )
+        if (bbox is not None or district is not None) and radius_m is not None:
+            raise InputValidationError(
+                "radius_m applies only to lat/lon or place mode, not bbox/district",
+                field="radius_m",
+            )
+        if bbox is not None:
+            return await CityServicesService(settings=settings).bbox(
+                bbox=bbox, kinds=selected, limit=safe_limit
+            )
+        if district is not None:
+            return await CityServicesService(settings=settings).district(
+                district=district, kinds=selected, limit=safe_limit
             )
         resolved_lat, resolved_lon, reference_label = _require_point(lat, lon, place)
         if radius_m is None:

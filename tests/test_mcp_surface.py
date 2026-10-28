@@ -13,7 +13,7 @@ async def test_all_tools_are_advertised_with_titles_and_structured_output():
     server = create_mcp_server(get_settings())
     tools = await server.list_tools()
     assert [tool.name for tool in tools] == list(DEFAULT_TOOL_NAMES)
-    assert len(tools) == 16
+    assert len(tools) == 17
     for tool in tools:
         assert tool.title
         assert tool.output_schema is not None
@@ -22,11 +22,22 @@ async def test_all_tools_are_advertised_with_titles_and_structured_output():
 
 
 @pytest.mark.asyncio
+async def test_departures_schema_exposes_stop_time_and_line():
+    server = create_mcp_server(get_settings())
+    departures = next(
+        tool for tool in await server.list_tools() if tool.name == "izmir_bus_departures"
+    )
+    assert {"stop_id", "at", "line", "limit"} == set(departures.input_schema["properties"])
+    assert departures.input_schema["required"] == ["stop_id"]
+
+
+@pytest.mark.asyncio
 async def test_nearby_schema_exposes_place_and_types():
     server = create_mcp_server(get_settings())
     nearby = next(tool for tool in await server.list_tools() if tool.name == "izmir_nearby")
     properties = nearby.input_schema["properties"]
-    assert {"lat", "lon", "place", "types", "radius_m", "limit"} == set(properties)
+    assert {"lat", "lon", "place", "bbox", "district", "types", "radius_m",
+            "limit"} == set(properties)
     assert nearby.input_schema.get("required", []) == []
 
 
@@ -62,6 +73,41 @@ async def test_invalid_nearby_input_is_reported_not_raised():
 
 
 @pytest.mark.asyncio
+async def test_nearby_modes_are_mutually_exclusive_and_bbox_is_validated():
+    server = create_mcp_server(get_settings())
+
+    both = json.loads((await server.call_tool(
+        "izmir_nearby", {"bbox": [27.12, 38.41, 27.14, 38.43], "district": "Konak"}
+    )).content[0].text)
+    assert both["ok"] is False
+    assert both["error"]["code"] == "validation_error"
+
+    radius = json.loads((await server.call_tool(
+        "izmir_nearby", {"bbox": [27.12, 38.41, 27.14, 38.43], "radius_m": 500}
+    )).content[0].text)
+    assert radius["ok"] is False
+    assert radius["error"]["field"] == "radius_m"
+
+    crossed = json.loads((await server.call_tool(
+        "izmir_nearby", {"bbox": [27.14, 38.43, 27.12, 38.41]}
+    )).content[0].text)
+    assert crossed["ok"] is False
+    assert crossed["error"]["field"] == "bbox"
+
+
+@pytest.mark.asyncio
+async def test_nearby_district_without_a_district_capable_type_is_reported():
+    server = create_mcp_server(get_settings())
+    result = await server.call_tool(
+        "izmir_nearby", {"district": "Karşıyaka", "types": ["parking"]}
+    )
+    payload = json.loads(result.content[0].text)
+    assert payload["ok"] is False
+    assert payload["error"]["code"] == "validation_error"
+    assert payload["error"]["field"] == "types"
+
+
+@pytest.mark.asyncio
 async def test_bus_tools_are_advertised_with_expected_inputs():
     server = create_mcp_server(get_settings())
     tools = {tool.name: tool for tool in await server.list_tools()}
@@ -71,7 +117,9 @@ async def test_bus_tools_are_advertised_with_expected_inputs():
     )
     assert "stop_id" in tools["izmir_bus_arrivals"].input_schema["properties"]
     assert tools["izmir_bus_arrivals"].input_schema["required"] == ["stop_id"]
-    assert "query" in tools["izmir_bus_routes"].input_schema["properties"]
+    assert {"query", "detail", "direction", "limit"} == set(
+        tools["izmir_bus_routes"].input_schema["properties"]
+    )
 
 
 @pytest.mark.asyncio
@@ -104,7 +152,9 @@ async def test_new_city_tools_are_advertised_with_expected_inputs():
     disruptions = tools["izmir_transport_disruptions"].input_schema["properties"]
     assert {"line", "active_only", "limit"} == set(disruptions)
     services = tools["izmir_city_services_nearby"].input_schema["properties"]
-    assert {"kinds", "lat", "lon", "place", "radius_m", "limit"} == set(services)
+    assert {"kinds", "lat", "lon", "place", "bbox", "district", "radius_m", "limit"} == set(
+        services
+    )
 
 
 @pytest.mark.asyncio
@@ -116,3 +166,27 @@ async def test_city_services_validation_error_is_reported_not_raised():
     payload = json.loads(result.content[0].text)
     assert payload["ok"] is False
     assert payload["error"]["field"] == "kinds"
+
+
+@pytest.mark.asyncio
+async def test_city_services_location_modes_are_mutually_exclusive():
+    server = create_mcp_server(get_settings())
+    result = await server.call_tool(
+        "izmir_city_services_nearby",
+        {"lat": 38.4, "lon": 27.1, "district": "Konak"},
+    )
+    payload = json.loads(result.content[0].text)
+    assert payload["ok"] is False
+    assert payload["error"]["code"] == "validation_error"
+
+
+@pytest.mark.asyncio
+async def test_city_services_bbox_rejects_radius():
+    server = create_mcp_server(get_settings())
+    result = await server.call_tool(
+        "izmir_city_services_nearby",
+        {"bbox": [27.1, 38.4, 27.2, 38.5], "radius_m": 500},
+    )
+    payload = json.loads(result.content[0].text)
+    assert payload["ok"] is False
+    assert payload["error"]["field"] == "radius_m"

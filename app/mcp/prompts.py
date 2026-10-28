@@ -69,8 +69,11 @@ def otobus(durak: str, hat: str | None = None) -> str:
 Önce izmir://coverage ve izmir://sources kaynaklarını oku. izmir_bus_stops(query=...)
 ile durak kimliğini doğrula; kimlik uydurma. Ardından
 izmir_bus_arrivals(stop_id=...) ile yaklaşan otobüsleri listele ve
-izmir_bus_routes(query=...) ile yayımlanmış GTFS hat özetini ekle. Varış verisinin
-dakika/ETA içermediğini, yalnızca kalan durak sayısı ve anlık konum verdiğini belirt;
+izmir_bus_departures(stop_id=...) ile aynı durağın planlı GTFS kalkışlarını ekle;
+izmir_bus_routes(query=..., detail=true) ile hattın yönlerini ve sıralı duraklarını
+(farklı durak varyantlarını ayrı ayrı) ekle. Varış verisinin
+dakika/ETA içermediğini, yalnızca kalan durak sayısı ve anlık konum verdiğini; planlı
+kalkışların canlı ETA olmadığını belirt;
 boş yanıtı "sefer yok" diye yorumlama. GTFS calendar_end tarihini ve süresi geçmişse
 uyarıyı koru. İZDENİZ için kullanılabilir GTFS olmadığını, otobüs verisiyle
 karıştırılmaması gerektiğini not et. Freshness, limits ve warnings alanlarını koru.

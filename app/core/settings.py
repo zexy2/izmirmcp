@@ -66,8 +66,12 @@ class Settings:
     eshot_gtfs_url: str = "https://www.eshot.gov.tr/gtfs/bus-eshot-gtfs.zip"
     eshot_gtfs_max_bytes: int = 64 * 1024 * 1024
     eshot_gtfs_member_max_bytes: int = 8 * 1024 * 1024
+    eshot_gtfs_stop_times_max_bytes: int = 128 * 1024 * 1024
+    eshot_gtfs_max_rows: int = 2_500_000
     eshot_gtfs_cache_ttl_seconds: int = 86_400
     eshot_gtfs_stale_if_error_seconds: int = 604_800
+
+    database_path: str = ".data/izmir_mcp.sqlite3"
 
     eshot_notices_csv_url: str = (
         "https://openfiles.izmir.bel.tr/211488/docs/eshot-otobus-hat-duyurulari.csv"
@@ -127,6 +131,10 @@ def get_settings() -> Settings:
         eshot_gtfs_member_max_bytes=_env_int(
             "IZMIR_MCP_ESHOT_GTFS_MEMBER_MAX_BYTES", 8 * 1024 * 1024
         ),
+        eshot_gtfs_stop_times_max_bytes=_env_int(
+            "IZMIR_MCP_ESHOT_GTFS_STOP_TIMES_MAX_BYTES", 128 * 1024 * 1024
+        ),
+        eshot_gtfs_max_rows=_env_int("IZMIR_MCP_ESHOT_GTFS_MAX_ROWS", 2_500_000),
         eshot_gtfs_cache_ttl_seconds=_env_int(
             "IZMIR_MCP_ESHOT_GTFS_CACHE_TTL_SECONDS", 86_400
         ),
@@ -145,5 +153,8 @@ def get_settings() -> Settings:
         ),
         city_layer_stale_if_error_seconds=_env_int(
             "IZMIR_MCP_CITY_LAYER_STALE_IF_ERROR_SECONDS", 604_800
+        ),
+        database_path=os.getenv(
+            "IZMIR_MCP_DATABASE_PATH", ".data/izmir_mcp.sqlite3"
         ),
     )

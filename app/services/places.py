@@ -54,5 +54,30 @@ class PlaceResolver:
             )
         return place
 
+    def resolve_district(self, value: str) -> Place:
+        """Resolve an İzmir district name, rejecting neighborhoods."""
+        key = normalize_name(value)
+        place = self._by_name.get(key)
+        if place is None:
+            for suffix in (", izmir", " izmir"):
+                if key.endswith(suffix):
+                    place = self._by_name.get(key[: -len(suffix)].strip())
+                    if place is not None:
+                        break
+        if place is None or place.kind != "district":
+            examples = ", ".join(
+                sorted(
+                    item.name
+                    for item in self._by_name.values()
+                    if item.kind == "district"
+                )[:8]
+            )
+            raise InputValidationError(
+                f"Unknown İzmir district '{value}'. Use one of the published district "
+                f"names (for example: {examples}).",
+                field="district",
+            )
+        return place
+
     def names(self) -> list[str]:
         return sorted(place.name for place in self._by_name.values())

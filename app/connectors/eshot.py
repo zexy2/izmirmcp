@@ -13,7 +13,7 @@ from datetime import date
 from typing import Any
 
 from app.connectors.ckan import CkanClient
-from app.connectors.http import SourceError, get_json, get_zip_members
+from app.connectors.http import SourceError, get_json, get_zip, get_zip_members
 from app.core.envelope import finite_number
 from app.core.settings import Settings
 from app.core.source_cache import CacheInfo, cached_source_data
@@ -230,6 +230,15 @@ class EshotConnector:
             key,
             ttl_seconds=self.settings.iztek_cache_ttl_seconds,
             loader=loader,
+        )
+
+    async def gtfs_archive(self) -> bytes:
+        """Download the full GTFS ZIP once for the local timetable build."""
+        return await get_zip(
+            self.settings.eshot_gtfs_url,
+            timeout=self.settings.request_timeout_seconds,
+            attempts=self.settings.request_attempts,
+            max_bytes=self.settings.eshot_gtfs_max_bytes,
         )
 
     async def gtfs(self) -> tuple[dict[str, Any], CacheInfo]:

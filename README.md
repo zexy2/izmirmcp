@@ -12,7 +12,7 @@ kullanılır; İzmir'de karşılığı olmayan yetenekler (şehir geneli trafik 
 
 ## Kapsam
 
-Varsayılan yüzey **16 salt okunur araçtır**:
+Varsayılan yüzey **17 salt okunur araçtır**:
 
 | Araç | İşlev |
 |---|---|
@@ -21,17 +21,18 @@ Varsayılan yüzey **16 salt okunur araçtır**:
 | `izmir_get_dataset` | Veri seti metadata'sı ve kaynak listesi. |
 | `izmir_get_resource_schema` | DataStore resource kolonları. |
 | `izmir_query_resource` | DataStore kayıtlarını güvenli filtre ve limitle getirir. |
-| `izmir_nearby` | Yakındaki otopark, nöbetçi eczane, metro/İZBAN istasyonu, vapur iskelesi ve ESHOT durağı. |
+| `izmir_nearby` | Otopark, nöbetçi eczane, metro/İZBAN istasyonu, vapur iskelesi ve ESHOT durağı; yarıçap, `bbox` veya ilçe geneli. |
 | `izmir_water_status` | İZSU baraj dolulukları; arıza akışı için açık `source_unavailable`. |
 | `izmir_air_quality` | Tarih ve istasyon filtreli hava kalitesi ölçümleri. |
 | `izmir_transit_stations` | Metro, İZBAN ve İZDENİZ istasyon/iskele listesi. |
 | `izmir_transit_schedule` | Yayımlanmış tarife: metro sıklığı, İZBAN ve İZDENİZ seferleri. |
 | `izmir_bus_stops` | ESHOT duraklarını ada göre ara; koordinat + yarıçap ile yakındaki durakları listele. |
 | `izmir_bus_arrivals` | Bir durağa yaklaşan otobüslerin anlık konumu ve kalan durak sayısı. |
-| `izmir_bus_routes` | ESHOT GTFS kaynağından hat özeti (sefer sayısı, servis takvimi). |
+| `izmir_bus_departures` | Bir durağın yayımlanmış GTFS planlı kalkışları; canlı ETA değildir. |
+| `izmir_bus_routes` | ESHOT GTFS hat özeti; `detail=true` ile hattın yönleri, sıralı durakları ve durak varyantları. |
 | `izmir_market_schedule` | Semt pazarı takvimi: gün, ilçe veya koordinat + yarıçap filtresi. |
 | `izmir_transport_disruptions` | ESHOT hat duyuruları ve planlı güzergâh değişiklikleri. |
-| `izmir_city_services_nearby` | Yakındaki WizmirNET WiFi, İzmirim Kart dolum noktası ve kütüphaneler. |
+| `izmir_city_services_nearby` | WizmirNET WiFi, İzmirim Kart dolum noktası ve kütüphaneler; yarıçap, `bbox` veya ilçe geneli. |
 
 Her sonuç ortak zarfı taşır: `ok`, `summary`, `data`, `freshness`, `sources`,
 `limits`, `warnings`, `next_queries`, `error`, `result_info`.
@@ -52,7 +53,7 @@ Her sonuç ortak zarfı taşır: `ok`, `summary`, `data`, `freshness`, `sources`
 | `openapi.izmir.bel.tr/api/izsu/arizakaynaklisukesintileri` | Su kesintisi | **HTTP 500** — açıkça `unavailable` |
 | CKAN `eshot-otobus-duraklari` (`0c791266-…`, DataStore) | 11.965 ESHOT durağı | Çalışıyor |
 | `openapi.izmir.bel.tr/api/iztek/duragayaklasanotobusler/{durakId}` | Canlı yaklaşan otobüs | Çalışıyor (ETA yok, hız sınırlı) |
-| `www.eshot.gov.tr/gtfs/bus-eshot-gtfs.zip` | ESHOT GTFS (hat/sefer) | Çalışıyor — **takvim 2026-10-09'da bitiyor** |
+| `www.eshot.gov.tr/gtfs/bus-eshot-gtfs.zip` | ESHOT GTFS (hat/sefer + planlı durak kalkışları) | Çalışıyor — **takvim 2026-10-09'da bitiyor**; `stop_times` yerel SQLite'a alınır |
 | `www.izdeniz.com.tr/gtfs/ship-izdeniz-gtfs.zip` | İZDENİZ GTFS | **HTML dönüyor** — kullanılmıyor |
 | CKAN `semt-pazar-yerleri` (`3e63e16e-…`) | 186 pazar yeri, koordinat + serbest metin gün notu | Çalışıyor |
 | `openfiles.izmir.bel.tr/211488/docs/eshot-otobus-hat-duyurulari.csv` | 124 ESHOT hat duyurusu | Çalışıyor |
@@ -82,6 +83,9 @@ Yerel uçlar:
 - `GET /readyz`
 - `GET /status`
 - `POST /mcp/` (Streamable HTTP MCP)
+
+Yerel GTFS tarife deposu varsayılan olarak `.data/izmir_mcp.sqlite3` altında
+tutulur; `IZMIR_MCP_DATABASE_PATH` ile değiştirilebilir ve git dışındadır.
 
 ## MCP istemcisine ekleme
 
@@ -132,6 +136,35 @@ Ayrıntı ve sınırlar raporda.
 
 ## Sınırlar
 
+- `izmir_nearby` üç konum modu kabul eder: `lat/lon` veya `place` + `radius_m`,
+  `bbox=[min_lon, min_lat, max_lon, max_lat]` ve `district`. Modlar birbirini
+  dışlar; `bbox`/`district` ile `radius_m` birlikte kullanılamaz.
+- `bbox` modu dört kenarı da **dahil** eder ve koordinatı yayımlanan altı türün
+  tümünde çalışır. Referans nokta olmadığı için `distance_m` **null** döner ve
+  sonuçlar mesafeye göre sıralanmaz. Kaynakta koordinatı olmayan satırlar
+  dikdörtgene alınamaz; eşleşme sayısı ve kesilme `result_info` içinde bildirilir.
+- `district` modu **yalnızca eczanede** anlamlıdır. Kaynak `Bolge` alanı idari
+  ilçe değil nöbet bölgesidir (`KARŞIYAKA 4`, `BORNOVA 3` gibi); eşleşme bu
+  bölge/bölge açıklaması metnine dayanır, sınır doğrulaması değildir ve mesafe
+  gösterilmez. Yalnızca bölge metninde ilçe adı geçen satırlar eşleşir; bu tam
+  ilçe envanteri değildir. Otopark kaynağı ilçe **ve adres yayımlamaz** (doğrulamada 7
+  kaydın tamamı `null`), metro/İZBAN/iskele/durak katmanlarında da ilçe alanı
+  yoktur; bu türler ilçe modunda atlanır ve uyarı döner. Eşleşme yoksa bu "ilçede
+  eczane yok" kanıtı sayılmaz.
+- `izmir_city_services_nearby` da `izmir_nearby` ile aynı üç konum modunu kabul
+  eder: `lat/lon` veya `place` + `radius_m`, `bbox`, `district`. Modlar birbirini
+  dışlar; `bbox`/`district` ile `radius_m` birlikte kullanılamaz. Bu araçta
+  modlar arasında **kapsam farkı vardır**:
+  - `bbox` dört kenarı da dahil eder ve yalnızca koordinat yayımlayan WiFi ve
+    İzmirim Kart katmanlarında çalışır. **Kütüphane katmanı koordinat
+    yayımlamadığı için dikdörtgen sorgusuna hiçbir zaman girmez**; `distance_m`
+    null döner.
+  - `district` ilçe geneli listeler ve mesafe göstermez. Eşleşme kaynağın kendi
+    ilçe alanı ya da adres metniyle yapılır (`published_district_field`), idari
+    sınır doğrulaması değildir. WizmirNET ve İzmirim Kart kayıtları adres/ilçe
+    metninden, kütüphaneler ilçe alanından eşleşir. Eşleşme yoksa bu "o ilçede
+    hizmet yok" kanıtı değildir.
+  Eşleşme sayısı ve kesilme `result_info` içinde bildirilir.
 - Şehir geneli trafik indeksi, kaza/olay verisi ve rota planlayıcı yoktur.
 - İZSU arıza/kesinti akışı kaynakta 500 döndüğü için veri üretilmez.
 - Hava kalitesi kaynağı koordinat ve birim yayımlamaz; AQI hesabı yapılmaz.
@@ -144,10 +177,22 @@ Ayrıntı ve sınırlar raporda.
 - İZTEK ardışık yoğun isteklerde `429` döndürdü; bağlantı bu nedenle yumuşak bir
   hız sınırıyla ve 20 saniyelik önbellekle çalışır.
 - ESHOT GTFS `calendar.txt`'teki servis penceresi **2026-10-09'da bitmiş**
-  durumdadır (doğrulama: 2026-10-28). `izmir_bus_routes` her yanıtta
-  `calendar_end` ve "tarife güncel olmayabilir" uyarısını döndürür.
-- ESHOT GTFS `stop_times.txt` (~2,1M satır, 85 MB) istek anında okunmaz; bu
-  yüzden **otobüs kalkış saatleri yayımlanmaz**, yalnızca hat ve sefer sayısı.
+  durumdadır (doğrulama: 2026-10-28). `izmir_bus_routes` ve
+  `izmir_bus_departures` her yanıtta `calendar_end` ile "tarife güncel
+  olmayabilir" uyarısını döndürür; takvim dışı tarihlerde kalkış üretilmez.
+- `izmir_bus_routes(detail=true)` bir hattın yayımlanmış **tüm durak
+  varyantlarını** `direction_id` bazında döndürür. Aynı yönde kısa tur veya
+  farklı güzergâh varsa desenler birleştirilmez; `stop_sequence` sırası ve
+  yinelenen duraklar (halka hatları) korunur. `limit` bu modda uygulanmaz.
+  Kaynak `trip_headsign` yayımlamadığı için yön adı uydurulmaz; yalnızca
+  `direction_id` ve varsa kaynak başlığı verilir. Bu da yayımlanmış tarifedir,
+  canlı kalkış veya ETA değildir.
+- `izmir_bus_departures` ilk çağrıda ESHOT GTFS `stop_times.txt` (~2,1M satır,
+  85 MB) dosyasını yerel SQLite deposuna alır (doğrulanan: ~4 sn, ~141 MB);
+  sonraki sorgular indeksten okunur. `at` verilmezse bugünkü İstanbul saati
+  kullanılır. Bu **planlı tarife**dir; canlı kalkış, gecikme veya ETA değildir.
+  `pickup_type=1` (binilemeyen) satırlar elenir ve `25:xx` biçimindeki GTFS
+  saatleri doğru takvim gününe yerleştirilir.
 - İZDENİZ GTFS ZIP bağlantısı `text/html` döndürdüğü için vapur GTFS kapsamı
   yoktur; mevcut İZDENİZ sefer araçları openapi kaynaklarını kullanır.
 - Metro, tramvay ve İZBAN GTFS'leri indirilip doğrulandı ancak bağlanmadı:

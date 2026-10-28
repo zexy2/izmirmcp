@@ -27,7 +27,7 @@ SOURCE_CATALOG = (
      "live_vehicle_positions_without_eta"),
     ("eshot_gtfs", "EShot GTFS verisi", "İzmir Büyükşehir Belediyesi / EShot",
      "https://acikveri.bizizmir.com/dataset/toplu-ulasim-gtfs-verileri",
-     "published_route_calendar"),
+     "published_route_and_stop_timetable"),
     ("market", "İzmir semt pazar yerleri", "İzmir Büyükşehir Belediyesi",
      "https://acikveri.bizizmir.com/dataset/semt-pazar-yerleri", "static_market_locations"),
     ("wifi", "WizmirNET kablosuz internet noktaları", "İzmir Büyükşehir Belediyesi",
@@ -67,17 +67,24 @@ def _coverage(settings: Settings, actual_tools: set[str]) -> list[dict[str, Any]
                      "izmir_query_resource"], ["ckan"], "catalog_and_records",
          "Inspect the resource schema first; datastore_active is not proof of a working query."),
         ("nearby", ["izmir_nearby"], ["openapi", "osm"], "mixed_snapshots_and_static_locations",
-         "Coordinates or a published reference point; radius-limited. Parking is a snapshot, "
-         "pharmacy rosters are daily, stations are static."),
+         "Radius, bbox or district-wide. Bbox has no reference point, so distance_m is null "
+         "and edges are inclusive. District mode covers pharmacy through its published region "
+         "text only; parking and transit publish no district. Parking is a snapshot, pharmacy "
+         "rosters are daily, stations are static."),
         ("water", ["izmir_water_status"], ["izsu"], "published_dam_levels",
          "Dam CSV only. İZSU fault API returned HTTP 500 during verification; kind=faults "
          "reports source_unavailable instead of inventing outages."),
         ("air_quality", ["izmir_air_quality"], ["openapi"], "station_readings",
          "No coordinates or units; observations may be dated a day earlier than requested."),
-        ("bus", ["izmir_bus_stops", "izmir_bus_arrivals", "izmir_bus_routes"],
-         ["eshot_stops", "eshot_arrivals", "eshot_gtfs"], "stops_arrivals_and_gtfs_routes",
+        ("bus", ["izmir_bus_stops", "izmir_bus_arrivals", "izmir_bus_departures",
+                 "izmir_bus_routes"],
+         ["eshot_stops", "eshot_arrivals", "eshot_gtfs"],
+         "stops_live_vehicle_positions_and_published_timetable",
          "Approaching-bus data has no ETA in minutes and an empty payload is not proof "
-         "of no service. GTFS service calendar may be expired; check calendar_end."),
+         "of no service. Route detail returns published stop patterns per direction; "
+         "variants stay separate and headsigns are never invented. Scheduled departures "
+         "are published timetable rows, not live departures; GTFS calendar ends "
+         "2026-10-09, so later dates return a staleness warning and no rows."),
         ("markets", ["izmir_market_schedule"], ["market"], "static_market_locations",
          "Weekday is parsed from free-text notes; unknown days are tagged, never guessed."),
         ("transport_notices", ["izmir_transport_disruptions"], ["eshot_notices"],

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import math
+import re
 
 EARTH_RADIUS_M = 6_371_008.8
 
@@ -15,6 +16,27 @@ TURKISH_ASCII = str.maketrans(
 def normalize_name(value: str) -> str:
     """Casefold and ASCII-fold a Turkish place name for matching."""
     return " ".join(value.translate(TURKISH_ASCII).casefold().split())
+
+
+def in_bbox(
+    lat: float, lon: float, *, min_lon: float, min_lat: float, max_lon: float, max_lat: float
+) -> bool:
+    """Return whether a point is inside a rectangle, edges included."""
+    return min_lat <= lat <= max_lat and min_lon <= lon <= max_lon
+
+
+def has_name_token(value: str | None, name: str) -> bool:
+    """Match a full normalized word, never a substring.
+
+    Used for published district/region text such as ``KARŞIYAKA 4``: the label
+    must contain the district as its own token, so ``Konak`` does not match
+    ``Konaklı``.
+    """
+    wanted = normalize_name(name)
+    if not wanted:
+        return False
+    tokens = re.findall(r"[a-z0-9]+", normalize_name(str(value or "")))
+    return wanted in tokens
 
 
 def haversine_m(lat1: float, lon1: float, lat2: float, lon2: float) -> float:

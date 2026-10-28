@@ -146,6 +146,28 @@ def read_zip_members(
         return extracted
 
 
+async def get_zip(
+    url: str,
+    *,
+    timeout: float,
+    attempts: int,
+    max_bytes: int,
+) -> bytes:
+    """Download a ZIP archive under a byte budget and verify its signature."""
+    body = await _get_bytes(
+        url,
+        timeout=timeout,
+        attempts=attempts,
+        max_bytes=max_bytes,
+        # www.eshot.gov.tr answers 406 to explicit zip Accept headers but serves
+        # the archive to a wildcard Accept (verified 2026-10-28).
+        accept="*/*",
+    )
+    if not body.startswith(ZIP_SIGNATURES):
+        raise SourceError("source did not return a ZIP archive")
+    return body
+
+
 async def get_zip_members(
     url: str,
     *,

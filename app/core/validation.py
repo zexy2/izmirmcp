@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import math
 import re
 from datetime import date
 
@@ -17,6 +18,35 @@ def validate_lat_lon(lat: float, lon: float) -> tuple[float, float]:
     if not -180 <= lon <= 180:
         raise InputValidationError("lon must be between -180 and 180", field="lon")
     return lat, lon
+
+
+def validate_bbox(bbox: list[float] | tuple[float, ...]) -> tuple[float, float, float, float]:
+    """Validate ``min_lon, min_lat, max_lon, max_lat`` and return finite floats.
+
+    A zero-width or zero-height rectangle is rejected: it is not a queryable
+    area, and silently treating it as a point would imply precision that a
+    rectangle query does not have.
+    """
+    try:
+        values = tuple(float(value) for value in bbox)
+    except (TypeError, ValueError) as exc:
+        raise InputValidationError(
+            "bbox must contain four finite numbers: min_lon, min_lat, max_lon, max_lat",
+            field="bbox",
+        ) from exc
+    if len(values) != 4 or not all(math.isfinite(value) for value in values):
+        raise InputValidationError(
+            "bbox must contain four finite numbers: min_lon, min_lat, max_lon, max_lat",
+            field="bbox",
+        )
+    min_lon, min_lat, max_lon, max_lat = values
+    validate_lat_lon(min_lat, min_lon)
+    validate_lat_lon(max_lat, max_lon)
+    if min_lon >= max_lon:
+        raise InputValidationError("bbox min_lon must be less than max_lon", field="bbox")
+    if min_lat >= max_lat:
+        raise InputValidationError("bbox min_lat must be less than max_lat", field="bbox")
+    return min_lon, min_lat, max_lon, max_lat
 
 
 def validate_radius(radius_m: int, max_radius_m: int = 5_000) -> int:
