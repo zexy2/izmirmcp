@@ -36,6 +36,8 @@ Atıf bu adlarla yapılır:
 | İzmir Metro duyuruları | İzmir Metro A.Ş. / İZTEK | `published_operator_notices` |
 | İZDENİZ duyuruları | İZDENİZ A.Ş. | `published_operator_notices` |
 | İZBAN duyuruları (erişilemiyor) | İZBAN A.Ş. | `published_operator_notices` |
+| İzmir mahalle nüfusu (cinsiyete göre) | İzmir Büyükşehir Belediyesi | `published_neighborhood_demographics` |
+| İzmir mahalle bazlı bina sayıları | İzmir Büyükşehir Belediyesi | `published_building_stock` |
 
 ## Katalog ve DataStore
 
@@ -127,6 +129,8 @@ penceresi yayımlar; `active` bu yüzden yalnızca ESHOT'ta hesaplanır.
 |---|---|---|
 | OpenStreetMap Nominatim | 30 ilçe + 24 seçili simge yer (`app/data/places.json`) | ODbL 1.0 (© OpenStreetMap contributors) |
 | CKAN `muhtarliklar` (`7d0b7f55-…`) | 1.219 mahalle referans noktası (`app/data/neighborhoods.json`) | Izmir Metropolitan Municipality Open Data License |
+| CKAN `cinsiyete-gore-mahalle-nufus-bilgileri` (`7ef10678-…`) | 1.297 mahalle nüfusu (kadın/erkek) | Izmir Metropolitan Municipality Open Data License |
+| CKAN `ilcelere-ait-mahalle-bazli-bina-sayilari` (`54af6862-…`) | 1.295 mahalle bina sayısı | Izmir Metropolitan Municipality Open Data License |
 
 Retrieved 2026-10-28. Bunlar yaklaşık alan merkezleridir, **adres geocoding
 değildir**; araçlar `place` modunda bunu uyarı olarak bildirir.

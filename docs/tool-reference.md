@@ -1,6 +1,6 @@
 # Araç Referansı
 
-Bu belge 18 salt okunur MCP aracının girdi/çıktı sözleşmesini gerçek koddan
+Bu belge 19 salt okunur MCP aracının girdi/çıktı sözleşmesini gerçek koddan
 (`app/mcp/server.py` ve `app/services/*`) türetir. Zarf alanları
 [response-contract.md](response-contract.md) içindedir. Tüm araçlar `read_only`,
 `idempotent`, `open_world` işaretlidir ve `structured_output` taşır.
@@ -212,6 +212,25 @@ durak varyantları.
 (halka hatları ve kısa turlar birleştirilmez); `headsign` yoksa yön adı
 uydurulmaz. Birden çok GTFS rotası eşleşirse route_id ile ayrıştırma istenir.
 Canlı kalkış değildir.
+
+### `izmir_neighborhood_profile`
+Yayımlanmış nüfus ve bina sayısı katmanlarından mahalle profili.
+
+| Girdi | Tip | Zorunlu | Açıklama |
+|---|---|---|---|
+| `neighborhood` | string \| null | `district` yoksa | Mahalle adı (muhtarlık envanteri). |
+| `district` | string \| null | `neighborhood` yoksa | İlçe; tek başına verilirse ilçedeki tüm mahalleleri listeler. |
+| `limit` | int \| null | hayır | |
+
+`data[]`: `district`, `district_label`, `neighborhood`, `neighborhood_label`,
+`population_total`, `population_male`, `population_female`, `population_year`,
+`buildings`, `other_buildings`, `building_year`, `persons_per_building`.
+
+- Nüfus ve bina **ayrı katmanlardır** ve farklı tarihlerde yayımlanır;
+  `*_year` null ise kaynak yıl vermiyor demektir.
+- Bir katman okunamazsa alanlar **null** döner, sıfır değil; uyarı eklenir.
+- `persons_per_building` ham bölmedir, eşzamanlı sayım değildir.
+- Mahalle yayımlanmış katmanlarda yoksa `validation_error` (`field=neighborhood`).
 
 ### `izmir_gtfs_status`
 Yerel GTFS tarife deposunun durumu. Girdi yoktur; **ağa çıkmaz ve depoyu

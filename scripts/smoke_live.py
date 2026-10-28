@@ -13,6 +13,7 @@ from app.services.bus import BusService
 from app.services.city_services import CityServicesService
 from app.services.disruptions import DisruptionService
 from app.services.markets import MarketService
+from app.services.neighborhood import NeighborhoodService
 from app.services.catalog import CatalogService
 from app.services.nearby import NearbyService
 from app.services.transit import TransitService
@@ -79,6 +80,10 @@ async def main() -> int:
         check("bus_arrivals", BusService(settings=settings).arrivals(stop_id="10030", limit=3)),
         check("bus_routes", BusService(settings=settings).routes(query="446", limit=2)),
         check("gtfs_status", BusService(settings=settings).timetable_status()),
+        check("neighborhood", NeighborhoodService(settings=settings).profile(
+            neighborhood="Alsancak", district="Konak")),
+        check("neighborhood_district", NeighborhoodService(settings=settings).profile(
+            district="Konak", limit=3)),
         check("bus_route_detail", BusService(settings=settings).routes(
             query="304", detail=True)),
         check("bus_departures", BusService(settings=settings).departures(

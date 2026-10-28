@@ -13,6 +13,39 @@ TURKISH_ASCII = str.maketrans(
 )
 
 
+TR_UPPER = "ABCDEFGHIİJKLMNOPQRSTUVWXYZÇĞÖŞÜ"
+TR_LOWER = "abcdefghıijklmnopqrstuvwxyzçğöşü"
+
+
+def turkish_title(text: str | None) -> str | None:
+    """Title-case a published (usually ALL-CAPS) Turkish name.
+
+    ``str.title()`` turns "İPEK" into "İpek" but "ipek" into "İpek" with a
+    combining dot when the source uses ``i``/``İ`` inconsistently, so the
+    mapping is done explicitly.
+    """
+    if not text:
+        return None
+    upper = str.maketrans(TR_LOWER, TR_UPPER)
+    words = []
+    for word in str(text).split():
+        lowered = word.translate(str.maketrans(TR_UPPER, TR_LOWER))
+        # Capitalise the first letter of the word and of any segment after a
+        # separator, so "1.KADRİYE" becomes "1.Kadriye", not "1.kadriye".
+        chars = []
+        start = True
+        for char in lowered:
+            if start and char.isalpha():
+                chars.append(char.translate(upper))
+                start = False
+            else:
+                chars.append(char)
+                if char in ". -/'":
+                    start = True
+        words.append("".join(chars))
+    return " ".join(words) or None
+
+
 def normalize_name(value: str) -> str:
     """Casefold and ASCII-fold a Turkish place name for matching."""
     return " ".join(value.translate(TURKISH_ASCII).casefold().split())

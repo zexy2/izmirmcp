@@ -21,7 +21,7 @@
    "lon": 27.097051
   },
   {
-   "name": "B.hayrettin Paşa",
+   "name": "B.Hayrettin Paşa",
    "district": "Aliağa",
    "kind": "neighborhood",
    "lat": 38.702448,
@@ -784,7 +784,7 @@
    "lon": 27.127819
   },
   {
-   "name": "Org.nafiz Gürman",
+   "name": "Org.Nafiz Gürman",
    "district": "Bayraklı",
    "kind": "neighborhood",
    "lat": 38.477678,
@@ -805,7 +805,7 @@
    "lon": 27.119563
   },
   {
-   "name": "R.şevket İnce",
+   "name": "R.Şevket İnce",
    "district": "Bayraklı",
    "kind": "neighborhood",
    "lat": 38.475977,
@@ -1169,14 +1169,14 @@
    "lon": 27.044939
   },
   {
-   "name": "Hacılar (dereköy Bucağı)",
+   "name": "Hacılar (Dereköy Bucağı)",
    "district": "Bergama",
    "kind": "neighborhood",
    "lat": 39.324874,
    "lon": 27.271051
   },
   {
-   "name": "Hacılar (ismailli Bucağı)",
+   "name": "Hacılar (İsmailli Bucağı)",
    "district": "Bergama",
    "kind": "neighborhood",
    "lat": 38.965034,
@@ -1225,14 +1225,14 @@
    "lon": 27.19217
   },
   {
-   "name": "Kaplan (göçbeyli Bucağı)",
+   "name": "Kaplan (Göçbeyli Bucağı)",
    "district": "Bergama",
    "kind": "neighborhood",
    "lat": 39.307246,
    "lon": 27.4107
   },
   {
-   "name": "Kaplan (yukarıbey Bucağı)",
+   "name": "Kaplan (Yukarıbey Bucağı)",
    "district": "Bergama",
    "kind": "neighborhood",
    "lat": 39.234286,
@@ -3759,7 +3759,7 @@
    "lon": 27.404333
   },
   {
-   "name": "Armutlu 85.yıl Cumhuriyet",
+   "name": "Armutlu 85.Yıl Cumhuriyet",
    "district": "Kemalpaşa",
    "kind": "neighborhood",
    "lat": 38.404234,
@@ -4046,7 +4046,7 @@
    "lon": 27.398774
   },
   {
-   "name": "Ören 75.yıl Cumhuriyet",
+   "name": "Ören 75.Yıl Cumhuriyet",
    "district": "Kemalpaşa",
    "kind": "neighborhood",
    "lat": 38.409039,
@@ -4305,7 +4305,7 @@
    "lon": 27.144525
   },
   {
-   "name": "2.kadriye",
+   "name": "2.Kadriye",
    "district": "Konak",
    "kind": "neighborhood",
    "lat": 38.404002,
@@ -5635,7 +5635,7 @@
    "lon": 27.045362
   },
   {
-   "name": "75.yıl Cumhuriyet",
+   "name": "75.Yıl Cumhuriyet",
    "district": "Menemen",
    "kind": "neighborhood",
    "lat": 38.628336,
@@ -7392,7 +7392,7 @@
    "lon": 26.750386
   },
   {
-   "name": "M.fevzi Çakmak",
+   "name": "M.Fevzi Çakmak",
    "district": "Urla",
    "kind": "neighborhood",
    "lat": 38.368001,

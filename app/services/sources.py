@@ -188,3 +188,19 @@ def is_source_failure(exc: BaseException) -> bool:
     return isinstance(exc, (SourceError, ValueError, OSError, httpx.HTTPError)) and not isinstance(
         exc, (UnicodeError, AssertionError)
     )
+NEIGHBORHOOD_POPULATION = Source(
+    name="İzmir mahalle nüfusu (cinsiyete göre)",
+    publisher="İzmir Büyükşehir Belediyesi",
+    url="https://acikveri.bizizmir.com/dataset/cinsiyete-gore-mahalle-nufus-bilgileri",
+    scope="published_neighborhood_demographics",
+    dataset_id="cinsiyete-gore-mahalle-nufus-bilgileri",
+    resource_id="7ef10678-8a84-4e43-9122-3ac15c818b51",
+)
+NEIGHBORHOOD_BUILDINGS = Source(
+    name="İzmir mahalle bazlı bina sayıları",
+    publisher="İzmir Büyükşehir Belediyesi",
+    url="https://acikveri.bizizmir.com/dataset/ilcelere-ait-mahalle-bazli-bina-sayilari",
+    scope="published_building_stock",
+    dataset_id="ilcelere-ait-mahalle-bazli-bina-sayilari",
+    resource_id="54af6862-2d36-48d0-838f-a42133e8b943",
+)

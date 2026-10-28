@@ -25,6 +25,11 @@ WIFI_RESOURCE_ID = "60ca8451-d6d2-419f-b533-ab92bd5955b2"
 IZMIRIM_CARD_RESOURCE_ID = "7a3efbec-fa4f-4b1e-9f9a-ac28f3608b40"
 LIBRARY_RESOURCE_ID = "0c1b15b9-3f52-4437-bc16-56d366045ef5"
 
+# Neighborhood profile layers, verified live on 2026-10-28. Both are keyed by
+# district + mahalle name and join cleanly onto the muhtarlık inventory.
+BUILDING_RESOURCE_ID = "54af6862-2d36-48d0-838f-a42133e8b943"
+POPULATION_RESOURCE_ID = "7ef10678-8a84-4e43-9122-3ac15c818b51"
+
 
 def parse_coordinate(value: Any) -> float | None:
     """Parse a decimal WGS84 coordinate that may use a Turkish decimal comma."""
@@ -126,6 +131,32 @@ class CityLayerConnector:
             }
 
         return await self._layer("izmirim_card", IZMIRIM_CARD_RESOURCE_ID, mapper)
+
+    async def building_rows(self) -> tuple[list[dict[str, Any]], CacheInfo]:
+        """Per-neighborhood building counts (``YAPI`` + ``DIGER_YAPI``)."""
+
+        def mapper(item: dict[str, Any]) -> dict[str, Any]:
+            return {
+                "district": (item.get("ILCE") or "").strip() or None,
+                "name": (item.get("MAHALLE") or "").strip() or None,
+                "buildings": finite_number(item.get("YAPI")),
+                "other_buildings": finite_number(item.get("DIGER_YAPI")),
+            }
+
+        return await self._layer("neighborhood_buildings", BUILDING_RESOURCE_ID, mapper)
+
+    async def population_rows(self) -> tuple[list[dict[str, Any]], CacheInfo]:
+        """Per-neighborhood population by sex (values arrive as ``"130.0"``)."""
+
+        def mapper(item: dict[str, Any]) -> dict[str, Any]:
+            return {
+                "district": (item.get("ILCE_ADI") or "").strip() or None,
+                "name": (item.get("MAHALLE_ADI") or "").strip() or None,
+                "male": finite_number(item.get("NUFUS_ERKEK_TOPLAM")),
+                "female": finite_number(item.get("NUFUS_KADIN_TOPLAM")),
+            }
+
+        return await self._layer("neighborhood_population", POPULATION_RESOURCE_ID, mapper)
 
     async def libraries(self) -> tuple[list[dict[str, Any]], CacheInfo]:
         def mapper(item: dict[str, Any]) -> dict[str, Any]:

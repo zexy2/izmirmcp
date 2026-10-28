@@ -86,6 +86,13 @@ konteyner çalıştırması CI'da ilk kez koşacak. Dockerfile statik olarak
 429'u `source_unavailable` diye etiketliyordu. Artık üçü de ortak
 `source_failure_envelope` kullanıyor; strict `xfail` gerçek iddiaya çevrildi.
 
+### P7 — `izmir_neighborhood_profile` (parity) ✅ TAMAMLANDI
+Upstream'in `istanbul_neighborhood_profile` karşılığı. İzmir'de birebir aynı üç
+katman (sosyal yardım / bina stok / deprem senaryosu) yok; bunun yerine
+yayımlanmış **nüfus** (1.297) ve **bina sayısı** (1.295) katmanları birleştirildi.
+Eksik katman null döner (sıfır değil). Yıllar ayrı yayımlandığı için `*_year`
+null bırakılır, uydurulmaz.
+
 ### P6 — `izmir_gtfs_status` (parity) ✅ TAMAMLANDI
 Upstream'in `istanbul_gtfs_snapshot_status` karşılığı. Yerel depoyu ağa
 çıkmadan raporlar; takvim eskimesini, satır sayılarını ve kurulum zamanını

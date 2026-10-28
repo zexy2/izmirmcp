@@ -4,7 +4,7 @@ import json
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from app.core.geo import normalize_name
+from app.core.geo import normalize_name, turkish_title
 from app.core.validation import InputValidationError
 
 DATA_DIR = Path(__file__).resolve().parent.parent / "data"

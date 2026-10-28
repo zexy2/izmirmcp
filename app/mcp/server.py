@@ -19,6 +19,7 @@ from app.services.city_services import CityServicesService
 from app.services.disruptions import DisruptionService
 from app.services.markets import MarketService
 from app.services.nearby import SUPPORTED_TYPES, NearbyService
+from app.services.neighborhood import NeighborhoodService
 from app.services.places import PlaceResolver
 from app.services.transit import TransitService
 from app.services.water import WaterService
@@ -264,6 +265,27 @@ async def izmir_transit_schedule(
     try:
         return await TransitService(settings=get_settings()).schedule(
             mode=mode, from_id=from_id, to_id=to_id, pier_id=pier_id, day=day
+        )
+    except InputValidationError as exc:
+        return _validation(exc)
+
+
+async def izmir_neighborhood_profile(
+    neighborhood: str | None = None,
+    district: str | None = None,
+    limit: int | None = None,
+) -> dict:
+    """Return published population and building counts for İzmir neighborhoods.
+
+    Supply `neighborhood` (with an optional `district` hint) for one profile, or
+    `district` alone to list that district's neighborhoods. Joined from two
+    separately published CKAN layers; they carry different publication years, so
+    `population_year`/`building_year` are null when the source publishes none.
+    `persons_per_building` is a raw division, not a census-time snapshot.
+    """
+    try:
+        return await NeighborhoodService(settings=get_settings()).profile(
+            neighborhood=neighborhood, district=district, limit=limit
         )
     except InputValidationError as exc:
         return _validation(exc)

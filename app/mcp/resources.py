@@ -39,6 +39,13 @@ SOURCE_CATALOG = (
     ("library", "İBB kütüphaneleri", "İzmir Büyükşehir Belediyesi",
      "https://acikveri.bizizmir.com/dataset/izmir-buyuksehir-belediyesi-kutuphaneleri-bilgileri",
      "static_service_locations_without_coordinates"),
+    ("neighborhood_population", "İzmir mahalle nüfusu", "İzmir Büyükşehir Belediyesi",
+     "https://acikveri.bizizmir.com/dataset/cinsiyete-gore-mahalle-nufus-bilgileri",
+     "published_neighborhood_demographics"),
+    ("neighborhood_buildings", "İzmir mahalle bina sayıları",
+     "İzmir Büyükşehir Belediyesi",
+     "https://acikveri.bizizmir.com/dataset/ilcelere-ait-mahalle-bazli-bina-sayilari",
+     "published_building_stock"),
     ("eshot_notices", "EShot hat duyuruları", "İzmir Büyükşehir Belediyesi / EShot",
      "https://acikveri.bizizmir.com/dataset/otobus-hattina-ait-duyurular",
      "published_line_notices"),
@@ -94,6 +101,11 @@ def _coverage(settings: Settings, actual_tools: set[str]) -> list[dict[str, Any]
          "static_service_locations",
          "Static snapshots. The library layer has no coordinates, so it cannot be "
          "radius-filtered."),
+        ("neighborhood", ["izmir_neighborhood_profile"],
+         ["neighborhood_population", "neighborhood_buildings"],
+         "published_neighborhood_statistics",
+         "Two separately published layers with different years; a missing layer "
+         "is null, never zero."),
         ("transit", ["izmir_transit_stations", "izmir_transit_schedule"], ["metro", "izban", "izdeniz"],
          "published_timetable",
          "Published timetables, not live departures or ETAs. Metro is a frequency table. "
