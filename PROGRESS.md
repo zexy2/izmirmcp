@@ -82,14 +82,24 @@ konteyner çalıştırması CI'da ilk kez koşacak. Dockerfile statik olarak
    güveniyordu; tek bağlantıdan istek başına yeni kimlik üretip hız sınırı
    atlatılabiliyordu. Düzeltme: yalnızca tek başlık + tek bare değer güvenilir.
 
-**Kapsam dışı bırakılan (bilinçli):** kaynak HTTP 429'u katalog/yakınlık/pazar/
-duyuru servislerinde hâlâ `source_unavailable` etiketliyor. Doğru etiket
-`source_rate_limited`; düzeltme bu servislerin hata yollarının refactor'ünü
-gerektiriyor. Strict `xfail` ile izleniyor, README "Sınırlar"da yazılı.
+**P4'te açık kalan boşluk kapatıldı:** katalog, pazar ve duyuru servisleri HTTP
+429'u `source_unavailable` diye etiketliyordu. Artık üçü de ortak
+`source_failure_envelope` kullanıyor; strict `xfail` gerçek iddiaya çevrildi.
 
-### P5 — Adres geocoding (opsiyonel)
-Nominatim politikası, önbellek, rate limit ve ODbL atıf gerektirir. Parity
-değil, farklılaşma. Ancak P0–P4 bittikten sonra.
+### P6 — `izmir_gtfs_status` (parity) ✅ TAMAMLANDI
+Upstream'in `istanbul_gtfs_snapshot_status` karşılığı. Yerel depoyu ağa
+çıkmadan raporlar; takvim eskimesini, satır sayılarını ve kurulum zamanını
+açıkça döndürür. Depo yoksa `source_unavailable`, boş tarife değil.
+
+### P5 — Yer çözümleme derinleştirme ✅ KISMEN TAMAMLANDI
+Mahalle envanteri 24 → 1.219 (muhtarlıklar), `place_district` ile belirsizlik
+çözümü, Türkçe'ye duyarlı ad normalizasyonu. Lanetli boşluk kapatıldı.
+
+**Serbest metin adres geocoding yapılmayacak (karar):** İzmir'de resmî
+makine-okunur geocoding ucu yok (`ibb/cbs/adres*` → 404), upstream'de de yok.
+Nominatim'i birincil geocoder yapmak kullanım politikası, önbellek ve hız
+sınırı yükü getirir; yayımlanmış envanter (30 ilçe + 1.219 mahalle) İzmir
+sorgularının çoğunu karşılıyor. Bu bilinçli bir sınır, eksik değil.
 
 ## Bilinçli boşluklar (yapılmayacak, kanıtlı)
 

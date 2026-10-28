@@ -12,7 +12,7 @@ kullanılır; İzmir'de karşılığı olmayan yetenekler (şehir geneli trafik 
 
 ## Kapsam
 
-Varsayılan yüzey **17 salt okunur araçtır**:
+Varsayılan yüzey **18 salt okunur araçtır**:
 
 | Araç | İşlev |
 |---|---|

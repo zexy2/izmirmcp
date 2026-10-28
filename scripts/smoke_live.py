@@ -78,6 +78,7 @@ async def main() -> int:
             lat=KONAK[0], lon=KONAK[1], radius_m=300, limit=3)),
         check("bus_arrivals", BusService(settings=settings).arrivals(stop_id="10030", limit=3)),
         check("bus_routes", BusService(settings=settings).routes(query="446", limit=2)),
+        check("gtfs_status", BusService(settings=settings).timetable_status()),
         check("bus_route_detail", BusService(settings=settings).routes(
             query="304", detail=True)),
         check("bus_departures", BusService(settings=settings).departures(

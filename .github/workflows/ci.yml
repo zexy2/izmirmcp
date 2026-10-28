@@ -29,7 +29,7 @@ jobs:
       - name: Import and tool-surface check
         run: |
           python -c "import app.mcp.registry, app.main, app.stdio"
-          python -c "from app.mcp.registry import DEFAULT_TOOL_NAMES as n; print(len(n), 'tools'); assert len(n) == 17"
+          python -c "from app.mcp.registry import DEFAULT_TOOL_NAMES as n; print(len(n), 'tools'); assert len(n) == 18"
 
       - name: Unit tests (offline)
         run: python -m pytest -q

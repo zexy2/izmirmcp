@@ -416,6 +416,89 @@ class BusService:
             ),
         )
 
+    async def timetable_status(self) -> dict[str, Any]:
+        """Report the local GTFS store without touching the network.
+
+        A missing store is reported as unavailable, never as an empty timetable.
+        A loaded store still proves nothing about live arrivals: the published
+        calendar may have expired, which is surfaced explicitly.
+        """
+        settings = self.settings
+        store = GtfsScheduleStore(Path(settings.database_path))
+        meta = await asyncio.to_thread(store.metadata)
+        used = [sources.ESHOT_GTFS]
+        if meta is None:
+            return error_envelope(
+                summary="Yerel GTFS tarife deposu henüz kurulmadı.",
+                warning=(
+                    "Yerel depo yok veya okunamıyor. Bu 'boş tarife' demek değildir; "
+                    "ilk izmir_bus_departures çağrısı depoyu yayımlanmış arşivden kurar."
+                ),
+                code="source_unavailable",
+                sources=used,
+                limits=[f"database_path={settings.database_path}"],
+            )
+
+        calendar_end = str(meta.get("calendar_end") or "") or None
+        today = datetime.now(ISTANBUL).date().isoformat()
+        expired = bool(calendar_end and today > calendar_end)
+        built_at = meta.get("built_at") or None
+        age_seconds = _age_seconds(built_at) if built_at else None
+        row = {
+            "database_path": settings.database_path,
+            "built_at": built_at,
+            "feed_published_at": meta.get("feed_published_at") or None,
+            "source_url": meta.get("source_url") or None,
+            "calendar_start": meta.get("calendar_start") or None,
+            "calendar_end": calendar_end,
+            "checked_on": today,
+            "calendar_expired": expired,
+            "built_age_seconds": round(age_seconds) if age_seconds not in (None, float("inf")) else None,
+            "zip_bytes": meta.get("zip_bytes"),
+            "stops_rows": meta.get("stops_rows"),
+            "routes_rows": meta.get("routes_rows"),
+            "trips_rows": meta.get("trips_rows"),
+            "stop_times_rows": meta.get("stop_times_rows"),
+            "skipped_stop_times": meta.get("skipped_stop_times"),
+        }
+
+        warnings = [
+            "Bu araç yayımlanmış GTFS tarifesinin yerel kopyasını raporlar; canlı "
+            "kalkış, gecikme veya araç konumu değildir.",
+            "Depo yaşı ile feed'in yayım yaşı aynı şey değildir.",
+        ]
+        if expired:
+            warnings.append(
+                f"GTFS servis takvimi {calendar_end} tarihinde bitti; bugün {today}. "
+                "Kalkış sorguları bu pencere dışında planlı sefer döndürmez."
+            )
+        if age_seconds is not None and age_seconds > settings.eshot_gtfs_cache_ttl_seconds:
+            warnings.append(
+                "Yerel depo tazelik eşiğini aştı; sonraki kalkış sorgusu yeniden kurmayı dener."
+            )
+
+        return success_envelope(
+            summary=(
+                f"Yerel GTFS deposu hazır: {row['stop_times_rows'] or '?'} stop_times satırı, "
+                f"takvim {row['calendar_start'] or '?'} → {calendar_end or '?'}"
+                + (" (süresi geçmiş)." if expired else ".")
+            ),
+            data=[row],
+            sources=used,
+            freshness=Freshness(
+                status="stale" if expired else "fresh",
+                ttl_seconds=settings.eshot_gtfs_cache_ttl_seconds,
+                source_updated_at=calendar_end,
+            ),
+            limits=[
+                f"database_path={settings.database_path}",
+                f"gtfs_calendar_end={calendar_end or 'unknown'}",
+                "Ağa çıkılmaz; depo yeniden kurulmaz.",
+            ],
+            warnings=warnings,
+            next_queries=["Planlı kalkışlar için izmir_bus_departures kullanın."],
+        )
+
     async def _open_schedule(self) -> tuple[GtfsScheduleStore, dict[str, Any], str | None]:
         """Return the timetable store and metadata, rebuilding it when stale."""
         store = GtfsScheduleStore(Path(self.settings.database_path))

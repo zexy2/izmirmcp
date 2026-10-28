@@ -269,6 +269,17 @@ async def izmir_transit_schedule(
         return _validation(exc)
 
 
+async def izmir_gtfs_status() -> dict:
+    """Report the local EShot GTFS timetable store without touching the network.
+
+    Returns build time, feed publication time, row counts and the service
+    calendar window, and says explicitly when that calendar has expired. A
+    missing store is source_unavailable, not an empty timetable. This never
+    proves live departures or vehicle positions.
+    """
+    return await BusService(settings=get_settings()).timetable_status()
+
+
 async def izmir_bus_stops(
     query: str | None = None,
     lat: float | None = None,

@@ -13,7 +13,7 @@ async def test_all_tools_are_advertised_with_titles_and_structured_output():
     server = create_mcp_server(get_settings())
     tools = await server.list_tools()
     assert [tool.name for tool in tools] == list(DEFAULT_TOOL_NAMES)
-    assert len(tools) == 17
+    assert len(tools) == 18
     for tool in tools:
         assert tool.title
         assert tool.output_schema is not None

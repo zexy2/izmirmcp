@@ -34,6 +34,7 @@ DEFAULT_TOOL_NAMES = (
     "izmir_market_schedule",
     "izmir_transport_disruptions",
     "izmir_city_services_nearby",
+    "izmir_gtfs_status",
 )
 
 TOOL_TITLES = {
@@ -54,6 +55,7 @@ TOOL_TITLES = {
     "izmir_market_schedule": "İzmir semt pazarı takvimi",
     "izmir_transport_disruptions": "EShot hat duyuruları ve güzergâh değişiklikleri",
     "izmir_city_services_nearby": "Yakındaki WiFi, İzmirim Kart ve kütüphaneler",
+    "izmir_gtfs_status": "Yerel GTFS tarife deposu durumu",
 }
 
 

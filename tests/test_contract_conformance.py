@@ -1,7 +1,7 @@
 """P4 contract conformance: every advertised behaviour keeps the envelope contract.
 
 These tests never touch the network. Every upstream call is replaced at the HTTP
-connector boundary with a fixed fixture, so the suite can drive all 17 tools
+connector boundary with a fixed fixture, so the suite can drive all 18 tools
 through success *and* failure paths and assert the same envelope shape each time.
 """
 from __future__ import annotations
@@ -439,7 +439,7 @@ def test_public_page_url_drops_machine_endpoints():
 
 def test_tool_titles_and_names_stay_in_sync():
     assert set(TOOL_TITLES) == set(DEFAULT_TOOL_NAMES)
-    assert len(DEFAULT_TOOL_NAMES) == len(set(DEFAULT_TOOL_NAMES)) == 17
+    assert len(DEFAULT_TOOL_NAMES) == len(set(DEFAULT_TOOL_NAMES)) == 18
 
 
 @pytest.mark.asyncio

@@ -77,7 +77,7 @@ def _coverage(settings: Settings, actual_tools: set[str]) -> list[dict[str, Any]
         ("air_quality", ["izmir_air_quality"], ["openapi"], "station_readings",
          "No coordinates or units; observations may be dated a day earlier than requested."),
         ("bus", ["izmir_bus_stops", "izmir_bus_arrivals", "izmir_bus_departures",
-                 "izmir_bus_routes"],
+                 "izmir_bus_routes", "izmir_gtfs_status"],
          ["eshot_stops", "eshot_arrivals", "eshot_gtfs"],
          "stops_live_vehicle_positions_and_published_timetable",
          "Approaching-bus data has no ETA in minutes and an empty payload is not proof "

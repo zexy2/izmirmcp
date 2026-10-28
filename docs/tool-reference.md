@@ -1,6 +1,6 @@
 # Araç Referansı
 
-Bu belge 17 salt okunur MCP aracının girdi/çıktı sözleşmesini gerçek koddan
+Bu belge 18 salt okunur MCP aracının girdi/çıktı sözleşmesini gerçek koddan
 (`app/mcp/server.py` ve `app/services/*`) türetir. Zarf alanları
 [response-contract.md](response-contract.md) içindedir. Tüm araçlar `read_only`,
 `idempotent`, `open_world` işaretlidir ve `structured_output` taşır.
@@ -212,6 +212,23 @@ durak varyantları.
 (halka hatları ve kısa turlar birleştirilmez); `headsign` yoksa yön adı
 uydurulmaz. Birden çok GTFS rotası eşleşirse route_id ile ayrıştırma istenir.
 Canlı kalkış değildir.
+
+### `izmir_gtfs_status`
+Yerel GTFS tarife deposunun durumu. Girdi yoktur; **ağa çıkmaz ve depoyu
+yeniden kurmaz**.
+
+| Girdi | Tip | Zorunlu | Açıklama |
+|---|---|---|---|
+| — | — | — | Girdi almaz. |
+
+`data[0]`: `database_path`, `built_at`, `feed_published_at`, `source_url`,
+`calendar_start`, `calendar_end`, `checked_on`, `calendar_expired`,
+`built_age_seconds`, `zip_bytes`, `stops_rows`, `routes_rows`, `trips_rows`,
+`stop_times_rows`, `skipped_stop_times`.
+
+- Depo yoksa `source_unavailable` (boş tarife değildir).
+- Takvim bitmişse `calendar_expired=true`, `freshness.status="stale"` ve uyarı.
+- Depo yaşı feed'in yayım yaşı değildir; yüklü depo canlı sefer kanıtı değildir.
 
 ## Şehir katmanları
 
