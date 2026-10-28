@@ -187,3 +187,31 @@ Başarı `0`, herhangi bir hata `2` döner; geçersiz arşivde hiçbir şey yaz�
 `.github/workflows/ci.yml`: `pytest`, import + 19 araç yüzeyi kontrolü, çevrimdışı
 protokol smoke'u (`scripts/smoke_mcp.py`), canlı smoke (bloklamaz), sunucuyu başlatıp `/healthz`+`/readyz`+`/status` probe'u, ve
 imaj derleyip konteynerde `/healthz` doğrulaması (`IZMIR_MCP_SKIP_GTFS_BUILD=1`).
+
+## CI'yı yerelde çalıştırma
+
+GitHub Actions faturalandırması olmadan da workflow'u birebir yerelde koşabilirsiniz
+(`act`, Docker üzerinde gerçek runner imajı kullanır):
+
+```bash
+brew install act
+docker pull --platform linux/arm64 catthehacker/ubuntu:act-latest
+act -j test --pull=false       # pytest + protokol smoke + canlı smoke + sunucu probe
+act -j container --pull=false  # imaj derleme + konteyner healthz
+```
+
+`~/.actrc` (arm64 için gerekli):
+
+```text
+--container-architecture=linux/arm64
+-P=ubuntu-latest=catthehacker/ubuntu:act-latest
+```
+
+Notlar:
+
+- `act` varsayılan olarak interaktif imaj seçimi sorar; `~/.actrc` bunu kapatır.
+- Runner imajı ~2,3 GB; ilk `docker pull` uzun sürer ve Docker Desktop'ı bir süre
+  kilitleyebilir.
+- Canlı smoke adımı üçüncü taraf API'lere çıkar; `act` içinde de `continue-on-error`
+  olduğu için bloklamaz.
+- Bu yöntem 2026-10-28'de her iki job için de başarıyla çalıştırıldı.
