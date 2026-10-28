@@ -22,6 +22,30 @@ Bu dosya döngünün hafızasıdır. Her pass sonunda güncellenir.
 | P5 mahalle envanteri | 24 → 1.219 mahalle referansı (muhtarlıklar), `place_district` ile belirsizlik çözümü | bu pass |
 | P4 sözleşme + güvenlik | zarf conformance (17 araç), keşif yüzeyi şeması, auth/origin/gövde/XFF testleri; 3 serviste sızan kaynak hatası ve XFF liste atlatması düzeltildi; tüm servislerde 429→`source_rate_limited` | bu pass |
 
+## P11 — Altyapı parity (storage + conformance + doküman) ✅ TAMAMLANDI
+
+- **`app/storage/db.py`** — paylaşılan SQLite bootstrap: WAL, `user_version`,
+  RTree şeması. RTree yoksa açıkça hata verir.
+- **`app/storage/geo.py`** — `GeoStore`: RTree ile yarıçap ve dikdörtgen
+  sorgusu. `izmir_nearby` artık her çağrıda tüm katmanı belleğe almıyor;
+  sıcak indekste kaynak **hiç** çağrılmıyor (ölçüm: 0,003 sn).
+  Boş indeks yazımı reddedilir; bozuk DB `GeoStoreError` verir.
+- **`app/storage/quota.py`** — kalıcı günlük kota; restart'a dayanıklı,
+  fail-closed. `IZMIR_MCP_API_KEY_DAILY_QUOTA` ile açılır.
+- **`scripts/check_mcp_conformance.py`** — resmî
+  `@modelcontextprotocol/conformance@0.1.16` paketiyle 5 senaryo
+  (initialize, ping, tools-list, resources-list, prompts-list). Kanıt
+  `checks.json` + `summary.json`; boş/eksik kanıt fail-closed.
+- **Doküman 10 → 12**: `source-reachability-analysis.md` (tüm 404/500/HTML
+  kanıtları tek yerde), `api-access.md` (anahtar, kota, rotasyon).
+- `server.json` ve `docs/registry.md` adresleri `zexy2`'ye düzeltildi.
+- CI: Node kurulumu + resmî conformance adımı (bloklayan).
+
+**Yan bulgular:** (1) Testler geliştiricinin gerçek `.data/` indeksini okuyordu;
+`conftest.py`'ye env tabanlı DB izolasyonu eklendi. (2) Kaynak yanıt verip
+koordinatlı satır döndürmediğinde `izmir_nearby` yanlışlıkla
+`source_unavailable` diyordu; artık boş sonuç + uyarı.
+
 ## P10 — Protokol smoke ve doküman seti ✅ TAMAMLANDI
 
 - `scripts/smoke_mcp.py`: gerçek sunucuyu başlatıp MCP tel protokolünü sınar;

@@ -8,12 +8,12 @@ olmak zorundadır; `tests/test_packaging.py` bunu kilitler.
 ```json
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-09-29/server.schema.json",
-  "name": "io.github.batu1-1an/izmir-mcp",
+  "name": "io.github.zexy2/izmir-mcp",
   "version": "<pyproject sürümü>",
   "packages": [
     {"registryType": "pypi", "identifier": "izmir-mcp",
      "transport": {"type": "stdio"}},
-    {"registryType": "oci", "identifier": "ghcr.io/batu1-1an/izmir-mcp:<sürüm>",
+    {"registryType": "oci", "identifier": "ghcr.io/zexy2/izmir-mcp:<sürüm>",
      "transport": {"type": "streamable-http", "url": "http://127.0.0.1:8000/mcp/"}}
   ]
 }
@@ -37,7 +37,7 @@ Sürüm çıkarken:
 3. `CHANGELOG.md`'ye sürüm başlığı ekle.
 4. `pytest -q tests/test_packaging.py` yeşil olmalı.
 5. İmajı derle ve yayımla: `docker build -t izmir-mcp:<sürüm> .` ardından
-   `docker push ghcr.io/batu1-1an/izmir-mcp:<sürüm>`.
+   `docker push ghcr.io/zexy2/izmir-mcp:<sürüm>`.
 6. `server.json`'u registry'ye gönder.
 
 ## Bilinen durum

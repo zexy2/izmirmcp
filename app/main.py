@@ -65,6 +65,10 @@ async def status(request):
             "rate_limit": request.app.state.rate_limiter.snapshot(),
             "concurrency": request.app.state.concurrency_limiter.snapshot(),
             "auth": "enabled" if settings.mcp_api_keys else "disabled",
+            "quota": {
+                "daily_per_key": settings.api_key_daily_quota,
+                "enforced": bool(settings.mcp_api_keys and settings.api_key_daily_quota),
+            },
             "upstream_health": "not_checked",
         }
     )
@@ -122,7 +126,12 @@ def create_app(settings: Settings | None = None) -> Starlette:
         rate_limiter=rate_limiter,
         concurrency_limiter=concurrency_limiter,
     )
-    app.add_middleware(ApiKeyAuthMiddleware, keys=settings.mcp_api_keys)
+    app.add_middleware(
+        ApiKeyAuthMiddleware,
+        keys=settings.mcp_api_keys,
+        quota_path=settings.database_path,
+        daily_quota=settings.api_key_daily_quota,
+    )
     app.add_middleware(AccessLogMiddleware, enabled=settings.access_log_enabled)
 
     app.state.settings = settings

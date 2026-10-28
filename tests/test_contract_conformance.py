@@ -293,8 +293,21 @@ async def _capture(recorder, tool_name: str) -> tuple[dict[str, Any], Recorder]:
     if tool_name not in LOCAL_ONLY_TOOLS:
         assert recording.requests, f"{tool_name} made no upstream call to capture"
     from app.core.source_cache import clear_cache
+    from app.storage.geo import GeoStore
 
     clear_cache()
+    # The spatial index is authoritative when warm, so a replay run would skip
+    # the network entirely. Clear it to force the source path this test targets.
+    import sqlite3
+
+    try:
+        with GeoStore(get_settings().database_path)._connection() as connection:
+            connection.execute("DELETE FROM geo_points_rtree")
+            connection.execute("DELETE FROM geo_points")
+            connection.execute("DELETE FROM app_meta")
+            connection.commit()
+    except (sqlite3.Error, RuntimeError):
+        pass
     replay = recorder()
     replay.responses.update(recording.responses)
     replay.record_only = False

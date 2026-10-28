@@ -12,6 +12,7 @@ from app.core.settings import Settings
 from app.core.validation import InputValidationError, validate_bbox
 from app.services import sources
 from app.services.places import PlaceResolver
+from app.storage.geo import GeoStore, GeoStoreError
 
 SUPPORTED_TYPES = (
     "parking",
@@ -164,6 +165,134 @@ class NearbyService:
 
         return by_kind, used_sources, warnings, statuses, observed
 
+    def _store(self) -> GeoStore:
+        return GeoStore(self.settings.database_path)
+
+    def _index_age_seconds(self, meta: dict[str, str]) -> float:
+        built_at = meta.get("built_at")
+        if not built_at:
+            return float("inf")
+        try:
+            from datetime import datetime, timezone
+
+            stamp = datetime.fromisoformat(built_at)
+        except ValueError:
+            return float("inf")
+        if stamp.tzinfo is None:
+            stamp = stamp.replace(tzinfo=timezone.utc)
+        return (datetime.now(timezone.utc) - stamp).total_seconds()
+
+    async def refresh_index(self, kinds: list[str]) -> list[str]:
+        """Rebuild the spatial index for ``kinds`` from their live source.
+
+        Each kind is replaced in its own transaction so one failing layer does
+        not wipe the others. Returns the kinds that were refreshed.
+        """
+        refreshed: list[str] = []
+        loaders = self._loaders()
+        for kind in kinds:
+            loader, _source = loaders[kind]
+            try:
+                items, _info = await loader()
+            except Exception:
+                continue
+            points = [
+                {"kind": kind, **item}
+                for item in items
+                if item.get("lat") is not None and item.get("lon") is not None
+            ]
+            if not points:
+                continue
+            try:
+                await asyncio.to_thread(self._store().replace_kind, kind, points)
+            except GeoStoreError:
+                continue
+            refreshed.append(kind)
+        if refreshed:
+            from app.core.envelope import utc_now_iso
+
+            await asyncio.to_thread(self._store().set_meta, "built_at", utc_now_iso())
+        return refreshed
+
+    async def _ensure_index(self, selected: list[str]) -> list[str]:
+        """Make sure the selected kinds are indexed and reasonably fresh."""
+        store = self._store()
+        try:
+            meta = await asyncio.to_thread(store.meta)
+            counts = await asyncio.to_thread(store.counts)
+        except GeoStoreError:
+            meta, counts = {}, {}
+        warm = all(kind in counts for kind in selected)
+        fresh_enough = self._index_age_seconds(meta) <= self.settings.eshot_cache_ttl_seconds
+        if warm and fresh_enough:
+            return []
+        return await self.refresh_index(selected)
+
+    async def _layers(
+        self, selected: list[str]
+    ) -> tuple[
+        dict[str, Source],
+        list[Source],
+        list[str],
+        list[str],
+        list[str],
+    ]:
+        """Resolve the layers needed for a spatial query.
+
+        A warm, fresh index is authoritative: the source is not contacted again
+        just to decorate rows, because the index already stores the payload.
+        Only a cold or stale index triggers a fetch.
+        """
+        store = self._store()
+        try:
+            meta = await asyncio.to_thread(store.meta)
+            counts = await asyncio.to_thread(store.counts)
+        except GeoStoreError:
+            meta, counts = {}, {}
+        warm = all(kind in counts for kind in selected)
+        fresh_enough = self._index_age_seconds(meta) <= self.settings.eshot_cache_ttl_seconds
+
+        loaders = self._loaders()
+        if warm and fresh_enough:
+            sources_by_kind = {kind: loaders[kind][1] for kind in selected}
+            used = [loaders[kind][1] for kind in selected]
+            built_at = meta.get("built_at")
+            return (
+                sources_by_kind,
+                used,
+                [self._kind_warning(kind) for kind in selected],
+                ["fresh"],
+                [built_at] if built_at else [],
+            )
+
+        by_kind, used, warnings, statuses, observed = await self._collect(selected)
+        if not used:
+            return {}, [], warnings, statuses, observed
+
+        refreshed = await self.refresh_index(
+            [kind for kind in selected if kind in by_kind]
+        )
+        if not refreshed:
+            # Every layer answered but none yielded indexable rows. That is an
+            # empty result, not a source outage, so the caller still gets a
+            # successful envelope with an explicit warning.
+            warnings = [
+                *warnings,
+                "Kaynaklar yanıt verdi ancak indekslenecek koordinatlı kayıt yok; "
+                "sonuç boş olabilir.",
+            ]
+            sources_by_kind = {kind: by_kind[kind][0] for kind in by_kind}
+            return sources_by_kind, used, warnings, statuses, observed
+        sources_by_kind = {kind: by_kind[kind][0] for kind in by_kind if kind in refreshed}
+        return sources_by_kind, used, warnings, statuses, observed
+
+    @staticmethod
+    def _indexed_row(item: dict[str, Any]) -> dict[str, Any]:
+        """Flatten an indexed row back into the source-item shape."""
+        payload = item.get("payload") or {}
+        return {**payload, "id": item.get("id"), "name": item.get("name"),
+                "lat": item.get("lat"), "lon": item.get("lon")}
+
     async def nearby(
         self,
         *,
@@ -175,16 +304,26 @@ class NearbyService:
         reference_label: str | None = None,
     ) -> dict[str, Any]:
         selected = self._selected(types)
-        by_kind, used_sources, warnings, statuses, observed = await self._collect(selected)
+        by_kind, used_sources, warnings, statuses, observed = await self._layers(selected)
 
         rows: list[dict[str, Any]] = []
-        for kind, (source, items) in by_kind.items():
-            for item in items:
-                if item.get("lat") is None or item.get("lon") is None:
-                    continue
+        if used_sources and by_kind:
+            try:
+                hits = await asyncio.to_thread(
+                    self._store().radius,
+                    lat,
+                    lon,
+                    radius_m=radius_m,
+                    kinds=[kind for kind in selected if kind in by_kind],
+                )
+            except GeoStoreError as exc:
+                warnings.append(f"mekânsal sorgu başarısız ({type(exc).__name__}).")
+                hits = []
+            for hit in hits:
+                kind = hit["kind"]
+                source = by_kind[kind]
+                item = self._indexed_row(hit)
                 row = _common(kind, item, lat, lon, source.name)
-                if row["distance_m"] > radius_m:
-                    continue
                 rows.append(self._decorate(kind, row, item))
 
         if not used_sources:
@@ -211,6 +350,7 @@ class NearbyService:
             ),
             limits=[
                 *GENERAL_LIMITS,
+                "Query served from the local spatial index (SQLite RTree).",
                 f"radius_m={radius_m}",
                 f"limit={limit}",
                 f"types={','.join(selected)}",
@@ -229,19 +369,24 @@ class NearbyService:
                 f"types must be a non-empty subset of: {', '.join(SUPPORTED_TYPES)}",
                 field="types",
             )
-        by_kind, used_sources, warnings, statuses, observed = await self._collect(selected)
+        by_kind, used_sources, warnings, statuses, observed = await self._layers(selected)
 
         rows: list[dict[str, Any]] = []
-        for kind, (source, items) in by_kind.items():
-            for item in items:
-                item_lat, item_lon = item.get("lat"), item.get("lon")
-                if item_lat is None or item_lon is None:
-                    continue
-                if not in_bbox(
-                    item_lat, item_lon,
-                    min_lon=min_lon, min_lat=min_lat, max_lon=max_lon, max_lat=max_lat,
-                ):
-                    continue
+        if used_sources and by_kind:
+            try:
+                hits = await asyncio.to_thread(
+                    self._store().bbox,
+                    min_lon=min_lon, min_lat=min_lat,
+                    max_lon=max_lon, max_lat=max_lat,
+                    kinds=[kind for kind in selected if kind in by_kind],
+                )
+            except GeoStoreError as exc:
+                warnings.append(f"mekânsal sorgu başarısız ({type(exc).__name__}).")
+                hits = []
+            for hit in hits:
+                kind = hit["kind"]
+                source = by_kind[kind]
+                item = self._indexed_row(hit)
                 row = _common(kind, item, None, None, source.name)
                 rows.append(self._decorate(kind, row, item))
 
@@ -291,6 +436,7 @@ class NearbyService:
             ),
             limits=[
                 *BBOX_LIMITS,
+                "Query served from the local spatial index (SQLite RTree).",
                 f"bbox={rectangle}",
                 f"limit={limit}",
                 f"types={','.join(selected)}",

@@ -104,6 +104,7 @@ class Settings:
     client_rate_limit_max_clients: int = 10_000
     client_max_concurrent_requests: int = 32
     mcp_api_keys: tuple[str, ...] = ()
+    api_key_daily_quota: int = 0
     mcp_cors_allowed_origins: tuple[str, ...] = ()
     access_log_enabled: bool = True
 
@@ -191,6 +192,7 @@ def get_settings() -> Settings:
             "IZMIR_MCP_CLIENT_MAX_CONCURRENT_REQUESTS", 32
         ),
         mcp_api_keys=_env_list("IZMIR_MCP_API_KEYS"),
+        api_key_daily_quota=_env_int("IZMIR_MCP_API_KEY_DAILY_QUOTA", 0),
         mcp_cors_allowed_origins=_env_list("IZMIR_MCP_CORS_ALLOWED_ORIGINS"),
         access_log_enabled=_env_bool("IZMIR_MCP_ACCESS_LOG_ENABLED", True),
     )

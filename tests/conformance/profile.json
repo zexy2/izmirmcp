@@ -1,0 +1,17 @@
+{
+  "package": "@modelcontextprotocol/conformance",
+  "version": "0.1.16",
+  "scenarios": [
+    "server-initialize",
+    "ping",
+    "tools-list",
+    "resources-list",
+    "prompts-list"
+  ],
+  "coverage": "Official generic server scenarios satisfiable by a stateless read-only server on the 2025-era protocol. Not a certification and not a full protocol audit.",
+  "exclusions": [
+    "tools-call-* fixtures expect the SDK example tool set, which this server does not publish. Our own envelope contract is covered by scripts/smoke_mcp.py and tests/test_contract_conformance.py.",
+    "resources-read-* and prompts-get-* fixtures expect the example URIs and prompt names; application paths are covered by smoke_mcp.py.",
+    "Sessions, subscriptions, sampling, elicitation and OAuth are optional capabilities this stateless read-only server does not advertise."
+  ]
+}

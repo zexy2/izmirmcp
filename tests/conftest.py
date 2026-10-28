@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import pytest
 
+from app.core.settings import get_settings
 from app.core.source_cache import CacheInfo, clear_cache
 
 
@@ -24,3 +25,21 @@ def _isolate_source_cache():
     clear_cache()
     yield
     clear_cache()
+
+
+@pytest.fixture(autouse=True)
+def _isolated_database(tmp_path, monkeypatch):
+    """Point every service at a scratch SQLite file.
+
+    The spatial index and quota store are on-disk by design. The isolation works
+    through the environment variable (the same path a real deployment uses) so
+    it does not have to replace ``get_settings`` or its cache, which other tests
+    manipulate directly.
+    """
+    path = str(tmp_path / "isolated.sqlite3")
+    monkeypatch.setenv("IZMIR_MCP_DATABASE_PATH", path)
+    import app.core.settings as settings_module
+
+    settings_module.get_settings.cache_clear()
+    yield path
+    settings_module.get_settings.cache_clear()

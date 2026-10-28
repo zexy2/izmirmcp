@@ -91,6 +91,8 @@ karşı kilitlenir:
 - [Registry](docs/registry.md) — `server.json` ve sürüm yayın adımları.
 - [Yer çözümleme](docs/place-resolution.md) — mahalle/ilçe kuralları.
 - [GTFS tarifesi](docs/gtfs-schedule.md) — yerel depo ve takvim gerçeği.
+- [Kaynak erişilebilirliği](docs/source-reachability-analysis.md) — çalışan/kapalı uçlar ve kanıt.
+- [API erişimi](docs/api-access.md) — anahtar üretimi, kota, rotasyon.
 
 ## Kurulum
 

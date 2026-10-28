@@ -99,6 +99,7 @@ ortam değişkeniyle açılmaz; değiştirmek için kod gerekir.
 | `IZMIR_MCP_CLIENT_RATE_LIMIT_MAX_CLIENTS` | `10000` | İzlenen istemci üst sınırı (LRU budama). |
 | `IZMIR_MCP_CLIENT_MAX_CONCURRENT_REQUESTS` | `32` | Eşzamanlı `/mcp` isteği. |
 | `IZMIR_MCP_API_KEYS` | boş | Bearer anahtarları; boşsa kimlik doğrulama kapalı. |
+| `IZMIR_MCP_API_KEY_DAILY_QUOTA` | `0` | Anahtar başına günlük istek kotası; `0` sınırsız. Kalıcıdır (SQLite). |
 | `IZMIR_MCP_CORS_ALLOWED_ORIGINS` | boş | Tarayıcı Origin allowlist'i. |
 | `IZMIR_MCP_ACCESS_LOG_ENABLED` | `true` | Yapısal erişim logu. |
 

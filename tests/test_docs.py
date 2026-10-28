@@ -30,6 +30,7 @@ ALL_DOCS = (
     CONTRACT, TOOL_REF, DEPLOYMENT, SOURCES_DOC, MONITORING,
     DOCS / "mcp-interface.md", DOCS / "privacy.md", DOCS / "registry.md",
     DOCS / "place-resolution.md", DOCS / "gtfs-schedule.md",
+    DOCS / "source-reachability-analysis.md", DOCS / "api-access.md",
 )
 
 

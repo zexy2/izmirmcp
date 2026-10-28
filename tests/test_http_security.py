@@ -430,3 +430,54 @@ async def test_access_log_never_contains_keys_headers_or_query_strings(caplog):
     assert "authorization" not in joined.lower()
     payload = json.loads(records[-1])
     assert payload["path"] == "/status"
+
+
+def test_daily_quota_blocks_after_the_limit_and_survives_restart(tmp_path):
+    """A restart must not reset a key's daily budget."""
+    import asyncio
+
+    import httpx
+
+    from app.core.settings import Settings, get_settings
+    from app.main import create_app
+
+    key = "q" * 40
+    base = get_settings()
+    settings = Settings(**{
+        **base.__dict__,
+        "mcp_api_keys": (key,),
+        "api_key_daily_quota": 2,
+        "database_path": str(tmp_path / "quota.sqlite3"),
+        "access_log_enabled": False,
+    })
+    headers = {
+        "accept": "application/json, text/event-stream",
+        "authorization": f"Bearer {key}",
+    }
+    payload = {"jsonrpc": "2.0", "id": 1, "method": "tools/list"}
+
+    async def call(app):
+        async with httpx.AsyncClient(
+            transport=httpx.ASGITransport(app=app), base_url="http://127.0.0.1:8000"
+        ) as client:
+            return await client.post("/mcp/", json=payload, headers=headers)
+
+    async def run():
+        app = create_app(settings=settings)
+        async with app.router.lifespan_context(app):
+            first = await call(app)
+            second = await call(app)
+            third = await call(app)
+        # Fresh app, same database path: the budget must not reset.
+        restarted = create_app(settings=settings)
+        async with restarted.router.lifespan_context(restarted):
+            after_restart = await call(restarted)
+        return first, second, third, after_restart
+
+    first, second, third, after_restart = asyncio.run(run())
+    assert first.status_code == 200
+    assert second.status_code == 200
+    assert third.status_code == 429
+    assert third.json()["error_code"] == "quota_exceeded"
+    assert "retry-after" in {k.lower() for k in third.headers}
+    assert after_restart.status_code == 429

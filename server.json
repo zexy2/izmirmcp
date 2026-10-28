@@ -1,6 +1,6 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-09-29/server.schema.json",
-  "name": "io.github.batu1-1an/izmir-mcp",
+  "name": "io.github.zexy2/izmir-mcp",
   "description": "Read-only MCP server for İzmir open city data: CKAN catalog, nearby services, water, air quality, transit timetables and EShot buses.",
   "version": "0.1.0",
   "packages": [
@@ -15,7 +15,7 @@
     },
     {
       "registryType": "oci",
-      "identifier": "ghcr.io/batu1-1an/izmir-mcp:0.1.0",
+      "identifier": "ghcr.io/zexy2/izmir-mcp:0.1.0",
       "transport": {
         "type": "streamable-http",
         "url": "http://127.0.0.1:8000/mcp/"

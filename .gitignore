@@ -9,3 +9,6 @@ build/
 dist/
 .env
 .DS_Store
+
+# Conformance harness (installed with npm ci)
+tests/conformance/node_modules/
