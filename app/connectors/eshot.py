@@ -14,7 +14,7 @@ from typing import Any
 
 from app.connectors.ckan import CkanClient
 from app.connectors.http import SourceError, get_json, get_zip, get_zip_members
-from app.core.envelope import finite_number
+from app.core.envelope import bounded_id, bounded_text, finite_number
 from app.core.settings import Settings
 from app.core.source_cache import CacheInfo, cached_source_data
 
@@ -117,8 +117,8 @@ def parse_gtfs_metadata(
         route_rows.append(
             {
                 "route_id": route_id,
-                "short_name": (item.get("route_short_name") or "").strip() or None,
-                "long_name": (item.get("route_long_name") or "").strip() or None,
+                "short_name": bounded_text(item.get("route_short_name"), 64),
+                "long_name": bounded_text(item.get("route_long_name")),
                 "route_type": item.get("route_type"),
                 "service_ids": service_ids.get(route_id, []),
                 "trips": trip_counts.get(route_id, 0),
@@ -168,7 +168,7 @@ class EshotConnector:
                 name = (item.get("DURAK_ADI") or "").strip() or None
                 rows.append(
                     {
-                        "id": stop_id,
+                        "id": bounded_id(stop_id),
                         "name": name,
                         "lat": lat,
                         "lon": lon,
@@ -208,8 +208,8 @@ class EshotConnector:
                 rows.append(
                     {
                         "bus_id": item.get("OtobusId"),
-                        "line": str(item.get("HatNumarasi") or "").strip() or None,
-                        "line_name": (item.get("HatAdi") or "").strip() or None,
+                        "line": bounded_text(item.get("HatNumarasi"), 32),
+                        "line_name": bounded_text(item.get("HatAdi")),
                         "direction": item.get("HattinYonu"),
                         "stops_remaining": item.get("KalanDurakSayisi"),
                         "lat": lat,

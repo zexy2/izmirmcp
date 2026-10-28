@@ -14,7 +14,7 @@ from typing import Any
 
 from app.connectors.ckan import CkanClient
 from app.connectors.http import SourceError, get_text
-from app.core.envelope import finite_number
+from app.core.envelope import bounded_id, bounded_text, finite_number
 from app.core.geo import valid_lat_lon
 from app.core.settings import Settings
 from app.core.source_cache import CacheInfo, cached_source_data
@@ -119,13 +119,13 @@ class CityLayerConnector:
     async def market_rows(self) -> tuple[list[dict[str, Any]], CacheInfo]:
         def mapper(item: dict[str, Any]) -> dict[str, Any]:
             return {
-                "id": str(item.get("_id")) if item.get("_id") is not None else None,
-                "name": (item.get("ADI") or "").strip() or None,
-                "district": (item.get("ILCE") or "").strip() or None,
-                "neighborhood": (item.get("MAHALLE") or "").strip() or None,
+                "id": bounded_id(item.get("_id")),
+                "name": bounded_text(item.get("ADI")),
+                "district": bounded_text(item.get("ILCE"), 128),
+                "neighborhood": bounded_text(item.get("MAHALLE")),
                 **_lat_lon(item.get("ENLEM"), item.get("BOYLAM")),
-                "note": " ".join((item.get("ACIKLAMA") or "").split()) or None,
-                "street": (item.get("YOL") or "").strip() or None,
+                "note": bounded_text(item.get("ACIKLAMA"), 512),
+                "street": bounded_text(item.get("YOL")),
             }
 
         return await self._layer("market", MARKET_RESOURCE_ID, mapper)
@@ -133,11 +133,11 @@ class CityLayerConnector:
     async def wifi_points(self) -> tuple[list[dict[str, Any]], CacheInfo]:
         def mapper(item: dict[str, Any]) -> dict[str, Any]:
             return {
-                "id": str(item.get("_id")) if item.get("_id") is not None else None,
-                "name": (item.get("ADI") or "").strip() or None,
-                "district": (item.get("ILCE") or "").strip() or None,
-                "neighborhood": (item.get("MAHALLE") or "").strip() or None,
-                "street": (item.get("YOL") or "").strip() or None,
+                "id": bounded_id(item.get("_id")),
+                "name": bounded_text(item.get("ADI")),
+                "district": bounded_text(item.get("ILCE"), 128),
+                "neighborhood": bounded_text(item.get("MAHALLE")),
+                "street": bounded_text(item.get("YOL")),
                 **_lat_lon(item.get("ENLEM"), item.get("BOYLAM")),
             }
 
@@ -146,8 +146,8 @@ class CityLayerConnector:
     async def izmirim_card_points(self) -> tuple[list[dict[str, Any]], CacheInfo]:
         def mapper(item: dict[str, Any]) -> dict[str, Any]:
             return {
-                "id": str(item.get("_id")) if item.get("_id") is not None else None,
-                "address": " ".join((item.get("ADDRESS") or "").split()) or None,
+                "id": bounded_id(item.get("_id")),
+                "address": bounded_text(item.get("ADDRESS")),
                 "name": "İzmirim Kart dolum noktası",
                 **_lat_lon(item.get("LATITUDE"), item.get("LONGITUDE")),
             }
@@ -159,8 +159,8 @@ class CityLayerConnector:
 
         def mapper(item: dict[str, Any]) -> dict[str, Any]:
             return {
-                "district": (item.get("ILCE") or "").strip() or None,
-                "name": (item.get("MAHALLE") or "").strip() or None,
+                "district": bounded_text(item.get("ILCE"), 128),
+                "name": bounded_text(item.get("MAHALLE")),
                 "buildings": finite_number(item.get("YAPI")),
                 "other_buildings": finite_number(item.get("DIGER_YAPI")),
             }
@@ -172,8 +172,8 @@ class CityLayerConnector:
 
         def mapper(item: dict[str, Any]) -> dict[str, Any]:
             return {
-                "district": (item.get("ILCE_ADI") or "").strip() or None,
-                "name": (item.get("MAHALLE_ADI") or "").strip() or None,
+                "district": bounded_text(item.get("ILCE_ADI") or "").strip() or None,
+                "name": bounded_text(item.get("MAHALLE_ADI") or "").strip() or None,
                 "male": finite_number(item.get("NUFUS_ERKEK_TOPLAM")),
                 "female": finite_number(item.get("NUFUS_KADIN_TOPLAM")),
             }
@@ -185,12 +185,12 @@ class CityLayerConnector:
 
         def mapper(item: dict[str, Any]) -> dict[str, Any]:
             return {
-                "id": str(item.get("_id")) if item.get("_id") is not None else None,
-                "name": (item.get("ADI") or "").strip() or None,
-                "district": (item.get("ILCE") or "").strip() or None,
-                "neighborhood": (item.get("MAHALLE") or "").strip() or None,
-                "street": (item.get("YOL") or "").strip() or None,
-                "kapino": (item.get("KAPINO") or "").strip() or None,
+                "id": bounded_id(item.get("_id")),
+                "name": bounded_text(item.get("ADI")),
+                "district": bounded_text(item.get("ILCE"), 128),
+                "neighborhood": bounded_text(item.get("MAHALLE")),
+                "street": bounded_text(item.get("YOL")),
+                "kapino": bounded_text(item.get("KAPINO"), 32),
                 **_lat_lon(item.get("ENLEM"), item.get("BOYLAM")),
             }
 
@@ -199,12 +199,12 @@ class CityLayerConnector:
     async def libraries(self) -> tuple[list[dict[str, Any]], CacheInfo]:
         def mapper(item: dict[str, Any]) -> dict[str, Any]:
             return {
-                "id": str(item.get("ID")) if item.get("ID") is not None else None,
-                "name": " ".join((item.get("KÜTÜPHANE_AD") or "").split()) or None,
-                "district": (item.get("ILCE") or "").strip() or None,
-                "address": " ".join((item.get("ADRES") or "").split()) or None,
-                "hours": " ".join((item.get("CALISMA_SAATLERİ") or "").split()) or None,
-                "open_days": " ".join((item.get("CALISMA_GUNLERI") or "").split()) or None,
+                "id": bounded_id(item.get("ID")),
+                "name": bounded_text(item.get("KÜTÜPHANE_AD")),
+                "district": bounded_text(item.get("ILCE"), 128),
+                "address": bounded_text(item.get("ADRES")),
+                "hours": bounded_text(item.get("CALISMA_SAATLERİ"), 128),
+                "open_days": bounded_text(item.get("CALISMA_GUNLERI"), 128),
                 "opened_year": item.get("ACILIS_YILI"),
                 # The published layer has no coordinates; never fabricate them.
                 "lat": None,
@@ -241,19 +241,27 @@ class BusNoticeConnector:
         )
 
 
-def parse_bus_notices(text: str) -> list[dict[str, Any]]:
+# The published notice file has ~124 rows. A 7.6 MB hostile CSV produced 1M
+# rows and 214 MB of objects, so parsing stops at an advertised budget.
+MAX_CSV_ROWS = 50_000
+
+
+def parse_bus_notices(text: str, *, max_rows: int = MAX_CSV_ROWS) -> list[dict[str, Any]]:
     reader = csv.DictReader(io.StringIO(text.lstrip("\ufeff")), delimiter=";")
     rows: list[dict[str, Any]] = []
-    for item in reader:
+    for index, item in enumerate(reader):
+        if index >= max_rows:
+            raise SourceError(f"CSV exceeded the {max_rows}-row budget")
+
         title = " ".join((item.get("BASLIK") or "").split())
         if not title:
             continue
         rows.append(
             {
-                "line": (item.get("HAT_NO") or "").strip() or None,
-                "title": title,
-                "starts_at": (item.get("BASLAMA_TARIHI") or "").strip() or None,
-                "ends_at": (item.get("BITIS_TARIHI") or "").strip() or None,
+                "line": bounded_text(item.get("HAT_NO"), 32),
+                "title": title[:512],
+                "starts_at": bounded_text(item.get("BASLAMA_TARIHI"), 40),
+                "ends_at": bounded_text(item.get("BITIS_TARIHI"), 40),
             }
         )
     return rows

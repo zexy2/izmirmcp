@@ -207,3 +207,39 @@ def finite_number(value: Any) -> float | None:
     except (TypeError, ValueError):
         return None
     return number if math.isfinite(number) else None
+
+
+# Source text is untrusted. İzmir's published names are well under 200 chars;
+# a hostile or corrupted source sending a 1 MB field would inflate every
+# envelope (one record made a 1.9 MB response, times the limit).
+MAX_FIELD_CHARS = 512
+MAX_ID_CHARS = 128
+
+
+def bounded_text(value: Any, limit: int = MAX_FIELD_CHARS) -> str | None:
+    """Trim a source-provided string to a sane length, collapsing whitespace.
+
+    Not a sanitiser: the result is still data, never markup or instructions.
+    """
+    if value is None:
+        return None
+    text = " ".join(str(value).split())
+    if not text:
+        return None
+    return text[:limit]
+
+
+def bounded_id(value: Any, limit: int = MAX_ID_CHARS) -> Any:
+    """Identifiers are short by construction; anything longer is malformed.
+
+    The original type is preserved (an integer stays an integer) so callers that
+    match ids against a source list keep working; only absurd lengths are cut.
+    """
+    if value is None or value == "":
+        return None
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, int):
+        return value
+    text = str(value).strip()
+    return text[:limit] or None

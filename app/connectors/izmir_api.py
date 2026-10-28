@@ -4,7 +4,7 @@ from datetime import date
 from typing import Any
 
 from app.connectors.http import get_json
-from app.core.envelope import finite_number
+from app.core.envelope import bounded_id, bounded_text, finite_number
 from app.core.geo import valid_lat_lon
 from app.core.settings import Settings
 from app.core.source_cache import CacheInfo, cached_source_data
@@ -14,6 +14,18 @@ WEEKDAYS = ("monday", "tuesday", "wednesday", "thursday", "friday", "saturday", 
 
 def _as_float(value: Any) -> float | None:
     return finite_number(value)
+
+
+def _records(payload: Any) -> list[dict[str, Any]]:
+    """Return only dict rows from a source payload.
+
+    A hijacked or corrupted source can answer with ``[null, 1, "x"]``; indexing
+    such an item raised ``AttributeError`` and became an HTTP 500. Dropping the
+    unusable rows keeps the failure a typed source error, not a crash.
+    """
+    if not isinstance(payload, list):
+        return []
+    return [item for item in payload if isinstance(item, dict)]
 
 
 def _coordinates(lat_value: Any, lon_value: Any) -> tuple[float, float] | None:
@@ -65,7 +77,7 @@ class IzmirOpenApi:
         payload, info = await self._cached("ibb/izum/otoparklar", "openapi.parking")
         today = WEEKDAYS[date.today().weekday()]
         rows = []
-        for item in payload if isinstance(payload, list) else []:
+        for item in _records(payload):
             pair = _coordinates(item.get("lat"), item.get("lng"))
             if pair is None:
                 continue
@@ -79,8 +91,8 @@ class IzmirOpenApi:
                 capacity = free + occupied
             rows.append(
                 {
-                    "id": item.get("ufid") or item.get("name"),
-                    "name": item.get("name"),
+                    "id": bounded_id(item.get("ufid") or item.get("name")),
+                    "name": bounded_text(item.get("name")),
                     "lat": lat,
                     "lon": lon,
                     "free": free,
@@ -89,7 +101,7 @@ class IzmirOpenApi:
                     "status": item.get("status"),
                     "is_paid": item.get("isPaid"),
                     "provider": item.get("provider"),
-                    "address": item.get("address") or None,
+                    "address": bounded_text(item.get("address")),
                     "opening_hours_today": (item.get("openingHours") or {}).get(today),
                 }
             )
@@ -98,22 +110,23 @@ class IzmirOpenApi:
     async def pharmacies(self) -> tuple[list[dict[str, Any]], CacheInfo]:
         payload, info = await self._cached("ibb/nobetcieczaneler", "openapi.pharmacies")
         rows = []
-        for item in payload if isinstance(payload, list) else []:
+        for item in _records(payload):
             pair = _coordinates(item.get("LokasyonX"), item.get("LokasyonY"))
             if pair is None:
                 continue
             lat, lon = pair
             rows.append(
                 {
-                    "id": item.get("EczaneId") if item.get("EczaneId") not in (None, -1, 0) else None,
-                    "name": item.get("Adi"),
+                    "id": bounded_id(item.get("EczaneId"))
+                    if item.get("EczaneId") not in (None, -1, 0) else None,
+                    "name": bounded_text(item.get("Adi")),
                     "lat": lat,
                     "lon": lon,
-                    "phone": item.get("Telefon"),
-                    "address": (item.get("Adres") or "").strip() or None,
-                    "district": item.get("Bolge"),
-                    "area_note": item.get("BolgeAciklama"),
-                    "duty_date": item.get("Tarih"),
+                    "phone": bounded_text(item.get("Telefon"), 64),
+                    "address": bounded_text(item.get("Adres")),
+                    "district": bounded_text(item.get("Bolge"), 128),
+                    "area_note": bounded_text(item.get("BolgeAciklama")),
+                    "duty_date": bounded_text(item.get("Tarih"), 40),
                 }
             )
         return rows, info
@@ -123,7 +136,7 @@ class IzmirOpenApi:
             f"ibb/cevre/havadegerleri/{day}", f"openapi.air.{day}"
         )
         grouped: dict[str, dict[str, Any]] = {}
-        for item in payload if isinstance(payload, list) else []:
+        for item in _records(payload):
             station = str(item.get("BolgeAdi") or "").strip()
             if not station:
                 continue
@@ -159,7 +172,7 @@ class IzmirOpenApi:
     async def ferry_piers(self) -> tuple[list[dict[str, Any]], CacheInfo]:
         payload, info = await self._cached("izdeniz/iskeleler", "openapi.izdeniz.piers")
         rows = []
-        for item in payload if isinstance(payload, list) else []:
+        for item in _records(payload):
             pair = _coordinates(item.get("Enlem"), item.get("Boylam"))
             if pair is None:
                 continue
@@ -185,7 +198,7 @@ class IzmirOpenApi:
                 "end": item.get("BitisSaati"),
                 "interval_minutes": _as_float(item.get("Aralik")),
             }
-            for item in payload if isinstance(payload, list)
+            for item in _records(payload)
         ]
         return rows, info
 
@@ -205,7 +218,7 @@ class IzmirOpenApi:
                 "departure": item.get("HareketSaati"),
                 "arrival": item.get("VarisSaati"),
             }
-            for item in payload if isinstance(payload, list)
+            for item in _records(payload)
         ]
         return rows, info
 
@@ -242,7 +255,7 @@ class IzmirOpenApi:
             f"openapi.izdeniz.route.{from_id}.{to_id}.{day}",
         )
         routes = []
-        for item in payload if isinstance(payload, list) else []:
+        for item in _records(payload):
             departures = []
             for row in item.get("seferSatirlari") or []:
                 times = row.get("seferSaatleri") or []
@@ -268,7 +281,7 @@ class IzmirOpenApi:
 
 def _station_rows(payload: Any, *, order_key: str) -> list[dict[str, Any]]:
     rows = []
-    for item in payload if isinstance(payload, list) else []:
+    for item in _records(payload):
         pair = _coordinates(item.get("Enlem"), item.get("Boylam"))
         if pair is None:
             continue

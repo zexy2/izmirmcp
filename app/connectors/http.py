@@ -142,26 +142,60 @@ async def get_json(
         raise SourceError("source returned invalid JSON") from exc
 
 
+# A 18 MB archive with 200k empty entries cost ~113 MB and ~5 s just to build
+# ``namelist()``, all within the byte budget. The EShot feed needs 7 files, so a
+# modest ceiling removes the amplification without touching real data.
+MAX_ZIP_ENTRIES = 200
+EOCD_SIGNATURE = b"PK\x05\x06"
+EOCD_SIZE = 22
+
+
+def _declared_entry_count(body: bytes) -> int | None:
+    """Read the entry count from the End of Central Directory record.
+
+    ``zipfile.infolist()`` parses every entry, which is exactly the work a
+    hostile archive wants us to do: 200k empty entries cost ~130 MB and ~5 s
+    before the ceiling was even checked. The EOCD trailer states the count in
+    fixed offsets, so it can be rejected before the archive is opened.
+    """
+    index = body.rfind(EOCD_SIGNATURE, max(0, len(body) - (EOCD_SIZE + 65_535)))
+    if index < 0 or index + EOCD_SIZE > len(body):
+        return None
+    return int.from_bytes(body[index + 10:index + 12], "little")
+
+
 def read_zip_members(
     body: bytes,
     *,
     max_member_bytes: Mapping[str, int],
     required: tuple[str, ...] = (),
+    max_entries: int = MAX_ZIP_ENTRIES,
 ) -> dict[str, bytes]:
     """Extract only named members from an in-memory ZIP under per-member budgets.
 
     The archive is never written to disk and no member outside ``max_member_bytes``
-    (or ``required``) is decompressed. A non-ZIP body, a missing required member or
-    a member exceeding its budget is rejected instead of truncated.
+    (or ``required``) is decompressed. A non-ZIP body, a missing required member, a
+    member exceeding its budget or an archive with implausibly many entries is
+    rejected instead of truncated.
     """
     if not body.startswith(ZIP_SIGNATURES):
         raise SourceError("source did not return a ZIP archive")
+    declared = _declared_entry_count(body)
+    if declared is not None and declared > max_entries:
+        raise SourceError(
+            f"ZIP archive declares {declared} entries; limit is {max_entries}"
+        )
     try:
         archive = zipfile.ZipFile(io.BytesIO(body))
     except zipfile.BadZipFile as exc:
         raise SourceError("source returned a corrupt ZIP archive") from exc
     with archive:
-        names = set(archive.namelist())
+        infos = archive.infolist()
+        if len(infos) > max_entries:
+            raise SourceError(
+                f"ZIP archive declares {len(infos)} entries; limit is {max_entries}"
+            )
+        names = {info.filename for info in infos}
         missing = [name for name in required if name not in names]
         if missing:
             raise SourceError(f"ZIP archive is missing {', '.join(missing)}")
