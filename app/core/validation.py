@@ -12,7 +12,20 @@ class InputValidationError(ValueError):
         self.code = "validation_error"
 
 
+def _require_number(value: object, *, field: str) -> None:
+    """Reject booleans before comparing numbers.
+
+    ``True`` is an ``int`` in Python, so ``-90 <= True <= 90`` passes and a
+    caller sending ``{"lat": true}`` silently gets latitude 1.0. Booleans are
+    never a coordinate, radius or limit.
+    """
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        raise InputValidationError(f"{field} must be a number", field=field)
+
+
 def validate_lat_lon(lat: float, lon: float) -> tuple[float, float]:
+    _require_number(lat, field="lat")
+    _require_number(lon, field="lon")
     if not -90 <= lat <= 90:
         raise InputValidationError("lat must be between -90 and 90", field="lat")
     if not -180 <= lon <= 180:
@@ -50,6 +63,7 @@ def validate_bbox(bbox: list[float] | tuple[float, ...]) -> tuple[float, float, 
 
 
 def validate_radius(radius_m: int, max_radius_m: int = 5_000) -> int:
+    _require_number(radius_m, field="radius_m")
     if radius_m <= 0:
         raise InputValidationError("radius_m must be positive", field="radius_m")
     if radius_m > max_radius_m:
@@ -58,6 +72,7 @@ def validate_radius(radius_m: int, max_radius_m: int = 5_000) -> int:
 
 
 def validate_limit(limit: int, max_limit: int = 100) -> int:
+    _require_number(limit, field="limit")
     if limit <= 0:
         raise InputValidationError("limit must be positive", field="limit")
     if limit > max_limit:

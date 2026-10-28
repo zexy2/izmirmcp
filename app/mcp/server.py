@@ -4,6 +4,7 @@ from typing import Literal
 
 from app.core.envelope import Freshness, Source, error_envelope, success_envelope
 from app.core.settings import get_settings
+from app.core.types import OptionalCount as _OptInt, OptionalNumber as _OptNum
 from app.core.validation import (
     InputValidationError,
     resolve_limit,
@@ -34,6 +35,27 @@ TransitMode = Literal["metro", "izban", "izdeniz"]
 DisruptionOperator = Literal["eshot", "metro", "izdeniz", "izban"]
 
 
+# İzmir province bounding box (south, west, north, east). Used only to warn
+# that a coordinate cannot possibly match city data — never to reject a query.
+IZMIR_BOUNDS = (37.7, 26.0, 39.6, 28.6)
+
+
+def _reject_boolean_number(value: object, field: str) -> None:
+    """Catch ``{"lat": true}`` before pydantic coerces it to 1.0.
+
+    ``float | None`` accepts a bool and turns it into 1.0, so by the time the
+    service sees it the caller's mistake is invisible and the query silently
+    targets the Gulf of Guinea. Rejecting here keeps the error attributable.
+    """
+    if isinstance(value, bool):
+        raise InputValidationError(f"{field} must be a number, not a boolean", field=field)
+
+
+def _outside_izmir(lat: float, lon: float) -> bool:
+    south, west, north, east = IZMIR_BOUNDS
+    return not (south <= lat <= north and west <= lon <= east)
+
+
 def _validation(exc: InputValidationError, *, tool: str | None = None) -> dict:
     """Reject an input with a typed envelope plus a structured repair hint."""
     from app.core.error_responses import validation_error_envelope
@@ -49,8 +71,10 @@ async def izmir_health() -> dict:
         data=[
             {
                 "service": "izmir-mcp",
-                "catalog": settings.ckan_base_url,
-                "open_data_api": settings.openapi_base_url,
+                # Human-facing portals only. Raw API bases taught callers to
+                # scrape upstream endpoints directly and bypass this server.
+                "catalog": "https://acikveri.bizizmir.com",
+                "open_data_portal": "https://www.izmir.bel.tr",
                 "upstream_health": "not_checked",
             }
         ],
@@ -68,7 +92,7 @@ async def izmir_health() -> dict:
 async def izmir_search_datasets(
     query: str,
     formats: list[str] | None = None,
-    limit: int | None = None,
+    limit: _OptInt = None,
 ) -> dict:
     """Search the İzmir open data catalog by topic."""
     return await CatalogService(settings=get_settings()).search_datasets(
@@ -91,7 +115,7 @@ async def izmir_query_resource(
     filters: dict | None = None,
     search: str | None = None,
     sort: str | None = None,
-    limit: int | None = None,
+    limit: _OptInt = None,
 ) -> dict:
     """Query İzmir CKAN DataStore records with guarded filters, search and sort.
 
@@ -107,15 +131,15 @@ async def izmir_query_resource(
 
 
 async def izmir_nearby(
-    lat: float | None = None,
-    lon: float | None = None,
+    lat: _OptNum = None,
+    lon: _OptNum = None,
     place: str | None = None,
     place_district: str | None = None,
     bbox: list[float] | None = None,
     district: str | None = None,
     types: list[NearbyType] | None = None,
-    radius_m: int | None = None,
-    limit: int | None = None,
+    radius_m: _OptInt = None,
+    limit: _OptInt = None,
 ) -> dict:
     """Find İzmir services by radius, rectangle or district-wide list.
 
@@ -132,6 +156,8 @@ async def izmir_nearby(
     """
     settings = get_settings()
     try:
+        _reject_boolean_number(lat, "lat")
+        _reject_boolean_number(lon, "lon")
         safe_limit = resolve_limit(limit, settings.default_limit, settings.max_limit)
         if (lat is None) != (lon is None):
             raise InputValidationError("lat and lon must be supplied together", field="lat")
@@ -205,12 +231,18 @@ async def izmir_nearby(
             *envelope.get("warnings", []),
             "Konum, ilçe/mahalle için yaklaşık referans noktasıdır; kesin adres değildir.",
         ]
+    if _outside_izmir(lat, lon):
+        envelope["warnings"] = [
+            *envelope.get("warnings", []),
+            "Verilen koordinat İzmir il sınırları dışında görünüyor; boş sonuç "
+            "'İzmir'de hizmet yok' kanıtı değildir.",
+        ]
     return envelope
 
 
 async def izmir_water_status(
     kind: Literal["dams", "faults"] = "dams",
-    limit: int | None = None,
+    limit: _OptInt = None,
 ) -> dict:
     """Return İZSU dam occupancy, or report the unavailable outage feed.
 
@@ -227,7 +259,7 @@ async def izmir_water_status(
 async def izmir_air_quality(
     date: str | None = None,
     station: str | None = None,
-    limit: int | None = None,
+    limit: _OptInt = None,
 ) -> dict:
     """Return İzmir air-quality station readings for one date.
 
@@ -245,7 +277,7 @@ async def izmir_air_quality(
 
 async def izmir_transit_stations(
     mode: TransitMode,
-    limit: int | None = None,
+    limit: _OptInt = None,
 ) -> dict:
     """List metro stations, İZBAN stations or İZDENİZ ferry piers with coordinates."""
     try:
@@ -278,7 +310,7 @@ async def izmir_transit_schedule(
 async def izmir_neighborhood_profile(
     neighborhood: str | None = None,
     district: str | None = None,
-    limit: int | None = None,
+    limit: _OptInt = None,
 ) -> dict:
     """Return published population and building counts for İzmir neighborhoods.
 
@@ -309,10 +341,10 @@ async def izmir_gtfs_status() -> dict:
 
 async def izmir_bus_stops(
     query: str | None = None,
-    lat: float | None = None,
-    lon: float | None = None,
-    radius_m: int | None = None,
-    limit: int | None = None,
+    lat: _OptNum = None,
+    lon: _OptNum = None,
+    radius_m: _OptInt = None,
+    limit: _OptInt = None,
 ) -> dict:
     """Find EShot bus stops by name, or list stops within a radius of a coordinate.
 
@@ -347,7 +379,7 @@ async def izmir_bus_departures(
     stop_id: str,
     at: str | None = None,
     line: str | None = None,
-    limit: int | None = None,
+    limit: _OptInt = None,
 ) -> dict:
     """Return scheduled GTFS departures from one EShot stop from `at` onwards.
 
@@ -369,7 +401,7 @@ async def izmir_bus_routes(
     query: str | None = None,
     detail: bool = False,
     direction: str | None = None,
-    limit: int | None = None,
+    limit: _OptInt = None,
 ) -> dict:
     """List EShot routes, or return one line's ordered stops per direction.
 
@@ -399,6 +431,8 @@ def _require_point(
     place: str | None,
     place_district: str | None = None,
 ) -> tuple[float, float, str | None]:
+    _reject_boolean_number(lat, "lat")
+    _reject_boolean_number(lon, "lon")
     if (lat is None) != (lon is None):
         raise InputValidationError("lat and lon must be supplied together", field="lat")
     if place is not None and lat is not None:
@@ -420,10 +454,10 @@ def _require_point(
 async def izmir_market_schedule(
     day: str | None = None,
     district: str | None = None,
-    lat: float | None = None,
-    lon: float | None = None,
-    radius_m: int | None = None,
-    limit: int | None = None,
+    lat: _OptNum = None,
+    lon: _OptNum = None,
+    radius_m: _OptInt = None,
+    limit: _OptInt = None,
 ) -> dict:
     """List İzmir neighborhood market places, optionally filtered by weekday, district or proximity.
 
@@ -434,6 +468,8 @@ async def izmir_market_schedule(
     """
     settings = get_settings()
     try:
+        _reject_boolean_number(lat, "lat")
+        _reject_boolean_number(lon, "lon")
         safe_limit = resolve_limit(limit, settings.default_limit, settings.max_limit)
         return await MarketService(settings=settings).schedule(
             day=day, district=district, lat=lat, lon=lon, radius_m=radius_m, limit=safe_limit
@@ -446,7 +482,7 @@ async def izmir_transport_disruptions(
     operator: DisruptionOperator | None = None,
     line: str | None = None,
     active_only: bool = False,
-    limit: int | None = None,
+    limit: _OptInt = None,
 ) -> dict:
     """List published transport announcements for İzmir operators.
 
@@ -471,14 +507,14 @@ async def izmir_transport_disruptions(
 
 async def izmir_city_services_nearby(
     kinds: list[CityServiceKind] | None = None,
-    lat: float | None = None,
-    lon: float | None = None,
+    lat: _OptNum = None,
+    lon: _OptNum = None,
     place: str | None = None,
     place_district: str | None = None,
     bbox: list[float] | None = None,
     district: str | None = None,
-    radius_m: int | None = None,
-    limit: int | None = None,
+    radius_m: _OptInt = None,
+    limit: _OptInt = None,
 ) -> dict:
     """Find WizmirNET WiFi points, İzmirim Kart top-up points and libraries.
 

@@ -26,6 +26,37 @@ class SourceRateLimitedError(SourceError):
     """The upstream rejected the request with HTTP 429."""
 
 
+MAX_REDIRECTS = 3
+
+
+async def _get_same_origin(
+    client: httpx.AsyncClient, url: str
+) -> tuple[httpx.Response, str]:
+    """GET ``url`` following at most ``MAX_REDIRECTS`` same-origin redirects.
+
+    A cross-host or scheme-changing redirect is refused with ``SourceError`` so
+    a hijacked source cannot redirect us into the local network.
+    """
+    from urllib.parse import urlsplit
+
+    original = urlsplit(url)
+    origin = (original.scheme, original.netloc.lower())
+    current = url
+    for _ in range(MAX_REDIRECTS + 1):
+        response = await client.get(current)
+        if response.status_code not in {301, 302, 303, 307, 308}:
+            return response, origin[1]
+        location = response.headers.get("location")
+        if not location:
+            return response, origin[1]
+        target = httpx.URL(current).join(location)
+        target_origin = (target.scheme, target.netloc.lower())
+        if target_origin != origin:
+            raise SourceError("source redirected to a different origin")
+        current = str(target)
+    raise SourceError("source redirected too many times")
+
+
 async def _read_bounded(response: httpx.Response, max_bytes: int) -> bytes:
     declared = response.headers.get("content-length")
     if declared is not None and (not declared.isdecimal() or int(declared) > max_bytes):
@@ -47,14 +78,17 @@ async def _get_bytes(
     accept: str,
 ) -> bytes:
     last_error: Exception | None = None
+    # Redirects are followed only when the target stays on the same host and
+    # scheme. Blindly following a 302 from a compromised source is a textbook
+    # SSRF: the next hop could be 169.254.169.254 or an internal address.
     async with httpx.AsyncClient(
         timeout=httpx.Timeout(timeout),
-        follow_redirects=True,
+        follow_redirects=False,
         headers={"User-Agent": USER_AGENT, "Accept": accept},
     ) as client:
         for attempt in range(max(1, attempts)):
             try:
-                response = await client.get(url)
+                response, original_host = await _get_same_origin(client, url)
                 if response.status_code == 429:
                     raise SourceRateLimitedError("source rate limit exceeded")
                 response.raise_for_status()

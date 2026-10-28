@@ -58,6 +58,14 @@ async def status(request):
                 "max_radius_m": settings.max_radius_m,
                 "max_body_bytes": settings.client_max_body_bytes,
             },
+            # Configuration summary, not raw endpoints: /status is reachable
+            # without a key when auth is off, so it must not hand out the exact
+            # upstream URLs a scraper could use.
+            "configuration": {
+                "auth": "enabled" if settings.mcp_api_keys else "disabled",
+                "quota_enforced": bool(settings.mcp_api_keys and settings.api_key_daily_quota),
+                "cors_origins": len(settings.mcp_cors_allowed_origins),
+            },
             "rate_limit": request.app.state.rate_limiter.snapshot(),
             "concurrency": request.app.state.concurrency_limiter.snapshot(),
             "readiness": evaluate(settings, len(tools)).as_dict(),

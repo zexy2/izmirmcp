@@ -15,6 +15,10 @@ from starlette.types import ASGIApp, Message, Receive, Scope, Send
 
 MCP_PATHS = {"/mcp", "/mcp/"}
 MAX_ID_LENGTH = 128
+# Python's json reader is recursive; a hostile body like "[[[[...]]]]" raises
+# RecursionError, which surfaced as an HTTP 500. The depth is measured before
+# parsing so the failure is a clean -32700 instead of a server error.
+MAX_JSON_DEPTH = 32
 PARSE_ERROR = -32700
 INVALID_REQUEST = -32600
 
@@ -58,6 +62,35 @@ def validate_message(payload: object) -> tuple[bool, str | None, object]:
     return True, None, request_id
 
 
+def _exceeds_depth(body: bytes, limit: int) -> bool:
+    """Cheaply reject a body whose nesting exceeds ``limit``.
+
+    Counts only structural brackets outside strings, which is enough to stop the
+    recursive parser from blowing the stack; it is not a validator.
+    """
+    depth = 0
+    in_string = False
+    escaped = False
+    for byte in body:
+        if in_string:
+            if escaped:
+                escaped = False
+            elif byte == 0x5C:  # backslash
+                escaped = True
+            elif byte == 0x22:  # quote
+                in_string = False
+            continue
+        if byte == 0x22:
+            in_string = True
+        elif byte in (0x5B, 0x7B):  # [ {
+            depth += 1
+            if depth > limit:
+                return True
+        elif byte in (0x5D, 0x7D):  # ] }
+            depth -= 1
+    return False
+
+
 class McpJsonRpcGuard:
     """ASGI middleware that validates the JSON envelope of MCP requests.
 
@@ -83,9 +116,16 @@ class McpJsonRpcGuard:
             await self._send(scope, receive, send, _error(INVALID_REQUEST, "Request body is required."), 400)
             return
 
+        if _exceeds_depth(body, MAX_JSON_DEPTH):
+            await self._send(
+                scope, receive, send,
+                _error(PARSE_ERROR, f"JSON nesting exceeds {MAX_JSON_DEPTH} levels."),
+                400,
+            )
+            return
         try:
             payload = json.loads(body)
-        except (json.JSONDecodeError, UnicodeDecodeError):
+        except (json.JSONDecodeError, UnicodeDecodeError, RecursionError):
             await self._send(scope, receive, send, _error(PARSE_ERROR, "Invalid JSON."), 400)
             return
 
