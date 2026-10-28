@@ -69,11 +69,27 @@ class Source(BaseModel):
         return public_page_url(url)
 
 
+class Repair(BaseModel):
+    """Structured guidance for fixing a rejected call.
+
+    ``next_step`` is for humans; ``tool``/``arguments`` let an agent retry
+    mechanically instead of guessing. Only ever built from our own knowledge of
+    the schema — never echoed from source text.
+    """
+
+    next_step: str
+    tool: str | None = None
+    arguments: dict[str, Any] | None = None
+    constraint: str | None = None
+
+
 class ErrorInfo(BaseModel):
     code: str
     temporary: bool = False
+    retry_after_ms: int | None = Field(default=None, ge=0)
     field: str | None = None
     next_step: str | None = None
+    repair: Repair | None = None
 
 
 class ResultInfo(BaseModel):
@@ -150,6 +166,8 @@ def error_envelope(
     temporary: bool | None = None,
     field: str | None = None,
     next_step: str | None = None,
+    repair: Repair | dict[str, Any] | None = None,
+    retry_after_ms: int | None = None,
 ) -> dict[str, Any]:
     code = code or "request_failed"
     if temporary is None:
@@ -170,7 +188,14 @@ def error_envelope(
         sources=sources or [],
         limits=limits or [],
         warnings=[warning],
-        error=ErrorInfo(code=code, temporary=temporary, field=field, next_step=next_step),
+        error=ErrorInfo(
+            code=code,
+            temporary=temporary,
+            field=field,
+            next_step=next_step,
+            repair=repair,
+            retry_after_ms=retry_after_ms,
+        ),
         result_info=result_info(returned=len(data or []), scope="error_details"),
     )
     return envelope.model_dump(mode="json")

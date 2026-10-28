@@ -124,3 +124,55 @@ logların çağıran içeriğini veya kimlik bilgisini sızdırmasını engeller
   reverse proxy localhost üzerinden bağlanmalıdır.
 - Hız/eşzamanlılık sayaçları uçucudur; yeniden başlatmada sıfırlanır. Kalıcı
   metrik backendi yoktur.
+
+
+## Araç telemetrisi
+
+`/status` içinde `tools_telemetry` alanı araç başına şunları yayımlar:
+
+```json
+{"izmir_nearby": {"calls": 12, "errors": 1,
+  "error_codes": {"validation_error": 1},
+  "truncated": 0, "stale": 0,
+  "mean_ms": 18.4, "p50_ms": 12.0, "p95_ms": 61.2, "max_ms": 88.0}}
+```
+
+Kurallar:
+
+- **Girdi ve yanıt metni asla saklanmaz.** Yalnızca sayı, kod ve süre.
+- Gecikme örnekleri araç başına **256** ile sınırlıdır; sayaçlar sınırsız artar.
+- Kayıtlar hatalı çağrılarda da oluşur (blok istisna atsa bile).
+- Süreç içidir: yeniden başlatmada sıfırlanır.
+- En fazla 64 araç izlenir; aşılırsa en az çağrılan düşürülür.
+
+`p95`, son 256 örneğe dayanır; düşük trafikte tek örnekle aynı olabilir.
+
+## Readiness ayrıntısı
+
+`/readyz` üç yerel kontrol yapar ve **detay metnini gizler** (uç kimlik
+doğrulaması istemez):
+
+| Kontrol | Anlam | `ready`'yi etkiler |
+|---|---|---|
+| `tool_surface` | Araç yüzeyi boş değil | ✅ |
+| `timetable_store` | GTFS deposu okunabilir | `broken` ise ❌; `absent` normaldir |
+| `database_directory` | SQLite dizini yazılabilir | ✅ |
+
+`timetable_store=absent` **hazır sayılır**: depo ilk kalkış sorgusunda kurulur.
+`broken` (bozuk dosya) hazır değildir, çünkü tembel kurulum bunu düzeltmez.
+
+`/status` aynı bilgiyi `detail` ile ve yollar olmadan verir (kimlik doğrulaması
+gerektirir).
+
+## JSON-RPC kapısı
+
+Bozuk zarf SDK'ya ulaşmadan reddedilir:
+
+| Durum | Kod | HTTP |
+|---|---|---|
+| Ayrıştırılamayan gövde | `-32700` | 400 |
+| `jsonrpc` ≠ `"2.0"` | `-32600` | 400 |
+| `method` yok/geçersiz | `-32600` | 400 |
+| Boş batch | `-32600` | 400 |
+
+Yanıt her zaman `Cache-Control: no-store`.

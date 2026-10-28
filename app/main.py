@@ -11,7 +11,10 @@ from app.core.abuse_guard import McpAbuseGuardMiddleware
 from app.core.api_auth import ApiKeyAuthMiddleware, validate_api_keys
 from app.core.cors import McpCorsMiddleware, validate_cors_origins
 from app.core.http_logging import AccessLogMiddleware
+from app.core.mcp_transport import McpJsonRpcGuard
 from app.core.rate_limit import ClientRateLimiter, ConcurrencyLimiter
+from app.core.status import evaluate, public_readiness
+from app.core.tool_telemetry import tool_telemetry
 from app.core.settings import Settings, get_settings
 from app.mcp.registry import create_mcp_server
 
@@ -21,30 +24,23 @@ async def healthz(_request):
 
 
 async def readyz(request):
-    """Local readiness only: the tool surface built and the process is serving.
+    """Local readiness: usable surface plus a usable local datastore.
 
-    Upstream source health is deliberately not probed here; a readiness check
-    must not fan out to third-party APIs on every probe.
+    Upstream source health is deliberately not probed: a readiness probe must
+    not fan out to third-party APIs, and their outage must not restart us. The
+    detail text is omitted here because this endpoint stays unauthenticated.
     """
+    settings = request.app.state.settings
     try:
         tools = await request.app.state.mcp_server.list_tools()
-        tool_check = "ok" if tools else "empty"
-    except Exception as exc:  # noqa: BLE001 - readiness must never raise
-        tools = []
-        tool_check = f"error:{type(exc).__name__}"
-    ready = bool(tools)
+        tool_count = len(tools)
+    except Exception:  # noqa: BLE001 - readiness must never raise
+        tool_count = 0
+    readiness = evaluate(settings, tool_count)
+    payload = public_readiness(readiness)
     return JSONResponse(
-        {
-            "ok": ready,
-            "service": "izmir-mcp",
-            "ready": ready,
-            "upstream_health": "not_checked",
-            "checks": {
-                "tool_surface": tool_check,
-                "tool_count": len(tools),
-            },
-        },
-        status_code=200 if ready else 503,
+        {"ok": readiness.ready, "service": "izmir-mcp", **payload},
+        status_code=200 if readiness.ready else 503,
     )
 
 
@@ -64,6 +60,8 @@ async def status(request):
             },
             "rate_limit": request.app.state.rate_limiter.snapshot(),
             "concurrency": request.app.state.concurrency_limiter.snapshot(),
+            "readiness": evaluate(settings, len(tools)).as_dict(),
+            "tools_telemetry": tool_telemetry().snapshot(),
             "auth": "enabled" if settings.mcp_api_keys else "disabled",
             "quota": {
                 "daily_per_key": settings.api_key_daily_quota,
@@ -120,6 +118,9 @@ def create_app(settings: Settings | None = None) -> Starlette:
 
     # Innermost first: guard before any MCP work, then auth, then origin policy,
     # with access logging and CORS headers on the outermost response path.
+    # Innermost: a malformed JSON-RPC envelope is answered with -32600/-32700
+    # instead of reaching the SDK's generic failure path.
+    app.add_middleware(McpJsonRpcGuard)
     app.add_middleware(
         McpAbuseGuardMiddleware,
         max_body_bytes=settings.client_max_body_bytes,

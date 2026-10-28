@@ -28,19 +28,17 @@ GTFS_MEMBERS = {
     "calendar.txt": 64 * 1024,
 }
 
-_rate_lock = asyncio.Lock()
-_last_request_at = 0.0
+async def _throttle() -> None:
+    """Acquire an İZTEK token from the shared per-source budget.
 
+    The endpoint answered HTTP 429 under a burst, so every caller of this
+    connector shares one bucket. A too-long wait surfaces as
+    ``SourceRateLimitExceeded`` and the service maps it to
+    ``source_rate_limited``.
+    """
+    from app.core.source_limits import source_limiters
 
-async def _throttle(min_interval: float) -> None:
-    """Serialise İZTEK calls; the endpoint returned HTTP 429 under bursts."""
-    global _last_request_at
-    async with _rate_lock:
-        loop = asyncio.get_running_loop()
-        wait = min_interval - (loop.time() - _last_request_at)
-        if wait > 0:
-            await asyncio.sleep(wait)
-        _last_request_at = loop.time()
+    await source_limiters().acquire("iztek")
 
 
 def parse_gtfs_date(value: str | None) -> str | None:
@@ -192,7 +190,7 @@ class EshotConnector:
         key = f"iztek.arrivals.{stop_id}"
 
         async def loader() -> list[dict[str, Any]]:
-            await _throttle(self.settings.iztek_min_request_interval_seconds)
+            await _throttle()
             payload = await get_json(
                 f"{self.iztek_base_url}/duragayaklasanotobusler/{stop_id}",
                 timeout=self.settings.request_timeout_seconds,

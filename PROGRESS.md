@@ -22,6 +22,27 @@ Bu dosya döngünün hafızasıdır. Her pass sonunda güncellenir.
 | P5 mahalle envanteri | 24 → 1.219 mahalle referansı (muhtarlıklar), `place_district` ile belirsizlik çözümü | bu pass |
 | P4 sözleşme + güvenlik | zarf conformance (17 araç), keşif yüzeyi şeması, auth/origin/gövde/XFF testleri; 3 serviste sızan kaynak hatası ve XFF liste atlatması düzeltildi; tüm servislerde 429→`source_rate_limited` | bu pass |
 
+## P12 — Core parity (telemetri, readiness, JSON-RPC, repair, kaynak limitleri) ✅ TAMAMLANDI
+
+Upstream'de olup bizde olmayan beş core modülü tamamlandı.
+
+- **`core/tool_telemetry.py`** — araç başına çağrı/hata/kod/p50/p95, 256 örnek
+  sınırı, en fazla 64 araç. Girdi ve yanıt metni asla saklanmaz. `structured.py`
+  sarmalayıcısına bağlandı; `/status` içinde `tools_telemetry`.
+- **`core/status.py`** — gerçek readiness: `tool_surface`, `timetable_store`,
+  `database_directory`. `absent` normaldir, `broken` değildir. `/readyz` detay
+  sızdırmaz (kimlik istemez), `/status` detaylı verir.
+- **`core/mcp_transport.py`** — JSON-RPC ön kapısı: `-32700`/`-32600`, batch ve
+  bildirim desteği, SDK'ya ulaşmadan red.
+- **`core/error_responses.py` + `Repair`** — `validation_error` artık
+  `error.repair` (next_step, tool, constraint) taşıyor; alan başına 20 ipucu.
+- **`core/source_limits.py`** — kaynak başına token bucket; İZTEK'in elle
+  yazılmış throttle'ı bu sisteme taşındı. `SourceRateLimitExceeded` →
+  `source_rate_limited`.
+- **`docs/browser-cors.md`** eklendi (doküman 13), `monitoring.md` genişletildi.
+
+437 test (47 yeni), CI'da act ile doğrulanacak.
+
 ## P11 — Altyapı parity (storage + conformance + doküman) ✅ TAMAMLANDI
 
 - **`app/storage/db.py`** — paylaşılan SQLite bootstrap: WAL, `user_version`,

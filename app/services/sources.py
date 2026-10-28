@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from app.connectors.http import SourceError, SourceRateLimitedError, SourceTimeoutError
+from app.core.rate_limit import SourceRateLimitExceeded
 from app.core.envelope import Source
 
 PARKING = Source(
@@ -163,7 +164,7 @@ def source_failure_envelope(
 
     if isinstance(exc, httpx.TimeoutException):
         code = "source_timeout"
-    elif isinstance(exc, SourceRateLimitedError):
+    elif isinstance(exc, (SourceRateLimitedError, SourceRateLimitExceeded)):
         code = "source_rate_limited"
     elif isinstance(exc, SourceTimeoutError):
         code = "source_timeout"

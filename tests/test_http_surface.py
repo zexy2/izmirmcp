@@ -197,3 +197,44 @@ async def test_structured_json_log_line_is_emitted(caplog):
     assert payload["path"] == "/healthz"
     assert payload["status"] == 200
     assert "duration_ms" in payload
+
+
+@pytest.mark.asyncio
+async def test_readyz_reports_local_checks_and_hides_details(tmp_path):
+    settings = _settings(database_path=str(tmp_path / "db.sqlite3"))
+    async with _running_app(settings) as app, _client(app) as client:
+        response = await client.get("/readyz")
+    payload = response.json()
+    assert response.status_code == 200
+    assert payload["ready"] is True
+    assert payload["checks"]["timetable_store"] == "absent"
+    assert payload["checks"]["tool_surface"] == "ok"
+    assert str(tmp_path) not in str(payload)
+
+
+@pytest.mark.asyncio
+async def test_readyz_is_503_when_the_store_is_corrupt(tmp_path):
+    (tmp_path / "db.sqlite3").write_bytes(b"garbage")
+    settings = _settings(database_path=str(tmp_path / "db.sqlite3"))
+    async with _running_app(settings) as app, _client(app) as client:
+        response = await client.get("/readyz")
+    assert response.status_code == 503
+    assert response.json()["ready"] is False
+
+
+@pytest.mark.asyncio
+async def test_status_exposes_tool_telemetry_after_a_call():
+    from app.core.tool_telemetry import reset_tool_telemetry
+
+    reset_tool_telemetry()
+    async with _running_app(_settings()) as app, _client(app) as client:
+        await client.post(
+            "/mcp/",
+            json={"jsonrpc": "2.0", "id": 1, "method": "tools/call",
+                  "params": {"name": "izmir_health", "arguments": {}}},
+            headers={"accept": "application/json, text/event-stream"},
+        )
+        response = await client.get("/status")
+    payload = response.json()
+    assert "tools_telemetry" in payload
+    assert payload["tools_telemetry"]["izmir_health"]["calls"] >= 1

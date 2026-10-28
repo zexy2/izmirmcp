@@ -9,6 +9,7 @@ from zoneinfo import ZoneInfo
 
 from app.connectors.eshot import EshotConnector
 from app.connectors.http import SourceRateLimitedError, SourceTimeoutError
+from app.core.rate_limit import SourceRateLimitExceeded
 from app.core.envelope import (
     Freshness,
     Source,
@@ -745,7 +746,7 @@ def _suggest(rows: list[dict[str, Any]], stop_id: str) -> list[str]:
 
 
 def _source_error(summary: str, exc: Exception, used: list[Source]) -> dict[str, Any]:
-    if isinstance(exc, SourceRateLimitedError):
+    if isinstance(exc, (SourceRateLimitedError, SourceRateLimitExceeded)):
         code = "source_rate_limited"
     elif isinstance(exc, SourceTimeoutError):
         code = "source_timeout"

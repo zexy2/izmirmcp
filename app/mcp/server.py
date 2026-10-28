@@ -34,13 +34,11 @@ TransitMode = Literal["metro", "izban", "izdeniz"]
 DisruptionOperator = Literal["eshot", "metro", "izdeniz", "izban"]
 
 
-def _validation(exc: InputValidationError) -> dict:
-    return error_envelope(
-        summary="Invalid request input.",
-        warning=str(exc),
-        code="validation_error",
-        field=exc.field,
-    )
+def _validation(exc: InputValidationError, *, tool: str | None = None) -> dict:
+    """Reject an input with a typed envelope plus a structured repair hint."""
+    from app.core.error_responses import validation_error_envelope
+
+    return validation_error_envelope(exc, tool=tool)
 
 
 async def izmir_health() -> dict:
@@ -193,7 +191,7 @@ async def izmir_nearby(
         else:
             safe_radius = validate_radius(radius_m, settings.max_radius_m)
     except InputValidationError as exc:
-        return _validation(exc)
+        return _validation(exc, tool="izmir_nearby")
     envelope = await NearbyService(settings=settings).nearby(
         lat=lat,
         lon=lon,
@@ -223,7 +221,7 @@ async def izmir_water_status(
     try:
         return await WaterService(settings=get_settings()).status(kind=kind, limit=limit)
     except InputValidationError as exc:
-        return _validation(exc)
+        return _validation(exc, tool="izmir_water_status")
 
 
 async def izmir_air_quality(
@@ -239,7 +237,7 @@ async def izmir_air_quality(
     try:
         day = validate_date(date)
     except InputValidationError as exc:
-        return _validation(exc)
+        return _validation(exc, tool="izmir_air_quality")
     return await AirQualityService(settings=get_settings()).readings(
         day=day, station=station, limit=limit
     )
@@ -253,7 +251,7 @@ async def izmir_transit_stations(
     try:
         return await TransitService(settings=get_settings()).stations(mode=mode, limit=limit)
     except InputValidationError as exc:
-        return _validation(exc)
+        return _validation(exc, tool="izmir_transit_stations")
 
 
 async def izmir_transit_schedule(
@@ -274,7 +272,7 @@ async def izmir_transit_schedule(
             mode=mode, from_id=from_id, to_id=to_id, pier_id=pier_id, day=day
         )
     except InputValidationError as exc:
-        return _validation(exc)
+        return _validation(exc, tool="izmir_transit_schedule")
 
 
 async def izmir_neighborhood_profile(
@@ -295,7 +293,7 @@ async def izmir_neighborhood_profile(
             neighborhood=neighborhood, district=district, limit=limit
         )
     except InputValidationError as exc:
-        return _validation(exc)
+        return _validation(exc, tool="izmir_neighborhood_profile")
 
 
 async def izmir_gtfs_status() -> dict:
@@ -327,7 +325,7 @@ async def izmir_bus_stops(
             query=query, lat=lat, lon=lon, radius_m=radius_m, limit=limit
         )
     except InputValidationError as exc:
-        return _validation(exc)
+        return _validation(exc, tool="izmir_bus_stops")
 
 
 async def izmir_bus_arrivals(stop_id: str, limit: int | None = None) -> dict:
@@ -342,7 +340,7 @@ async def izmir_bus_arrivals(stop_id: str, limit: int | None = None) -> dict:
             stop_id=str(stop_id or "").strip(), limit=limit
         )
     except InputValidationError as exc:
-        return _validation(exc)
+        return _validation(exc, tool="izmir_bus_arrivals")
 
 
 async def izmir_bus_departures(
@@ -364,7 +362,7 @@ async def izmir_bus_departures(
             stop_id=str(stop_id or "").strip(), at=at, line=line, limit=limit
         )
     except InputValidationError as exc:
-        return _validation(exc)
+        return _validation(exc, tool="izmir_bus_departures")
 
 
 async def izmir_bus_routes(
@@ -389,7 +387,7 @@ async def izmir_bus_routes(
             query=query, detail=detail, direction=direction, limit=limit
         )
     except InputValidationError as exc:
-        return _validation(exc)
+        return _validation(exc, tool="izmir_bus_routes")
 
 
 CityServiceKind = Literal["wifi", "izmirim_card", "library"]
@@ -441,7 +439,7 @@ async def izmir_market_schedule(
             day=day, district=district, lat=lat, lon=lon, radius_m=radius_m, limit=safe_limit
         )
     except InputValidationError as exc:
-        return _validation(exc)
+        return _validation(exc, tool="izmir_market_schedule")
 
 
 async def izmir_transport_disruptions(
@@ -468,7 +466,7 @@ async def izmir_transport_disruptions(
             operator=operator, line=line, active_only=bool(active_only), limit=safe_limit
         )
     except InputValidationError as exc:
-        return _validation(exc)
+        return _validation(exc, tool="izmir_transport_disruptions")
 
 
 async def izmir_city_services_nearby(
@@ -536,7 +534,7 @@ async def izmir_city_services_nearby(
         else:
             safe_radius = validate_radius(radius_m, settings.max_radius_m)
     except InputValidationError as exc:
-        return _validation(exc)
+        return _validation(exc, tool="izmir_city_services_nearby")
     envelope = await CityServicesService(settings=settings).nearby(
         kinds=selected,
         lat=resolved_lat,

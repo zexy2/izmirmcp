@@ -93,6 +93,7 @@ karşı kilitlenir:
 - [GTFS tarifesi](docs/gtfs-schedule.md) — yerel depo ve takvim gerçeği.
 - [Kaynak erişilebilirliği](docs/source-reachability-analysis.md) — çalışan/kapalı uçlar ve kanıt.
 - [API erişimi](docs/api-access.md) — anahtar üretimi, kota, rotasyon.
+- [Tarayıcı ve CORS](docs/browser-cors.md) — origin izin listesi, preflight.
 
 ## Kurulum
 
