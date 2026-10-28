@@ -22,6 +22,22 @@ Bu dosya döngünün hafızasıdır. Her pass sonunda güncellenir.
 | P5 mahalle envanteri | 24 → 1.219 mahalle referansı (muhtarlıklar), `place_district` ile belirsizlik çözümü | bu pass |
 | P4 sözleşme + güvenlik | zarf conformance (17 araç), keşif yüzeyi şeması, auth/origin/gövde/XFF testleri; 3 serviste sızan kaynak hatası ve XFF liste atlatması düzeltildi; tüm servislerde 429→`source_rate_limited` | bu pass |
 
+## P10 — Protokol smoke ve doküman seti ✅ TAMAMLANDI
+
+- `scripts/smoke_mcp.py`: gerçek sunucuyu başlatıp MCP tel protokolünü sınar;
+  **üçüncü taraf API'ye çıkmaz**, bu yüzden CI'da bloklar. 32 kontrol: el
+  sıkışma, yüzey, kaynak okuma, zarf, şema reddi, yerel doğrulama, auth,
+  origin, stdio.
+  `smoke_live.py` servis katmanını canlı kaynaklara karşı sınar ve bloklamaz —
+  iki script farklı iş yapar.
+- Doküman seti 5 → **10**: `mcp-interface.md`, `privacy.md`, `registry.md`,
+  `place-resolution.md`, `gtfs-schedule.md` eklendi. Hepsi `tests/test_docs.py`
+  ile koda karşı kilitli.
+- CI'ya çevrimdışı protokol smoke'u eklendi (bloklayan adım).
+
+**Yan bulgu:** README ve `deployment.md` hâlâ "17 araç" diyordu; 19'a göre
+düzeltildi. Doküman drift'i gerçekti.
+
 ## Sırada (öncelik sırasıyla)
 
 ### P1 — Çok operatörlü ulaşım aksaklıkları ✅ TAMAMLANDI
@@ -51,7 +67,7 @@ archive: app/data/neighborhoods.json` ile ölüyordu — yani `pip install .`
 ve `tests/test_packaging.py::test_wheel_can_actually_be_built` bu sınıf hatayı
 statik olarak kilitliyor.
 
-### P3 — Dokümantasyon seti (`docs/`) ✅ TAMAMLANDI
+### P3 — Dokümantasyon seti (`docs/`) ✅ TAMAMLANDI (P10'da 10'a çıkarıldı)
 - `response-contract.md` — zarf alanları, hata taksonomisi, `result_info` scope'ları.
 - `tool-reference.md` — 17 aracın girdi şeması (canlı `input_schema`'dan) ve
   davranış sözleşmesi.

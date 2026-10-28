@@ -184,6 +184,6 @@ Başarı `0`, herhangi bir hata `2` döner; geçersiz arşivde hiçbir şey yaz�
 
 ## CI
 
-`.github/workflows/ci.yml`: `pytest`, import + 17 araç yüzeyi kontrolü, canlı
-smoke (bloklamaz), sunucuyu başlatıp `/healthz`+`/readyz`+`/status` probe'u, ve
+`.github/workflows/ci.yml`: `pytest`, import + 19 araç yüzeyi kontrolü, çevrimdışı
+protokol smoke'u (`scripts/smoke_mcp.py`), canlı smoke (bloklamaz), sunucuyu başlatıp `/healthz`+`/readyz`+`/status` probe'u, ve
 imaj derleyip konteynerde `/healthz` doğrulaması (`IZMIR_MCP_SKIP_GTFS_BUILD=1`).

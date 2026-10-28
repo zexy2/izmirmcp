@@ -34,9 +34,14 @@ jobs:
       - name: Unit tests (offline)
         run: python -m pytest -q
 
+      - name: Protocol smoke (offline)
+        # Starts a real local server and drives the MCP wire protocol. No
+        # third-party API is contacted, so this check is blocking.
+        run: python scripts/smoke_mcp.py --verbose
+
       - name: Live source smoke
         # Third-party city APIs are outside our control; a red smoke is reported
-        # but does not block merges, while unit tests do.
+        # but does not block merges, while unit and protocol tests do.
         continue-on-error: true
         run: python scripts/smoke_live.py
 

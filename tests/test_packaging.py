@@ -180,3 +180,19 @@ def test_wheel_can_actually_be_built():
             f"force-include '{source}' duplicates a path inside packages {packages}; "
             "hatchling fails with 'A second file is being added to the wheel archive'"
         )
+
+
+def test_protocol_smoke_script_exists_and_is_wired_into_ci():
+    """`smoke_mcp.py` proves the wire protocol without live city sources.
+
+    `smoke_live.py` exercises the service layer against third-party APIs, so it
+    cannot run offline or block a merge. The protocol smoke starts a real local
+    server and checks handshake, surface, envelope and guards.
+    """
+    script = ROOT / "scripts" / "smoke_mcp.py"
+    assert script.is_file()
+    text = script.read_text(encoding="utf-8")
+    assert "initialize" in text and "tools/list" in text
+    assert "izmir://coverage" in text
+    ci = CI_WORKFLOW.read_text(encoding="utf-8")
+    assert "scripts/smoke_mcp.py" in ci, "CI must run the offline protocol smoke"

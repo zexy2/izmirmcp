@@ -26,7 +26,11 @@ SOURCES_DOC = DOCS / "sources.md"
 MONITORING = DOCS / "monitoring.md"
 README = ROOT / "README.md"
 
-ALL_DOCS = (CONTRACT, TOOL_REF, DEPLOYMENT, SOURCES_DOC, MONITORING)
+ALL_DOCS = (
+    CONTRACT, TOOL_REF, DEPLOYMENT, SOURCES_DOC, MONITORING,
+    DOCS / "mcp-interface.md", DOCS / "privacy.md", DOCS / "registry.md",
+    DOCS / "place-resolution.md", DOCS / "gtfs-schedule.md",
+)
 
 
 def _text(path: Path) -> str:

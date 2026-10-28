@@ -82,10 +82,15 @@ karşı kilitlenir:
 
 - [Yanıt sözleşmesi](docs/response-contract.md) — zarf alanları, hata
   taksonomisi, `result_info`.
-- [Araç referansı](docs/tool-reference.md) — 17 aracın girdi/çıktı sözleşmesi.
+- [Araç referansı](docs/tool-reference.md) — 19 aracın girdi/çıktı sözleşmesi.
+- [MCP arayüzü](docs/mcp-interface.md) — taşımalar, yüzey, hata semantiği.
 - [Dağıtım](docs/deployment.md) — ortam değişkenleri, auth, CORS, Docker.
 - [Kaynaklar](docs/sources.md) — kaynak envanteri, durum ve lisans.
 - [İzleme](docs/monitoring.md) — `/healthz`, `/readyz`, `/status`, log formatı.
+- [Gizlilik](docs/privacy.md) — ne loglanır, ne loglanmaz, istemci kimliği.
+- [Registry](docs/registry.md) — `server.json` ve sürüm yayın adımları.
+- [Yer çözümleme](docs/place-resolution.md) — mahalle/ilçe kuralları.
+- [GTFS tarifesi](docs/gtfs-schedule.md) — yerel depo ve takvim gerçeği.
 
 ## Kurulum
 
