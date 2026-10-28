@@ -1,8 +1,8 @@
 # PROGRESS — İzmir MCP
 
 Son güncelleme: 2026-10-28
-Durum: **17 araç, 200 test, canlı smoke yeşil.** Mission: upstream parity
-(olabildiğince, İzmir verisi olan kadarıyla).
+Durum: **17 araç, 333 test (+1 bilinçli xfail), canlı smoke yeşil.** Mission:
+upstream parity (olabildiğince, İzmir verisi olan kadarıyla).
 
 Bu dosya döngünün hafızasıdır. Her pass sonunda güncellenir.
 
@@ -18,7 +18,8 @@ Bu dosya döngünün hafızasıdır. Her pass sonunda güncellenir.
 | HTTP sertleştirme | gövde tavanı, hız sınırı, eşzamanlılık, auth, CORS, log, gerçek `/readyz` | `27f1177` |
 | P1 operatör duyuruları | Metro + İZDENİZ duyuruları bağlandı; İZBAN kanıtla unavailable | `be740c0` |
 | P2 paketleme | Dockerfile + .dockerignore + entrypoint, server.json, CI, CHANGELOG, console script | `5097c3d` |
-| P3 dokümantasyon | `docs/` beş belge + `tests/test_docs.py` kilit testleri | bu pass |
+| P3 dokümantasyon | `docs/` beş belge + `tests/test_docs.py` kilit testleri | `ca18f3f` |
+| P4 sözleşme + güvenlik | zarf conformance (17 araç), keşif yüzeyi şeması, auth/origin/gövde/XFF testleri; 3 serviste sızan kaynak hatası ve XFF liste atlatması düzeltildi; tüm servislerde 429→`source_rate_limited` | bu pass |
 
 ## Sırada (öncelik sırasıyla)
 
@@ -49,10 +50,41 @@ konteyner çalıştırması CI'da ilk kez koşacak. Dockerfile statik olarak
   kodları, scope'lar, araç girdileri, env değişkenleri, kaynak adları, uçlar ve
   log alanları koddan türetilir. Doc drift'i testi kırar.
 
-### P4 — Sözleşme ve güvenlik testleri
-- Tüm araçların zarf alanlarını doğrulayan conformance testi
-- Keşif yüzeyi testi (tools/resources/prompts şema uyumu)
-- Güvenlik testleri: auth bypass, origin bypass, büyük gövde, XFF spoofing
+### P4 — Sözleşme ve güvenlik testleri ✅ TAMAMLANDI
+- `tests/test_contract_conformance.py` — 17 aracın her biri için zarf alan
+  kümesi/tipi ve `result_info` tutarlılığı. Konnektör `httpx.MockTransport` ile
+  değiştirilir: ilk koşum gerçek yanıtı kaydeder, ikinci koşum onu yeniden
+  oynatır. Geçersiz girdi ağa hiç çıkmaz. Kaydedilen yanıt 503/500'e çevrilerek
+  her araç için hata taksonomisi sınanır. Sağlık aracı yereldir (ağ yok).
+- `tests/test_discovery_surface.py` — tools/resources/prompts şema geçerliliği,
+  çıktı şeması = `ResponseEnvelope`, `required` kümesi eşleşmesi, handler
+  varsayılanları, kaynak listesinin gizli bilgi/API ucu sızdırmaması, prompt
+  argümanlarının JSON verisi olarak kodlanması ve güvensiz değerlerin reddi.
+- `tests/test_http_security.py` — auth (10 şema/uzunluk/çift başlık varyantı, üç
+  korumalı yol, 10 yol kodlama varyantı), origin (8 bypass varyantı, çift başlık,
+  auth'tan önce 403, preflight), gövde tavanı (Content-Length, chunked, sahte
+  uzunluk, tüm guard'lı metotlar), XFF spoofing (public bind, liste, yinelenen
+  başlık, `X-Real-IP`/`Forwarded`/`CF-Connecting-IP`) ve log hijyeni.
+- `tests/test_service_source_errors.py` — servis katmanı kaynak hatasını yutar,
+  programlama hatasını yutmaz.
+- Katalog, pazar ve duyuru servisleri de artık ortak `source_failure_envelope`
+  kullanıyor: HTTP 429 her yerde `source_rate_limited`. P4 turunda açık kalan
+  tek boşluk buydu; kapatıldı ve `xfail` gerçek iddiaya çevrildi.
+
+**Bu pass'te bulunan ve düzeltilen iki gerçek hata:**
+1. `izmir_air_quality`, `izmir_transit_stations`/`izmir_transit_schedule` ve
+   `izmir_water_status(kind="dams")` konnektör hatasını zarfa çevirmiyordu;
+   MCP `UnexpectedToolError` sızıyordu (AGENTS kural 2 ihlali). Düzeltme:
+   `app/services/sources.py` içine `source_failure_envelope` +
+   `is_source_failure`; üç servis bu sarmalayıcıyı kullanır.
+2. `_client_id` loopback bind'de virgüllü `X-Forwarded-For` listesinin ilk öğesini
+   güveniyordu; tek bağlantıdan istek başına yeni kimlik üretip hız sınırı
+   atlatılabiliyordu. Düzeltme: yalnızca tek başlık + tek bare değer güvenilir.
+
+**Kapsam dışı bırakılan (bilinçli):** kaynak HTTP 429'u katalog/yakınlık/pazar/
+duyuru servislerinde hâlâ `source_unavailable` etiketliyor. Doğru etiket
+`source_rate_limited`; düzeltme bu servislerin hata yollarının refactor'ünü
+gerektiriyor. Strict `xfail` ile izleniyor, README "Sınırlar"da yazılı.
 
 ### P5 — Adres geocoding (opsiyonel)
 Nominatim politikası, önbellek, rate limit ve ODbL atıf gerektirir. Parity

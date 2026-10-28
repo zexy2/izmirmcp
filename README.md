@@ -122,8 +122,10 @@ Sınırlar ve dürüst notlar:
 - Hız sınırı ve sayaçlar **süreç içi** ve uçucudur. Çok işçili (multi-worker)
   dağıtımda her işçi kendi bütçesini uygular; toplam sınırı için önüne bir
   reverse proxy koyun.
-- `X-Forwarded-For` yalnızca sunucu loopback'e bağlıyken dikkate alınır;
-  aksi halde istemci kimliği doğrudan bağlantı adresidir.
+- `X-Forwarded-For` yalnızca sunucu loopback'e bağlıyken, tek başlık ve tek
+  bare değer taşıdığında dikkate alınır. Virgüllü liste, yinelenen başlık veya
+  boşluk içeren değer güvenilmez; o durumda istemci kimliği soket eşidir. Böylece
+  tek bağlantıdan istek başına sahte kimlik üretip hız sınırı atlatılamaz.
 - Erişim logu yöntem, yol, durum ve süre yazar; sorgu dizesi, gövde, başlık ve
   API anahtarı **hiçbir zaman** loglanmaz.
 - Origin allowlist boşken tarayıcı istekleri reddedilir; CLI/stdio MCP
@@ -193,6 +195,31 @@ Canlı kaynak doğrulaması isteğe bağlıdır:
 ```bash
 .venv/bin/python scripts/smoke_live.py
 ```
+
+Sözleşme ve güvenlik kapsamı (`333 passed, 1 xfailed`):
+
+- `tests/test_contract_conformance.py` — 17 aracın her biri için zarf alan
+  kümesi, tip ve `result_info.returned` tutarlılığı; geçersiz girdinin ağa hiç
+  çıkmadan `validation_error` + `error.field` dönmesi; kaydedilmiş gerçek yanıtın
+  503/500 olarak yeniden oynatılmasıyla tipli kaynak hatası. Konnektör çağrıları
+  yol bazında kaydedilir, ağ yoktur.
+- `tests/test_discovery_surface.py` — tools/resources/prompts şema geçerliliği,
+  çıktı şemasının `ResponseEnvelope` ile eşleşmesi, kaynakların gizli bilgi ve
+  API ucu sızdırmaması, prompt argümanlarının kullanıcı verisi olarak JSON
+  kodlanması ve güvensiz değerlerin reddi.
+- `tests/test_http_security.py` — kimlik doğrulama bypass varyantları (şema,
+  uzunluk, çift başlık, yol kodlaması), origin bypass (şema, port, alt alan adı,
+  çift başlık, `null`, `*`), gövde tavanı (Content-Length, chunked, sahte
+  uzunluk), `X-Forwarded-For` spoofing ve log hijyeni.
+- `tests/test_service_source_errors.py` — servis katmanının konnektör hatasını
+  yutmadan tipli zarfa çevirmesi; programlama hatasının kaynak arızası gibi
+  gösterilmemesi.
+
+Tüm servisler kaynak arızalarını ortak `source_failure_envelope` yardımcısıyla
+tipli zarfa çevirir: HTTP 429 `source_rate_limited`, zaman aşımı
+`source_timeout`, diğerleri `source_unavailable`. Üçü de `temporary: true`
+taşır. Bu, katalog, yakınlık, semt pazarı, şehir hizmetleri ve duyuru
+servislerinde `tests/test_contract_conformance.py` ile kilitlidir.
 
 ## REA ile doğrulama
 
@@ -308,6 +335,12 @@ Ayrıntı ve sınırlar raporda.
   `sosyal_tesis_nearby` aracının birebir karşılığı yoktur.
 - Serbest SQL (`datastore_query`) bilinçli olarak yoktur; yalnızca güvenli
   `filters` ve limit kullanılır.
+- Kaynak hatası etiketleri tek yerden üretilir (`source_failure_envelope`):
+  HTTP 429 `source_rate_limited`, zaman aşımı `source_timeout`, diğer kaynak
+  arızaları `source_unavailable`. Hiçbiri exception olarak sızmaz.
+- Zarf conformance testi kaynak yanıtlarını yeniden oynatır; bu, alan şeklini ve
+  hata taksonomisini doğrular, canlı kaynağın bugün aynı şemayı döndürdüğünü
+  değil. Canlı doğrulama `scripts/smoke_live.py`'nin işidir.
 
 ## Kaynak ve lisans
 

@@ -78,11 +78,10 @@ class MarketService:
         try:
             rows, info = await self.api.market_rows()
         except Exception as exc:
-            return error_envelope(
-                summary="Semt pazarı verisi kullanılamıyor.",
-                warning=f"Kaynak isteği başarısız oldu: {type(exc).__name__}. Veri üretilmedi.",
-                code="source_unavailable",
-                sources=[sources.MARKET],
+            from app.services.sources import source_failure_envelope
+
+            return source_failure_envelope(
+                exc, summary="Semt pazarı verisi kullanılamıyor.", used=[sources.MARKET]
             )
 
         limits = [f"limit={safe_limit}"]

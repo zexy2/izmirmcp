@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from app.connectors.http import SourceError, SourceRateLimitedError, SourceTimeoutError
 from app.core.envelope import Source
 
 PARKING = Source(
@@ -142,3 +143,48 @@ IZBAN_NOTICES = Source(
     url="https://www.izban.com.tr",
     scope="published_operator_notices",
 )
+
+
+def source_failure_envelope(
+    exc: BaseException,
+    *,
+    summary: str,
+    used: list[Source] | None = None,
+    limits: list[str] | None = None,
+) -> dict:
+    """Turn a connector failure into a typed, temporary error envelope.
+
+    Only failures raised by the connector layer are mapped; programming errors
+    keep propagating so they are never disguised as a source outage.
+    """
+    from app.core.envelope import error_envelope
+
+    import httpx
+
+    if isinstance(exc, httpx.TimeoutException):
+        code = "source_timeout"
+    elif isinstance(exc, SourceRateLimitedError):
+        code = "source_rate_limited"
+    elif isinstance(exc, SourceTimeoutError):
+        code = "source_timeout"
+    else:
+        code = "source_unavailable"
+    return error_envelope(
+        summary=summary,
+        warning=(
+            f"Kaynak isteği başarısız oldu: {type(exc).__name__}. "
+            "Veri uydurulmadı; boş yanıt 'hiç veri yok' kanıtı değildir."
+        ),
+        code=code,
+        sources=used or [],
+        limits=limits,
+    )
+
+
+def is_source_failure(exc: BaseException) -> bool:
+    """True for errors raised by ``app.connectors`` for upstream problems."""
+    import httpx
+
+    return isinstance(exc, (SourceError, ValueError, OSError, httpx.HTTPError)) and not isinstance(
+        exc, (UnicodeError, AssertionError)
+    )

@@ -7,6 +7,7 @@ from app.core.envelope import Freshness, error_envelope, success_envelope
 from app.core.settings import Settings
 from app.core.validation import InputValidationError, resolve_limit
 from app.services import sources
+from app.services.sources import is_source_failure, source_failure_envelope
 
 
 class WaterService:
@@ -31,7 +32,17 @@ class WaterService:
             raise InputValidationError("kind must be 'dams' or 'faults'", field="kind")
 
         safe_limit = resolve_limit(limit, self.settings.default_limit, self.settings.max_limit)
-        rows, info = await self.client.dams()
+        try:
+            rows, info = await self.client.dams()
+        except Exception as exc:  # noqa: BLE001 - never leak a source failure
+            if not is_source_failure(exc):
+                raise
+            return source_failure_envelope(
+                exc,
+                summary="İZSU baraj doluluk verisi okunamadı.",
+                used=[sources.WATER],
+                limits=[f"limit={safe_limit}", "source=published İZSU dam CSV"],
+            )
         ranked = sorted(
             (row for row in rows if row.get("occupancy_percent") is not None),
             key=lambda row: row["occupancy_percent"],

@@ -26,6 +26,21 @@ Bu proje [Semantic Versioning](https://semver.org/lang/tr/) izler.
   root olmayan kullanıcı, `/data` hacminde çalışma anında kurulan GTFS deposu.
 - **server.json** MCP registry manifesti (stdio paketi + OCI imaj).
 - GitHub Actions CI: pytest, canlı smoke, import kontrolü ve imaj derleme.
+- **Sözleşme ve güvenlik testleri (P4):** 17 aracın tamamı için zarf
+  conformance testi, keşif yüzeyi (tools/resources/prompts) şema testi ve auth /
+  origin / gövde tavanı / XFF spoofing güvenlik testleri. Testler bir konnektör
+  kaydı — yeniden oynatma koşumu kullanır; ağ yoktur.
+
+### Düzeltildi
+
+- `izmir_air_quality`, `izmir_transit_stations`/`izmir_transit_schedule` ve
+  `izmir_water_status(kind="dams")` kaynak hatasını zarfa çevirmiyordu; MCP
+  `UnexpectedToolError` sızıyordu. Artık `source_unavailable` /
+  `source_rate_limited` / `source_timeout` tipli hataya dönüşür.
+- Hız sınırı istemci kimliği: loopback bind'de `X-Forwarded-For` virgüllü liste
+  taşıdığında ilk öğe güveniliyordu; bu, tek bağlantıdan istek başına yeni
+  kimlik üretip hız sınırını atlatıyordu. Artık yalnızca tek başlık ve tek bare
+  değer güvenilir; liste/boşluk durumunda soket eşi kullanılır.
 
 ### Sınırlar
 

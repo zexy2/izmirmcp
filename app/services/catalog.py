@@ -280,12 +280,10 @@ def _validation_error(exc: InputValidationError) -> dict[str, Any]:
 
 
 def _source_error(summary: str, exc: Exception) -> dict[str, Any]:
-    return error_envelope(
-        summary=summary,
-        warning=f"CKAN source request failed: {type(exc).__name__}",
-        code="source_unavailable",
-        sources=[CKAN_SOURCE],
-    )
+    """Typed source failure: 429 is temporary rate limiting, not an outage."""
+    from app.services.sources import source_failure_envelope
+
+    return source_failure_envelope(exc, summary=summary, used=[CKAN_SOURCE])
 
 
 def _cache_key(prefix: str, payload: dict[str, Any]) -> str:

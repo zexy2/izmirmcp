@@ -5,6 +5,7 @@ from datetime import date
 from typing import Any
 
 from app.connectors.city_layers import BusNoticeConnector
+from app.connectors.http import SourceRateLimitedError
 from app.connectors.operators import OperatorAnnouncementConnector
 from app.core.envelope import Source, error_envelope, result_info, success_envelope
 from app.core.settings import Settings
@@ -129,6 +130,18 @@ class DisruptionService:
                 rows.append(self._normalise(name, item, reference))
 
         if not used:
+            from app.services.sources import source_failure_envelope
+
+            failures = [item for item in outcomes if isinstance(item, BaseException)]
+            if failures and all(
+                isinstance(item, SourceRateLimitedError) for item in failures
+            ):
+                return source_failure_envelope(
+                    failures[0],
+                    summary="Tüm operatör duyuru kaynakları hız sınırına takıldı.",
+                    used=[],
+                    limits=LIMITS,
+                )
             return error_envelope(
                 summary="Seçilen operatörlerin duyuruları okunamadı.",
                 warning="Hiçbir operatör duyuru kaynağı yanıt vermedi.",

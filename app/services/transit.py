@@ -3,10 +3,11 @@ from __future__ import annotations
 from typing import Any
 
 from app.connectors.izmir_api import IzmirOpenApi
-from app.core.envelope import Freshness, success_envelope
+from app.core.envelope import Freshness, Source, success_envelope
 from app.core.settings import Settings
 from app.core.validation import InputValidationError, resolve_limit
 from app.services import sources
+from app.services.sources import is_source_failure, source_failure_envelope
 
 MODES = ("metro", "izban", "izdeniz")
 
@@ -20,12 +21,24 @@ class TransitService:
         if mode not in MODES:
             raise InputValidationError("mode must be metro, izban or izdeniz", field="mode")
         safe_limit = resolve_limit(limit, self.settings.max_limit, self.settings.max_limit)
-        if mode == "metro":
-            rows, info, source = (*await self.api.metro_stations(), sources.METRO)
-        elif mode == "izban":
-            rows, info, source = (*await self.api.izban_stations(), sources.IZBAN)
-        else:
-            rows, info, source = (*await self.api.ferry_piers(), sources.FERRY)
+        sources_by_mode = {"metro": sources.METRO, "izban": sources.IZBAN, "izdeniz": sources.FERRY}
+        try:
+            if mode == "metro":
+                rows, info = await self.api.metro_stations()
+            elif mode == "izban":
+                rows, info = await self.api.izban_stations()
+            else:
+                rows, info = await self.api.ferry_piers()
+        except Exception as exc:  # noqa: BLE001 - never leak a source failure
+            if not is_source_failure(exc):
+                raise
+            return source_failure_envelope(
+                exc,
+                summary=f"{mode} istasyon listesi okunamadı.",
+                used=[sources_by_mode[mode]],
+                limits=[f"mode={mode}"],
+            )
+        source = sources_by_mode[mode]
         data = rows[:safe_limit]
         return success_envelope(
             summary=f"{len(data)} {mode} istasyonu/iskelesi listelendi.",
@@ -61,7 +74,12 @@ class TransitService:
                     "metro schedule is a city-wide frequency table; from_id, to_id and pier_id are not supported",
                     field="from_id",
                 )
-            rows, info = await self.api.metro_schedule()
+            try:
+                rows, info = await self.api.metro_schedule()
+            except Exception as exc:  # noqa: BLE001 - never leak a source failure
+                return self._fetch_failure(
+                    exc, "metro sefer tarifesi okunamadı.", sources.TRANSIT_METRO, [f"mode={mode}"]
+                )
             return self._response(
                 mode=mode,
                 rows=rows,
@@ -76,7 +94,13 @@ class TransitService:
                 raise InputValidationError("izban requires from_id and to_id", field="from_id")
             if pier_id is not None:
                 raise InputValidationError("pier_id is only for izdeniz", field="pier_id")
-            rows, info = await self.api.izban_schedule(from_id, to_id)
+            try:
+                rows, info = await self.api.izban_schedule(from_id, to_id)
+            except Exception as exc:  # noqa: BLE001 - never leak a source failure
+                return self._fetch_failure(
+                    exc, "İZBAN sefer tarifesi okunamadı.", sources.TRANSIT_IZBAN,
+                    [f"from_id={from_id}", f"to_id={to_id}"],
+                )
             return self._response(
                 mode=mode,
                 rows=rows,
@@ -91,7 +115,13 @@ class TransitService:
                 "use either pier_id or from_id/to_id for izdeniz", field="pier_id"
             )
         if pier_id is not None:
-            payload, info = await self.api.izdeniz_pier_schedule(pier_id, day)
+            try:
+                payload, info = await self.api.izdeniz_pier_schedule(pier_id, day)
+            except Exception as exc:  # noqa: BLE001 - never leak a source failure
+                return self._fetch_failure(
+                    exc, "İZDENİZ iskele tarifesi okunamadı.", sources.TRANSIT_FERRY,
+                    [f"pier_id={pier_id}", f"day={day}"],
+                )
             departures = payload.get("departures", [])
             return self._response(
                 mode=mode,
@@ -105,7 +135,13 @@ class TransitService:
             raise InputValidationError(
                 "izdeniz requires pier_id or both from_id and to_id", field="pier_id"
             )
-        rows, info = await self.api.izdeniz_route_schedule(from_id, to_id, day)
+        try:
+            rows, info = await self.api.izdeniz_route_schedule(from_id, to_id, day)
+        except Exception as exc:  # noqa: BLE001 - never leak a source failure
+            return self._fetch_failure(
+                exc, "İZDENİZ hat tarifesi okunamadı.", sources.TRANSIT_FERRY,
+                [f"from_id={from_id}", f"to_id={to_id}", f"day={day}"],
+            )
         return self._response(
             mode=mode,
             rows=rows,
@@ -114,6 +150,13 @@ class TransitService:
             summary=f"{len(rows)} İZDENİZ hattı listelendi ({from_id} → {to_id}, gün {day}).",
             limits=[f"from_id={from_id}", f"to_id={to_id}", f"day={day}"],
         )
+
+    @staticmethod
+    def _fetch_failure(exc: BaseException, summary: str, source: Source, limits: list[str]):
+        """Typed envelope for a connector failure; programming bugs re-raise."""
+        if not is_source_failure(exc):
+            raise exc
+        return source_failure_envelope(exc, summary=summary, used=[source], limits=limits)
 
     def _response(
         self,

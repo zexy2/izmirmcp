@@ -14,7 +14,11 @@ def _client_id(scope: Scope) -> str:
     """Identify a caller without trusting spoofable proxy headers.
 
     ``X-Forwarded-For`` is only honoured when the server is bound to a loopback
-    host, where a local reverse proxy is the expected deployment.
+    host, where a local reverse proxy is the expected deployment, and only when
+    it carries exactly one header with exactly one bare value. A comma list or a
+    duplicated header is ambiguous: trusting its first element would let one
+    caller mint a fresh identity per request and bypass the rate limit, so such
+    headers fall back to the socket peer.
     """
     server = scope.get("server")
     host = server[0] if server else ""
@@ -24,9 +28,11 @@ def _client_id(scope: Scope) -> str:
         if key.lower() == b"x-forwarded-for"
     ]
     if host in {"127.0.0.1", "localhost", "::1"} and len(forwarded) == 1:
-        first = forwarded[0].split(",")[0].strip()
-        if first:
-            return first
+        candidate = forwarded[0].strip()
+        if candidate and "," not in candidate and not any(
+            character.isspace() for character in candidate
+        ):
+            return candidate
     client = scope.get("client")
     return client[0] if client else "unknown"
 

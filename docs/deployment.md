@@ -144,8 +144,14 @@ değil **HTTP kodu** + `{"ok": false, "error_code", "summary"}` döner:
 - Hız sınırı ve sayaçlar **süreç içi ve uçucudur**. Çok işçili dağıtımda her
   işçi kendi bütçesini uygular; toplam sınır için önüne reverse proxy koyun.
 - İstemci kimliği doğrudan bağlantı adresidir. `X-Forwarded-For` **yalnızca**
-  sunucu loopback'e bağlıyken ve tek başlık varsa dikkate alınır; aksi halde
-  yoksayılır (spoofing koruması).
+  sunucu loopback'e bağlıyken, **tek** başlık ve **tek bare değer** (virgül ve
+  boşluk yok) taşıdığında dikkate alınır. Liste, yinelenen başlık veya boş değer
+  güvenilmez; soket eşi kullanılır. Böylece tek bağlantıdan istek başına sahte
+  kimlik üretilerek hız sınırı atlatılamaz (`tests/test_http_security.py`).
+- Güvenlik testleri: `tests/test_http_security.py` kimlik doğrulama bypass
+  varyantlarını (şema, uzunluk, çift başlık, yol kodlaması), origin bypass'ı
+  (şema, port, alt alan adı, çift başlık, `null`, `*`), gövde tavanını
+  (Content-Length, chunked, sahte uzunluk) ve log hijyenini doğrular.
 - Erişim logu yöntem, yol, durum ve süre yazar; sorgu dizesi, gövde, başlık ve
   API anahtarı **hiçbir zaman** loglanmaz. Ayrıntı: [monitoring.md](monitoring.md).
 - Bu katman yetkilendirme sunucusu değildir; statik anahtar karşılaştırması
