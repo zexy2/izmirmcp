@@ -43,7 +43,7 @@ class CatalogService:
                 query=safe_query, rows=safe_limit, formats=safe_formats
             )
         except Exception as exc:
-            return _source_error("İzmir open data catalog search is unavailable.", exc)
+            return _source_error("İzmir açık veri kataloğu araması kullanılamıyor.", exc)
         datasets = result.get("results", [])
         data = sorted(
             [self._dataset_summary(dataset, query=safe_query) for dataset in datasets],
@@ -51,7 +51,7 @@ class CatalogService:
             reverse=True,
         )
         return success_envelope(
-            summary=f"{len(data)} dataset result(s) found for '{safe_query}'.",
+            summary=f"'{safe_query}' için {len(data)} veri seti sonucu bulundu.",
             data=data,
             sources=[CKAN_SOURCE],
             freshness=Freshness(status="fresh", ttl_seconds=self.settings.ckan_catalog_cache_ttl_seconds),
@@ -68,17 +68,17 @@ class CatalogService:
             dataset = await self._cached_package_show(safe_id)
         except CkanNotFoundError:
             return error_envelope(
-                summary=f"Dataset not found: {safe_id}.",
-                warning=f"No dataset matches dataset_id={safe_id}.",
+                summary=f"Veri seti bulunamadı: {safe_id}.",
+                warning=f"dataset_id={safe_id} ile eşleşen veri seti yok.",
                 code="not_found",
                 field="dataset_id",
                 sources=[CKAN_SOURCE],
-                next_step="Search the catalog with izmir_search_datasets and use a returned id.",
+                next_step="Kataloğu izmir_search_datasets ile arayın ve dönen id'yi kullanın.",
             )
         except Exception as exc:
-            return _source_error(f"Dataset metadata is unavailable for {safe_id}.", exc)
+            return _source_error(f"{safe_id} için veri seti üst verisi kullanılamıyor.", exc)
         return success_envelope(
-            summary=f"Dataset '{dataset.get('title') or safe_id}' metadata retrieved.",
+            summary=f"'{dataset.get('title') or safe_id}' veri seti üst verisi alındı.",
             data=[self._dataset_detail(dataset)],
             sources=[CKAN_SOURCE],
             freshness=Freshness(status="fresh", ttl_seconds=self.settings.ckan_catalog_cache_ttl_seconds),
@@ -94,18 +94,18 @@ class CatalogService:
             result = await self._cached_datastore_search(resource_id=safe_id, limit=0)
         except CkanNotFoundError:
             return error_envelope(
-                summary=f"Resource not found: {safe_id}.",
-                warning=f"No DataStore resource matches resource_id={safe_id}.",
+                summary=f"Kaynak bulunamadı: {safe_id}.",
+                warning=f"resource_id={safe_id} ile eşleşen DataStore kaynağı yok.",
                 code="not_found",
                 field="resource_id",
                 sources=[CKAN_SOURCE],
-                next_step="Inspect the dataset resources with izmir_get_dataset first.",
+                next_step="Önce veri setinin kaynaklarını izmir_get_dataset ile inceleyin.",
             )
         except Exception as exc:
-            return _source_error(f"Resource schema is unavailable for {safe_id}.", exc)
+            return _source_error(f"{safe_id} için kaynak şeması kullanılamıyor.", exc)
         fields = result.get("fields", [])
         return success_envelope(
-            summary=f"Resource '{safe_id}' schema has {len(fields)} field(s).",
+            summary=f"'{safe_id}' kaynağının şemasında {len(fields)} alan var.",
             data=[{"resource_id": safe_id, "fields": fields}],
             sources=[CKAN_SOURCE],
             freshness=Freshness(status="fresh", ttl_seconds=self.settings.ckan_resource_cache_ttl_seconds),
@@ -136,26 +136,26 @@ class CatalogService:
                 unknown = sorted(set(safe_filters or {}) - set(known))
                 if known and unknown:
                     return error_envelope(
-                        summary="Unknown filter field(s).",
-                        warning=f"Unknown filter field(s): {', '.join(unknown)}. Valid fields: {', '.join(map(str, known))}",
+                        summary="Bilinmeyen filtre alanı.",
+                        warning=f"Bilinmeyen filtre alanı: {', '.join(unknown)}. Geçerli alanlar: {', '.join(map(str, known))}",
                         code="validation_error",
                         field="filters",
                         sources=[CKAN_SOURCE],
-                        next_step="Inspect the resource schema and use advertised columns.",
+                        next_step="Kaynak şemasını inceleyin ve duyurulan sütunları kullanın.",
                     )
                 if safe_sort and known:
                     column = safe_sort.split(" ", 1)[0]
                     if column not in known:
                         return error_envelope(
-                            summary="Unknown sort column.",
+                            summary="Bilinmeyen sıralama sütunu.",
                             warning=(
-                                f"Unknown sort column '{column}'. Valid fields: "
+                                f"Bilinmeyen sıralama sütunu '{column}'. Geçerli alanlar: "
                                 f"{', '.join(map(str, known))}"
                             ),
                             code="validation_error",
                             field="sort",
                             sources=[CKAN_SOURCE],
-                            next_step="Inspect the resource schema and sort by an advertised column.",
+                            next_step="Kaynak şemasını inceleyin ve duyurulan bir sütuna göre sıralayın.",
                         )
             result = await self._cached_datastore_search(
                 resource_id=safe_id,
@@ -166,17 +166,17 @@ class CatalogService:
             )
         except CkanNotFoundError:
             return error_envelope(
-                summary=f"Resource not found: {safe_id}.",
-                warning=f"No DataStore resource matches resource_id={safe_id}.",
+                summary=f"Kaynak bulunamadı: {safe_id}.",
+                warning=f"resource_id={safe_id} ile eşleşen DataStore kaynağı yok.",
                 code="not_found",
                 field="resource_id",
                 sources=[CKAN_SOURCE],
             )
         except Exception as exc:
-            return _source_error(f"Resource query is unavailable for {safe_id}.", exc)
+            return _source_error(f"{safe_id} için kaynak sorgusu kullanılamıyor.", exc)
         records = result.get("records", [])
         return success_envelope(
-            summary=f"{len(records)} record(s) returned from resource '{safe_id}'.",
+            summary=f"'{safe_id}' kaynağından {len(records)} kayıt döndürüldü.",
             data=records,
             sources=[CKAN_SOURCE],
             freshness=Freshness(status="fresh", ttl_seconds=self.settings.ckan_resource_cache_ttl_seconds),
@@ -309,13 +309,13 @@ class CatalogService:
         if formats is None:
             return None
         if len(formats) > 10:
-            raise InputValidationError("formats must contain <= 10 items", field="formats")
+            raise InputValidationError("formats en fazla 10 öğe içerebilir", field="formats")
         return [validate_identifier(fmt, field="formats", max_length=20).upper() for fmt in formats]
 
 
 def _validation_error(exc: InputValidationError) -> dict[str, Any]:
     return error_envelope(
-        summary="Invalid request input.",
+        summary="Geçersiz istek girdisi.",
         warning=str(exc),
         code="validation_error",
         field=exc.field,

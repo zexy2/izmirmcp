@@ -168,6 +168,8 @@ def source_failure_envelope(
         code = "source_rate_limited"
     elif isinstance(exc, SourceTimeoutError):
         code = "source_timeout"
+    elif getattr(exc, "code", None) == "schema_drift":
+        code = "schema_drift"
     else:
         code = "source_unavailable"
     return error_envelope(
@@ -212,4 +214,56 @@ TAXI_STANDS = Source(
     scope="static_service_locations",
     dataset_id="taksi-durak-bilgileri",
     resource_id="64a72577-5f4c-404c-8842-780d88f351df",
+)
+TRAFFIC = Source(
+    name="İzmir ana arter hız ve süre verileri",
+    publisher="İzmir Büyükşehir Belediyesi",
+    url="https://acikveri.bizizmir.com/dataset/ana-arterler-gunluk-hiz-ve-sure-verileri",
+    scope="historical_segment_speed",
+    dataset_id="ana-arterler-gunluk-hiz-ve-sure-verileri",
+    resource_id="a3bd880f-dfc6-4f65-bbfd-5fcc998268c3",
+)
+CHARGING = Source(
+    name="İzmir engelli şarj istasyonları",
+    publisher="İzmir Büyükşehir Belediyesi",
+    url="https://acikveri.bizizmir.com/dataset/engelli-sarj-istasyonlari-konum-verisi",
+    scope="static_service_locations",
+    dataset_id="engelli-sarj-istasyonlari-konum-verisi",
+    resource_id="028f2692-d930-481f-ab27-17a321bd1283",
+)
+TRANSIT_TRAM = Source(
+    name="İzmir Tramvay hatları, istasyonları ve sefer sıklığı",
+    publisher="İzmir Metro A.Ş.",
+    url="https://openapi.izmir.bel.tr",
+    scope="published_timetable",
+)
+ESHOT_LINE_POSITIONS = Source(
+    name="EShot hat otobüs konumları",
+    publisher="İzmir İnovasyon ve Teknoloji A.Ş. (İZTEK)",
+    url="https://openapi.izmir.bel.tr",
+    scope="live_vehicle_positions",
+)
+CBS_LAYERS = Source(
+    name="İzmir Büyükşehir CBS önemli yer katmanları",
+    publisher="İzmir Büyükşehir Belediyesi",
+    url="https://openapi.izmir.bel.tr",
+    scope="static_service_locations",
+)
+EVENTS = Source(
+    name="İzmir Büyükşehir kültür sanat etkinlikleri",
+    publisher="İzmir Büyükşehir Belediyesi",
+    url="https://kultursanat.izmir.bel.tr",
+    scope="published_events",
+)
+HAL_PRICES = Source(
+    name="İzmir hal fiyatları (sebze-meyve ve balık)",
+    publisher="İzmir Büyükşehir Belediyesi",
+    url="https://acikveri.bizizmir.com/dataset/sebze-ve-meyve-hal-fiyatlari",
+    scope="wholesale_price_bulletin",
+)
+PHARMACY_ALL = Source(
+    name="İzmir eczane listesi",
+    publisher="İzmir Büyükşehir Belediyesi",
+    url="https://acikveri.bizizmir.com/dataset/nobetci-eczaneler-ve-eczane-listesi",
+    scope="static_service_locations",
 )

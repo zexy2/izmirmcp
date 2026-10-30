@@ -1,0 +1,474 @@
+{
+  "description": "20 Turkish İzmir tool-contract scenarios; not an LLM tool-selection benchmark. Service responses are fixtures; service_args/kwargs pin the handler-to-service contract.",
+  "cases": [
+    {
+      "id": "catalog-search",
+      "question": "Kütüphanelerle ilgili hangi açık veri setleri var?",
+      "tool": "izmir_search_datasets",
+      "arguments": {
+        "query": "kütüphane",
+        "limit": 3
+      },
+      "service": "CatalogService",
+      "method": "search_datasets",
+      "service_args": [],
+      "service_kwargs": {
+        "query": "kütüphane",
+        "formats": null,
+        "limit": 3
+      },
+      "record": {
+        "title": "Kütüphaneler",
+        "id": "fixture-dataset"
+      }
+    },
+    {
+      "id": "catalog-detail",
+      "question": "fixture-dataset veri setinin kaynaklarını göster.",
+      "tool": "izmir_get_dataset",
+      "arguments": {
+        "dataset_id": "fixture-dataset"
+      },
+      "service": "CatalogService",
+      "method": "get_dataset",
+      "service_args": [
+        "fixture-dataset"
+      ],
+      "service_kwargs": {},
+      "record": {
+        "id": "fixture-dataset",
+        "resources": []
+      }
+    },
+    {
+      "id": "resource-schema",
+      "question": "fixture-resource hangi kolonları içeriyor?",
+      "tool": "izmir_get_resource_schema",
+      "arguments": {
+        "resource_id": "fixture-resource"
+      },
+      "service": "CatalogService",
+      "method": "get_resource_schema",
+      "service_args": [
+        "fixture-resource"
+      ],
+      "service_kwargs": {},
+      "record": {
+        "id": "ILCE",
+        "type": "text"
+      }
+    },
+    {
+      "id": "resource-query",
+      "question": "Konak ilçesindeki kayıtları listele.",
+      "tool": "izmir_query_resource",
+      "arguments": {
+        "resource_id": "fixture-resource",
+        "filters": {
+          "ILCE": "Konak"
+        },
+        "limit": 5
+      },
+      "service": "CatalogService",
+      "method": "query_resource",
+      "service_args": [],
+      "service_kwargs": {
+        "resource_id": "fixture-resource",
+        "filters": {
+          "ILCE": "Konak"
+        },
+        "search": null,
+        "sort": null,
+        "limit": 5
+      },
+      "record": {
+        "_id": 1,
+        "ILCE": "Konak"
+      }
+    },
+    {
+      "id": "datastore-sql",
+      "question": "Kaynakta ilçe başına kaç kayıt var?",
+      "tool": "izmir_datastore_query",
+      "arguments": {
+        "resource_id": "fixture-resource",
+        "sql": "SELECT ILCE, COUNT(*) AS n FROM records GROUP BY ILCE",
+        "limit": 10
+      },
+      "service": "DatastoreSqlService",
+      "method": "query",
+      "service_args": [],
+      "service_kwargs": {
+        "resource_id": "fixture-resource",
+        "sql": "SELECT ILCE, COUNT(*) AS n FROM records GROUP BY ILCE",
+        "limit": 10
+      },
+      "record": {
+        "ILCE": "Konak",
+        "n": 3
+      }
+    },
+    {
+      "id": "nearby-point",
+      "question": "Alsancak'a yakın hizmetler neler?",
+      "tool": "izmir_nearby",
+      "arguments": {
+        "lat": 38.4381,
+        "lon": 27.1436,
+        "radius_m": 500,
+        "limit": 5
+      },
+      "service": "NearbyService",
+      "method": "nearby",
+      "service_args": [],
+      "service_kwargs": {
+        "lat": 38.4381,
+        "lon": 27.1436,
+        "types": [
+          "parking",
+          "pharmacy",
+          "metro_station",
+          "izban_station",
+          "ferry_pier",
+          "bus_stop",
+          "taxi_stand",
+          "charging_station"
+        ],
+        "radius_m": 500,
+        "limit": 5,
+        "reference_label": null
+      },
+      "record": {
+        "name": "Fixture hizmet",
+        "distance_m": 120
+      }
+    },
+    {
+      "id": "nearby-district",
+      "question": "Bornova'daki eczaneler hangileri?",
+      "tool": "izmir_nearby",
+      "arguments": {
+        "district": "Bornova",
+        "limit": 5
+      },
+      "service": "NearbyService",
+      "method": "district",
+      "service_args": [],
+      "service_kwargs": {
+        "district": "Bornova",
+        "types": [
+          "parking",
+          "pharmacy",
+          "metro_station",
+          "izban_station",
+          "ferry_pier",
+          "bus_stop",
+          "taxi_stand",
+          "charging_station"
+        ],
+        "limit": 5
+      },
+      "record": {
+        "name": "Fixture eczane",
+        "district": "Bornova"
+      }
+    },
+    {
+      "id": "mobility",
+      "question": "Konak meydanı çevresinde hangi ulaşım seçenekleri var?",
+      "tool": "izmir_mobility_nearby",
+      "arguments": {
+        "lat": 38.4189,
+        "lon": 27.1287,
+        "radius_m": 400
+      },
+      "service": "NearbyService",
+      "method": "mobility",
+      "service_args": [],
+      "service_kwargs": {
+        "lat": 38.4189,
+        "lon": 27.1287,
+        "radius_m": 400,
+        "limit": 10,
+        "reference_label": null
+      },
+      "record": {
+        "kind": "metro",
+        "name": "Konak"
+      }
+    },
+    {
+      "id": "water-dams",
+      "question": "Tahtalı barajının doluluk oranı nedir?",
+      "tool": "izmir_water_status",
+      "arguments": {
+        "kind": "dams",
+        "limit": 5
+      },
+      "service": "WaterService",
+      "method": "status",
+      "service_args": [],
+      "service_kwargs": {
+        "kind": "dams",
+        "limit": 5
+      },
+      "record": {
+        "name": "Tahtalı",
+        "occupancy_percent": 41.2
+      }
+    },
+    {
+      "id": "air-quality",
+      "question": "Bugün Karşıyaka'da hava kalitesi nasıl?",
+      "tool": "izmir_air_quality",
+      "arguments": {
+        "date": "2026-10-30",
+        "station": "Karşıyaka",
+        "limit": 3
+      },
+      "service": "AirQualityService",
+      "method": "readings",
+      "service_args": [],
+      "service_kwargs": {
+        "day": "2026-10-30",
+        "station": "Karşıyaka",
+        "limit": 3
+      },
+      "record": {
+        "station": "Karşıyaka",
+        "aqi": 42
+      }
+    },
+    {
+      "id": "metro-stations",
+      "question": "İzmir Metro istasyonlarını listele.",
+      "tool": "izmir_transit_stations",
+      "arguments": {
+        "mode": "metro",
+        "limit": 20
+      },
+      "service": "TransitService",
+      "method": "stations",
+      "service_args": [],
+      "service_kwargs": {
+        "mode": "metro",
+        "limit": 20
+      },
+      "record": {
+        "name": "Fahrettin Altay"
+      }
+    },
+    {
+      "id": "ferry-schedule",
+      "question": "Karşıyaka iskelesinden vapur seferleri ne zaman?",
+      "tool": "izmir_transit_schedule",
+      "arguments": {
+        "mode": "izdeniz",
+        "pier_id": 1,
+        "day": 1
+      },
+      "service": "TransitService",
+      "method": "schedule",
+      "service_args": [],
+      "service_kwargs": {
+        "mode": "izdeniz",
+        "from_id": null,
+        "to_id": null,
+        "pier_id": 1,
+        "day": 1
+      },
+      "record": {
+        "departure": "07:30"
+      }
+    },
+    {
+      "id": "bus-stops",
+      "question": "Çankaya civarındaki otobüs durakları hangileri?",
+      "tool": "izmir_bus_stops",
+      "arguments": {
+        "lat": 38.4237,
+        "lon": 27.1428,
+        "radius_m": 300,
+        "limit": 5
+      },
+      "service": "BusService",
+      "method": "stops",
+      "service_args": [],
+      "service_kwargs": {
+        "query": null,
+        "lat": 38.4237,
+        "lon": 27.1428,
+        "radius_m": 300,
+        "limit": 5
+      },
+      "record": {
+        "stop_id": "10005",
+        "name": "Çankaya"
+      }
+    },
+    {
+      "id": "bus-arrivals",
+      "question": "10005 numaralı durağa yaklaşan otobüsler hangileri?",
+      "tool": "izmir_bus_arrivals",
+      "arguments": {
+        "stop_id": "10005",
+        "limit": 5
+      },
+      "service": "BusService",
+      "method": "arrivals",
+      "service_args": [],
+      "service_kwargs": {
+        "stop_id": "10005",
+        "limit": 5
+      },
+      "record": {
+        "line": "5",
+        "stops_remaining": 2
+      }
+    },
+    {
+      "id": "bus-departures",
+      "question": "10005 durağından 08:00 sonrası planlı kalkışlar?",
+      "tool": "izmir_bus_departures",
+      "arguments": {
+        "stop_id": "10005",
+        "at": "2026-10-30T08:00:00+03:00",
+        "limit": 5
+      },
+      "service": "BusService",
+      "method": "departures",
+      "service_args": [],
+      "service_kwargs": {
+        "stop_id": "10005",
+        "stop_query": null,
+        "lat": null,
+        "lon": null,
+        "radius_m": null,
+        "at": "2026-10-30T08:00:00+03:00",
+        "line": null,
+        "limit": 5
+      },
+      "record": {
+        "line": "5",
+        "departure": "08:05"
+      }
+    },
+    {
+      "id": "bus-routes",
+      "question": "Narlıdere'ye giden EShot hatları hangileri?",
+      "tool": "izmir_bus_routes",
+      "arguments": {
+        "query": "Narlıdere",
+        "limit": 5
+      },
+      "service": "BusService",
+      "method": "routes",
+      "service_args": [],
+      "service_kwargs": {
+        "query": "Narlıdere",
+        "detail": false,
+        "direction": null,
+        "limit": 5
+      },
+      "record": {
+        "line": "5",
+        "name": "Narlıdere"
+      }
+    },
+    {
+      "id": "market-schedule",
+      "question": "Buca'da salı günü hangi semt pazarları kuruluyor?",
+      "tool": "izmir_market_schedule",
+      "arguments": {
+        "day": "salı",
+        "district": "Buca",
+        "limit": 5
+      },
+      "service": "MarketService",
+      "method": "schedule",
+      "service_args": [],
+      "service_kwargs": {
+        "day": "salı",
+        "district": "Buca",
+        "lat": null,
+        "lon": null,
+        "radius_m": null,
+        "limit": 5
+      },
+      "record": {
+        "name": "Fixture Pazarı",
+        "day": "Salı"
+      }
+    },
+    {
+      "id": "disruptions",
+      "question": "EShot hatlarında güncel duyuru var mı?",
+      "tool": "izmir_transport_disruptions",
+      "arguments": {
+        "operator": "eshot",
+        "active_only": true,
+        "limit": 5
+      },
+      "service": "DisruptionService",
+      "method": "list",
+      "service_args": [],
+      "service_kwargs": {
+        "operator": "eshot",
+        "line": null,
+        "active_only": true,
+        "limit": 5
+      },
+      "record": {
+        "line": "5",
+        "title": "Güzergâh değişikliği"
+      }
+    },
+    {
+      "id": "city-services",
+      "question": "Bornova'da ücretsiz WiFi noktaları nerede?",
+      "tool": "izmir_city_services_nearby",
+      "arguments": {
+        "kinds": [
+          "wifi"
+        ],
+        "district": "Bornova",
+        "limit": 5
+      },
+      "service": "CityServicesService",
+      "method": "district",
+      "service_args": [],
+      "service_kwargs": {
+        "district": "Bornova",
+        "kinds": [
+          "wifi"
+        ],
+        "limit": 5
+      },
+      "record": {
+        "kind": "wifi",
+        "name": "Fixture WiFi"
+      }
+    },
+    {
+      "id": "neighborhood",
+      "question": "Konak Alsancak mahallesinin nüfusu nedir?",
+      "tool": "izmir_neighborhood_profile",
+      "arguments": {
+        "neighborhood": "Alsancak",
+        "district": "Konak"
+      },
+      "service": "NeighborhoodService",
+      "method": "profile",
+      "service_args": [],
+      "service_kwargs": {
+        "neighborhood": "Alsancak",
+        "district": "Konak",
+        "limit": null
+      },
+      "record": {
+        "neighborhood": "Alsancak",
+        "population": 12000
+      }
+    }
+  ]
+}

@@ -27,7 +27,7 @@ def test_unknown_place_is_rejected():
     with pytest.raises(InputValidationError) as excinfo:
         PlaceResolver().resolve("Atlantis")
     assert excinfo.value.field == "place"
-    assert "Unknown place" in str(excinfo.value)
+    assert "Bilinmeyen yer" in str(excinfo.value)
 
 
 def test_neighborhood_index_covers_published_muhtarlik_inventory():

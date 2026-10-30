@@ -75,7 +75,7 @@ async def test_radius_query_uses_the_spatial_store(tmp_path: Path):
     )
     assert envelope["ok"] is True
     assert {row["id"] for row in envelope["data"]} == {"p1", "f1"}
-    assert any("spatial index" in item for item in envelope["limits"])
+    assert any("mekânsal indeks" in item for item in envelope["limits"])
 
 
 @pytest.mark.asyncio
@@ -130,7 +130,7 @@ async def test_full_layer_replaces_when_the_source_changes(tmp_path: Path):
             return rows[:1], info
 
     service.api = Shrunk()
-    await service.refresh_index(["parking"])
+    await service.index.refresh(["parking"], {"parking": service.api.parking})
     envelope = await service.nearby(
         lat=38.41872, lon=27.12827, types=["parking"], radius_m=5000, limit=10,
     )

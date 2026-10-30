@@ -93,7 +93,7 @@ def test_main_does_not_fake_an_archive_when_source_returns_html(tmp_path, monkey
 
 
 def test_main_reads_url_and_database_from_settings_by_default(monkeypatch, tmp_path):
-    monkeypatch.setenv("IZMIR_MCP_DATABASE_PATH", str(tmp_path / "from-env.sqlite3"))
+    monkeypatch.setenv("IZMIR_MCP_GTFS_DATABASE_PATH", str(tmp_path / "from-env.sqlite3"))
     monkeypatch.setenv("IZMIR_MCP_ESHOT_GTFS_URL", "https://example.test/env.zip")
     from app.core import settings as settings_module
 
@@ -102,7 +102,7 @@ def test_main_reads_url_and_database_from_settings_by_default(monkeypatch, tmp_p
         assert gtfs_schedule._default_database() == tmp_path / "from-env.sqlite3"
         assert gtfs_schedule._default_url() == "https://example.test/env.zip"
     finally:
-        monkeypatch.delenv("IZMIR_MCP_DATABASE_PATH", raising=False)
+        monkeypatch.delenv("IZMIR_MCP_GTFS_DATABASE_PATH", raising=False)
         monkeypatch.delenv("IZMIR_MCP_ESHOT_GTFS_URL", raising=False)
         settings_module.get_settings.cache_clear()
 

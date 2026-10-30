@@ -258,3 +258,134 @@ def test_haversine_rejects_no_input_silently():
 
     with pytest.raises((ValueError, TypeError)):
         haversine_m(math.nan, 27.1, 38.4, 27.1)
+
+
+# --- per-source fixture variants: malformed, empty, duplicates, schema_drift ---
+
+import json as _json
+
+from app.connectors import http as _http
+from app.connectors.ckan import CkanClient, CkanSchemaDriftError
+from app.connectors.eshot import EshotConnector
+from app.connectors.http import SourceError
+from app.connectors.izsu import IzsuClient, parse_dam_csv
+from app.connectors.schema import SchemaDriftError, decode_member
+
+MALFORMED_UTF8 = b'[{"name": "\xff\xfe broken"}]'
+DAM_HEADER = "BARAJ_KUYU_ID;BARAJ_KUYU_ADI;DURUM_TARIHI;DOLULUK_ORANI\n"
+
+FIXTURES = {
+    "izmir_api": {
+        "malformed": MALFORMED_UTF8,
+        "empty": b"[]",
+        "duplicates": _json.dumps([
+            {"ufid": "a", "name": "A", "lat": 38.4, "lng": 27.1},
+            {"ufid": "a", "name": "A", "lat": 38.4, "lng": 27.1},
+        ]).encode(),
+        "schema_drift": b'"maintenance"',
+    },
+    "eshot": {
+        "malformed": MALFORMED_UTF8,
+        "empty": b"[]",
+        "duplicates": _json.dumps([{"OtobusId": 1, "HatNumarasi": "5"}] * 2).encode(),
+        "schema_drift": b'{"error": "moved"}',
+    },
+    "izsu": {
+        "malformed": (DAM_HEADER + "1;Tahtal\xc4\xb1;2026-10-01;40\n").encode() + b"\xff",
+        "empty": DAM_HEADER.encode(),
+        "duplicates": (DAM_HEADER + "1;Tahtalı;2026-10-01;40\n" * 2).encode(),
+        "schema_drift": b"ID;NAME;LEVEL\n1;Tahtali;40\n",
+    },
+    "ckan": {
+        "malformed": b'{"success": true, "result": "\xff"}',
+        "empty": b'{"success": true, "result": {"results": [], "count": 0}}',
+        "duplicates": _json.dumps({"success": True, "result": {
+            "results": [{"id": "x"}, {"id": "x"}], "count": 2}}).encode(),
+        "schema_drift": b'["not", "an", "envelope"]',
+    },
+}
+
+
+def _serve(monkeypatch, body: bytes):
+    async def fake_get_bytes(url, **_kwargs):
+        return body
+
+    monkeypatch.setattr(_http, "_get_bytes", fake_get_bytes)
+
+
+async def _call(source: str):
+    settings = get_settings()
+    if source == "izmir_api":
+        return (await IzmirOpenApi(settings).parking())[0]
+    if source == "eshot":
+        return (await EshotConnector(settings=settings).arrivals("123"))[0]
+    if source == "izsu":
+        return (await IzsuClient(settings).dams())[0]
+    return await CkanClient(settings).package_search(query="x", rows=1)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("source", sorted(FIXTURES))
+async def test_malformed_utf8_is_a_source_error_not_silent_replacement(monkeypatch, source):
+    _serve(monkeypatch, FIXTURES[source]["malformed"])
+    with pytest.raises(SourceError):
+        await _call(source)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("source", sorted(FIXTURES))
+async def test_schema_drift_is_typed(monkeypatch, source):
+    _serve(monkeypatch, FIXTURES[source]["schema_drift"])
+    with pytest.raises(SchemaDriftError) as info:
+        await _call(source)
+    assert info.value.code == "schema_drift"
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("source", ["izmir_api", "eshot", "ckan"])
+async def test_empty_payload_is_empty_not_a_crash(monkeypatch, source):
+    _serve(monkeypatch, FIXTURES[source]["empty"])
+    result = await _call(source)
+    assert result == [] or result.get("results") == []
+
+
+@pytest.mark.asyncio
+async def test_empty_dam_csv_is_a_source_failure(monkeypatch):
+    _serve(monkeypatch, FIXTURES["izsu"]["empty"])
+    with pytest.raises(ValueError):
+        await _call("izsu")
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("source", sorted(FIXTURES))
+async def test_duplicate_rows_parse_deterministically(monkeypatch, source):
+    _serve(monkeypatch, FIXTURES[source]["duplicates"])
+    result = await _call(source)
+    rows = result if isinstance(result, list) else result["results"]
+    assert len(rows) == 2 and rows[0] == rows[1]
+
+
+def test_ckan_drift_error_is_still_a_ckan_error():
+    from app.connectors.ckan import CkanError
+
+    assert issubclass(CkanSchemaDriftError, CkanError)
+    assert issubclass(CkanSchemaDriftError, SchemaDriftError)
+
+
+def test_gtfs_member_decode_is_strict():
+    assert decode_member("\ufeffroute_id\n".encode("utf-8"), name="routes.txt") == "route_id\n"
+    with pytest.raises(SourceError):
+        decode_member(b"route_id\n\xff", name="routes.txt")
+
+
+def test_dam_csv_without_required_columns_is_drift():
+    with pytest.raises(SchemaDriftError):
+        parse_dam_csv("ID;NAME\n1;x\n")
+    assert parse_dam_csv("") == []
+
+
+def test_schema_drift_maps_to_its_own_error_code():
+    from app.services.sources import source_failure_envelope
+
+    payload = source_failure_envelope(SchemaDriftError("drift"), summary="x")
+    assert payload["error"]["code"] == "schema_drift"

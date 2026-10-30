@@ -26,7 +26,7 @@ import tempfile
 import zipfile
 from datetime import date, datetime, time, timedelta, timezone
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any, Iterable, Sequence
 from zoneinfo import ZoneInfo
 
 import httpx
@@ -357,7 +357,17 @@ class GtfsScheduleStore:
 
         metadata = self.metadata()
         if metadata is None:
-            raise GtfsScheduleError("built timetable database is not readable")
+            # Report the underlying SQLite failure instead of a generic message;
+            # the public envelope still says only that the store is unavailable.
+            try:
+                with sqlite3.connect(str(self.path)) as connection:
+                    connection.execute("PRAGMA query_only=ON")
+                    connection.execute("SELECT key, value FROM gtfs_meta LIMIT 1").fetchall()
+            except sqlite3.Error as exc:
+                raise GtfsScheduleError(
+                    f"built timetable database is not readable: {type(exc).__name__}: {exc}"
+                ) from exc
+            raise GtfsScheduleError("built timetable database has no metadata rows")
         return metadata
 
     @staticmethod
@@ -659,26 +669,52 @@ class GtfsScheduleStore:
         limit: int,
         line: str | None = None,
     ) -> list[dict[str, Any]]:
-        """Return published departures at ``stop_id`` from ``at`` onwards.
+        """Return published departures at ``stop_id`` from ``at`` onwards."""
+        return self.departures_at_stops(
+            stop_ids=[stop_id], at=at, limit=limit, line=line
+        )
 
-        The current and previous service days are merged so GTFS times beyond
-        ``24:00:00`` are placed on the correct wall-clock day.
+    def departures_at_stops(
+        self,
+        *,
+        stop_ids: Sequence[str],
+        at: datetime,
+        limit: int,
+        line: str | None = None,
+    ) -> list[dict[str, Any]]:
+        """Return published departures at any of ``stop_ids``, time-ordered.
+
+        One query per service day covers every requested stop, so the merged
+        answer is globally chronological instead of per-stop blocks. The current
+        and previous service days are merged so GTFS times beyond ``24:00:00``
+        are placed on the correct wall-clock day.
         """
+        ids = [str(value).strip() for value in stop_ids if str(value).strip()]
+        if not ids:
+            raise GtfsScheduleError("at least one stop_id is required")
         if not self.path.exists():
             raise GtfsScheduleError("timetable database is not built")
         local = at.astimezone(ISTANBUL) if at.tzinfo else at.replace(tzinfo=ISTANBUL)
         now_seconds = local.hour * 3600 + local.minute * 60 + local.second
         rows: list[dict[str, Any]] = []
+        stop_placeholders = ",".join("?" for _ in ids)
         try:
             with sqlite3.connect(str(self.path)) as connection:
                 connection.row_factory = sqlite3.Row
                 connection.execute("PRAGMA query_only=ON")
-                stop = connection.execute(
-                    "SELECT stop_id, stop_name, stop_lat, stop_lon FROM stops WHERE stop_id=?",
-                    (stop_id,),
-                ).fetchone()
-                if stop is None:
-                    raise GtfsScheduleError("stop_id is not in the GTFS stop table")
+                found = connection.execute(
+                    "SELECT stop_id, stop_name, stop_lat, stop_lon FROM stops "
+                    f"WHERE stop_id IN ({stop_placeholders})",
+                    ids,
+                ).fetchall()
+                stops_by_id = {row["stop_id"]: row for row in found}
+                missing = [sid for sid in ids if sid not in stops_by_id]
+                if missing:
+                    if len(ids) == 1:
+                        raise GtfsScheduleError("stop_id is not in the GTFS stop table")
+                    raise GtfsScheduleError(
+                        "stops are not in the GTFS stop table: " + ", ".join(missing[:5])
+                    )
                 calendar = connection.execute(
                     "SELECT service_id, monday, tuesday, wednesday, thursday, friday, "
                     "saturday, sunday, start_date, end_date FROM calendar"
@@ -702,11 +738,12 @@ class GtfsScheduleStore:
                         "FROM stop_times st "
                         "JOIN trips t ON t.trip_id = st.trip_id "
                         "LEFT JOIN routes r ON r.route_id = t.route_id "
-                        f"WHERE st.stop_id=? AND st.departure_sec >= ? "
+                        f"WHERE st.stop_id IN ({stop_placeholders}) "
+                        f"AND st.departure_sec >= ? "
                         f"AND COALESCE(st.pickup_type, '') <> '1' "
                         f"AND t.service_id IN ({placeholders})"
                     )
-                    params: list[Any] = [stop_id, lower_bound, *sorted(services)]
+                    params: list[Any] = [*ids, lower_bound, *sorted(services)]
                     if line is not None:
                         sql += " AND (r.short_name = ? COLLATE NOCASE OR r.route_id = ? COLLATE NOCASE)"
                         params.extend([line, line])
@@ -714,6 +751,7 @@ class GtfsScheduleStore:
                     params.append(limit + 1)
                     for row in connection.execute(sql, params).fetchall():
                         absolute = _absolute(service_day, int(row["departure_sec"]))
+                        stop = stops_by_id[row["stop_id"]]
                         rows.append(
                             {
                                 "stop_id": row["stop_id"],
@@ -784,7 +822,7 @@ def _fetch(url: str, *, max_bytes: int | None = None) -> bytes:
 def _default_database() -> Path:
     from app.core.settings import get_settings
 
-    return Path(get_settings().database_path)
+    return Path(get_settings().gtfs_database_path)
 
 
 def _default_url() -> str:

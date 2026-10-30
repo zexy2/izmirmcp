@@ -186,3 +186,33 @@ async def test_nearby_taxi_bbox_mode_has_no_distance():
     assert envelope["ok"] is True
     assert [row["id"] for row in envelope["data"]] == ["1"]
     assert envelope["data"][0]["distance_m"] is None
+
+
+class FakeCharging:
+    async def charging_points(self):
+        return (
+            [
+                {"id": "c1", "name": "Hükümet Konağı", "district": "ALİAĞA",
+                 "neighborhood": "KÜLTÜR", "address": "HÜKÜMET CADDESİ",
+                 "lat": 38.8043, "lon": 26.9722},
+                {"id": "c2", "name": "Uzak", "district": "ÇEŞME",
+                 "neighborhood": "MERKEZ", "address": "X",
+                 "lat": 38.30, "lon": 26.30},
+            ],
+            fresh(),
+        )
+
+
+@pytest.mark.asyncio
+async def test_nearby_supports_charging_stations():
+    service = NearbyService(settings=get_settings(), api=FakeApi(), eshot=FakeEshot())
+    service.charging = FakeCharging()
+    envelope = await service.nearby(
+        lat=38.8043, lon=26.9722, types=["charging_station"], radius_m=500, limit=5,
+    )
+    assert envelope["ok"] is True
+    assert [row["id"] for row in envelope["data"]] == ["c1"]
+    row = envelope["data"][0]
+    assert row["kind"] == "charging_station"
+    assert row["district"] == "ALİAĞA"
+    assert row["distance_m"] < 50

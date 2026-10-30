@@ -6,7 +6,7 @@ from typing import Any
 from app.connectors.city_layers import CityLayerConnector
 from app.core.envelope import Freshness, Source, error_envelope, success_envelope
 from app.core.envelope import result_info
-from app.core.geo import has_name_token, haversine_m, in_bbox, normalize_name
+from app.core.geo import has_name_token, haversine_m, in_bbox, maps_url, normalize_name
 from app.core.settings import Settings
 from app.core.validation import (
     InputValidationError,
@@ -47,10 +47,6 @@ DISTRICT_TEXT_FIELDS = {
 }
 
 
-def _maps_url(lat: float, lon: float) -> str:
-    return f"https://www.google.com/maps?q={lat:.6f},{lon:.6f}"
-
-
 class CityServicesService:
     def __init__(self, *, settings: Settings, api: CityLayerConnector | None = None):
         self.settings = settings
@@ -67,12 +63,12 @@ class CityServicesService:
     def _selected(kinds: list[str]) -> list[str]:
         if not kinds:
             raise InputValidationError(
-                f"kinds must be a non-empty subset of: {', '.join(KINDS)}", field="kinds"
+                f"kinds boş olamaz; şunlardan bir alt küme olmalıdır: {', '.join(KINDS)}", field="kinds"
             )
         unknown = [kind for kind in kinds if kind not in KINDS]
         if unknown:
             raise InputValidationError(
-                f"unknown kinds: {', '.join(unknown)}; allowed: {', '.join(KINDS)}",
+                f"bilinmeyen türler: {', '.join(unknown)}; izin verilenler: {', '.join(KINDS)}",
                 field="kinds",
             )
         return [kind for kind in KINDS if kind in set(kinds)]
@@ -208,7 +204,7 @@ class CityServicesService:
                     if distance > safe_radius:
                         continue
                     row["distance_m"] = distance
-                    row["maps_url"] = _maps_url(item["lat"], item["lon"])
+                    row["maps_url"] = maps_url(item["lat"], item["lon"])
                 elif kind != "library":
                     continue
                 rows.append(row)
@@ -268,7 +264,7 @@ class CityServicesService:
                 ):
                     continue
                 row = self._row(kind, item, source)
-                row["maps_url"] = _maps_url(item_lat, item_lon)
+                row["maps_url"] = maps_url(item_lat, item_lon)
                 rows.append(row)
 
         rows = self._dedupe(rows, warnings)
@@ -343,7 +339,7 @@ class CityServicesService:
                 row = self._row(kind, item, source)
                 row["district_match"] = "published_district_field"
                 if item.get("lat") is not None and item.get("lon") is not None:
-                    row["maps_url"] = _maps_url(item["lat"], item["lon"])
+                    row["maps_url"] = maps_url(item["lat"], item["lon"])
                 rows.append(row)
 
         rows = self._dedupe(rows, warnings)

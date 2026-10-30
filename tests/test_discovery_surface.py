@@ -230,6 +230,7 @@ async def test_every_prompt_renders_with_its_required_arguments():
         "otobus": {"durak": "Konak"},
         "pazar_ve_duyurular": {"ilce": "Konak"},
         "sehir_hizmetleri": {"yer": "Alsancak"},
+        "nobetci_eczane": {"ilce": "Karşıyaka"},
     }
     for prompt in WORKFLOW_PROMPTS:
         result = await server.get_prompt(prompt.__name__, samples[prompt.__name__])

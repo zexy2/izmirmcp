@@ -65,10 +65,22 @@ STOP_TIMES = (
     "T4,08:20:00,08:20:00,10030,4,1\r\n"
     "T5,10:00:00,10:00:00,10030,1,0\r\n"
 )
+# Konak and Gazi Bulvarı are ~200 m apart; 21050 is ~11 km north and must not
+# leak into a 500 m radius answer.
+NEAR_STOPS = STOPS + "10040,Gazi Bulvarı,38.4180,27.1250\r\n"
+NEAR_TRIPS = TRIPS + "446,WK,T6,0\r\n"
+NEAR_STOP_TIMES = STOP_TIMES + "T6,08:15:00,08:15:00,10040,2,0\r\n"
 
 STOP_ROWS = [
     {"id": "10030", "name": "Konak", "lat": 38.416218, "lon": 27.126321,
      "routes": ["303", "446"]},
+]
+NEAR_STOP_ROWS = [
+    *STOP_ROWS,
+    {"id": "10040", "name": "Gazi Bulvarı", "lat": 38.4180, "lon": 27.1250,
+     "routes": ["446"]},
+    {"id": "21050", "name": "Münevver Öğretmen Ortaokulu", "lat": 38.512338,
+     "lon": 27.051353, "routes": ["303"]},
 ]
 
 
@@ -76,6 +88,8 @@ def gtfs_zip(
     *,
     calendar: str = CALENDAR,
     calendar_dates: str | None = CALENDAR_DATES,
+    stops: str = STOPS,
+    trips: str = TRIPS,
     stop_times: str = STOP_TIMES,
 ) -> bytes:
     buffer = io.BytesIO()
@@ -84,8 +98,8 @@ def gtfs_zip(
         if calendar_dates is not None:
             archive.writestr("calendar_dates.txt", calendar_dates)
         archive.writestr("routes.txt", ROUTES)
-        archive.writestr("trips.txt", TRIPS)
-        archive.writestr("stops.txt", STOPS)
+        archive.writestr("trips.txt", trips)
+        archive.writestr("stops.txt", stops)
         archive.writestr("stop_times.txt", stop_times)
     return buffer.getvalue()
 
@@ -109,6 +123,7 @@ class FakeApi:
 def settings_for(tmp_path: Path, **overrides) -> Settings:
     values = {
         "database_path": str(tmp_path / "izmir_mcp.sqlite3"),
+        "gtfs_database_path": str(tmp_path / "izmir_mcp_gtfs.sqlite3"),
         "eshot_gtfs_cache_ttl_seconds": 86_400,
         "eshot_gtfs_stale_if_error_seconds": 604_800,
     }
@@ -383,3 +398,177 @@ async def test_service_marks_truncated_results(tmp_path):
 
     assert len(envelope["data"]) == 1
     assert envelope["result_info"]["truncated"] is True
+
+
+# --- nearby stops and name discovery ---------------------------------------
+
+
+def test_store_merges_departures_for_several_stops_in_time_order(tmp_path):
+    store = GtfsScheduleStore(tmp_path / "schedule.sqlite3")
+    store.rebuild(
+        gtfs_zip(stops=NEAR_STOPS, trips=NEAR_TRIPS, stop_times=NEAR_STOP_TIMES),
+        source_url="https://example.invalid/gtfs.zip",
+    )
+
+    rows = store.departures_at_stops(
+        stop_ids=["10040", "10030"],
+        at=datetime(2026, 10, 5, 8, 0, tzinfo=ISTANBUL),
+        limit=10,
+    )
+
+    # T3 (25:10) rolls to the next day and must sort last, not first.
+    assert [row["stop_id"] for row in rows[:2]] == ["10030", "10040"]
+    assert [row["time"] for row in rows[:2]] == ["08:10", "08:15"]
+    assert [row["stop_name"] for row in rows[:2]] == ["Konak", "Gazi Bulvarı"]
+    assert [row["minutes_from_now"] for row in rows[:2]] == [10.0, 15.0]
+    assert [row["scheduled_at"] for row in rows] == sorted(
+        row["scheduled_at"] for row in rows
+    )
+
+
+def test_store_rejects_an_empty_stop_list(tmp_path):
+    store = GtfsScheduleStore(tmp_path / "schedule.sqlite3")
+    store.rebuild(gtfs_zip(), source_url="https://example.invalid/gtfs.zip")
+
+    with pytest.raises(GtfsScheduleError):
+        store.departures_at_stops(
+            stop_ids=[], at=datetime(2026, 10, 5, 8, 0, tzinfo=ISTANBUL), limit=5
+        )
+
+
+class NearApi(FakeApi):
+    """Published stop list with two nearby stops and one far stop."""
+
+    async def stops(self):
+        return NEAR_STOP_ROWS, fresh()
+
+
+class NearTimetableApi(NearApi):
+    def __init__(self):
+        super().__init__(
+            gtfs_zip(stops=NEAR_STOPS, trips=NEAR_TRIPS, stop_times=NEAR_STOP_TIMES)
+        )
+
+
+@pytest.mark.asyncio
+async def test_stop_query_returns_stop_candidates_not_departures(tmp_path):
+    api = NearApi()
+    envelope = await BusService(settings=settings_for(tmp_path), api=api).departures(
+        stop_query="gazi", limit=5
+    )
+
+    assert envelope["ok"] is True
+    assert [row["id"] for row in envelope["data"]] == ["10040"]
+    assert envelope["data"][0]["match"] == "exact"
+    assert envelope["result_info"]["scope"] == "stop_candidates"
+    assert any(limit.startswith("mode=stop_query") for limit in envelope["limits"])
+    warning_text = " ".join(envelope["warnings"]).lower()
+    assert "kalkış" in warning_text and "değil" in warning_text
+    # Discovery must not download or build a 2M-row timetable.
+    assert api.archive_calls == 0
+
+
+@pytest.mark.asyncio
+async def test_stop_query_ranks_an_exact_name_before_a_longer_one(tmp_path):
+    class NameApi(NearApi):
+        async def stops(self):
+            return [
+                {"id": "52047", "name": "Güzel Konak", "lat": 38.4, "lon": 27.1,
+                 "routes": []},
+                {"id": "10030", "name": "Konak", "lat": 38.416218,
+                 "lon": 27.126321, "routes": ["446"]},
+                {"id": "10031", "name": "Konak İskele", "lat": 38.42, "lon": 27.13,
+                 "routes": []},
+            ], fresh()
+
+    envelope = await BusService(settings=settings_for(tmp_path), api=NameApi()).departures(
+        stop_query="Konak", limit=3
+    )
+
+    assert [row["id"] for row in envelope["data"]] == ["10030", "10031", "52047"]
+
+
+@pytest.mark.asyncio
+async def test_stop_query_fuzzy_matches_are_labelled(tmp_path):
+    envelope = await BusService(settings=settings_for(tmp_path), api=NearApi()).departures(
+        stop_query="Konakk", limit=5
+    )
+
+    assert envelope["ok"] is True
+    assert envelope["data"][0]["match"] == "fuzzy"
+    assert any("fuzzy" in warning.lower() for warning in envelope["warnings"])
+
+
+@pytest.mark.asyncio
+async def test_radius_mode_merges_departures_from_nearby_stops(tmp_path):
+    envelope = await BusService(
+        settings=settings_for(tmp_path), api=NearTimetableApi()
+    ).departures(lat=38.4169, lon=27.1260, radius_m=500, at="2026-10-05T08:00", limit=5)
+
+    assert envelope["ok"] is True
+    assert [row["stop_id"] for row in envelope["data"][:2]] == ["10030", "10040"]
+    assert [row["time"] for row in envelope["data"][:2]] == ["08:10", "08:15"]
+    assert all(row["distance_m"] is not None for row in envelope["data"])
+    assert all(row["distance_m"] <= 500 for row in envelope["data"])
+    assert "21050" not in {row["stop_id"] for row in envelope["data"]}
+    assert any(limit.startswith("mode=radius") for limit in envelope["limits"])
+    assert any("stop_count=" in limit for limit in envelope["limits"])
+
+
+@pytest.mark.asyncio
+async def test_radius_mode_without_nearby_stops_is_empty_and_builds_nothing(tmp_path):
+    api = NearApi()
+    envelope = await BusService(settings=settings_for(tmp_path), api=api).departures(
+        lat=38.9, lon=26.9, radius_m=300, at="2026-10-05T08:00", limit=5
+    )
+
+    assert envelope["ok"] is True
+    assert envelope["data"] == []
+    assert api.archive_calls == 0
+    assert any("durak" in warning.lower() for warning in envelope["warnings"])
+
+
+@pytest.mark.asyncio
+async def test_departures_require_exactly_one_location_mode(tmp_path):
+    service = BusService(settings=settings_for(tmp_path), api=NearApi())
+
+    with pytest.raises(InputValidationError) as excinfo:
+        await service.departures(stop_id="10030", lat=38.4, lon=27.1)
+    assert excinfo.value.field == "stop_id"
+
+    with pytest.raises(InputValidationError) as excinfo:
+        await service.departures(stop_query="konak", stop_id="10030")
+    assert excinfo.value.field == "stop_query"
+
+    with pytest.raises(InputValidationError):
+        await service.departures(at="2026-10-05T08:00")
+
+
+@pytest.mark.asyncio
+async def test_stop_query_rejects_filters_it_cannot_apply(tmp_path):
+    service = BusService(settings=settings_for(tmp_path), api=NearApi())
+
+    with pytest.raises(InputValidationError) as excinfo:
+        await service.departures(stop_query="konak", line="446")
+    assert excinfo.value.field == "line"
+
+    with pytest.raises(InputValidationError) as excinfo:
+        await service.departures(stop_query="konak", at="2026-10-05T08:00")
+    assert excinfo.value.field == "at"
+
+
+@pytest.mark.asyncio
+async def test_radius_mode_validates_coordinates_and_radius(tmp_path):
+    service = BusService(settings=settings_for(tmp_path), api=NearApi())
+
+    with pytest.raises(InputValidationError) as excinfo:
+        await service.departures(lat=38.4, radius_m=100)
+    assert excinfo.value.field == "lat"
+
+    with pytest.raises(InputValidationError) as excinfo:
+        await service.departures(lat=38.4, lon=27.1, radius_m=99_999)
+    assert excinfo.value.field == "radius_m"
+
+    with pytest.raises(InputValidationError) as excinfo:
+        await service.departures(stop_id="10030", radius_m=100)
+    assert excinfo.value.field == "radius_m"

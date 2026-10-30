@@ -37,7 +37,7 @@ class NeighborhoodService:
         safe_limit = resolve_limit(limit, self.settings.default_limit, self.settings.max_limit)
         if neighborhood is None and district is None:
             raise InputValidationError(
-                "supply neighborhood (with optional district) or district alone",
+                "neighborhood (isteğe bağlı district ile) ya da yalnızca district verin",
                 field="neighborhood",
             )
         resolved_district: str | None = None
@@ -132,7 +132,7 @@ class NeighborhoodService:
             )
             if match is None:
                 raise InputValidationError(
-                    "neighborhood is not present in the published population or building layer",
+                    "neighborhood yayımlanmış nüfus veya bina katmanında yok",
                     field="neighborhood",
                 )
             matched = [self._row(population, buildings, match[0], match[1])]

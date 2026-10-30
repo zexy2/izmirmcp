@@ -46,6 +46,9 @@ SOURCE_CATALOG = (
      "İzmir Büyükşehir Belediyesi",
      "https://acikveri.bizizmir.com/dataset/ilcelere-ait-mahalle-bazli-bina-sayilari",
      "published_building_stock"),
+    ("traffic", "İzmir ana arter hız ve süre verileri", "İzmir Büyükşehir Belediyesi",
+     "https://acikveri.bizizmir.com/dataset/ana-arterler-gunluk-hiz-ve-sure-verileri",
+     "historical_segment_speed"),
     ("taxi", "İzmir taksi durakları", "İzmir Büyükşehir Belediyesi",
      "https://acikveri.bizizmir.com/dataset/taksi-durak-bilgileri",
      "static_service_locations"),
@@ -76,11 +79,22 @@ def _coverage(settings: Settings, actual_tools: set[str]) -> list[dict[str, Any]
         ("catalog", ["izmir_search_datasets", "izmir_get_dataset", "izmir_get_resource_schema",
                      "izmir_query_resource"], ["ckan"], "catalog_and_records",
          "Inspect the resource schema first; datastore_active is not proof of a working query."),
+        ("datastore_sql", ["izmir_datastore_query"], ["ckan"], "complete_local_snapshot",
+         "SQL runs only on an explicitly allowlisted resource and only after a complete "
+         "bounded capture. No upstream SQL, no partial aggregates; a failed capture is "
+         "source_unavailable."),
         ("nearby", ["izmir_nearby"], ["openapi", "osm", "taxi"], "mixed_snapshots_and_static_locations",
          "Radius, bbox or district-wide. Bbox has no reference point, so distance_m is null "
          "and edges are inclusive. District mode covers pharmacy through its published region "
          "text only; parking and transit publish no district. Parking is a snapshot, pharmacy "
          "rosters are daily, stations are static."),
+        ("mobility", ["izmir_mobility_nearby"], ["openapi", "osm", "taxi", "eshot_stops"],
+         "mixed_snapshots_and_static_locations",
+         "Preset over izmir_nearby with transport layers only (metro, İZBAN, ferry, "
+         "bus stop, taxi stand, charging, parking), nearest first, with per-mode "
+         "counts of the shown rows. No live ETA or occupancy guarantee. Air-quality "
+         "stations are excluded because İzmir publishes no station coordinates; live "
+         "traffic is excluded because the index endpoint returns 404."),
         ("water", ["izmir_water_status"], ["izsu"], "published_dam_levels",
          "Dam CSV only. İZSU fault API returned HTTP 500 during verification; kind=faults "
          "reports source_unavailable instead of inventing outages."),
@@ -104,6 +118,10 @@ def _coverage(settings: Settings, actual_tools: set[str]) -> list[dict[str, Any]
          "static_service_locations",
          "Static snapshots. The library layer has no coordinates, so it cannot be "
          "radius-filtered."),
+        ("traffic_history", ["izmir_traffic_history"], ["traffic"],
+         "historical_segment_speed",
+         "Historical measurements only. İzmir publishes no live traffic index "
+         "(404); never present this as current congestion."),
         ("neighborhood", ["izmir_neighborhood_profile"],
          ["neighborhood_population", "neighborhood_buildings"],
          "published_neighborhood_statistics",
@@ -113,6 +131,24 @@ def _coverage(settings: Settings, actual_tools: set[str]) -> list[dict[str, Any]
          "published_timetable",
          "Published timetables, not live departures or ETAs. Metro is a frequency table. "
          "İZDENİZ day is the source's own id."),
+        ("tram", ["izmir_tram_lines", "izmir_tram_schedule"], ["tram"],
+         "published_timetable",
+         "Published stations and headways, not live tram positions or ETAs."),
+        ("bus_live", ["izmir_bus_line_arrivals", "izmir_bus_live_positions"],
+         ["eshot_arrivals", "eshot_line_positions"],
+         "live_vehicle_positions",
+         "Snapshot positions cached for at most 15 seconds; no ETA in minutes and an "
+         "empty payload is not proof of no service."),
+        ("dam_levels", ["izmir_dam_status"], ["izsu_api"], "published_dam_levels",
+         "Daily İZSU dam levels by date; the CSV is the fallback when the JSON API fails."),
+        ("cbs", ["izmir_cbs_layer", "izmir_pharmacies_all"], ["ibb_cbs", "pharmacy_all"],
+         "static_service_locations",
+         "Published GIS layers from an allowlist; locations, not opening hours. The "
+         "full pharmacy list is not the on-duty roster."),
+        ("events", ["izmir_events"], ["events"], "published_events",
+         "Published culture and arts listings; confirm times with the organiser."),
+        ("market_prices", ["izmir_market_prices"], ["hal"], "published_wholesale_prices",
+         "Wholesale hal prices; an empty day falls back to the latest published day."),
     ]
     data = []
     for capability, names, source_ids, kind, warning in entries:

@@ -1,0 +1,1576 @@
+{
+  "izmir_air_quality": {
+    "properties": {
+      "date": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Date"
+      },
+      "limit": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Limit"
+      },
+      "station": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Station"
+      }
+    },
+    "title": "izmir_air_qualityArguments",
+    "type": "object"
+  },
+  "izmir_bus_arrivals": {
+    "properties": {
+      "limit": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Limit"
+      },
+      "stop_id": {
+        "title": "Stop Id",
+        "type": "string"
+      }
+    },
+    "required": [
+      "stop_id"
+    ],
+    "title": "izmir_bus_arrivalsArguments",
+    "type": "object"
+  },
+  "izmir_bus_departures": {
+    "properties": {
+      "at": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "At"
+      },
+      "lat": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Lat"
+      },
+      "limit": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Limit"
+      },
+      "line": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Line"
+      },
+      "lon": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Lon"
+      },
+      "radius_m": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Radius M"
+      },
+      "stop_id": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Stop Id"
+      },
+      "stop_query": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Stop Query"
+      }
+    },
+    "title": "izmir_bus_departuresArguments",
+    "type": "object"
+  },
+  "izmir_bus_line_arrivals": {
+    "properties": {
+      "limit": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Limit"
+      },
+      "line": {
+        "title": "Line",
+        "type": "string"
+      },
+      "stop_id": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Stop Id"
+      }
+    },
+    "required": [
+      "line"
+    ],
+    "title": "izmir_bus_line_arrivalsArguments",
+    "type": "object"
+  },
+  "izmir_bus_live_positions": {
+    "properties": {
+      "limit": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Limit"
+      },
+      "line": {
+        "title": "Line",
+        "type": "string"
+      }
+    },
+    "required": [
+      "line"
+    ],
+    "title": "izmir_bus_live_positionsArguments",
+    "type": "object"
+  },
+  "izmir_bus_routes": {
+    "properties": {
+      "detail": {
+        "default": false,
+        "title": "Detail",
+        "type": "boolean"
+      },
+      "direction": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Direction"
+      },
+      "limit": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Limit"
+      },
+      "query": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Query"
+      }
+    },
+    "title": "izmir_bus_routesArguments",
+    "type": "object"
+  },
+  "izmir_bus_stops": {
+    "properties": {
+      "lat": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Lat"
+      },
+      "limit": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Limit"
+      },
+      "lon": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Lon"
+      },
+      "query": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Query"
+      },
+      "radius_m": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Radius M"
+      }
+    },
+    "title": "izmir_bus_stopsArguments",
+    "type": "object"
+  },
+  "izmir_cbs_layer": {
+    "properties": {
+      "district": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "District"
+      },
+      "lat": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Lat"
+      },
+      "layer": {
+        "enum": [
+          "acilyardimistasyonu",
+          "adayarimada",
+          "afetaciltoplanmaalani",
+          "agizvedissagligimerkezleri",
+          "ailedayanismamerkezleri",
+          "ailesagligimerkezleri",
+          "anacocuksagligimerkezleri",
+          "anaokullari",
+          "antikkentler",
+          "antikkentyapilari",
+          "aracmuayeneistasyonlari",
+          "bankalar",
+          "belediyeler",
+          "bolgemudurlukleri",
+          "burunlar",
+          "cocukvegenclikmerkezleri",
+          "cocukyuvalari",
+          "dagtepe",
+          "dalmerkezleri",
+          "defterdarliklar",
+          "dernekler",
+          "engelliokullari",
+          "etutmerkezleri",
+          "evlendirmedaireleri",
+          "fuar",
+          "galerivesalonlar",
+          "goller",
+          "halkegitim",
+          "hamamlar",
+          "hastaneler",
+          "havaalani",
+          "hipodrom",
+          "huzurevleri",
+          "ilkokullar",
+          "ilveilcemudurlukleri",
+          "itfaiyegruplari",
+          "izbbhizmetnoktalari",
+          "kanmerkezleri",
+          "kaplicalar",
+          "kolejler",
+          "konsolosluklar",
+          "korfezvekoylar",
+          "koskvekonaklar",
+          "kuleanitveheykeller",
+          "kulturmerkezleri",
+          "kutuphaneler",
+          "laboratuvarlar",
+          "liseler",
+          "maskematiknoktalari",
+          "meslekliseleri",
+          "meslekodalari",
+          "meydanlar",
+          "milliegitim",
+          "muhtarliklar",
+          "muzeler",
+          "nehirvecaylar",
+          "noterler",
+          "nufusmudurlukleri",
+          "operavebale",
+          "ormanlar",
+          "ortaokullar",
+          "otobusterminalleri",
+          "pazaryerleri",
+          "plajlar",
+          "poliklinikler",
+          "ptt",
+          "sanatokullari",
+          "senfoniorkestrasi",
+          "sinemalar",
+          "sporsalonlari",
+          "stadyumlar",
+          "taksiduraklari",
+          "tarihicarsivehanlar",
+          "tarihisuyapilari",
+          "tarihiyapilar",
+          "tipmerkezleri",
+          "tiyatrolar",
+          "toplummerkezleri",
+          "toplumsagligimerkezleri",
+          "trengarlari",
+          "turizmdanisma",
+          "universiteler",
+          "veremsavasdispanserleri",
+          "vergidaireleri",
+          "veterinerlikler",
+          "wizmirnetnoktalari",
+          "yetistirmeyurtlari"
+        ],
+        "title": "Layer",
+        "type": "string"
+      },
+      "limit": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Limit"
+      },
+      "lon": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Lon"
+      },
+      "radius_m": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Radius M"
+      }
+    },
+    "required": [
+      "layer"
+    ],
+    "title": "izmir_cbs_layerArguments",
+    "type": "object"
+  },
+  "izmir_city_services_nearby": {
+    "properties": {
+      "bbox": {
+        "anyOf": [
+          {
+            "items": {
+              "type": "number"
+            },
+            "type": "array"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Bbox"
+      },
+      "district": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "District"
+      },
+      "kinds": {
+        "anyOf": [
+          {
+            "items": {
+              "enum": [
+                "wifi",
+                "izmirim_card",
+                "library"
+              ],
+              "type": "string"
+            },
+            "type": "array"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Kinds"
+      },
+      "lat": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Lat"
+      },
+      "limit": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Limit"
+      },
+      "lon": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Lon"
+      },
+      "place": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Place"
+      },
+      "place_district": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Place District"
+      },
+      "radius_m": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Radius M"
+      }
+    },
+    "title": "izmir_city_services_nearbyArguments",
+    "type": "object"
+  },
+  "izmir_dam_status": {
+    "properties": {
+      "dam_name": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Dam Name"
+      },
+      "date": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Date"
+      },
+      "limit": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Limit"
+      }
+    },
+    "title": "izmir_dam_statusArguments",
+    "type": "object"
+  },
+  "izmir_datastore_query": {
+    "properties": {
+      "limit": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Limit"
+      },
+      "resource_id": {
+        "title": "Resource Id",
+        "type": "string"
+      },
+      "sql": {
+        "title": "Sql",
+        "type": "string"
+      }
+    },
+    "required": [
+      "resource_id",
+      "sql"
+    ],
+    "title": "izmir_datastore_queryArguments",
+    "type": "object"
+  },
+  "izmir_events": {
+    "properties": {
+      "free_only": {
+        "default": false,
+        "title": "Free Only",
+        "type": "boolean"
+      },
+      "limit": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Limit"
+      },
+      "query": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Query"
+      }
+    },
+    "title": "izmir_eventsArguments",
+    "type": "object"
+  },
+  "izmir_get_dataset": {
+    "properties": {
+      "dataset_id": {
+        "title": "Dataset Id",
+        "type": "string"
+      }
+    },
+    "required": [
+      "dataset_id"
+    ],
+    "title": "izmir_get_datasetArguments",
+    "type": "object"
+  },
+  "izmir_get_resource_schema": {
+    "properties": {
+      "resource_id": {
+        "title": "Resource Id",
+        "type": "string"
+      }
+    },
+    "required": [
+      "resource_id"
+    ],
+    "title": "izmir_get_resource_schemaArguments",
+    "type": "object"
+  },
+  "izmir_gtfs_status": {
+    "properties": {},
+    "title": "izmir_gtfs_statusArguments",
+    "type": "object"
+  },
+  "izmir_health": {
+    "properties": {},
+    "title": "izmir_healthArguments",
+    "type": "object"
+  },
+  "izmir_market_prices": {
+    "properties": {
+      "day": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Day"
+      },
+      "kind": {
+        "default": "sebzemeyve",
+        "enum": [
+          "sebzemeyve",
+          "balik"
+        ],
+        "title": "Kind",
+        "type": "string"
+      },
+      "limit": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Limit"
+      },
+      "query": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Query"
+      }
+    },
+    "title": "izmir_market_pricesArguments",
+    "type": "object"
+  },
+  "izmir_market_schedule": {
+    "properties": {
+      "day": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Day"
+      },
+      "district": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "District"
+      },
+      "lat": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Lat"
+      },
+      "limit": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Limit"
+      },
+      "lon": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Lon"
+      },
+      "radius_m": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Radius M"
+      }
+    },
+    "title": "izmir_market_scheduleArguments",
+    "type": "object"
+  },
+  "izmir_mobility_nearby": {
+    "properties": {
+      "lat": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Lat"
+      },
+      "limit": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Limit"
+      },
+      "lon": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Lon"
+      },
+      "place": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Place"
+      },
+      "place_district": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Place District"
+      },
+      "radius_m": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Radius M"
+      }
+    },
+    "title": "izmir_mobility_nearbyArguments",
+    "type": "object"
+  },
+  "izmir_nearby": {
+    "properties": {
+      "bbox": {
+        "anyOf": [
+          {
+            "items": {
+              "type": "number"
+            },
+            "type": "array"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Bbox"
+      },
+      "district": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "District"
+      },
+      "lat": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Lat"
+      },
+      "limit": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Limit"
+      },
+      "lon": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Lon"
+      },
+      "place": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Place"
+      },
+      "place_district": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Place District"
+      },
+      "radius_m": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Radius M"
+      },
+      "types": {
+        "anyOf": [
+          {
+            "items": {
+              "enum": [
+                "parking",
+                "pharmacy",
+                "metro_station",
+                "izban_station",
+                "ferry_pier",
+                "bus_stop",
+                "taxi_stand",
+                "charging_station"
+              ],
+              "type": "string"
+            },
+            "type": "array"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Types"
+      }
+    },
+    "title": "izmir_nearbyArguments",
+    "type": "object"
+  },
+  "izmir_neighborhood_profile": {
+    "properties": {
+      "district": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "District"
+      },
+      "limit": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Limit"
+      },
+      "neighborhood": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Neighborhood"
+      }
+    },
+    "title": "izmir_neighborhood_profileArguments",
+    "type": "object"
+  },
+  "izmir_pharmacies_all": {
+    "properties": {
+      "area": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Area"
+      },
+      "lat": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Lat"
+      },
+      "limit": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Limit"
+      },
+      "lon": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Lon"
+      },
+      "query": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Query"
+      },
+      "radius_m": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Radius M"
+      }
+    },
+    "title": "izmir_pharmacies_allArguments",
+    "type": "object"
+  },
+  "izmir_query_resource": {
+    "properties": {
+      "filters": {
+        "anyOf": [
+          {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Filters"
+      },
+      "limit": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Limit"
+      },
+      "resource_id": {
+        "title": "Resource Id",
+        "type": "string"
+      },
+      "search": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Search"
+      },
+      "sort": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Sort"
+      }
+    },
+    "required": [
+      "resource_id"
+    ],
+    "title": "izmir_query_resourceArguments",
+    "type": "object"
+  },
+  "izmir_search_datasets": {
+    "properties": {
+      "formats": {
+        "anyOf": [
+          {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Formats"
+      },
+      "limit": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Limit"
+      },
+      "query": {
+        "title": "Query",
+        "type": "string"
+      }
+    },
+    "required": [
+      "query"
+    ],
+    "title": "izmir_search_datasetsArguments",
+    "type": "object"
+  },
+  "izmir_traffic_history": {
+    "properties": {
+      "limit": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Limit"
+      },
+      "segment": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Segment"
+      },
+      "since": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Since"
+      },
+      "until": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Until"
+      }
+    },
+    "title": "izmir_traffic_historyArguments",
+    "type": "object"
+  },
+  "izmir_tram_lines": {
+    "properties": {},
+    "title": "izmir_tram_linesArguments",
+    "type": "object"
+  },
+  "izmir_tram_schedule": {
+    "properties": {
+      "line_id": {
+        "title": "Line Id",
+        "type": "integer"
+      }
+    },
+    "required": [
+      "line_id"
+    ],
+    "title": "izmir_tram_scheduleArguments",
+    "type": "object"
+  },
+  "izmir_transit_schedule": {
+    "properties": {
+      "day": {
+        "default": 1,
+        "title": "Day",
+        "type": "integer"
+      },
+      "from_id": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "From Id"
+      },
+      "mode": {
+        "enum": [
+          "metro",
+          "izban",
+          "izdeniz"
+        ],
+        "title": "Mode",
+        "type": "string"
+      },
+      "pier_id": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Pier Id"
+      },
+      "to_id": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "To Id"
+      }
+    },
+    "required": [
+      "mode"
+    ],
+    "title": "izmir_transit_scheduleArguments",
+    "type": "object"
+  },
+  "izmir_transit_stations": {
+    "properties": {
+      "limit": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Limit"
+      },
+      "mode": {
+        "enum": [
+          "metro",
+          "izban",
+          "izdeniz"
+        ],
+        "title": "Mode",
+        "type": "string"
+      }
+    },
+    "required": [
+      "mode"
+    ],
+    "title": "izmir_transit_stationsArguments",
+    "type": "object"
+  },
+  "izmir_transport_disruptions": {
+    "properties": {
+      "active_only": {
+        "default": false,
+        "title": "Active Only",
+        "type": "boolean"
+      },
+      "limit": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Limit"
+      },
+      "line": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Line"
+      },
+      "operator": {
+        "anyOf": [
+          {
+            "enum": [
+              "eshot",
+              "metro",
+              "izdeniz",
+              "izban"
+            ],
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Operator"
+      }
+    },
+    "title": "izmir_transport_disruptionsArguments",
+    "type": "object"
+  },
+  "izmir_water_status": {
+    "properties": {
+      "kind": {
+        "default": "dams",
+        "enum": [
+          "dams",
+          "faults"
+        ],
+        "title": "Kind",
+        "type": "string"
+      },
+      "limit": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Limit"
+      }
+    },
+    "title": "izmir_water_statusArguments",
+    "type": "object"
+  }
+}

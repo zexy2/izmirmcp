@@ -1,7 +1,7 @@
 """P4 contract conformance: every advertised behaviour keeps the envelope contract.
 
 These tests never touch the network. Every upstream call is replaced at the HTTP
-connector boundary with a fixed fixture, so the suite can drive all 19 tools
+connector boundary with a fixed fixture, so the suite can drive all 31 tools
 through success *and* failure paths and assert the same envelope shape each time.
 """
 from __future__ import annotations
@@ -33,6 +33,7 @@ SUCCESS_CALLS: dict[str, dict[str, Any]] = {
     "izmir_get_resource_schema": {"resource_id": "r1"},
     "izmir_query_resource": {"resource_id": "r1", "limit": 1},
     "izmir_nearby": {"lat": 38.41872, "lon": 27.12827, "types": ["parking"], "limit": 1},
+    "izmir_mobility_nearby": {"lat": 38.41872, "lon": 27.12827, "limit": 2},
     "izmir_water_status": {"kind": "dams", "limit": 1},
     "izmir_air_quality": {"date": "2026-10-01", "limit": 1},
     "izmir_transit_stations": {"mode": "metro", "limit": 1},
@@ -52,7 +53,9 @@ INVALID_CALLS: dict[str, dict[str, Any]] = {
     "izmir_get_dataset": {"dataset_id": ""},
     "izmir_get_resource_schema": {"resource_id": "../etc/passwd"},
     "izmir_query_resource": {"resource_id": "r1", "filters": {"bad key!": 1}},
+    "izmir_datastore_query": {"resource_id": "r1", "sql": "DELETE FROM records"},
     "izmir_nearby": {"lat": 38.4, "lon": 27.1, "radius_m": -1},
+    "izmir_mobility_nearby": {"lat": 38.4, "lon": 27.1, "radius_m": 0},
     "izmir_air_quality": {"date": "2026-13-99"},
     "izmir_bus_stops": {},
     "izmir_bus_departures": {"stop_id": "", "at": "25:99"},
@@ -452,7 +455,7 @@ def test_public_page_url_drops_machine_endpoints():
 
 def test_tool_titles_and_names_stay_in_sync():
     assert set(TOOL_TITLES) == set(DEFAULT_TOOL_NAMES)
-    assert len(DEFAULT_TOOL_NAMES) == len(set(DEFAULT_TOOL_NAMES)) == 19
+    assert len(DEFAULT_TOOL_NAMES) == len(set(DEFAULT_TOOL_NAMES)) == 31
 
 
 @pytest.mark.asyncio

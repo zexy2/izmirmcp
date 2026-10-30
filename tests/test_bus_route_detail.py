@@ -89,6 +89,7 @@ class FakeApi:
 def settings_for(tmp_path: Path) -> Settings:
     return Settings(
         database_path=str(tmp_path / "izmir_mcp.sqlite3"),
+        gtfs_database_path=str(tmp_path / "izmir_mcp_gtfs.sqlite3"),
         eshot_gtfs_cache_ttl_seconds=86_400,
         eshot_gtfs_stale_if_error_seconds=604_800,
     )

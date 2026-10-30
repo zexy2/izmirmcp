@@ -29,6 +29,11 @@ LIBRARY_RESOURCE_ID = "0c1b15b9-3f52-4437-bc16-56d366045ef5"
 # Neighborhood profile layers, verified live on 2026-10-28. Both are keyed by
 # district + mahalle name and join cleanly onto the muhtarlık inventory.
 TAXI_STAND_RESOURCE_ID = "64a72577-5f4c-404c-8842-780d88f351df"
+# Historical arterial speed/duration snapshots (18.731 rows, 2020-06 → 2026-10).
+# İzmir publishes no live traffic index: /api/ibb/trafikyogunluk is 404.
+TRAFFIC_RESOURCE_ID = "a3bd880f-dfc6-4f65-bbfd-5fcc998268c3"
+# Accessible EV charging stations (48 rows, coordinates published).
+CHARGING_RESOURCE_ID = "028f2692-d930-481f-ab27-17a321bd1283"
 
 BUILDING_RESOURCE_ID = "54af6862-2d36-48d0-838f-a42133e8b943"
 POPULATION_RESOURCE_ID = "7ef10678-8a84-4e43-9122-3ac15c818b51"
@@ -104,7 +109,12 @@ class CityLayerConnector:
     ) -> tuple[list[dict[str, Any]], CacheInfo]:
         async def loader() -> list[dict[str, Any]]:
             rows = [mapper(item) for item in await self._datastore_rows(resource_id)]
-            usable = [row for row in rows if row.get("name") or row.get("address")]
+            # A layer is "usable" if a row carries identifying text; traffic
+            # rows identify themselves by their segment endpoints, not a name.
+            usable = [
+                row for row in rows
+                if row.get("name") or row.get("address") or row.get("segment_from")
+            ]
             if not usable:
                 raise SourceError(f"city layer {key} contained no usable rows")
             return usable
@@ -195,6 +205,88 @@ class CityLayerConnector:
             }
 
         return await self._layer("taxi_stands", TAXI_STAND_RESOURCE_ID, mapper)
+
+    @staticmethod
+    def _traffic_record(item: dict[str, Any]) -> dict[str, Any]:
+        day = bounded_text(item.get("TARIH"), 10)
+        hour = bounded_text(item.get("SAAT"), 8)
+        # The source splits date and time; sortable timestamps need one value,
+        # otherwise "most recent first" only orders by day.
+        observed = f"{day}T{hour}" if day and hour else day
+        return {
+            "segment_from": bounded_text(item.get("BASLAMA")),
+            "segment_to": bounded_text(item.get("BITIS")),
+            "observed_at": observed,
+            "hour": hour,
+            "speed_kmh": finite_number(item.get("HIZ")),
+            "duration_minutes": finite_number(item.get("SURE")),
+        }
+
+    async def traffic_rows(self) -> tuple[list[dict[str, Any]], CacheInfo]:
+        """Arterial speed and duration history (never live).
+
+        Full scan: required when the caller filters, because an exact match can
+        sit anywhere in the dataset and CKAN cannot express the service's
+        substring/range filters server-side.
+        """
+        return await self._layer("traffic", TRAFFIC_RESOURCE_ID, self._traffic_record)
+
+    async def traffic_recent(
+        self, limit: int
+    ) -> tuple[list[dict[str, Any]], CacheInfo, int]:
+        """Newest ``limit`` rows plus the published total, in one page.
+
+        The datastore is sorted server-side, so an unfiltered small limit does
+        not page the whole history before cutting. The total still comes from
+        CKAN, which keeps ``matched`` exact without reading every row.
+        """
+        if limit < 1:
+            raise SourceError("traffic limit must be positive")
+
+        async def loader() -> tuple[dict[str, Any], str | None]:
+            page = await self.ckan.datastore_search(
+                resource_id=TRAFFIC_RESOURCE_ID,
+                limit=limit,
+                offset=0,
+                sort="TARIH desc,SAAT desc",
+                include_total=True,
+            )
+            records = page.get("records") or []
+            if not isinstance(records, list):
+                raise SourceError("traffic records were not a list")
+            rows = [
+                self._traffic_record(item)
+                for item in records
+                if isinstance(item, dict)
+            ]
+            usable = [row for row in rows if row.get("segment_from")]
+            total = page.get("total")
+            if not usable or not isinstance(total, int):
+                raise SourceError("traffic layer returned no usable rows")
+            return {"rows": usable, "total": total}, usable[0].get("observed_at")
+
+        data, info = await cached_source_data(
+            f"city_layer.traffic.recent.{limit}",
+            ttl_seconds=self.settings.city_layer_cache_ttl_seconds,
+            stale_if_error_seconds=self.settings.city_layer_stale_if_error_seconds,
+            loader=loader,
+        )
+        return data["rows"], info, int(data["total"])
+
+    async def charging_points(self) -> tuple[list[dict[str, Any]], CacheInfo]:
+        """Accessible EV charging station locations."""
+
+        def mapper(item: dict[str, Any]) -> dict[str, Any]:
+            return {
+                "id": bounded_id(item.get("_id")),
+                "name": bounded_text(item.get("ADRES")),
+                "district": bounded_text(item.get("ILCE"), 128),
+                "neighborhood": bounded_text(item.get("MAHALLE")),
+                "address": bounded_text(item.get("ADRES")),
+                **_lat_lon(item.get("ENLEM"), item.get("BOYLAM")),
+            }
+
+        return await self._layer("charging", CHARGING_RESOURCE_ID, mapper)
 
     async def libraries(self) -> tuple[list[dict[str, Any]], CacheInfo]:
         def mapper(item: dict[str, Any]) -> dict[str, Any]:

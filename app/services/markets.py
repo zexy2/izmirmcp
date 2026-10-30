@@ -4,7 +4,7 @@ from typing import Any
 
 from app.connectors.city_layers import CityLayerConnector, parse_market_days
 from app.core.envelope import Freshness, error_envelope, success_envelope
-from app.core.geo import haversine_m, normalize_name
+from app.core.geo import haversine_m, maps_url, normalize_name
 from app.core.settings import Settings
 from app.core.validation import InputValidationError, resolve_limit, validate_lat_lon, validate_radius
 from app.services import sources
@@ -32,10 +32,6 @@ LIMITS = [
 ]
 
 
-def _maps_url(lat: float, lon: float) -> str:
-    return f"https://www.google.com/maps?q={lat:.6f},{lon:.6f}"
-
-
 def resolve_day(value: str | None) -> str | None:
     if value is None:
         return None
@@ -47,7 +43,7 @@ def resolve_day(value: str | None) -> str | None:
     day = DAY_ALIASES.get(text) or DAY_ALIASES.get(str(value).strip().casefold())
     if day is None:
         raise InputValidationError(
-            "day must be a Turkish weekday name (pazartesi..pazar), bugun or yarin", field="day"
+            "day bir Türkçe hafta günü (pazartesi..pazar), bugun veya yarin olmalıdır", field="day"
         )
     return day
 
@@ -70,7 +66,7 @@ class MarketService:
         day_key = resolve_day(day)
         uses_coordinates = lat is not None or lon is not None
         if uses_coordinates and (lat is None or lon is None):
-            raise InputValidationError("lat and lon must be supplied together", field="lat")
+            raise InputValidationError("lat ve lon birlikte verilmelidir", field="lat")
         if lat is not None and lon is not None:
             validate_lat_lon(lat, lon)
         safe_limit = resolve_limit(limit, self.settings.default_limit, self.settings.max_limit)
@@ -136,11 +132,11 @@ class MarketService:
             selected = with_distance
             limits.extend([f"radius_m={safe_radius}", f"lat={lat:.5f}", f"lon={lon:.5f}"])
         elif radius_m is not None:
-            raise InputValidationError("radius_m requires lat and lon", field="radius_m")
+            raise InputValidationError("radius_m için lat ve lon gerekir", field="radius_m")
 
         for row in selected:
             if row.get("lat") is not None and row.get("lon") is not None:
-                row["maps_url"] = _maps_url(row["lat"], row["lon"])
+                row["maps_url"] = maps_url(row["lat"], row["lon"])
 
         selected.sort(
             key=lambda row: (

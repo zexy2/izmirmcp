@@ -176,8 +176,8 @@ class PlaceResolver:
             return place
         examples = ", ".join(sorted(self.districts())[:8])
         raise InputValidationError(
-            f"Unknown place '{value}'. Use coordinates or one of the supported "
-            f"district/neighborhood names (for example: {examples}).",
+            f"Bilinmeyen yer '{value}'. Koordinat ya da desteklenen ilçe/mahalle "
+            f"adlarından birini kullanın (örn. {examples}).",
             field="place",
         )
 
@@ -201,8 +201,8 @@ class PlaceResolver:
         if not matches:
             examples = ", ".join(sorted(self.districts())[:8])
             raise InputValidationError(
-                f"Unknown İzmir district '{value}'. Use one of the published district "
-                f"names (for example: {examples}).",
+                f"Bilinmeyen İzmir ilçesi '{value}'. Yayımlanmış ilçe adlarından birini "
+                f"kullanın (örn. {examples}).",
                 field="district",
             )
         return matches[0]

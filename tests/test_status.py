@@ -18,7 +18,10 @@ def _settings(tmp_path: Path, **overrides):
 
     base = get_settings()
     return dataclasses.replace(
-        base, database_path=str(tmp_path / "db.sqlite3"), **overrides
+        base,
+        database_path=str(tmp_path / "db.sqlite3"),
+        gtfs_database_path=str(tmp_path / "gtfs.sqlite3"),
+        **overrides,
     )
 
 
@@ -29,14 +32,14 @@ def test_missing_timetable_store_is_absent_not_broken(tmp_path: Path):
 
 
 def test_corrupt_timetable_store_is_broken(tmp_path: Path):
-    path = tmp_path / "db.sqlite3"
+    path = tmp_path / "gtfs.sqlite3"
     path.write_bytes(b"this is not a database")
     check = check_timetable_store(_settings(tmp_path))
     assert check.status == "broken"
 
 
 def test_built_store_is_ok(tmp_path: Path):
-    path = tmp_path / "db.sqlite3"
+    path = tmp_path / "gtfs.sqlite3"
     with sqlite3.connect(path) as connection:
         connection.execute("CREATE TABLE gtfs_meta (key TEXT PRIMARY KEY, value TEXT)")
     assert check_timetable_store(_settings(tmp_path)).status == "ok"
@@ -55,7 +58,7 @@ def test_evaluate_is_not_ready_with_an_empty_surface(tmp_path: Path):
 
 
 def test_evaluate_is_not_ready_with_a_broken_store(tmp_path: Path):
-    (tmp_path / "db.sqlite3").write_bytes(b"garbage")
+    (tmp_path / "gtfs.sqlite3").write_bytes(b"garbage")
     readiness = evaluate(_settings(tmp_path), tool_count=19)
     assert readiness.ready is False
     assert readiness.checks["timetable_store"].status == "broken"
@@ -76,7 +79,9 @@ def test_unwritable_database_directory_is_detected(tmp_path: Path):
     import dataclasses
 
     settings = dataclasses.replace(
-        get_settings(), database_path=str(blocker / "db.sqlite3")
+        get_settings(),
+        database_path=str(blocker / "db.sqlite3"),
+        gtfs_database_path=str(tmp_path / "gtfs.sqlite3"),
     )
     readiness = evaluate(settings, tool_count=19)
     assert readiness.ready is False

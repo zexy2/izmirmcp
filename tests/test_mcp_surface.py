@@ -13,7 +13,7 @@ async def test_all_tools_are_advertised_with_titles_and_structured_output():
     server = create_mcp_server(get_settings())
     tools = await server.list_tools()
     assert [tool.name for tool in tools] == list(DEFAULT_TOOL_NAMES)
-    assert len(tools) == 19
+    assert len(tools) == 31
     for tool in tools:
         assert tool.title
         assert tool.output_schema is not None
@@ -22,13 +22,58 @@ async def test_all_tools_are_advertised_with_titles_and_structured_output():
 
 
 @pytest.mark.asyncio
-async def test_departures_schema_exposes_stop_time_and_line():
+async def test_departures_schema_exposes_stop_time_and_nearby_modes():
     server = create_mcp_server(get_settings())
     departures = next(
         tool for tool in await server.list_tools() if tool.name == "izmir_bus_departures"
     )
-    assert {"stop_id", "at", "line", "limit"} == set(departures.input_schema["properties"])
-    assert departures.input_schema["required"] == ["stop_id"]
+    assert {"stop_id", "stop_query", "lat", "lon", "radius_m", "at", "line",
+            "limit"} == set(departures.input_schema["properties"])
+    assert departures.input_schema.get("required", []) == []
+
+
+@pytest.mark.asyncio
+async def test_mobility_schema_exposes_a_point_and_radius_only():
+    server = create_mcp_server(get_settings())
+    mobility = next(
+        tool for tool in await server.list_tools() if tool.name == "izmir_mobility_nearby"
+    )
+    assert {"lat", "lon", "place", "place_district", "radius_m", "limit"} == set(
+        mobility.input_schema["properties"]
+    )
+
+
+@pytest.mark.asyncio
+async def test_mobility_rejects_both_a_place_and_coordinates():
+    server = create_mcp_server(get_settings())
+    result = await server.call_tool(
+        "izmir_mobility_nearby", {"place": "Konak", "lat": 38.4, "lon": 27.1}
+    )
+    payload = json.loads(result.content[0].text)
+    assert payload["ok"] is False
+    assert payload["error"]["code"] == "validation_error"
+    assert payload["error"]["field"] == "place"
+
+
+@pytest.mark.asyncio
+async def test_datastore_sql_schema_exposes_resource_sql_and_limit():
+    server = create_mcp_server(get_settings())
+    tool = next(tool for tool in await server.list_tools() if tool.name == "izmir_datastore_query")
+    assert {"resource_id", "sql", "limit"} == set(tool.input_schema["properties"])
+    assert set(tool.input_schema["required"]) == {"resource_id", "sql"}
+
+
+@pytest.mark.asyncio
+async def test_datastore_sql_rejects_non_allowlisted_resource_locally():
+    server = create_mcp_server(get_settings())
+    result = await server.call_tool(
+        "izmir_datastore_query",
+        {"resource_id": "not-enabled", "sql": "SELECT COUNT(*) AS n FROM records"},
+    )
+    payload = json.loads(result.content[0].text)
+    assert payload["ok"] is False
+    assert payload["error"]["code"] == "validation_error"
+    assert payload["error"]["field"] == "resource_id"
 
 
 @pytest.mark.asyncio

@@ -6,6 +6,7 @@ forgets the docs turns the suite red instead of shipping a stale contract.
 """
 from __future__ import annotations
 
+import json
 import re
 from pathlib import Path
 
@@ -31,7 +32,9 @@ ALL_DOCS = (
     DOCS / "mcp-interface.md", DOCS / "privacy.md", DOCS / "registry.md",
     DOCS / "place-resolution.md", DOCS / "gtfs-schedule.md",
     DOCS / "source-reachability-analysis.md", DOCS / "api-access.md",
-    DOCS / "browser-cors.md",
+    DOCS / "browser-cors.md", DOCS / "datastore-sql.md",
+    DOCS / "configuration.md", DOCS / "development.md", DOCS / "security.md",
+    DOCS / "tool-migration.md",
 )
 
 
@@ -203,3 +206,22 @@ def test_monitoring_documents_log_fields_from_code():
     for field in re.findall(r'^\s+"([a-z_]+)"\s*:', log_source, flags=re.MULTILINE):
         assert f"`{field}`" in text, f"access log field {field} is undocumented"
     assert "izmir_mcp.access" in text
+
+
+def test_readme_carries_the_mcp_registry_name_marker():
+    """The MCP registry verifies PyPI ownership through this README marker."""
+    name = json.loads((ROOT / "server.json").read_text(encoding="utf-8"))["name"]
+    assert f"<!-- mcp-name: {name} -->" in _text(README)
+
+
+def test_readme_has_an_english_section():
+    assert re.search(r"^## English\b", _text(README), re.M)
+
+
+def test_docs_list_every_workflow_prompt():
+    from app.mcp.prompts import WORKFLOW_PROMPTS
+
+    for doc in (TOOL_REF, DOCS / "mcp-interface.md"):
+        text = _text(doc)
+        for prompt in WORKFLOW_PROMPTS:
+            assert f"`{prompt.__name__}`" in text, f"{doc.name} misses prompt {prompt.__name__}"

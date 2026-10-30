@@ -70,17 +70,17 @@ class DisruptionService:
     ) -> dict[str, Any]:
         safe_limit = resolve_limit(limit, self.settings.default_limit, self.settings.max_limit)
         if line is not None and not str(line).strip():
-            raise InputValidationError("line must not be blank", field="line")
+            raise InputValidationError("line boş olamaz", field="line")
         if operator is not None:
             operator = str(operator).strip().casefold()
             if operator not in OPERATORS:
                 raise InputValidationError(
-                    f"operator must be one of: {', '.join(OPERATORS)}", field="operator"
+                    f"operator şunlardan biri olmalıdır: {', '.join(OPERATORS)}", field="operator"
                 )
         try:
             reference = date.fromisoformat(today) if today else date.today()
         except ValueError as exc:
-            raise InputValidationError("today must use YYYY-MM-DD", field="today") from exc
+            raise InputValidationError("today YYYY-MM-DD biçiminde olmalıdır", field="today") from exc
 
         selected = [operator] if operator else ["eshot", "metro", "izdeniz"]
 

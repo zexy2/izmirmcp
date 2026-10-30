@@ -11,13 +11,18 @@ Failure policy matches the rest of the project: a broken database raises
 """
 from __future__ import annotations
 
+import asyncio
 import json
 import math
 import sqlite3
+from collections.abc import Awaitable, Callable, Iterable, Mapping
+from dataclasses import dataclass, field
+from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
 
 from app.core.geo import EARTH_RADIUS_M, haversine_m
+from app.core.source_cache import CacheInfo
 from app.storage.db import connect, init_database
 
 # One degree of latitude is ~111.32 km; longitude shrinks with cos(lat).
@@ -269,3 +274,143 @@ class GeoStore:
     def distance_degrees_hint(self) -> float:
         """Expose the earth constant used for distances, for diagnostics."""
         return EARTH_RADIUS_M
+
+
+IndexLoader = Callable[[], Awaitable[tuple[list[dict[str, Any]], CacheInfo]]]
+
+
+def _index_age_seconds(built_at: str | None) -> float:
+    """Seconds since ``built_at``; unknown or unparsable stamps are infinitely old."""
+    if not built_at:
+        return float("inf")
+    try:
+        stamp = datetime.fromisoformat(built_at)
+    except ValueError:
+        return float("inf")
+    if stamp.tzinfo is None:
+        stamp = stamp.replace(tzinfo=timezone.utc)
+    return (datetime.now(timezone.utc) - stamp).total_seconds()
+
+
+@dataclass(frozen=True)
+class IndexState:
+    """What the index currently contains and how old it is."""
+
+    counts: dict[str, int] = field(default_factory=dict)
+    built_at: str | None = None
+    age_seconds: float = float("inf")
+
+    def covers(self, kinds: Iterable[str]) -> bool:
+        return all(kind in self.counts for kind in kinds)
+
+    def is_fresh(self, ttl_seconds: float) -> bool:
+        return self.age_seconds <= ttl_seconds
+
+    def ready(self, kinds: Iterable[str], ttl_seconds: float) -> bool:
+        """True when ``kinds`` can be answered without contacting a source."""
+        return self.covers(kinds) and self.is_fresh(ttl_seconds)
+
+
+@dataclass(frozen=True)
+class IndexRefresh:
+    """Outcome of one ensure/refresh pass, in loader order."""
+
+    warm: bool
+    state: IndexState
+    answered: list[str] = field(default_factory=list)
+    refreshed: list[str] = field(default_factory=list)
+    failed: dict[str, str] = field(default_factory=dict)
+    unindexed: dict[str, str] = field(default_factory=dict)
+    empty: list[str] = field(default_factory=list)
+    reports: dict[str, CacheInfo] = field(default_factory=dict)
+
+
+class GeoIndex:
+    """Lifecycle of the spatial index: coverage, age and rebuilds.
+
+    ``GeoStore`` owns the rows; this class owns the policy around them — when
+    the index can answer without contacting a source, which kinds are replaced,
+    and the ``built_at`` stamp. Loaders are injected by the service so this
+    module never imports a connector or a user-facing warning string.
+    """
+
+    def __init__(self, store: GeoStore):
+        self.store = store
+
+    def state(self) -> IndexState:
+        try:
+            meta = self.store.meta()
+            counts = self.store.counts()
+        except GeoStoreError:
+            return IndexState()
+        built_at = meta.get("built_at")
+        return IndexState(
+            counts=counts, built_at=built_at, age_seconds=_index_age_seconds(built_at)
+        )
+
+    async def ensure(
+        self, kinds: Iterable[str], loaders: Mapping[str, IndexLoader], *, ttl_seconds: float
+    ) -> IndexRefresh:
+        """Return the index unchanged when warm and fresh, otherwise rebuild it."""
+        names = [kind for kind in kinds if kind in loaders]
+        state = await asyncio.to_thread(self.state)
+        if state.ready(names, ttl_seconds):
+            return IndexRefresh(warm=True, state=state)
+        return await self.refresh(names, loaders)
+
+    async def refresh(
+        self, kinds: Iterable[str], loaders: Mapping[str, IndexLoader]
+    ) -> IndexRefresh:
+        """Fetch ``kinds`` once each and replace them in per-kind transactions.
+
+        One failing layer never wipes another: each kind is replaced on its own,
+        and a kind whose rows carry no usable coordinate is reported as empty
+        instead of being written as a zero-row layer.
+        """
+        names = [kind for kind in kinds if kind in loaders]
+        outcomes = await asyncio.gather(
+            *(loaders[kind]() for kind in names), return_exceptions=True
+        )
+        answered: list[str] = []
+        refreshed: list[str] = []
+        failed: dict[str, str] = {}
+        unindexed: dict[str, str] = {}
+        empty: list[str] = []
+        reports: dict[str, CacheInfo] = {}
+
+        for kind, outcome in zip(names, outcomes):
+            if isinstance(outcome, BaseException):
+                failed[kind] = type(outcome).__name__
+                continue
+            items, info = outcome
+            answered.append(kind)
+            reports[kind] = info
+            points = [
+                {"kind": kind, **item}
+                for item in items
+                if item.get("lat") is not None and item.get("lon") is not None
+            ]
+            if not points:
+                empty.append(kind)
+                continue
+            try:
+                await asyncio.to_thread(self.store.replace_kind, kind, points)
+            except GeoStoreError as exc:
+                unindexed[kind] = type(exc).__name__
+                continue
+            refreshed.append(kind)
+
+        if refreshed:
+            stamp = datetime.now(timezone.utc).isoformat()
+            await asyncio.to_thread(self.store.set_meta, "built_at", stamp)
+        state = await asyncio.to_thread(self.state)
+        return IndexRefresh(
+            warm=False,
+            state=state,
+            answered=answered,
+            refreshed=refreshed,
+            failed=failed,
+            unindexed=unindexed,
+            empty=empty,
+            reports=reports,
+        )

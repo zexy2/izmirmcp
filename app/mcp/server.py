@@ -13,8 +13,11 @@ from app.core.validation import (
     validate_radius,
 )
 from app.services.air import AirQualityService
+from app.connectors.ibb_cbs import CBS_LAYERS, MARKET_KINDS
 from app.services.bus import BusService
+from app.services.cbs import CbsService
 from app.services.catalog import CatalogService
+from app.services.datastore_sql import DatastoreSqlService
 from app.services.city_services import KINDS as CITY_SERVICE_KINDS
 from app.services.city_services import CityServicesService
 from app.services.disruptions import DisruptionService
@@ -22,22 +25,18 @@ from app.services.markets import MarketService
 from app.services.nearby import SUPPORTED_TYPES, NearbyService
 from app.services.neighborhood import NeighborhoodService
 from app.services.places import PlaceResolver
+from app.services.traffic import TrafficService
 from app.services.transit import TransitService
 from app.services.water import WaterService
 
 settings = get_settings()
 
-NearbyType = Literal[
-    "parking", "pharmacy", "metro_station", "izban_station", "ferry_pier",
-    "bus_stop", "taxi_stand",
-]
+# Derived from the service's own list: a layer the service learns to answer
+# cannot stay rejected by the tool schema, and vice versa.
+NearbyType = Literal[*SUPPORTED_TYPES]
 TransitMode = Literal["metro", "izban", "izdeniz"]
 DisruptionOperator = Literal["eshot", "metro", "izdeniz", "izban"]
 
-
-# İzmir province bounding box (south, west, north, east). Used only to warn
-# that a coordinate cannot possibly match city data — never to reject a query.
-IZMIR_BOUNDS = (37.7, 26.0, 39.6, 28.6)
 
 
 def _reject_boolean_number(value: object, field: str) -> None:
@@ -48,12 +47,7 @@ def _reject_boolean_number(value: object, field: str) -> None:
     targets the Gulf of Guinea. Rejecting here keeps the error attributable.
     """
     if isinstance(value, bool):
-        raise InputValidationError(f"{field} must be a number, not a boolean", field=field)
-
-
-def _outside_izmir(lat: float, lon: float) -> bool:
-    south, west, north, east = IZMIR_BOUNDS
-    return not (south <= lat <= north and west <= lon <= east)
+        raise InputValidationError(f"{field} sayı olmalıdır; mantıksal değer kabul edilmez", field=field)
 
 
 def _validation(exc: InputValidationError, *, tool: str | None = None) -> dict:
@@ -67,7 +61,7 @@ async def izmir_health() -> dict:
     """Return İzmir MCP service readiness and advertised limits."""
     settings = get_settings()
     return success_envelope(
-        summary="İzmir MCP is ready.",
+        summary="İzmir MCP hazır.",
         data=[
             {
                 "service": "izmir-mcp",
@@ -130,6 +124,27 @@ async def izmir_query_resource(
     )
 
 
+async def izmir_datastore_query(
+    resource_id: str,
+    sql: str,
+    limit: int | None = None,
+) -> dict:
+    """Run one bounded SELECT over a complete local snapshot of an allowlisted resource.
+
+    İzmir's CKAN has no ``datastore_search_sql``. The server downloads the whole
+    allowlisted DataStore resource into an isolated in-memory SQLite table named
+    ``records`` and runs a single SELECT there. Use ``izmir_get_resource_schema``
+    first for published column names. No joins, subqueries, CTEs, unions, windows,
+    writes or arbitrary functions are allowed, and a snapshot that cannot be
+    captured completely is reported as ``source_unavailable`` instead of a partial
+    aggregate. The resource must be enabled in
+    ``IZMIR_MCP_CKAN_SQL_ALLOWED_RESOURCE_IDS``.
+    """
+    return await DatastoreSqlService(settings=get_settings()).query(
+        resource_id=resource_id, sql=sql, limit=limit
+    )
+
+
 async def izmir_nearby(
     lat: _OptNum = None,
     lon: _OptNum = None,
@@ -160,31 +175,31 @@ async def izmir_nearby(
         _reject_boolean_number(lon, "lon")
         safe_limit = resolve_limit(limit, settings.default_limit, settings.max_limit)
         if (lat is None) != (lon is None):
-            raise InputValidationError("lat and lon must be supplied together", field="lat")
+            raise InputValidationError("lat ve lon birlikte verilmelidir", field="lat")
         if place is not None and lat is not None:
-            raise InputValidationError("place cannot be combined with lat/lon", field="place")
+            raise InputValidationError("place ile lat/lon birlikte kullanılamaz", field="place")
         location_modes = sum(
             [bbox is not None, district is not None, place is not None, lat is not None]
         )
         if location_modes > 1:
             raise InputValidationError(
-                "bbox, district, place and lat/lon are mutually exclusive; supply one mode",
+                "bbox, district, place ve lat/lon aynı anda kullanılamaz; yalnızca bir mod seçin",
                 field="bbox" if bbox is not None else "district",
             )
         if (bbox is not None or district is not None) and radius_m is not None:
             raise InputValidationError(
-                "radius_m applies only to lat/lon or place mode, not bbox/district",
+                "radius_m yalnızca lat/lon veya place modunda geçerlidir; bbox/district ile kullanılamaz",
                 field="radius_m",
             )
         selected = list(SUPPORTED_TYPES) if types is None else list(types)
         if not selected or any(kind not in SUPPORTED_TYPES for kind in selected):
             raise InputValidationError(
-                f"types must be a non-empty subset of: {', '.join(SUPPORTED_TYPES)}",
+                f"types boş olamaz; şunlardan bir alt küme olmalıdır: {', '.join(SUPPORTED_TYPES)}",
                 field="types",
             )
         if len(selected) > settings.max_nearby_types:
             raise InputValidationError(
-                f"types must contain <= {settings.max_nearby_types} items", field="types"
+                f"types en fazla {settings.max_nearby_types} öğe içerebilir", field="types"
             )
         if bbox is not None:
             return await NearbyService(settings=settings).bbox(
@@ -197,16 +212,16 @@ async def izmir_nearby(
         reference_label = None
         if place_district is not None and place is None:
             raise InputValidationError(
-                "place_district is only valid with place", field="place_district"
+                "place_district yalnızca place ile kullanılabilir", field="place_district"
             )
         if place is not None:
             resolved = PlaceResolver().resolve(place, district=place_district)
             lat, lon = resolved.lat, resolved.lon
             where = f"{resolved.name}, {resolved.district}" if resolved.district else resolved.name
-            reference_label = f"{where} ({resolved.kind} reference point)"
+            reference_label = f"{where} (referans noktası)"
         elif lat is None or lon is None:
             raise InputValidationError(
-                "supply lat/lon, place, bbox or district (for example place='Konak')",
+                "lat/lon, place, bbox veya district verin (örn. place='Konak')",
                 field="place",
             )
         validate_lat_lon(lat, lon)
@@ -231,12 +246,51 @@ async def izmir_nearby(
             *envelope.get("warnings", []),
             "Konum, ilçe/mahalle için yaklaşık referans noktasıdır; kesin adres değildir.",
         ]
-    if _outside_izmir(lat, lon):
-        envelope["warnings"] = [
+    return envelope
+
+
+async def izmir_mobility_nearby(
+    lat: _OptNum = None,
+    lon: _OptNum = None,
+    place: str | None = None,
+    place_district: str | None = None,
+    radius_m: _OptInt = None,
+    limit: _OptInt = None,
+) -> dict:
+    """Answer "what transport is near me" in one envelope.
+
+    Preset over `izmir_nearby` with transport layers only: metro, İZBAN and
+    ferry stops, ESHOT bus stops, taxi stands, charging stations and parking,
+    nearest first, plus a per-mode count in `summary`. Supply `lat`+`lon` or a
+    published `place` reference point (never an address). Two upstream
+    mobility components cannot be included honestly: İzmir publishes no
+    air-quality station coordinates and no live traffic index
+    (`/api/ibb/trafikyogunluk` returns 404); both are stated in `warnings`.
+    Locations are static/published, not live service or ETA.
+    """
+    settings = get_settings()
+    try:
+        _reject_boolean_number(lat, "lat")
+        _reject_boolean_number(lon, "lon")
+        lat_value, lon_value, label = _require_point(lat, lon, place, place_district)
+        safe_radius = validate_radius(
+            1000 if radius_m is None else radius_m, settings.max_radius_m
+        )
+        safe_limit = resolve_limit(limit, settings.default_limit, settings.max_limit)
+    except InputValidationError as exc:
+        return _validation(exc, tool="izmir_mobility_nearby")
+    envelope = await NearbyService(settings=settings).mobility(
+        lat=lat_value,
+        lon=lon_value,
+        radius_m=safe_radius,
+        limit=safe_limit,
+        reference_label=label,
+    )
+    if place is not None:
+        envelope["warnings"] = sorted(set([
             *envelope.get("warnings", []),
-            "Verilen koordinat İzmir il sınırları dışında görünüyor; boş sonuç "
-            "'İzmir'de hizmet yok' kanıtı değildir.",
-        ]
+            "Konum, ilçe/mahalle için yaklaşık referans noktasıdır; kesin adres değildir.",
+        ]))
     return envelope
 
 
@@ -328,6 +382,29 @@ async def izmir_neighborhood_profile(
         return _validation(exc, tool="izmir_neighborhood_profile")
 
 
+async def izmir_traffic_history(
+    segment: str | None = None,
+    since: str | None = None,
+    until: str | None = None,
+    limit: int | None = None,
+) -> dict:
+    """Return İzmir arterial speed/duration **history**, not live traffic.
+
+    İzmir publishes no live traffic index (`/api/ibb/trafikyogunluk` returns 404).
+    The only real data is a per-segment history: fixed point pairs such as
+    "Marina Kavşağı → Konak Pier" with measured speed and duration. `since` and
+    `until` are YYYY-MM-DD; `segment` matches either endpoint name.
+    """
+    settings = get_settings()
+    try:
+        safe_limit = resolve_limit(limit, settings.default_limit, settings.max_limit)
+        return await TrafficService(settings=settings).list(
+            segment=segment, since=since, until=until, limit=safe_limit
+        )
+    except InputValidationError as exc:
+        return _validation(exc, tool="izmir_traffic_history")
+
+
 async def izmir_gtfs_status() -> dict:
     """Report the local EShot GTFS timetable store without touching the network.
 
@@ -376,22 +453,38 @@ async def izmir_bus_arrivals(stop_id: str, limit: int | None = None) -> dict:
 
 
 async def izmir_bus_departures(
-    stop_id: str,
+    stop_id: str | None = None,
+    stop_query: str | None = None,
+    lat: _OptNum = None,
+    lon: _OptNum = None,
+    radius_m: _OptInt = None,
     at: str | None = None,
     line: str | None = None,
     limit: _OptInt = None,
 ) -> dict:
-    """Return scheduled GTFS departures from one EShot stop from `at` onwards.
+    """Return scheduled GTFS departures for one stop, or for stops near a point.
 
-    `at` accepts `HH:MM` (Europe/Istanbul) or an ISO-8601 date/time; it defaults
-    to now. `stop_id` must come from `izmir_bus_stops`. Results are published
-    timetable times, never live ETAs, and every answer carries the feed's
-    `calendar_end`. The EShot calendar currently ends on 2026-10-09, so dates
-    after that return no timetable rows with an explicit staleness warning.
+    Supply exactly one target:
+    - `stop_id` for one published EShot stop.
+    - `stop_query` to find stop ids by name (Turkish/ASCII spellings, fuzzy
+      suggestions labelled). This mode returns stop candidates, **not**
+      departures; confirm one, then call again with `stop_id`.
+    - `lat`+`lon` with an optional `radius_m` (default 500 m) to merge planned
+      departures from the nearest published stops; each row carries `stop_id`,
+      `stop_name` and `distance_m`.
+    `at` accepts `HH:MM` (Europe/Istanbul) or an ISO-8601 date/time and defaults
+    to now; it does not apply to `stop_query`. `line` filters departures by
+    published route short name. Results are published timetable times, never
+    live ETAs, and every answer carries the feed's `calendar_end`. The EShot
+    calendar currently ends on 2026-10-09, so later dates return no timetable
+    rows with an explicit staleness warning.
     """
+    _reject_boolean_number(lat, "lat")
+    _reject_boolean_number(lon, "lon")
     try:
         return await BusService(settings=get_settings()).departures(
-            stop_id=str(stop_id or "").strip(), at=at, line=line, limit=limit
+            stop_id=stop_id, stop_query=stop_query, lat=lat, lon=lon,
+            radius_m=radius_m, at=at, line=line, limit=limit,
         )
     except InputValidationError as exc:
         return _validation(exc, tool="izmir_bus_departures")
@@ -434,18 +527,18 @@ def _require_point(
     _reject_boolean_number(lat, "lat")
     _reject_boolean_number(lon, "lon")
     if (lat is None) != (lon is None):
-        raise InputValidationError("lat and lon must be supplied together", field="lat")
+        raise InputValidationError("lat ve lon birlikte verilmelidir", field="lat")
     if place is not None and lat is not None:
-        raise InputValidationError("place cannot be combined with lat/lon", field="place")
+        raise InputValidationError("place ile lat/lon birlikte kullanılamaz", field="place")
     if place_district is not None and place is None:
-        raise InputValidationError("place_district is only valid with place", field="place_district")
+        raise InputValidationError("place_district yalnızca place ile kullanılabilir", field="place_district")
     if place is not None:
         resolved = PlaceResolver().resolve(place, district=place_district)
         where = f"{resolved.name}, {resolved.district}" if resolved.district else resolved.name
-        return resolved.lat, resolved.lon, f"{where} ({resolved.kind} reference point)"
+        return resolved.lat, resolved.lon, f"{where} (referans noktası)"
     if lat is None or lon is None:
         raise InputValidationError(
-            "supply lat/lon or place (for example place='Konak')", field="place"
+            "lat/lon veya place verin (örn. place='Konak')", field="place"
         )
     validate_lat_lon(lat, lon)
     return lat, lon, None
@@ -534,24 +627,24 @@ async def izmir_city_services_nearby(
         selected = list(CITY_SERVICE_KINDS) if kinds is None else list(kinds)
         if not selected or any(kind not in CITY_SERVICE_KINDS for kind in selected):
             raise InputValidationError(
-                f"kinds must be a non-empty subset of: {', '.join(CITY_SERVICE_KINDS)}",
+                f"kinds boş olamaz; şunlardan bir alt küme olmalıdır: {', '.join(CITY_SERVICE_KINDS)}",
                 field="kinds",
             )
         if (lat is None) != (lon is None):
-            raise InputValidationError("lat and lon must be supplied together", field="lat")
+            raise InputValidationError("lat ve lon birlikte verilmelidir", field="lat")
         if place is not None and lat is not None:
-            raise InputValidationError("place cannot be combined with lat/lon", field="place")
+            raise InputValidationError("place ile lat/lon birlikte kullanılamaz", field="place")
         location_modes = sum(
             [bbox is not None, district is not None, place is not None, lat is not None]
         )
         if location_modes > 1:
             raise InputValidationError(
-                "bbox, district, place and lat/lon are mutually exclusive; supply one mode",
+                "bbox, district, place ve lat/lon aynı anda kullanılamaz; yalnızca bir mod seçin",
                 field="bbox" if bbox is not None else "district",
             )
         if (bbox is not None or district is not None) and radius_m is not None:
             raise InputValidationError(
-                "radius_m applies only to lat/lon or place mode, not bbox/district",
+                "radius_m yalnızca lat/lon veya place modunda geçerlidir; bbox/district ile kullanılamaz",
                 field="radius_m",
             )
         if bbox is not None:
@@ -585,3 +678,160 @@ async def izmir_city_services_nearby(
             "Konum, ilçe/mahalle için yaklaşık referans noktasıdır; kesin adres değildir.",
         ]
     return envelope
+
+
+CbsLayer = Literal[*CBS_LAYERS]
+HalKind = Literal[*MARKET_KINDS]
+
+
+async def izmir_tram_lines() -> dict:
+    """List İzmir tram lines and directions with their `line_id` values.
+
+    Use the returned `line_id` with `izmir_tram_schedule`. Published data only,
+    not live tram positions.
+    """
+    return await TransitService(settings=get_settings()).tram_lines()
+
+
+async def izmir_tram_schedule(line_id: int) -> dict:
+    """Return stations and published headways for one tram line.
+
+    `line_id` must come from `izmir_tram_lines`. Headways are a published
+    timetable, not live arrival times.
+    """
+    try:
+        return await TransitService(settings=get_settings()).tram_schedule(line_id=line_id)
+    except InputValidationError as exc:
+        return _validation(exc, tool="izmir_tram_schedule")
+
+
+async def izmir_bus_line_arrivals(
+    line: str, stop_id: str | None = None, limit: _OptInt = None
+) -> dict:
+    """Return buses of one EShot line approaching a stop.
+
+    With `stop_id` (from `izmir_bus_stops`) the stop's live arrivals are filtered
+    to `line`. Without it there is no stop to approach, so the line's live bus
+    positions are returned instead. No ETA in minutes is published.
+    """
+    try:
+        return await BusService(settings=get_settings()).line_arrivals(
+            line=line, stop_id=stop_id, limit=limit
+        )
+    except InputValidationError as exc:
+        return _validation(exc, tool="izmir_bus_line_arrivals")
+
+
+async def izmir_bus_live_positions(line: str, limit: _OptInt = None) -> dict:
+    """Return live vehicle positions of buses on one EShot line.
+
+    Positions are cached for at most 15 seconds and are a snapshot; an empty
+    result does not prove that no bus is running.
+    """
+    try:
+        return await BusService(settings=get_settings()).line_live_positions(
+            line=line, limit=limit
+        )
+    except InputValidationError as exc:
+        return _validation(exc, tool="izmir_bus_live_positions")
+
+
+async def izmir_dam_status(
+    date: str | None = None, dam_name: str | None = None, limit: _OptInt = None
+) -> dict:
+    """Return İZSU dam levels for one day, optionally a single dam.
+
+    `date` is `YYYY-MM-DD` (default today, never in the future). `dam_name`
+    matches case- and Turkish-letter-insensitively (e.g. "Tahtalı").
+    """
+    try:
+        return await WaterService(settings=get_settings()).dam_status(
+            date=date, dam_name=dam_name, limit=limit
+        )
+    except InputValidationError as exc:
+        return _validation(exc, tool="izmir_dam_status")
+
+
+async def izmir_pharmacies_all(
+    area: str | None = None,
+    query: str | None = None,
+    lat: _OptNum = None,
+    lon: _OptNum = None,
+    radius_m: _OptInt = None,
+    limit: _OptInt = None,
+) -> dict:
+    """List all İzmir pharmacies (not only on-duty ones).
+
+    `area` filters the published region label, `query` the name. `lat`+`lon`
+    with optional `radius_m` ranks by straight-line distance. For tonight's
+    on-duty pharmacy use `izmir_nearby(types=["pharmacy"])`.
+    """
+    try:
+        _reject_boolean_number(lat, "lat")
+        _reject_boolean_number(lon, "lon")
+        return await CbsService(settings=get_settings()).pharmacies_all(
+            area=area, query=query, near_lat=lat, near_lon=lon,
+            radius_m=radius_m, limit=limit,
+        )
+    except InputValidationError as exc:
+        return _validation(exc, tool="izmir_pharmacies_all")
+
+
+async def izmir_cbs_layer(
+    layer: CbsLayer,
+    lat: _OptNum = None,
+    lon: _OptNum = None,
+    radius_m: _OptInt = None,
+    district: str | None = None,
+    limit: _OptInt = None,
+) -> dict:
+    """Return places from one allowlisted İzmir Büyükşehir GIS (CBS) layer.
+
+    Examples: muzeler, hastaneler, plajlar, kutuphaneler. Locations are a
+    published layer, not opening hours or live status.
+    """
+    try:
+        _reject_boolean_number(lat, "lat")
+        _reject_boolean_number(lon, "lon")
+        return await CbsService(settings=get_settings()).layer(
+            layer=layer, near_lat=lat, near_lon=lon, radius_m=radius_m,
+            district=district, limit=limit,
+        )
+    except InputValidationError as exc:
+        return _validation(exc, tool="izmir_cbs_layer")
+
+
+async def izmir_events(
+    query: str | None = None, free_only: bool = False, limit: _OptInt = None
+) -> dict:
+    """Return İzmir Büyükşehir culture and arts events.
+
+    `query` matches title/venue text; `free_only` keeps free events. Confirm
+    times with the organiser before attending.
+    """
+    try:
+        return await CbsService(settings=get_settings()).events(
+            query=query, free_only=free_only, limit=limit
+        )
+    except InputValidationError as exc:
+        return _validation(exc, tool="izmir_events")
+
+
+async def izmir_market_prices(
+    kind: HalKind = "sebzemeyve",
+    day: str | None = None,
+    query: str | None = None,
+    limit: _OptInt = None,
+) -> dict:
+    """Return İzmir wholesale market (hal) prices for produce or fish.
+
+    `day` is `YYYY-MM-DD` (default today). If the source has no prices for
+    that day, earlier days are tried and the actual day is reported. For
+    neighbourhood market days use `izmir_market_schedule`.
+    """
+    try:
+        return await CbsService(settings=get_settings()).market_prices(
+            kind=kind, day=day, query=query, limit=limit
+        )
+    except InputValidationError as exc:
+        return _validation(exc, tool="izmir_market_prices")

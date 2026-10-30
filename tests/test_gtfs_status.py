@@ -30,7 +30,7 @@ async def test_status_is_unavailable_when_no_store_exists(tmp_path: Path):
     settings = get_settings()
     service = BusService(
         settings=type(settings)(
-            **{**settings.__dict__, "database_path": str(tmp_path / "missing.sqlite3")}
+            **{**settings.__dict__, "gtfs_database_path": str(tmp_path / "missing.sqlite3")}
         ),
         api=_NoNetworkApi(),
     )
@@ -68,7 +68,7 @@ async def test_status_reports_store_metadata_and_calendar_window(tmp_path: Path)
     settings = get_settings()
     service = BusService(
         settings=type(settings)(
-            **{**settings.__dict__, "database_path": str(db)}
+            **{**settings.__dict__, "gtfs_database_path": str(db)}
         ),
         api=_NoNetworkApi(),
     )
@@ -98,7 +98,7 @@ async def test_status_says_calendar_is_valid_when_it_has_not_expired(tmp_path: P
         )
     settings = get_settings()
     service = BusService(
-        settings=type(settings)(**{**settings.__dict__, "database_path": str(db)}),
+        settings=type(settings)(**{**settings.__dict__, "gtfs_database_path": str(db)}),
         api=_NoNetworkApi(),
     )
     envelope = await service.timetable_status()

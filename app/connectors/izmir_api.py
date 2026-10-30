@@ -4,6 +4,7 @@ from datetime import date
 from typing import Any
 
 from app.connectors.http import get_json
+from app.connectors.schema import expect_type
 from app.core.envelope import bounded_id, bounded_text, finite_number
 from app.core.geo import valid_lat_lon
 from app.core.settings import Settings
@@ -61,10 +62,9 @@ class IzmirOpenApi:
                 timeout=self.settings.request_timeout_seconds,
                 attempts=self.settings.request_attempts,
                 max_bytes=self.settings.response_max_bytes,
+                strict=True,
             )
-            if not isinstance(payload, (list, dict)):
-                raise ValueError("unexpected API payload")
-            return payload
+            return expect_type(payload, (list, dict), what=f"openapi {path}")
 
         return await cached_source_data(
             key,
@@ -277,6 +277,55 @@ class IzmirOpenApi:
                 }
             )
         return routes, info
+
+
+    async def tram_lines(self) -> tuple[list[dict[str, Any]], CacheInfo]:
+        payload, info = await self._cached("tramvay/hatlar", "openapi.tram.lines")
+        rows = [
+            {
+                "line_id": item.get("HatId"),
+                "name": bounded_text(item.get("Adi")),
+                "side": bounded_text(item.get("Aciklama"), 128),
+                "start": bounded_text(item.get("HatBaslangic"), 128),
+                "end": bounded_text(item.get("HatBitis"), 128),
+            }
+            for item in _records(payload)
+        ]
+        return rows, info
+
+    async def tram_stations(self, line_id: int) -> tuple[list[dict[str, Any]], CacheInfo]:
+        payload, info = await self._cached(
+            f"tramvay/istasyonlar/{line_id}", f"openapi.tram.stations.{line_id}"
+        )
+        rows = []
+        for item in _records(payload):
+            pair = _coordinates(item.get("Enlem"), item.get("Boylam"))
+            if pair is None:
+                continue
+            rows.append(
+                {
+                    "id": item.get("IstasyonId"),
+                    "name": bounded_text(item.get("Adi")),
+                    "lat": pair[0],
+                    "lon": pair[1],
+                }
+            )
+        return rows, info
+
+    async def tram_schedule(self, line_id: int) -> tuple[list[dict[str, Any]], CacheInfo]:
+        payload, info = await self._cached(
+            f"tramvay/seferler/{line_id}", f"openapi.tram.schedule.{line_id}"
+        )
+        rows = [
+            {
+                "order": item.get("Sira"),
+                "start": item.get("BaslangicSaati"),
+                "end": item.get("BitisSaati"),
+                "interval_minutes": _as_float(item.get("Aralik")),
+            }
+            for item in _records(payload)
+        ]
+        return rows, info
 
 
 def _station_rows(payload: Any, *, order_key: str) -> list[dict[str, Any]]:

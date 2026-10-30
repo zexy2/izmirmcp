@@ -19,7 +19,7 @@ class TransitService:
 
     async def stations(self, *, mode: str, limit: int | None = None) -> dict[str, Any]:
         if mode not in MODES:
-            raise InputValidationError("mode must be metro, izban or izdeniz", field="mode")
+            raise InputValidationError("mode metro, izban veya izdeniz olmalıdır", field="mode")
         safe_limit = resolve_limit(limit, self.settings.max_limit, self.settings.max_limit)
         sources_by_mode = {"metro": sources.METRO, "izban": sources.IZBAN, "izdeniz": sources.FERRY}
         try:
@@ -64,14 +64,14 @@ class TransitService:
         day: int = 1,
     ) -> dict[str, Any]:
         if mode not in MODES:
-            raise InputValidationError("mode must be metro, izban or izdeniz", field="mode")
+            raise InputValidationError("mode metro, izban veya izdeniz olmalıdır", field="mode")
         if not 1 <= day <= 7:
-            raise InputValidationError("day must be between 1 and 7 (source day id)", field="day")
+            raise InputValidationError("day 1 ile 7 arasında olmalıdır (kaynağın gün kimliği)", field="day")
 
         if mode == "metro":
             if any(value is not None for value in (from_id, to_id, pier_id)):
                 raise InputValidationError(
-                    "metro schedule is a city-wide frequency table; from_id, to_id and pier_id are not supported",
+                    "metro tarifesi şehir geneli sıklık tablosudur; from_id, to_id ve pier_id desteklenmez",
                     field="from_id",
                 )
             try:
@@ -91,9 +91,9 @@ class TransitService:
 
         if mode == "izban":
             if from_id is None or to_id is None:
-                raise InputValidationError("izban requires from_id and to_id", field="from_id")
+                raise InputValidationError("izban için from_id ve to_id gerekir", field="from_id")
             if pier_id is not None:
-                raise InputValidationError("pier_id is only for izdeniz", field="pier_id")
+                raise InputValidationError("pier_id yalnızca izdeniz içindir", field="pier_id")
             try:
                 rows, info = await self.api.izban_schedule(from_id, to_id)
             except Exception as exc:  # noqa: BLE001 - never leak a source failure
@@ -112,7 +112,7 @@ class TransitService:
 
         if pier_id is not None and (from_id is not None or to_id is not None):
             raise InputValidationError(
-                "use either pier_id or from_id/to_id for izdeniz", field="pier_id"
+                "izdeniz için pier_id ya da from_id/to_id ikilisinden birini kullanın", field="pier_id"
             )
         if pier_id is not None:
             try:
@@ -133,7 +133,7 @@ class TransitService:
             )
         if from_id is None or to_id is None:
             raise InputValidationError(
-                "izdeniz requires pier_id or both from_id and to_id", field="pier_id"
+                "izdeniz için pier_id ya da from_id ile to_id birlikte gerekir", field="pier_id"
             )
         try:
             rows, info = await self.api.izdeniz_route_schedule(from_id, to_id, day)
@@ -149,6 +149,60 @@ class TransitService:
             source=sources.TRANSIT_FERRY,
             summary=f"{len(rows)} İZDENİZ hattı listelendi ({from_id} → {to_id}, gün {day}).",
             limits=[f"from_id={from_id}", f"to_id={to_id}", f"day={day}"],
+        )
+
+    async def tram_lines(self) -> dict[str, Any]:
+        try:
+            rows, info = await self.api.tram_lines()
+        except Exception as exc:  # noqa: BLE001 - never leak a source failure
+            return self._fetch_failure(exc, "Tramvay hat listesi okunamadı.", sources.TRANSIT_TRAM, [])
+        return success_envelope(
+            summary=f"{len(rows)} tramvay hattı/yönü listelendi.",
+            data=rows,
+            sources=[sources.TRANSIT_TRAM],
+            freshness=Freshness(
+                status=info.status,
+                ttl_seconds=self.settings.openapi_cache_ttl_seconds,
+                source_updated_at=info.source_updated_at,
+            ),
+            limits=["line_id kaynağın HatId değeridir; her yön ayrı satırdır."],
+            warnings=["Yayımlanmış hat listesidir; canlı sefer durumu değildir."],
+            next_queries=["Durak ve sefer sıklığı için izmir_tram_schedule(line_id=<line_id>) kullanın."],
+            matched=len(rows),
+        )
+
+    async def tram_schedule(self, *, line_id: int) -> dict[str, Any]:
+        if isinstance(line_id, bool) or not isinstance(line_id, int) or not 1 <= line_id <= 999:
+            raise InputValidationError("line_id 1 ile 999 arasında bir tamsayı olmalıdır", field="line_id")
+        limits = [f"line_id={line_id}"]
+        try:
+            stations, station_info = await self.api.tram_stations(line_id)
+            frequency, info = await self.api.tram_schedule(line_id)
+        except Exception as exc:  # noqa: BLE001 - never leak a source failure
+            return self._fetch_failure(
+                exc, "Tramvay sefer bilgisi okunamadı.", sources.TRANSIT_TRAM, limits
+            )
+        warnings = [
+            "Yayımlanmış tarifedir; canlı kalkış, gecikme veya varış garantisi değildir.",
+        ]
+        if not stations and not frequency:
+            warnings.append(
+                "Kaynak bu line_id için veri döndürmedi; izmir_tram_lines ile geçerli kimlikleri kontrol edin."
+            )
+        return success_envelope(
+            summary=(
+                f"Tramvay hattı {line_id}: {len(stations)} istasyon, "
+                f"{len(frequency)} sefer sıklığı dilimi."
+            ),
+            data=[{"line_id": line_id, "stations": stations, "frequency": frequency}],
+            sources=[sources.TRANSIT_TRAM],
+            freshness=Freshness(
+                status="stale" if "stale" in (info.status, station_info.status) else info.status,
+                ttl_seconds=self.settings.openapi_cache_ttl_seconds,
+                source_updated_at=info.source_updated_at,
+            ),
+            limits=[*limits, "Sıklık saat aralığı ve dakika cinsinden sefer aralığıdır."],
+            warnings=warnings,
         )
 
     @staticmethod
