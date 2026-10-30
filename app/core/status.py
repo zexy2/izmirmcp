@@ -6,6 +6,7 @@ probe would hammer them and turn their outage into a restart loop. The one
 genuinely local dependency that can silently break a whole tool family is the
 GTFS timetable store, so it is checked explicitly.
 """
+
 from __future__ import annotations
 
 import sqlite3
@@ -117,7 +118,5 @@ def public_readiness(readiness: Readiness) -> dict[str, Any]:
     return {
         "ready": readiness.ready,
         "upstream_health": "not_checked",
-        "checks": {
-            name: check.status for name, check in readiness.checks.items()
-        },
+        "checks": {name: check.status for name, check in readiness.checks.items()},
     }

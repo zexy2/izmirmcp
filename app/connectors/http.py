@@ -125,12 +125,10 @@ async def _resolve_public(host: str, port: int) -> str:
     records is treated as hostile rather than filtered.
     """
     try:
-        infos = await asyncio.get_running_loop().getaddrinfo(
-            host, port, type=socket.SOCK_STREAM
-        )
+        infos = await asyncio.get_running_loop().getaddrinfo(host, port, type=socket.SOCK_STREAM)
     except socket.gaierror as exc:
         raise httpx.ConnectError(f"could not resolve {host}") from exc
-    addresses = [info[4][0] for info in infos]
+    addresses = [str(info[4][0]) for info in infos]
     if not addresses:
         raise httpx.ConnectError(f"could not resolve {host}")
     if not all(_is_public_ip(address) for address in addresses):
@@ -193,9 +191,7 @@ def clear_host_cooldowns() -> None:
     _host_cooldowns.clear()
 
 
-async def _get_same_origin(
-    client: httpx.AsyncClient, url: str
-) -> tuple[httpx.Response, str]:
+async def _get_same_origin(client: httpx.AsyncClient, url: str) -> tuple[httpx.Response, str]:
     """GET ``url`` following at most ``MAX_REDIRECTS`` same-origin redirects.
 
     A cross-host or scheme-changing redirect is refused with ``SourceError`` so
@@ -250,9 +246,7 @@ async def _get_bytes(
     deadline = total_deadline if total_deadline is not None else timeout * 2
     try:
         async with asyncio.timeout(deadline):
-            return await _get_bytes_inner(
-                url, timeout=timeout, attempts=attempts, max_bytes=max_bytes, accept=accept
-            )
+            return await _get_bytes_inner(url, timeout=timeout, attempts=attempts, max_bytes=max_bytes, accept=accept)
     except TimeoutError as exc:
         raise SourceTimeoutError("source request exceeded its total deadline") from exc
 
@@ -334,9 +328,7 @@ async def get_text(
     accept: str = "text/csv,text/plain,*/*",
     strict: bool = False,
 ) -> str:
-    body = await _get_bytes(
-        url, timeout=timeout, attempts=attempts, max_bytes=max_bytes, accept=accept
-    )
+    body = await _get_bytes(url, timeout=timeout, attempts=attempts, max_bytes=max_bytes, accept=accept)
     return _decode(body, strict=strict)
 
 
@@ -405,12 +397,14 @@ def _declared_entry_count(body: bytes) -> int | None:
         end = index + 3
         if index + EOCD_SIZE > len(body):
             continue
-        comment_length = int.from_bytes(body[index + 20:index + 22], "little")
+        comment_length = int.from_bytes(body[index + 20 : index + 22], "little")
         if index + EOCD_SIZE + comment_length == len(body):
-            counts.append(max(
-                int.from_bytes(body[index + 8:index + 10], "little"),
-                int.from_bytes(body[index + 10:index + 12], "little"),
-            ))
+            counts.append(
+                max(
+                    int.from_bytes(body[index + 8 : index + 10], "little"),
+                    int.from_bytes(body[index + 10 : index + 12], "little"),
+                )
+            )
     return max(counts) if counts else None
 
 
@@ -432,9 +426,7 @@ def read_zip_members(
         raise SourceError("source did not return a ZIP archive")
     declared = _declared_entry_count(body)
     if declared is not None and declared > max_entries:
-        raise SourceError(
-            f"ZIP archive declares {declared} entries; limit is {max_entries}"
-        )
+        raise SourceError(f"ZIP archive declares {declared} entries; limit is {max_entries}")
     try:
         archive = zipfile.ZipFile(io.BytesIO(body))
     except zipfile.BadZipFile as exc:
@@ -442,9 +434,7 @@ def read_zip_members(
     with archive:
         infos = archive.infolist()
         if len(infos) > max_entries:
-            raise SourceError(
-                f"ZIP archive declares {len(infos)} entries; limit is {max_entries}"
-            )
+            raise SourceError(f"ZIP archive declares {len(infos)} entries; limit is {max_entries}")
         names = {info.filename for info in infos}
         missing = [name for name in required if name not in names]
         if missing:

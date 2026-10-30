@@ -1,4 +1,5 @@
 """Offline tests for scripts/uptime_check.py against a real local HTTP server."""
+
 from __future__ import annotations
 
 import importlib.util
@@ -42,8 +43,12 @@ def _serve(behaviour: dict):
             msg = json.loads(self.rfile.read(int(self.headers["content-length"])))
             if msg["method"] == "initialize":
                 result = {"serverInfo": {"name": behaviour.get("name", "izmir-mcp")}}
-                self._send(200, "event: message\ndata: " + json.dumps({"jsonrpc": "2.0", "id": 1, "result": result}) + "\n\n",
-                           ctype="text/event-stream", headers={"mcp-session-id": "s1"})
+                self._send(
+                    200,
+                    "event: message\ndata: " + json.dumps({"jsonrpc": "2.0", "id": 1, "result": result}) + "\n\n",
+                    ctype="text/event-stream",
+                    headers={"mcp-session-id": "s1"},
+                )
             else:
                 behaviour["session_seen"] = self.headers.get("mcp-session-id")
                 tools = behaviour.get("tools", [{"name": "izmir_status"}])
@@ -77,12 +82,15 @@ def test_healthy_endpoint_writes_github_output(endpoint, tmp_path, monkeypatch):
     assert state["session_seen"] == "s1"
 
 
-@pytest.mark.parametrize(("behaviour", "fragment"), [
-    ({"health_status": 503}, "HTTP"),
-    ({"ok": False}, "/healthz"),
-    ({"name": "other-mcp"}, "server info"),
-    ({"tools": []}, "no tools"),
-])
+@pytest.mark.parametrize(
+    ("behaviour", "fragment"),
+    [
+        ({"health_status": 503}, "HTTP"),
+        ({"ok": False}, "/healthz"),
+        ({"name": "other-mcp"}, "server info"),
+        ({"tools": []}, "no tools"),
+    ],
+)
 def test_unhealthy_reasons(endpoint, behaviour, fragment):
     url, _ = endpoint(**behaviour)
     reason = uptime_check.probe(url, timeout=5)

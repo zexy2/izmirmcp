@@ -17,8 +17,7 @@ LIMITS = [
     "Nüfus ve bina katmanları farklı tarihlerde yayımlanır; aynı yılın verisi "
     "oldukları varsayılmaz. `population_year` / `building_year` null ise kaynak "
     "yıl yayımlamıyor demektir.",
-    "Kişi/bina oranı ham bölmedir; nüfus sayımı ile bina stokunun aynı anda "
-    "ölçüldüğü anlamına gelmez.",
+    "Kişi/bina oranı ham bölmedir; nüfus sayımı ile bina stokunun aynı anda ölçüldüğü anlamına gelmez.",
 ]
 
 
@@ -49,12 +48,10 @@ class NeighborhoodService:
                 # caller supplied `neighborhood`, so report that instead.
                 raise InputValidationError(str(exc), field="neighborhood") from exc
             resolved_district = place.district
-        else:
+        elif district is not None:
             resolved_district = PlaceResolver().resolve_district(district).name
 
-        outcomes = await asyncio.gather(
-            self.api.population_rows(), self.api.building_rows(), return_exceptions=True
-        )
+        outcomes = await asyncio.gather(self.api.population_rows(), self.api.building_rows(), return_exceptions=True)
         population, population_info = self._split(outcomes[0])
         buildings, building_info = self._split(outcomes[1])
 
@@ -96,9 +93,7 @@ class NeighborhoodService:
 
         if neighborhood is None:
             target = normalize_name(resolved_district or "")
-            selected = sorted(
-                key for key in keys if normalize_name(key[0]) == target
-            )
+            selected = sorted(key for key in keys if normalize_name(key[0]) == target)
             if not selected:
                 raise InputValidationError(
                     f"'{resolved_district}' için yayımlanmış mahalle profili bulunamadı.",
@@ -108,15 +103,12 @@ class NeighborhoodService:
             matched.sort(key=lambda row: row["neighborhood_label"] or row["neighborhood"] or "")
             data = matched[:safe_limit]
             scope = "district"
-            summary = (
-                f"{resolved_district} için {len(matched)} mahalle profili bulundu"
-                + (f"; ilk {len(data)} gösteriliyor." if len(matched) > len(data) else ".")
+            summary = f"{resolved_district} için {len(matched)} mahalle profili bulundu" + (
+                f"; ilk {len(data)} gösteriliyor." if len(matched) > len(data) else "."
             )
         else:
             try:
-                target_place = PlaceResolver().resolve_neighborhood(
-                    neighborhood, district=district
-                )
+                target_place = PlaceResolver().resolve_neighborhood(neighborhood, district=district)
             except InputValidationError as exc:
                 raise InputValidationError(str(exc), field="neighborhood") from exc
             target_name = normalize_name(target_place.name)
@@ -125,8 +117,7 @@ class NeighborhoodService:
                 (
                     key
                     for key in keys
-                    if normalize_name(key[0]) == target_district
-                    and normalize_name(key[1]) == target_name
+                    if normalize_name(key[0]) == target_district and normalize_name(key[1]) == target_name
                 ),
                 None,
             )
@@ -158,7 +149,7 @@ class NeighborhoodService:
                 *LIMITS,
                 f"limit={safe_limit}",
                 f"district={resolved_district}",
-                *( [f"neighborhood={neighborhood}"] if neighborhood else [] ),
+                *([f"neighborhood={neighborhood}"] if neighborhood else []),
             ],
             warnings=warnings,
             next_queries=[
@@ -201,14 +192,13 @@ class NeighborhoodService:
 
         pop = find(population)
         bld = find(buildings)
+
         def as_count(value):
             return int(value) if isinstance(value, (int, float)) else None
 
         male = as_count(pop.get("male")) if pop else None
         female = as_count(pop.get("female")) if pop else None
-        total = (
-            (male or 0) + (female or 0) if male is not None or female is not None else None
-        )
+        total = (male or 0) + (female or 0) if male is not None or female is not None else None
         count = as_count(bld.get("buildings")) if bld else None
         ratio = round(total / count, 2) if total and count else None
         return {

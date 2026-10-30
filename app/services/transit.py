@@ -98,7 +98,9 @@ class TransitService:
                 rows, info = await self.api.izban_schedule(from_id, to_id)
             except Exception as exc:  # noqa: BLE001 - never leak a source failure
                 return self._fetch_failure(
-                    exc, "İZBAN sefer tarifesi okunamadı.", sources.TRANSIT_IZBAN,
+                    exc,
+                    "İZBAN sefer tarifesi okunamadı.",
+                    sources.TRANSIT_IZBAN,
                     [f"from_id={from_id}", f"to_id={to_id}"],
                 )
             return self._response(
@@ -119,7 +121,9 @@ class TransitService:
                 payload, info = await self.api.izdeniz_pier_schedule(pier_id, day)
             except Exception as exc:  # noqa: BLE001 - never leak a source failure
                 return self._fetch_failure(
-                    exc, "İZDENİZ iskele tarifesi okunamadı.", sources.TRANSIT_FERRY,
+                    exc,
+                    "İZDENİZ iskele tarifesi okunamadı.",
+                    sources.TRANSIT_FERRY,
                     [f"pier_id={pier_id}", f"day={day}"],
                 )
             departures = payload.get("departures", [])
@@ -132,14 +136,14 @@ class TransitService:
                 limits=[f"pier_id={pier_id}", f"day={day}"],
             )
         if from_id is None or to_id is None:
-            raise InputValidationError(
-                "izdeniz için pier_id ya da from_id ile to_id birlikte gerekir", field="pier_id"
-            )
+            raise InputValidationError("izdeniz için pier_id ya da from_id ile to_id birlikte gerekir", field="pier_id")
         try:
             rows, info = await self.api.izdeniz_route_schedule(from_id, to_id, day)
         except Exception as exc:  # noqa: BLE001 - never leak a source failure
             return self._fetch_failure(
-                exc, "İZDENİZ hat tarifesi okunamadı.", sources.TRANSIT_FERRY,
+                exc,
+                "İZDENİZ hat tarifesi okunamadı.",
+                sources.TRANSIT_FERRY,
                 [f"from_id={from_id}", f"to_id={to_id}", f"day={day}"],
             )
         return self._response(
@@ -179,9 +183,7 @@ class TransitService:
             stations, station_info = await self.api.tram_stations(line_id)
             frequency, info = await self.api.tram_schedule(line_id)
         except Exception as exc:  # noqa: BLE001 - never leak a source failure
-            return self._fetch_failure(
-                exc, "Tramvay sefer bilgisi okunamadı.", sources.TRANSIT_TRAM, limits
-            )
+            return self._fetch_failure(exc, "Tramvay sefer bilgisi okunamadı.", sources.TRANSIT_TRAM, limits)
         warnings = [
             "Yayımlanmış tarifedir; canlı kalkış, gecikme veya varış garantisi değildir.",
         ]
@@ -190,10 +192,7 @@ class TransitService:
                 "Kaynak bu line_id için veri döndürmedi; izmir_tram_lines ile geçerli kimlikleri kontrol edin."
             )
         return success_envelope(
-            summary=(
-                f"Tramvay hattı {line_id}: {len(stations)} istasyon, "
-                f"{len(frequency)} sefer sıklığı dilimi."
-            ),
+            summary=(f"Tramvay hattı {line_id}: {len(stations)} istasyon, {len(frequency)} sefer sıklığı dilimi."),
             data=[{"line_id": line_id, "stations": stations, "frequency": frequency}],
             sources=[sources.TRANSIT_TRAM],
             freshness=Freshness(

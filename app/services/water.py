@@ -95,7 +95,7 @@ class WaterService:
         safe_limit = resolve_limit(limit, self.settings.default_limit, self.settings.max_limit)
         limits = [f"date={day}", f"limit={safe_limit}", "source=izsu.gov.tr DamWaterStatus JSON"]
         if wanted:
-            limits.append(f"dam_name={dam_name.strip()}")
+            limits.append(f"dam_name={str(dam_name).strip()}")
         fallback = False
         try:
             rows, info = await self.client.dam_status(day)

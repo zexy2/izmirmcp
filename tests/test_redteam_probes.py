@@ -4,6 +4,7 @@ Each test reproduces a concrete hostile input from the second audit round. Where
 the current code is already safe the test locks that behaviour in; where it is
 not, the test fails until the fix lands.
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -39,9 +40,7 @@ def test_zip_with_huge_entry_count_is_rejected_cheaply():
 
     started = time.perf_counter()
     with pytest.raises(HttpSourceError):
-        read_zip_members(
-            body, max_member_bytes={"stops.txt": 1024 * 1024}, required=("stops.txt",)
-        )
+        read_zip_members(body, max_member_bytes={"stops.txt": 1024 * 1024}, required=("stops.txt",))
     elapsed = time.perf_counter() - started
     assert elapsed < 2.0, f"inspecting 50k entries took {elapsed:.1f}s"
 
@@ -102,8 +101,7 @@ async def test_oversized_source_field_is_truncated_not_forwarded():
 
     async def stub(_path, _key):
         return (
-            [{"ufid": "A" * 1_000_000, "name": "N" * 1_000_000,
-              "lat": 38.4, "lng": 27.1}],
+            [{"ufid": "A" * 1_000_000, "name": "N" * 1_000_000, "lat": 38.4, "lng": 27.1}],
             CacheInfo(status="fresh", retrieved_at="x"),
         )
 
@@ -133,10 +131,7 @@ def test_duplicate_ids_do_not_silently_overwrite_the_index(tmp_path):
     from app.storage.geo import GeoStore, GeoStoreError
 
     store = GeoStore(tmp_path / "g.sqlite3")
-    duplicates = [
-        {"kind": "parking", "id": "dup", "name": f"N{i}", "lat": 38.4, "lon": 27.1}
-        for i in range(10)
-    ]
+    duplicates = [{"kind": "parking", "id": "dup", "name": f"N{i}", "lat": 38.4, "lon": 27.1} for i in range(10)]
     with pytest.raises(GeoStoreError):
         store.replace_kind("parking", duplicates)
     assert store.counts() == {}
@@ -146,12 +141,18 @@ def test_kind_filter_cannot_break_out_of_the_parameterised_query(tmp_path):
     from app.storage.geo import GeoStore
 
     store = GeoStore(tmp_path / "g.sqlite3")
-    store.replace_kind("parking", [
-        {"kind": "parking", "id": "p", "name": "P", "lat": 38.4, "lon": 27.1},
-    ])
-    store.replace_kind("pharmacy", [
-        {"kind": "pharmacy", "id": "f", "name": "F", "lat": 38.4, "lon": 27.1},
-    ])
+    store.replace_kind(
+        "parking",
+        [
+            {"kind": "parking", "id": "p", "name": "P", "lat": 38.4, "lon": 27.1},
+        ],
+    )
+    store.replace_kind(
+        "pharmacy",
+        [
+            {"kind": "pharmacy", "id": "f", "name": "F", "lat": 38.4, "lon": 27.1},
+        ],
+    )
     for payload in ("parking') OR 1=1 --", "parking' OR '1'='1", "x'; DROP TABLE geo_points--"):
         rows = store.radius(38.4, 27.1, radius_m=1000, kinds=[payload])
         assert rows == [], payload
@@ -164,9 +165,12 @@ def test_locked_database_surfaces_a_domain_error_not_a_hang(tmp_path):
 
     path = tmp_path / "g.sqlite3"
     store = GeoStore(path)
-    store.replace_kind("parking", [
-        {"kind": "parking", "id": "p", "name": "P", "lat": 38.4, "lon": 27.1},
-    ])
+    store.replace_kind(
+        "parking",
+        [
+            {"kind": "parking", "id": "p", "name": "P", "lat": 38.4, "lon": 27.1},
+        ],
+    )
     blocker = sqlite3.connect(path, timeout=0.1)
     blocker.execute("BEGIN EXCLUSIVE")
     try:

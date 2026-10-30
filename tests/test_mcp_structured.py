@@ -1,4 +1,5 @@
 """Published output schemas and structuredContent must match the JSON envelope."""
+
 from __future__ import annotations
 
 import json
@@ -31,7 +32,8 @@ async def test_structured_content_validates_and_equals_text(tool_name, ok, monke
     case = CASES[tool_name]
     if ok:
         payload = success_envelope(
-            summary="fixture", data=[case["record"]],
+            summary="fixture",
+            data=[case["record"]],
             sources=[Source(name="Fixture", publisher="Fixture", url=None)],
             freshness=Freshness(status="fresh"),
         )

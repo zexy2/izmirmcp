@@ -19,8 +19,16 @@ from app.services import cbs as cbs_service
 from app.services.cbs import CbsService
 from tests.conftest import fresh
 
-MUSEUM = {"ILCE": "KONAK", "KAPINO": "1/1A", "ENLEM": 38.424956, "ACIKLAMA": "Arşiv",
-          "MAHALLE": "AKDENİZ", "ADI": "APİKAM", "BOYLAM": 27.1398, "YOL": "Şehit Fethi Bey"}
+MUSEUM = {
+    "ILCE": "KONAK",
+    "KAPINO": "1/1A",
+    "ENLEM": 38.424956,
+    "ACIKLAMA": "Arşiv",
+    "MAHALLE": "AKDENİZ",
+    "ADI": "APİKAM",
+    "BOYLAM": 27.1398,
+    "YOL": "Şehit Fethi Bey",
+}
 
 
 def test_layer_allowlist_size_and_shape():
@@ -36,19 +44,49 @@ def test_cbs_rows_parse_and_drop_bad_coordinates():
 
 
 def test_pharmacy_lokasyon_x_is_latitude():
-    rows = parse_pharmacy_rows([{"LokasyonY": "27.197760", "LokasyonX": "38.425863",
-                                 "Adi": "ALTINDAG ECZANESİ", "EczaneId": 1, "Bolge": "ALTINDAĞ"}])
+    rows = parse_pharmacy_rows(
+        [
+            {
+                "LokasyonY": "27.197760",
+                "LokasyonX": "38.425863",
+                "Adi": "ALTINDAG ECZANESİ",
+                "EczaneId": 1,
+                "Bolge": "ALTINDAĞ",
+            }
+        ]
+    )
     assert rows[0]["lat"] == pytest.approx(38.425863)
     assert rows[0]["lon"] == pytest.approx(27.19776)
 
 
 def test_market_price_parse():
-    bulletin, rows = parse_market_prices({"BultenTarihi": "2026-10-30T00:00:00", "HalFiyatListesi": [
-        {"MalAdi": "ANANAS", "Birim": "ADET", "AsgariUcret": 100, "AzamiUcret": 150,
-         "OrtalamaUcret": 125, "MalTipAdi": "İTHAL"}, "junk"]})
+    bulletin, rows = parse_market_prices(
+        {
+            "BultenTarihi": "2026-10-30T00:00:00",
+            "HalFiyatListesi": [
+                {
+                    "MalAdi": "ANANAS",
+                    "Birim": "ADET",
+                    "AsgariUcret": 100,
+                    "AzamiUcret": 150,
+                    "OrtalamaUcret": 125,
+                    "MalTipAdi": "İTHAL",
+                },
+                "junk",
+            ],
+        }
+    )
     assert bulletin == "2026-10-30"
-    assert rows == [{"product": "ANANAS", "category": "İTHAL", "unit": "ADET",
-                     "min_price": 100.0, "max_price": 150.0, "avg_price": 125.0}]
+    assert rows == [
+        {
+            "product": "ANANAS",
+            "category": "İTHAL",
+            "unit": "ADET",
+            "min_price": 100.0,
+            "max_price": 150.0,
+            "avg_price": 125.0,
+        }
+    ]
     with pytest.raises(SourceError):
         parse_market_prices([])
 
@@ -124,11 +162,18 @@ class FakeApi:
         return self.bulletins.get(day), fresh()
 
     async def all_pharmacies(self):
-        return parse_pharmacy_rows([
-            {"LokasyonY": "27.19", "LokasyonX": "38.42", "Adi": "ALTINDAG ECZANESİ", "EczaneId": 1,
-             "Bolge": "ALTINDAĞ"},
-            {"LokasyonY": "27.0", "LokasyonX": "38.6", "Adi": "BAŞKA", "EczaneId": 2, "Bolge": "MENEMEN"},
-        ]), fresh()
+        return parse_pharmacy_rows(
+            [
+                {
+                    "LokasyonY": "27.19",
+                    "LokasyonX": "38.42",
+                    "Adi": "ALTINDAG ECZANESİ",
+                    "EczaneId": 1,
+                    "Bolge": "ALTINDAĞ",
+                },
+                {"LokasyonY": "27.0", "LokasyonX": "38.6", "Adi": "BAŞKA", "EczaneId": 2, "Bolge": "MENEMEN"},
+            ]
+        ), fresh()
 
 
 def _service(api):
@@ -164,8 +209,9 @@ async def test_layer_service_source_failure():
 @pytest.mark.asyncio
 async def test_market_prices_fall_back_to_previous_day(monkeypatch):
     monkeypatch.setattr(cbs_service, "_today", lambda: date(2026, 11, 1))
-    api = FakeApi(bulletins={"2026-10-30": {"bulletin_date": "2026-10-30",
-                                            "rows": [{"product": "ANANAS"}, {"product": "ARMUT"}]}})
+    api = FakeApi(
+        bulletins={"2026-10-30": {"bulletin_date": "2026-10-30", "rows": [{"product": "ANANAS"}, {"product": "ARMUT"}]}}
+    )
     envelope = await _service(api).market_prices(kind="sebzemeyve", query="ananas")
     assert envelope["ok"] is True
     assert api.days == ["2026-11-01", "2026-10-31", "2026-10-30"]

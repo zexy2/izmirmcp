@@ -1,4 +1,5 @@
 """Body-size, per-client rate and concurrency guards for the MCP endpoint."""
+
 from __future__ import annotations
 
 from starlette.responses import JSONResponse
@@ -23,15 +24,11 @@ def _client_id(scope: Scope) -> str:
     server = scope.get("server")
     host = server[0] if server else ""
     forwarded = [
-        value.decode("latin-1")
-        for key, value in scope.get("headers", [])
-        if key.lower() == b"x-forwarded-for"
+        value.decode("latin-1") for key, value in scope.get("headers", []) if key.lower() == b"x-forwarded-for"
     ]
     if host in {"127.0.0.1", "localhost", "::1"} and len(forwarded) == 1:
         candidate = forwarded[0].strip()
-        if candidate and "," not in candidate and not any(
-            character.isspace() for character in candidate
-        ):
+        if candidate and "," not in candidate and not any(character.isspace() for character in candidate):
             return candidate
     client = scope.get("client")
     return client[0] if client else "unknown"
@@ -76,7 +73,11 @@ class McpAbuseGuardMiddleware:
         declared = _content_length(scope)
         if declared is not None and declared > self.max_body_bytes:
             await self._reject(
-                scope, receive, send, 413, "payload_too_large",
+                scope,
+                receive,
+                send,
+                413,
+                "payload_too_large",
                 "Request body exceeds the advertised limit.",
             )
             return
@@ -84,7 +85,11 @@ class McpAbuseGuardMiddleware:
         allowed, retry_after = await self.rate_limiter.acquire(_client_id(scope))
         if not allowed:
             await self._reject(
-                scope, receive, send, 429, "rate_limited",
+                scope,
+                receive,
+                send,
+                429,
+                "rate_limited",
                 "Too many requests from this client.",
                 headers={"Retry-After": str(max(1, int(retry_after + 0.999)))},
             )
@@ -92,7 +97,11 @@ class McpAbuseGuardMiddleware:
 
         if not await self.concurrency_limiter.acquire():
             await self._reject(
-                scope, receive, send, 503, "server_busy",
+                scope,
+                receive,
+                send,
+                503,
+                "server_busy",
                 "Too many concurrent requests.",
                 headers={"Retry-After": "1"},
             )

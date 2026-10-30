@@ -14,6 +14,7 @@ Live behaviour observed on 2026-10-30:
   without a bulletin.
 * ``ibb/eczaneler`` names latitude ``LokasyonX`` and longitude ``LokasyonY``.
 """
+
 from __future__ import annotations
 
 import json
@@ -27,25 +28,92 @@ from app.core.settings import Settings
 from app.core.source_cache import CacheInfo, cached_source_data
 
 CBS_LAYERS: tuple[str, ...] = (
-    "acilyardimistasyonu", "adayarimada", "afetaciltoplanmaalani",
-    "agizvedissagligimerkezleri", "ailedayanismamerkezleri", "ailesagligimerkezleri",
-    "anacocuksagligimerkezleri", "anaokullari", "antikkentler", "antikkentyapilari",
-    "aracmuayeneistasyonlari", "bankalar", "belediyeler", "bolgemudurlukleri", "burunlar",
-    "cocukvegenclikmerkezleri", "cocukyuvalari", "dagtepe", "dalmerkezleri",
-    "defterdarliklar", "dernekler", "engelliokullari", "etutmerkezleri",
-    "evlendirmedaireleri", "fuar", "galerivesalonlar", "goller", "halkegitim", "hamamlar",
-    "hastaneler", "havaalani", "hipodrom", "huzurevleri", "ilkokullar",
-    "ilveilcemudurlukleri", "itfaiyegruplari", "izbbhizmetnoktalari", "kanmerkezleri",
-    "kaplicalar", "kolejler", "konsolosluklar", "korfezvekoylar", "koskvekonaklar",
-    "kuleanitveheykeller", "kulturmerkezleri", "kutuphaneler", "laboratuvarlar", "liseler",
-    "maskematiknoktalari", "meslekliseleri", "meslekodalari", "meydanlar", "milliegitim",
-    "muhtarliklar", "muzeler", "nehirvecaylar", "noterler", "nufusmudurlukleri",
-    "operavebale", "ormanlar", "ortaokullar", "otobusterminalleri", "pazaryerleri",
-    "plajlar", "poliklinikler", "ptt", "sanatokullari", "senfoniorkestrasi", "sinemalar",
-    "sporsalonlari", "stadyumlar", "taksiduraklari", "tarihicarsivehanlar",
-    "tarihisuyapilari", "tarihiyapilar", "tipmerkezleri", "tiyatrolar", "toplummerkezleri",
-    "toplumsagligimerkezleri", "trengarlari", "turizmdanisma", "universiteler",
-    "veremsavasdispanserleri", "vergidaireleri", "veterinerlikler", "wizmirnetnoktalari",
+    "acilyardimistasyonu",
+    "adayarimada",
+    "afetaciltoplanmaalani",
+    "agizvedissagligimerkezleri",
+    "ailedayanismamerkezleri",
+    "ailesagligimerkezleri",
+    "anacocuksagligimerkezleri",
+    "anaokullari",
+    "antikkentler",
+    "antikkentyapilari",
+    "aracmuayeneistasyonlari",
+    "bankalar",
+    "belediyeler",
+    "bolgemudurlukleri",
+    "burunlar",
+    "cocukvegenclikmerkezleri",
+    "cocukyuvalari",
+    "dagtepe",
+    "dalmerkezleri",
+    "defterdarliklar",
+    "dernekler",
+    "engelliokullari",
+    "etutmerkezleri",
+    "evlendirmedaireleri",
+    "fuar",
+    "galerivesalonlar",
+    "goller",
+    "halkegitim",
+    "hamamlar",
+    "hastaneler",
+    "havaalani",
+    "hipodrom",
+    "huzurevleri",
+    "ilkokullar",
+    "ilveilcemudurlukleri",
+    "itfaiyegruplari",
+    "izbbhizmetnoktalari",
+    "kanmerkezleri",
+    "kaplicalar",
+    "kolejler",
+    "konsolosluklar",
+    "korfezvekoylar",
+    "koskvekonaklar",
+    "kuleanitveheykeller",
+    "kulturmerkezleri",
+    "kutuphaneler",
+    "laboratuvarlar",
+    "liseler",
+    "maskematiknoktalari",
+    "meslekliseleri",
+    "meslekodalari",
+    "meydanlar",
+    "milliegitim",
+    "muhtarliklar",
+    "muzeler",
+    "nehirvecaylar",
+    "noterler",
+    "nufusmudurlukleri",
+    "operavebale",
+    "ormanlar",
+    "ortaokullar",
+    "otobusterminalleri",
+    "pazaryerleri",
+    "plajlar",
+    "poliklinikler",
+    "ptt",
+    "sanatokullari",
+    "senfoniorkestrasi",
+    "sinemalar",
+    "sporsalonlari",
+    "stadyumlar",
+    "taksiduraklari",
+    "tarihicarsivehanlar",
+    "tarihisuyapilari",
+    "tarihiyapilar",
+    "tipmerkezleri",
+    "tiyatrolar",
+    "toplummerkezleri",
+    "toplumsagligimerkezleri",
+    "trengarlari",
+    "turizmdanisma",
+    "universiteler",
+    "veremsavasdispanserleri",
+    "vergidaireleri",
+    "veterinerlikler",
+    "wizmirnetnoktalari",
     "yetistirmeyurtlari",
 )
 MARKET_KINDS = ("sebzemeyve", "balik")
@@ -63,7 +131,7 @@ def _number(value: Any) -> float | None:
 
 def _point(lat_value: Any, lon_value: Any) -> tuple[float, float] | None:
     lat, lon = _number(lat_value), _number(lon_value)
-    if not valid_lat_lon(lat, lon):
+    if lat is None or lon is None or not valid_lat_lon(lat, lon):
         return None
     return lat, lon
 
@@ -132,7 +200,8 @@ def parse_event_rows(payload: Any) -> list[dict[str, Any]]:
                 "summary": bounded_text(item.get("KisaAciklama"), 500),
                 "ticket_url": bounded_text(item.get("BiletSatisLinki"), 500),
                 "url": f"https://kultursanat.izmir.bel.tr/Etkinlikler/{slug}"
-                if isinstance(slug, str) and slug else None,
+                if isinstance(slug, str) and slug
+                else None,
             }
         )
     return rows
@@ -190,12 +259,12 @@ class IbbCbsConnector:
             # Sequential on purpose: the host shares a cooldown with every
             # openapi connector, so a burst of parallel pages could trip it.
             while (
-                isinstance(total, int) and len(items) < total
-                and isinstance(pages, int) and page <= min(pages, max_pages)
+                isinstance(total, int)
+                and len(items) < total
+                and isinstance(pages, int)
+                and page <= min(pages, max_pages)
             ):
-                more = expect_type(
-                    await self._json(f"ibb/cbs/{name}?sayfa_numarasi={page}"), dict, what="cbs page"
-                )
+                more = expect_type(await self._json(f"ibb/cbs/{name}?sayfa_numarasi={page}"), dict, what="cbs page")
                 batch = more.get("onemliyer") or []
                 if not batch:
                     break
@@ -212,9 +281,7 @@ class IbbCbsConnector:
 
     async def events(self) -> tuple[list[dict[str, Any]], CacheInfo]:
         async def loader() -> list[dict[str, Any]]:
-            payload = expect_type(
-                await self._json("ibb/kultursanat/etkinlikler"), list, what="events"
-            )
+            payload = expect_type(await self._json("ibb/kultursanat/etkinlikler"), list, what="events")
             return parse_event_rows(payload)
 
         return await cached_source_data(

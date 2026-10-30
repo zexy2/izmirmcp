@@ -6,6 +6,7 @@ local state (``.data/`` and ``.venv/``), the GTFS timetable store must be
 rebuildable at run time, the registry manifest must point at the same version the
 package advertises, and CI must actually run the suite.
 """
+
 from __future__ import annotations
 
 import json
@@ -42,11 +43,7 @@ def _version() -> str:
 
 def _instructions(text: str) -> list[str]:
     """Return Dockerfile lines without comments or blank lines."""
-    return [
-        line.strip()
-        for line in text.splitlines()
-        if line.strip() and not line.strip().startswith("#")
-    ]
+    return [line.strip() for line in text.splitlines() if line.strip() and not line.strip().startswith("#")]
 
 
 def _from_images(text: str) -> list[str]:
@@ -113,9 +110,7 @@ def test_dockerignore_keeps_app_data_places_json():
 def test_server_json_matches_registry_schema_and_package_version():
     assert SERVER_JSON.is_file()
     manifest = json.loads(SERVER_JSON.read_text(encoding="utf-8"))
-    assert manifest["$schema"] == (
-        "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json"
-    )
+    assert manifest["$schema"] == ("https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json")
     assert re.fullmatch(r"io\.github\.[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", manifest["name"])
     assert manifest["version"] == _version()
     assert manifest["description"].strip()
@@ -175,9 +170,7 @@ def test_changelog_opens_with_current_version_and_packaging_entry():
     assert CHANGELOG.is_file()
     text = CHANGELOG.read_text(encoding="utf-8")
     version = _version()
-    first_heading = next(
-        line for line in text.splitlines() if line.startswith("## ")
-    )
+    first_heading = next(line for line in text.splitlines() if line.startswith("## "))
     assert version in first_heading, first_heading
     assert "Docker" in text
     assert "server.json" in text
@@ -191,10 +184,7 @@ def test_wheel_can_actually_be_built():
     forced = config.get("force-include", {})
     packages = config.get("packages", [])
     for source in forced:
-        assert not any(
-            source == package or source.startswith(package.rstrip("/") + "/")
-            for package in packages
-        ), (
+        assert not any(source == package or source.startswith(package.rstrip("/") + "/") for package in packages), (
             f"force-include '{source}' duplicates a path inside packages {packages}; "
             "hatchling fails with 'A second file is being added to the wheel archive'"
         )
@@ -223,12 +213,12 @@ def test_dockerfile_is_multi_stage_and_installs_locked_deps_before_the_app():
     lines = _instructions(DOCKERFILE.read_text(encoding="utf-8"))
     froms = [i for i, line in enumerate(lines) if line.upper().startswith("FROM ")]
     assert len(froms) == 2, "builder + runtime stages"
-    builder = lines[froms[0]:froms[1]]
+    builder = lines[froms[0] : froms[1]]
     lock = next(i for i, line in enumerate(builder) if "requirements.lock" in line and line.startswith("RUN"))
     copy_app = next(i for i, line in enumerate(builder) if line.startswith("COPY app"))
     assert "--require-hashes" in builder[lock]
     assert lock < copy_app, "dependency layer must precede COPY app for caching"
-    runtime = lines[froms[1]:]
+    runtime = lines[froms[1] :]
     assert any(line.startswith("COPY --from=builder") for line in runtime)
     assert not any(line.startswith("COPY app") for line in runtime)
 

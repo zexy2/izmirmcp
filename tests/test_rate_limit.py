@@ -27,9 +27,7 @@ async def test_client_rate_limiter_isolates_clients():
 @pytest.mark.asyncio
 async def test_client_rate_limiter_refills_over_time():
     now = [100.0]
-    limiter = ClientRateLimiter(
-        capacity=1, refill_per_second=1.0, max_clients=10, clock=lambda: now[0]
-    )
+    limiter = ClientRateLimiter(capacity=1, refill_per_second=1.0, max_clients=10, clock=lambda: now[0])
     assert (await limiter.acquire("a"))[0] is True
     assert (await limiter.acquire("a"))[0] is False
     now[0] += 1.0

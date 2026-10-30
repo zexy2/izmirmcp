@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import date, datetime, timezone
-from typing import Any, Callable
+from typing import Any, Callable, Literal
 from zoneinfo import ZoneInfo
 
 from app.connectors.city_layers import CityLayerConnector
@@ -17,8 +17,7 @@ LIMITS = [
     "(/api/ibb/trafikyogunluk 404).",
     "Segmentler sabit nokta çiftleridir (ör. 'Marina Kavşağı → Konak Pier'); "
     "serbest adres veya koordinat çözümlemesi yapılmaz.",
-    "Hız ve süre kaynağın kendi ölçümüdür; birimleri (km/s, dakika) "
-    "yayımdan doğrulanmıştır, hesaplanmamıştır.",
+    "Hız ve süre kaynağın kendi ölçümüdür; birimleri (km/s, dakika) yayımdan doğrulanmıştır, hesaplanmamıştır.",
 ]
 
 
@@ -44,7 +43,9 @@ def _age_hours(newest: str | None, now: datetime) -> float | None:
     return (now - stamp).total_seconds() / 3600
 
 
-def _freshness_status(cache_status: str, age_hours: float | None, threshold: int) -> str:
+def _freshness_status(
+    cache_status: str, age_hours: float | None, threshold: int
+) -> Literal["fresh", "stale", "unknown"]:
     if cache_status == "stale":
         return "stale"
     if age_hours is None:
@@ -69,9 +70,7 @@ def _parse_day(value: str | None, *, field: str) -> date | None:
     try:
         return date.fromisoformat(str(value).strip())
     except ValueError as exc:
-        raise InputValidationError(
-            f"{field} YYYY-MM-DD biçiminde olmalıdır", field=field
-        ) from exc
+        raise InputValidationError(f"{field} YYYY-MM-DD biçiminde olmalıdır", field=field) from exc
 
 
 class TrafficService:
@@ -133,7 +132,8 @@ class TrafficService:
             if not needle:
                 raise InputValidationError("segment boş olamaz", field="segment")
             rows = [
-                row for row in rows
+                row
+                for row in rows
                 if needle in normalize_name(f"{row.get('segment_from') or ''} {row.get('segment_to') or ''}")
             ]
             limits.append(f"segment={segment.strip()[:60]}")
@@ -165,33 +165,24 @@ class TrafficService:
         warnings = list(LIMITS)
         if status == "stale" and age_hours is not None:
             warnings.append(
-                f"Kaynağın yayımladığı en yeni ölçüm {newest} ({age_hours:.0f} saat önce); "
-                "bu yüzden tazelik 'stale'."
+                f"Kaynağın yayımladığı en yeni ölçüm {newest} ({age_hours:.0f} saat önce); bu yüzden tazelik 'stale'."
             )
         elif status == "stale":
             warnings.append(
-                "Kaynak yanıtı önbellekten 'stale' geldi ve en yeni ölçüm zamanı "
-                "çözümlenemedi; tazelik 'stale'."
+                "Kaynak yanıtı önbellekten 'stale' geldi ve en yeni ölçüm zamanı çözümlenemedi; tazelik 'stale'."
             )
         elif status == "unknown":
-            warnings.append(
-                "Kaynak satırlarında çözümlenebilir ölçüm zamanı yok; tazelik bilinmiyor."
-            )
+            warnings.append("Kaynak satırlarında çözümlenebilir ölçüm zamanı yok; tazelik bilinmiyor.")
         if not data:
             warnings.append(
                 "Eşleşen ölçüm yok. Bu 'trafik akıcı' veya 'kayıt yok' kanıtı değildir; "
                 "segment adını ve tarih aralığını kontrol edin."
             )
         if truncated:
-            warnings.append(
-                f"Toplam {matched} ölçüm eşleşti, ilk {len(data)} gösteriliyor."
-            )
+            warnings.append(f"Toplam {matched} ölçüm eşleşti, ilk {len(data)} gösteriliyor.")
 
         return success_envelope(
-            summary=(
-                f"{len(data)} geçmiş trafik ölçümü listelendi"
-                + (f"; toplam {matched}." if truncated else ".")
-            ),
+            summary=(f"{len(data)} geçmiş trafik ölçümü listelendi" + (f"; toplam {matched}." if truncated else ".")),
             data=data,
             sources=[sources.TRAFFIC],
             freshness=Freshness(
@@ -205,7 +196,5 @@ class TrafficService:
                 "Belirli bir koridor için segment parametresi kullanın.",
                 "Tarih aralığı için since/until (YYYY-MM-DD) verin.",
             ],
-            result=result_info(
-                returned=len(data), matched=matched, truncated=truncated, scope="traffic_history"
-            ),
+            result=result_info(returned=len(data), matched=matched, truncated=truncated, scope="traffic_history"),
         )

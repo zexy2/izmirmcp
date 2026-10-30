@@ -48,9 +48,7 @@ class CkanClient:
             raise CkanError(f"CKAN action failed: {action}")
         return payload.get("result")
 
-    async def package_search(
-        self, *, query: str, rows: int, formats: list[str] | None = None
-    ) -> dict[str, Any]:
+    async def package_search(self, *, query: str, rows: int, formats: list[str] | None = None) -> dict[str, Any]:
         params: dict[str, Any] = {"q": query, "rows": rows}
         if formats:
             params["fq"] = " OR ".join(f"res_format:{fmt.upper()}" for fmt in formats)

@@ -6,6 +6,7 @@ internal-looking failure. Catching it here produces a protocol-correct
 
 Only the envelope is validated; tool arguments are the SDK's job.
 """
+
 from __future__ import annotations
 
 import json
@@ -111,20 +112,14 @@ class McpJsonRpcGuard:
         self.max_body_bytes = max(1, int(max_body_bytes))
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
-        if (
-            scope["type"] != "http"
-            or scope.get("path") not in MCP_PATHS
-            or scope.get("method") != "POST"
-        ):
+        if scope["type"] != "http" or scope.get("path") not in MCP_PATHS or scope.get("method") != "POST":
             await self.app(scope, receive, send)
             return
 
         try:
             body = await self._read_body(scope, receive, self.max_body_bytes)
         except BodyTooLargeError:
-            await self._send(
-                scope, receive, send, _error(INVALID_REQUEST, "Request body is too large."), 413
-            )
+            await self._send(scope, receive, send, _error(INVALID_REQUEST, "Request body is too large."), 413)
             return
         if body is None:
             await self._send(scope, receive, send, _error(INVALID_REQUEST, "Request body is required."), 400)
@@ -132,7 +127,9 @@ class McpJsonRpcGuard:
 
         if _exceeds_depth(body, MAX_JSON_DEPTH):
             await self._send(
-                scope, receive, send,
+                scope,
+                receive,
+                send,
                 _error(PARSE_ERROR, f"JSON nesting exceeds {MAX_JSON_DEPTH} levels."),
                 400,
             )
@@ -152,7 +149,9 @@ class McpJsonRpcGuard:
             ok, problem, request_id = validate_message(message)
             if not ok:
                 await self._send(
-                    scope, receive, send,
+                    scope,
+                    receive,
+                    send,
                     _error(INVALID_REQUEST, problem or "Invalid request.", request_id=request_id),
                     400,
                 )
@@ -161,9 +160,7 @@ class McpJsonRpcGuard:
         await self.app(scope, self._replay(receive, body), send)
 
     @staticmethod
-    async def _read_body(
-        scope: Scope, receive: Receive, max_bytes: int = DEFAULT_MAX_BODY_BYTES
-    ) -> bytes | None:
+    async def _read_body(scope: Scope, receive: Receive, max_bytes: int = DEFAULT_MAX_BODY_BYTES) -> bytes | None:
         chunks: list[bytes] = []
         total = 0
         while True:
@@ -194,8 +191,6 @@ class McpJsonRpcGuard:
 
         return replay
 
-    async def _send(
-        self, scope: Scope, receive: Receive, send: Send, payload: dict, status: int
-    ) -> None:
+    async def _send(self, scope: Scope, receive: Receive, send: Send, payload: dict, status: int) -> None:
         response = JSONResponse(payload, status_code=status, headers={"Cache-Control": "no-store"})
         await response(scope, receive, send)

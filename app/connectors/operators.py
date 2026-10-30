@@ -12,6 +12,7 @@ All three endpoints in this module were verified live on 2026-10-28:
   ``metrotramapi`` has no İZBAN announcement route (404). İZBAN is therefore
   reported as unavailable, never as "no disruptions".
 """
+
 from __future__ import annotations
 
 from typing import Any
@@ -52,9 +53,7 @@ def parse_metro_announcements(payload: Any) -> list[dict[str, Any]]:
                 "id": _text(item.get("id")),
                 "title": title,
                 "summary": _text(item.get("summary") or item.get("content")),
-                "published_at": _text(
-                    item.get("publishedAt") or item.get("publishDate") or item.get("date")
-                ),
+                "published_at": _text(item.get("publishedAt") or item.get("publishDate") or item.get("date")),
                 "url": None,
             }
         )
@@ -86,9 +85,7 @@ def parse_ferry_announcements(payload: Any) -> list[dict[str, Any]]:
                 "id": _text(item.get("id")),
                 "title": title,
                 "summary": _text(item.get("summary")),
-                "published_at": _text(
-                    item.get("publishDate") or item.get("createdAt") or item.get("date")
-                ),
+                "published_at": _text(item.get("publishDate") or item.get("createdAt") or item.get("date")),
                 "url": f"https://www.izdeniz.com.tr/duyurular/{slug}" if slug else None,
             }
         )
@@ -99,9 +96,7 @@ class OperatorAnnouncementConnector:
     def __init__(self, settings: Settings):
         self.settings = settings
 
-    async def _fetch(
-        self, key: str, url: str, parser
-    ) -> tuple[list[dict[str, Any]], CacheInfo]:
+    async def _fetch(self, key: str, url: str, parser) -> tuple[list[dict[str, Any]], CacheInfo]:
         async def loader() -> list[dict[str, Any]]:
             payload = await get_json(
                 url,

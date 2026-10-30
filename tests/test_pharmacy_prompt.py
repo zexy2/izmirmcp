@@ -1,4 +1,5 @@
 """The on-duty pharmacy prompt reuses izmir_nearby; no duplicate tool is added."""
+
 import pytest
 
 from app.core.settings import get_settings

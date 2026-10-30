@@ -5,6 +5,7 @@ burst while CKAN tolerates far more. Sharing one bucket would either throttle
 CKAN needlessly or let İZTEK be hammered. Buckets are created lazily from
 settings so adding a source only means adding a key here.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass

@@ -5,6 +5,7 @@ caller *how* to fix it (``error.repair``) instead of only that it failed. The
 repair hints are derived from our own schema knowledge; source text is never
 copied into them.
 """
+
 from __future__ import annotations
 
 from typing import Any
@@ -20,8 +21,7 @@ FIELD_HINTS: dict[str, tuple[str, str]] = {
     "radius_m": ("max_radius_m sınırını aşmayan pozitif bir yarıçap kullanın.", "radius_m pozitif olmalıdır"),
     "limit": ("max_limit sınırını aşmayan pozitif bir limit kullanın.", "limit pozitif olmalıdır"),
     "bbox": (
-        "Dikdörtgeni min_lon, min_lat, max_lon, max_lat sırasıyla ve her eksende "
-        "min < max olacak şekilde verin.",
+        "Dikdörtgeni min_lon, min_lat, max_lon, max_lat sırasıyla ve her eksende min < max olacak şekilde verin.",
         "bbox sıralı bir dikdörtgen olmalıdır",
     ),
     "types": ("Yalnızca duyurulan tür adlarını kullanın.", "types duyurulan listeden olmalıdır"),
@@ -31,14 +31,12 @@ FIELD_HINTS: dict[str, tuple[str, str]] = {
         "place yayımlanmış bir referans noktasına çözümlenmelidir",
     ),
     "place_district": (
-        "place_district yalnızca aynı adlı mahalleleri ayırmak için place ile "
-        "birlikte verilir.",
+        "place_district yalnızca aynı adlı mahalleleri ayırmak için place ile birlikte verilir.",
         "place_district için place gerekir",
     ),
     "district": ("Bir İzmir ilçe adı kullanın.", "district yayımlanmış bir İzmir ilçesi olmalıdır"),
     "stop_id": (
-        "Id'yi önce izmir_bus_stops ile arayın; id'ler yayımlanmış durak "
-        "listesinden gelir.",
+        "Id'yi önce izmir_bus_stops ile arayın; id'ler yayımlanmış durak listesinden gelir.",
         "stop_id yayımlanmış EShot durak listesinde bulunmalıdır",
     ),
     "resource_id": (
@@ -70,8 +68,7 @@ FIELD_HINTS: dict[str, tuple[str, str]] = {
     "query": ("Yayımlanmış tabloda var olan bir hat kodu veya adı kullanın.", "query bulunamadı"),
     "line": ("Yayımlanmış bir otobüs hat numarası kullanın.", "line bulunamadı"),
     "neighborhood": (
-        "Yayımlanmış muhtarlık envanterinden bir mahalle, isteğe bağlı olarak "
-        "district ile birlikte kullanın.",
+        "Yayımlanmış muhtarlık envanterinden bir mahalle, isteğe bağlı olarak district ile birlikte kullanın.",
         "neighborhood yayımlanmış olmalıdır",
     ),
     "kinds|empty": ("En az bir tür seçin.", "kinds boş olamaz"),

@@ -5,6 +5,7 @@ split: ``NearbyService`` held ``refresh_index``/``_index_age_seconds`` while
 ``app.storage.geo`` held the SQLite. These tests exercise the storage-owned
 ``GeoIndex`` directly, including the failure modes the service must report.
 """
+
 from __future__ import annotations
 
 from pathlib import Path

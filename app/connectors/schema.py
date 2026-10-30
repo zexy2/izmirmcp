@@ -3,6 +3,7 @@
 A source that changes its payload shape is not "no data": callers need a typed
 ``schema_drift`` failure instead of an empty list or an ``AttributeError``.
 """
+
 from __future__ import annotations
 
 from typing import Any

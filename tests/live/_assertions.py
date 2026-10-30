@@ -1,4 +1,5 @@
 """Strict assertions for live checks: an error envelope is a failure, never a pass."""
+
 from __future__ import annotations
 
 

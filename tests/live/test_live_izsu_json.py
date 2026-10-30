@@ -2,6 +2,7 @@
 
 Allowed exception: the data may come from the CSV fallback, but it must still be non-empty.
 """
+
 from __future__ import annotations
 
 from datetime import date, timedelta

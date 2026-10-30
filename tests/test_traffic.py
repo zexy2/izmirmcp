@@ -3,6 +3,7 @@
 İzmir publishes no live traffic index (``/api/ibb/trafikyogunluk`` is 404). The
 only real data is a per-segment history; every answer must say it is historical.
 """
+
 from __future__ import annotations
 
 import pytest
@@ -13,15 +14,30 @@ from app.services.traffic import TrafficService
 from tests.conftest import fresh
 
 ROWS = [
-    {"segment_from": "Marina Kavşağı", "segment_to": "Konak Pier",
-     "observed_at": "2026-10-22T08:15:00", "hour": "08:15:00",
-     "speed_kmh": 39.0, "duration_minutes": 10.0},
-    {"segment_from": "Marina Kavşağı", "segment_to": "Konak Pier",
-     "observed_at": "2026-10-22T09:15:00", "hour": "09:15:00",
-     "speed_kmh": 17.0, "duration_minutes": 23.0},
-    {"segment_from": "Zafer Payzın", "segment_to": "Çiğli Kavşağı",
-     "observed_at": "2026-10-21T18:00:00", "hour": "18:00:00",
-     "speed_kmh": 55.0, "duration_minutes": 8.0},
+    {
+        "segment_from": "Marina Kavşağı",
+        "segment_to": "Konak Pier",
+        "observed_at": "2026-10-22T08:15:00",
+        "hour": "08:15:00",
+        "speed_kmh": 39.0,
+        "duration_minutes": 10.0,
+    },
+    {
+        "segment_from": "Marina Kavşağı",
+        "segment_to": "Konak Pier",
+        "observed_at": "2026-10-22T09:15:00",
+        "hour": "09:15:00",
+        "speed_kmh": 17.0,
+        "duration_minutes": 23.0,
+    },
+    {
+        "segment_from": "Zafer Payzın",
+        "segment_to": "Çiğli Kavşağı",
+        "observed_at": "2026-10-21T18:00:00",
+        "hour": "18:00:00",
+        "speed_kmh": 55.0,
+        "duration_minutes": 8.0,
+    },
 ]
 
 
@@ -56,9 +72,7 @@ async def test_filters_by_date_range_and_reports_total():
 
 @pytest.mark.asyncio
 async def test_filters_by_segment_name_case_insensitively():
-    envelope = await TrafficService(settings=get_settings(), api=FakeApi()).list(
-        segment="marina", limit=10
-    )
+    envelope = await TrafficService(settings=get_settings(), api=FakeApi()).list(segment="marina", limit=10)
     assert len(envelope["data"]) == 2
     assert all("Marina" in row["segment_from"] for row in envelope["data"])
 
@@ -73,9 +87,7 @@ async def test_sorted_most_recent_first():
 @pytest.mark.asyncio
 async def test_rejects_a_backwards_date_range():
     with pytest.raises(InputValidationError) as excinfo:
-        await TrafficService(settings=get_settings(), api=FakeApi()).list(
-            since="2026-10-22", until="2026-10-01"
-        )
+        await TrafficService(settings=get_settings(), api=FakeApi()).list(since="2026-10-22", until="2026-10-01")
     assert excinfo.value.field in {"since", "until"}
 
 

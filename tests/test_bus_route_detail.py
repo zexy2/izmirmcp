@@ -24,18 +24,10 @@ EXPIRED_CALENDAR = (
     "WK,1,1,1,1,1,0,0,20260801,20261009\r\n"
 )
 ROUTES = (
-    "route_id,route_short_name,route_long_name,route_type\r\n"
-    "304,304,BUCA - KONAK,3\r\n"
-    "305,305,BAYRAKLI - KONAK,3\r\n"
+    "route_id,route_short_name,route_long_name,route_type\r\n304,304,BUCA - KONAK,3\r\n305,305,BAYRAKLI - KONAK,3\r\n"
 )
 AMBIGUOUS_ROUTES = ROUTES + "999,304,AMBIGUOUS - KONAK,3\r\n"
-TRIPS = (
-    "route_id,service_id,trip_id,direction_id\r\n"
-    "304,WK,T10,0\r\n"
-    "304,WK,T11,0\r\n"
-    "304,WK,T20,1\r\n"
-    "305,WK,T30,0\r\n"
-)
+TRIPS = "route_id,service_id,trip_id,direction_id\r\n304,WK,T10,0\r\n304,WK,T11,0\r\n304,WK,T20,1\r\n305,WK,T30,0\r\n"
 STOPS = (
     "stop_id,stop_name,stop_lat,stop_lon\r\n"
     "S1,Birinci Durak,38.4200,27.1300\r\n"
@@ -110,14 +102,18 @@ def test_route_detail_orders_by_stop_sequence_and_preserves_duplicate_stops(tmp_
     detail = store.route_detail("304")
     direction_zero = next(row for row in detail["directions"] if row["direction_id"] == "0")
     loop = next(
-        pattern for pattern in direction_zero["patterns"]
+        pattern
+        for pattern in direction_zero["patterns"]
         if [stop["stop_id"] for stop in pattern["stops"]] == ["S1", "S2", "S3", "S2"]
     )
 
     assert loop["stop_count"] == 4
     assert [stop["stop_sequence"] for stop in loop["stops"]] == [1, 2, 3, 4]
     assert [stop["stop_name"] for stop in loop["stops"]] == [
-        "Birinci Durak", "İkinci Durak", "Üçüncü Durak", "İkinci Durak"
+        "Birinci Durak",
+        "İkinci Durak",
+        "Üçüncü Durak",
+        "İkinci Durak",
     ]
 
 
@@ -174,9 +170,7 @@ async def test_service_detail_requires_exact_query_and_known_direction(tmp_path)
 
 @pytest.mark.asyncio
 async def test_service_detail_rejects_ambiguous_short_name(tmp_path):
-    service = BusService(
-        settings=settings_for(tmp_path), api=FakeApi(payload=archive(routes=AMBIGUOUS_ROUTES))
-    )
+    service = BusService(settings=settings_for(tmp_path), api=FakeApi(payload=archive(routes=AMBIGUOUS_ROUTES)))
 
     with pytest.raises(InputValidationError) as excinfo:
         await service.routes(query="304", detail=True)
@@ -186,9 +180,7 @@ async def test_service_detail_rejects_ambiguous_short_name(tmp_path):
 
 @pytest.mark.asyncio
 async def test_service_detail_keeps_stale_calendar_honest(tmp_path):
-    service = BusService(
-        settings=settings_for(tmp_path), api=FakeApi(payload=archive(calendar=EXPIRED_CALENDAR))
-    )
+    service = BusService(settings=settings_for(tmp_path), api=FakeApi(payload=archive(calendar=EXPIRED_CALENDAR)))
 
     envelope = await service.routes(query="304", detail=True)
     assert envelope["ok"] is True

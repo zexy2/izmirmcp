@@ -42,8 +42,10 @@ async def test_jsonrpc_guard_caps_body_on_its_own():
     from app.core.mcp_transport import BodyTooLargeError, McpJsonRpcGuard
 
     messages = iter(
-        [{"type": "http.request", "body": b"x" * 600, "more_body": True},
-         {"type": "http.request", "body": b"x" * 600, "more_body": False}]
+        [
+            {"type": "http.request", "body": b"x" * 600, "more_body": True},
+            {"type": "http.request", "body": b"x" * 600, "more_body": False},
+        ]
     )
 
     async def receive():
@@ -85,9 +87,7 @@ def test_require_auth_fails_closed():
         check_exposure(Settings(host="0.0.0.0", mcp_require_auth=True))
     with pytest.raises(RuntimeError):
         check_exposure(Settings(mcp_require_auth=True))
-    check_exposure(
-        replace(Settings(host="0.0.0.0", mcp_require_auth=True), mcp_api_keys=("k" * 32,))
-    )
+    check_exposure(replace(Settings(host="0.0.0.0", mcp_require_auth=True), mcp_api_keys=("k" * 32,)))
 
 
 def test_loopback_bind_is_quiet(caplog):

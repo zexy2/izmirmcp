@@ -11,6 +11,7 @@ Usage:
 
 Exit code 0 means every flow passed.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -49,7 +50,9 @@ CRITICAL_FLOWS: tuple[Flow, ...] = (
     Flow("Sunucu hazır mı?", "izmir_health", {}, min_data=1, live=False),
     Flow(
         "İzmir açık veri portalında otopark veri seti var mı?",
-        "izmir_search_datasets", {"query": "otopark", "limit": 2}, min_data=1,
+        "izmir_search_datasets",
+        {"query": "otopark", "limit": 2},
+        min_data=1,
     ),
     Flow(
         "Konak çevresinde nöbetçi eczane var mı?",
@@ -59,7 +62,8 @@ CRITICAL_FLOWS: tuple[Flow, ...] = (
     Flow(
         "Konak çevresinde hangi ulaşım seçenekleri var?",
         "izmir_mobility_nearby",
-        {"lat": KONAK[0], "lon": KONAK[1], "radius_m": 1000, "limit": 5}, min_data=1,
+        {"lat": KONAK[0], "lon": KONAK[1], "radius_m": 1000, "limit": 5},
+        min_data=1,
     ),
     Flow(
         "Konak çevresinde ESHOT durağı var mı?",
@@ -68,7 +72,8 @@ CRITICAL_FLOWS: tuple[Flow, ...] = (
     ),
     Flow(
         "Karşıyaka'da hangi eczaneler var?",
-        "izmir_nearby", {"district": "Karşıyaka", "types": ["pharmacy"], "limit": 3},
+        "izmir_nearby",
+        {"district": "Karşıyaka", "types": ["pharmacy"], "limit": 3},
     ),
     Flow(
         "Konak Meydanı çevresinde hangi hizmetler var?",
@@ -77,57 +82,74 @@ CRITICAL_FLOWS: tuple[Flow, ...] = (
     ),
     Flow(
         "Cumartesi hangi semt pazarları kuruluyor?",
-        "izmir_market_schedule", {"day": "cumartesi", "limit": 5},
+        "izmir_market_schedule",
+        {"day": "cumartesi", "limit": 5},
     ),
     Flow(
         "Aktif ESHOT hat duyurusu var mı?",
-        "izmir_transport_disruptions", {"operator": "eshot", "active_only": True, "limit": 3},
+        "izmir_transport_disruptions",
+        {"operator": "eshot", "active_only": True, "limit": 3},
     ),
     Flow(
         "İZBAN duyuruları alınabiliyor mu?",
-        "izmir_transport_disruptions", {"operator": "izban"},
-        expect_ok=False, expect_error="source_unavailable", live=False,
+        "izmir_transport_disruptions",
+        {"operator": "izban"},
+        expect_ok=False,
+        expect_error="source_unavailable",
+        live=False,
     ),
     Flow("İZSU baraj dolulukları nasıl?", "izmir_water_status", {"limit": 3}, min_data=1),
     Flow(
         "İZSU su kesintisi verisi var mı?",
-        "izmir_water_status", {"kind": "faults"},
-        expect_ok=False, expect_error="source_unavailable", live=False,
+        "izmir_water_status",
+        {"kind": "faults"},
+        expect_ok=False,
+        expect_error="source_unavailable",
+        live=False,
     ),
     Flow("Metro istasyonları hangileri?", "izmir_transit_stations", {"mode": "metro", "limit": 5}),
-    Flow("Konak durağından hangi otobüsler kalkıyor?", "izmir_bus_departures",
-         {"stop_id": "10030", "at": "2026-10-05T08:00", "limit": 3}),
-    Flow("Konak adıyla hangi duraklar var?", "izmir_bus_departures",
-         {"stop_query": "Konak", "limit": 5}, min_data=1),
-    Flow("Konak çevresindeki duraklardan hangi otobüsler kalkıyor?",
-         "izmir_bus_departures",
-         {"lat": KONAK[0], "lon": KONAK[1], "radius_m": 300,
-          "at": "2026-10-05T08:00", "limit": 3}, min_data=1),
-    Flow("304 hattı hangi duraklardan geçiyor?", "izmir_bus_routes",
-         {"query": "304", "detail": True, "limit": 2}),
-    Flow("Alsancak mahallesinin nüfusu kaç?", "izmir_neighborhood_profile",
-         {"neighborhood": "Alsancak"}),
-    Flow("Konak'ta geçmiş trafik ölçümü var mı?", "izmir_traffic_history",
-         {"segment": "Konak", "limit": 3}),
-    Flow("EShot durak kaynağında kaç satır var?", "izmir_datastore_query",
-         {"resource_id": "0c791266-a2e4-4f14-82b8-9a9b102fbf94",
-          "sql": "SELECT COUNT(*) AS n FROM records"},
-         min_data=1),
+    Flow(
+        "Konak durağından hangi otobüsler kalkıyor?",
+        "izmir_bus_departures",
+        {"stop_id": "10030", "at": "2026-10-05T08:00", "limit": 3},
+    ),
+    Flow("Konak adıyla hangi duraklar var?", "izmir_bus_departures", {"stop_query": "Konak", "limit": 5}, min_data=1),
+    Flow(
+        "Konak çevresindeki duraklardan hangi otobüsler kalkıyor?",
+        "izmir_bus_departures",
+        {"lat": KONAK[0], "lon": KONAK[1], "radius_m": 300, "at": "2026-10-05T08:00", "limit": 3},
+        min_data=1,
+    ),
+    Flow("304 hattı hangi duraklardan geçiyor?", "izmir_bus_routes", {"query": "304", "detail": True, "limit": 2}),
+    Flow("Alsancak mahallesinin nüfusu kaç?", "izmir_neighborhood_profile", {"neighborhood": "Alsancak"}),
+    Flow("Konak'ta geçmiş trafik ölçümü var mı?", "izmir_traffic_history", {"segment": "Konak", "limit": 3}),
+    Flow(
+        "EShot durak kaynağında kaç satır var?",
+        "izmir_datastore_query",
+        {"resource_id": "0c791266-a2e4-4f14-82b8-9a9b102fbf94", "sql": "SELECT COUNT(*) AS n FROM records"},
+        min_data=1,
+    ),
     Flow("Yerel GTFS deposu hazır mı?", "izmir_gtfs_status", {}, min_data=1, live=False),
     Flow(
         "Konak durağına yaklaşan otobüs var mı?",
-        "izmir_bus_arrivals", {"stop_id": "10030", "limit": 3},
+        "izmir_bus_arrivals",
+        {"stop_id": "10030", "limit": 3},
     ),
     Flow(
         "Geçersiz girdi anlaşılır hata döndürüyor mu?",
-        "izmir_nearby", {"lat": 38.4, "lon": 27.1, "radius_m": 0},
-        expect_ok=False, expect_error="validation_error", live=False,
+        "izmir_nearby",
+        {"lat": 38.4, "lon": 27.1, "radius_m": 0},
+        expect_ok=False,
+        expect_error="validation_error",
+        live=False,
         extra=("repair hint",),
     ),
     Flow(
         "İzmir dışı bir koordinat dürüstçe uyarıyor mu?",
-        "izmir_nearby", {"lat": 1.0, "lon": 27.1, "types": ["parking"], "radius_m": 1000},
-        require_warning="İzmir il sınırları dışında", live=False,
+        "izmir_nearby",
+        {"lat": 1.0, "lon": 27.1, "types": ["parking"], "radius_m": 1000},
+        require_warning="İzmir il sınırları dışında",
+        live=False,
     ),
 )
 
@@ -137,12 +159,17 @@ def _opener() -> urllib.request.OpenerDirector:
 
 
 def call(base: str, name: str, arguments: dict[str, Any], *, timeout: float = 60) -> dict:
-    body = json.dumps({
-        "jsonrpc": "2.0", "id": 1, "method": "tools/call",
-        "params": {"name": name, "arguments": arguments},
-    }).encode()
+    body = json.dumps(
+        {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "method": "tools/call",
+            "params": {"name": name, "arguments": arguments},
+        }
+    ).encode()
     request = urllib.request.Request(
-        base, data=body,
+        base,
+        data=body,
         headers={"content-type": "application/json", "accept": "application/json, text/event-stream"},
     )
     with _opener().open(request, timeout=timeout) as response:
@@ -182,16 +209,17 @@ class LocalServer:
             "IZMIR_MCP_HOST": "127.0.0.1",
             "IZMIR_MCP_PORT": str(self.port),
             "IZMIR_MCP_DATABASE_PATH": str(Path(self.directory.name) / "uat.sqlite3"),
-            "IZMIR_MCP_CKAN_SQL_ALLOWED_RESOURCE_IDS": (
-                "0c791266-a2e4-4f14-82b8-9a9b102fbf94"
-            ),
+            "IZMIR_MCP_CKAN_SQL_ALLOWED_RESOURCE_IDS": ("0c791266-a2e4-4f14-82b8-9a9b102fbf94"),
             "IZMIR_MCP_ACCESS_LOG_ENABLED": "false",
         }
         log_path = Path(self.directory.name) / "server.log"
         with log_path.open("ab") as log:
             self.process = subprocess.Popen(
                 [sys.executable, "-m", "app.main"],
-                cwd=ROOT, env=env, stdout=log, stderr=subprocess.STDOUT,
+                cwd=ROOT,
+                env=env,
+                stdout=log,
+                stderr=subprocess.STDOUT,
             )
         probe = f"http://127.0.0.1:{self.port}/healthz"
         deadline = time.monotonic() + 45
@@ -246,8 +274,17 @@ def run_flow(base: str, flow: Flow, *, offline: bool) -> tuple[bool, str]:
         joined = " ".join(payload.get("warnings") or [])
         if flow.require_warning not in joined:
             return False, f"missing warning {flow.require_warning!r}"
-    for key in ("summary", "data", "freshness", "sources", "limits",
-                "warnings", "next_queries", "error", "result_info"):
+    for key in (
+        "summary",
+        "data",
+        "freshness",
+        "sources",
+        "limits",
+        "warnings",
+        "next_queries",
+        "error",
+        "result_info",
+    ):
         if key not in payload:
             return False, f"envelope missing {key!r}"
     return True, payload.get("summary", "")

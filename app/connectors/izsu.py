@@ -37,8 +37,7 @@ class IzsuClient:
     def _ttl_for(self, day: str) -> int:
         if day < date_cls.today().isoformat():
             return int(
-                getattr(self.settings, "izsu_past_cache_ttl_seconds", None)
-                or DEFAULT_IZSU_PAST_CACHE_TTL_SECONDS
+                getattr(self.settings, "izsu_past_cache_ttl_seconds", None) or DEFAULT_IZSU_PAST_CACHE_TTL_SECONDS
             )
         return self.settings.izsu_cache_ttl_seconds
 
@@ -173,9 +172,7 @@ def parse_dam_json(payload: Any) -> list[dict[str, Any]]:
     return rows
 
 
-def merge_csv_coordinates(
-    rows: list[dict[str, Any]], csv_rows: list[dict[str, Any]]
-) -> list[dict[str, Any]]:
+def merge_csv_coordinates(rows: list[dict[str, Any]], csv_rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """Fill JSON rows' missing coordinates from the CSV, matched by folded name."""
     by_name = {turkish_fold(row["name"]): row for row in csv_rows}
     merged: list[dict[str, Any]] = []

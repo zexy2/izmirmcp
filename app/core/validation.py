@@ -126,8 +126,10 @@ def validate_filters(filters: dict | None) -> dict | None:
             safe[safe_key] = value[:200]
         elif isinstance(value, (int, float, bool)) or value is None:
             safe[safe_key] = value
-        elif isinstance(value, list) and len(value) <= 20 and all(
-            isinstance(item, (str, int, float, bool)) or item is None for item in value
+        elif (
+            isinstance(value, list)
+            and len(value) <= 20
+            and all(isinstance(item, (str, int, float, bool)) or item is None for item in value)
         ):
             safe[safe_key] = value
         else:

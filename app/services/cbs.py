@@ -42,9 +42,7 @@ class CbsService:
     def _freshness(self, info, ttl: int) -> Freshness:
         return Freshness(status=info.status, ttl_seconds=ttl, source_updated_at=info.source_updated_at)
 
-    def _near(
-        self, rows: list[dict[str, Any]], near_lat, near_lon, radius_m
-    ) -> tuple[list[dict[str, Any]], list[str]]:
+    def _near(self, rows: list[dict[str, Any]], near_lat, near_lon, radius_m) -> tuple[list[dict[str, Any]], list[str]]:
         if near_lat is None and near_lon is None:
             if radius_m is not None:
                 raise InputValidationError("radius_m için near_lat ve near_lon gerekir", field="radius_m")
@@ -52,9 +50,7 @@ class CbsService:
         if near_lat is None or near_lon is None:
             raise InputValidationError("near_lat ve near_lon birlikte verilmelidir", field="near_lat")
         validate_lat_lon(near_lat, near_lon)
-        radius = validate_radius(
-            radius_m if radius_m is not None else 2_000, self.settings.max_radius_m
-        )
+        radius = validate_radius(radius_m if radius_m is not None else 2_000, self.settings.max_radius_m)
         ranked = []
         for row in rows:
             distance = haversine_m(near_lat, near_lon, row["lat"], row["lon"])
@@ -117,8 +113,10 @@ class CbsService:
             if not needle:
                 raise InputValidationError("query boş olamaz", field="query")
             rows = [
-                row for row in rows
-                if needle in _fold(row.get("name")) or needle in _fold(row.get("venue"))
+                row
+                for row in rows
+                if needle in _fold(row.get("name"))
+                or needle in _fold(row.get("venue"))
                 or needle in _fold(row.get("type"))
             ]
             limits.append(f"query={query}")
@@ -133,13 +131,19 @@ class CbsService:
             sources=[sources.EVENTS],
             freshness=self._freshness(info, int(getattr(self.settings, "events_cache_ttl_seconds", 3_600))),
             limits=limits,
-            warnings=["Etkinlik bilgisi belediyenin yayımladığı listedir; iptal/değişiklik için bağlantıyı kontrol edin."],
+            warnings=[
+                "Etkinlik bilgisi belediyenin yayımladığı listedir; iptal/değişiklik için bağlantıyı kontrol edin."
+            ],
             matched=len(rows),
         )
 
     async def market_prices(
-        self, *, kind: str = "sebzemeyve", day: str | None = None,
-        query: str | None = None, limit: int | None = None,
+        self,
+        *,
+        kind: str = "sebzemeyve",
+        day: str | None = None,
+        query: str | None = None,
+        limit: int | None = None,
     ) -> dict[str, Any]:
         if kind not in MARKET_KINDS:
             raise InputValidationError("kind sebzemeyve veya balik olmalıdır", field="kind")
@@ -161,9 +165,7 @@ class CbsService:
             for offset in range(HAL_LOOKBACK_DAYS):
                 candidate = start - timedelta(days=offset)
                 tried.append(candidate.isoformat())
-                bulletin, info = await self.api.market_prices(
-                    kind, candidate.isoformat(), today=candidate == today
-                )
+                bulletin, info = await self.api.market_prices(kind, candidate.isoformat(), today=candidate == today)
                 if bulletin is not None:
                     break
         except Exception as exc:  # noqa: BLE001 - never leak a source failure
@@ -202,9 +204,14 @@ class CbsService:
         )
 
     async def pharmacies_all(
-        self, *, area: str | None = None, query: str | None = None,
-        near_lat: float | None = None, near_lon: float | None = None,
-        radius_m: int | None = None, limit: int | None = None,
+        self,
+        *,
+        area: str | None = None,
+        query: str | None = None,
+        near_lat: float | None = None,
+        near_lon: float | None = None,
+        radius_m: int | None = None,
+        limit: int | None = None,
     ) -> dict[str, Any]:
         safe_limit = resolve_limit(limit, self.settings.default_limit, self.settings.max_limit)
         limits = [f"limit={safe_limit}"]
@@ -234,7 +241,9 @@ class CbsService:
             sources=[sources.PHARMACY_ALL],
             freshness=self._freshness(info, int(getattr(self.settings, "pharmacies_all_cache_ttl_seconds", 86_400))),
             limits=[*limits, *GEO_LIMITS],
-            warnings=["Bu tam eczane listesidir; bugün nöbetçi olanlar için izmir_nearby(types=['pharmacy']) kullanın."],
+            warnings=[
+                "Bu tam eczane listesidir; bugün nöbetçi olanlar için izmir_nearby(types=['pharmacy']) kullanın."
+            ],
             next_queries=["Nöbetçi eczaneler için izmir_nearby(lat, lon, types=['pharmacy']) kullanın."],
             matched=len(rows),
         )

@@ -39,9 +39,7 @@ class CatalogService:
         except InputValidationError as exc:
             return _validation_error(exc)
         try:
-            result = await self._cached_package_search(
-                query=safe_query, rows=safe_limit, formats=safe_formats
-            )
+            result = await self._cached_package_search(query=safe_query, rows=safe_limit, formats=safe_formats)
         except Exception as exc:
             return _source_error("İzmir açık veri kataloğu araması kullanılamıyor.", exc)
         datasets = result.get("results", [])
@@ -149,8 +147,7 @@ class CatalogService:
                         return error_envelope(
                             summary="Bilinmeyen sıralama sütunu.",
                             warning=(
-                                f"Bilinmeyen sıralama sütunu '{column}'. Geçerli alanlar: "
-                                f"{', '.join(map(str, known))}"
+                                f"Bilinmeyen sıralama sütunu '{column}'. Geçerli alanlar: {', '.join(map(str, known))}"
                             ),
                             code="validation_error",
                             field="sort",
@@ -183,16 +180,14 @@ class CatalogService:
             limits=[
                 f"limit={safe_limit}",
                 "source=CKAN datastore_search",
-                *( [f"q={safe_search[:60]}"] if safe_search else [] ),
-                *( [f"sort={safe_sort}"] if safe_sort else [] ),
+                *([f"q={safe_search[:60]}"] if safe_search else []),
+                *([f"sort={safe_sort}"] if safe_sort else []),
                 "Sunucu tarafı SQL desteklenmez; yalnızca filtre, q ve sort.",
             ],
             matched=result.get("total"),
         )
 
-    async def _cached_package_search(
-        self, *, query: str, rows: int, formats: list[str] | None
-    ) -> dict[str, Any]:
+    async def _cached_package_search(self, *, query: str, rows: int, formats: list[str] | None) -> dict[str, Any]:
         key = _cache_key(
             "ckan.package_search",
             {"query": query.strip(), "rows": rows, "formats": sorted({f.upper() for f in formats or []})},

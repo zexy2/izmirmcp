@@ -1,4 +1,5 @@
 """Event-loop watchdog: fires on a stalled loop, stays quiet on a healthy one."""
+
 from __future__ import annotations
 
 import asyncio
@@ -35,8 +36,9 @@ async def test_disabled_by_default():
 @pytest.mark.asyncio
 async def test_fires_when_the_loop_is_blocked():
     fired = threading.Event()
-    watchdog = EventLoopWatchdog(asyncio.get_running_loop(), timeout_seconds=0.2,
-                                 interval_seconds=0.05, on_stall=lambda _s: fired.set())
+    watchdog = EventLoopWatchdog(
+        asyncio.get_running_loop(), timeout_seconds=0.2, interval_seconds=0.05, on_stall=lambda _s: fired.set()
+    )
     watchdog.start()
     try:
         time.sleep(0.6)  # deliberately block the loop
@@ -48,8 +50,9 @@ async def test_fires_when_the_loop_is_blocked():
 @pytest.mark.asyncio
 async def test_quiet_while_the_loop_is_responsive():
     fired = threading.Event()
-    watchdog = EventLoopWatchdog(asyncio.get_running_loop(), timeout_seconds=0.3,
-                                 interval_seconds=0.05, on_stall=lambda _s: fired.set())
+    watchdog = EventLoopWatchdog(
+        asyncio.get_running_loop(), timeout_seconds=0.3, interval_seconds=0.05, on_stall=lambda _s: fired.set()
+    )
     watchdog.start()
     try:
         for _ in range(12):

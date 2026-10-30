@@ -16,7 +16,7 @@ concurrency:
 # Actions are pinned by commit SHA; dependabot keeps the pins current.
 jobs:
   lint:
-    name: Lint (ruff + mypy)
+    name: Lint (ruff + format + mypy)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
@@ -30,10 +30,9 @@ jobs:
           pip install -e ".[dev]" ruff mypy
       - name: Ruff
         run: ruff check app scripts tests
+      - name: Ruff format
+        run: ruff format --check app scripts tests
       - name: Mypy
-        # Report-only until the existing type errors in app/ are fixed; flip to
-        # blocking by deleting continue-on-error.
-        continue-on-error: true
         run: mypy app --ignore-missing-imports
 
   test:

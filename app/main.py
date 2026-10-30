@@ -64,8 +64,7 @@ def check_exposure(settings: Settings) -> None:
     if public_bind and not settings.mcp_api_keys:
         if settings.mcp_require_auth:
             raise RuntimeError(
-                "IZMIR_MCP_REQUIRE_AUTH is set but IZMIR_MCP_API_KEYS is empty "
-                f"while binding {settings.host}"
+                f"IZMIR_MCP_REQUIRE_AUTH is set but IZMIR_MCP_API_KEYS is empty while binding {settings.host}"
             )
         logger.warning(
             "izmir-mcp binds %s without IZMIR_MCP_API_KEYS: the MCP endpoint is "
@@ -75,9 +74,7 @@ def check_exposure(settings: Settings) -> None:
     elif settings.mcp_require_auth and not settings.mcp_api_keys:
         raise RuntimeError("IZMIR_MCP_REQUIRE_AUTH is set but IZMIR_MCP_API_KEYS is empty")
     if public_bind and not settings.mcp_allowed_hosts:
-        logger.warning(
-            "IZMIR_MCP_ALLOWED_HOSTS is not set; Host headers are not validated."
-        )
+        logger.warning("IZMIR_MCP_ALLOWED_HOSTS is not set; Host headers are not validated.")
 
 
 async def healthz(_request):
@@ -189,9 +186,7 @@ def create_app(settings: Settings | None = None) -> Starlette:
         refill_per_second=settings.client_rate_limit_refill_per_second,
         max_clients=settings.client_rate_limit_max_clients,
     )
-    concurrency_limiter = ConcurrencyLimiter(
-        max_concurrent=settings.client_max_concurrent_requests
-    )
+    concurrency_limiter = ConcurrencyLimiter(max_concurrent=settings.client_max_concurrent_requests)
 
     # Innermost first: guard before any MCP work, then auth, then origin policy,
     # with access logging and CORS headers on the outermost response path.

@@ -20,8 +20,12 @@ DAY_ALIASES = {
     "pazar": "sunday",
 }
 DAY_LABELS = {
-    "monday": "Pazartesi", "tuesday": "Salı", "wednesday": "Çarşamba",
-    "thursday": "Perşembe", "friday": "Cuma", "saturday": "Cumartesi",
+    "monday": "Pazartesi",
+    "tuesday": "Salı",
+    "wednesday": "Çarşamba",
+    "thursday": "Perşembe",
+    "friday": "Cuma",
+    "saturday": "Cumartesi",
     "sunday": "Pazar",
 }
 
@@ -76,9 +80,7 @@ class MarketService:
         except Exception as exc:
             from app.services.sources import source_failure_envelope
 
-            return source_failure_envelope(
-                exc, summary="Semt pazarı verisi kullanılamıyor.", used=[sources.MARKET]
-            )
+            return source_failure_envelope(exc, summary="Semt pazarı verisi kullanılamıyor.", used=[sources.MARKET])
 
         limits = [f"limit={safe_limit}"]
         selected = []
@@ -90,16 +92,19 @@ class MarketService:
                 unknown_days += 1
             selected.append({**row, "days": days, "day_confidence": confidence})
 
-        warnings = ["Kurulma günü kaynağın serbest metninden türetilir; listede olmayan pazar yeri "
-                    "günü bilinmiyor demektir, 'her gün kurulmuyor' kanıtı değildir."]
+        warnings = [
+            "Kurulma günü kaynağın serbest metninden türetilir; listede olmayan pazar yeri "
+            "günü bilinmiyor demektir, 'her gün kurulmuyor' kanıtı değildir."
+        ]
 
         if day_key is not None:
             if day_key in {"today", "tomorrow"}:
                 from datetime import date, timedelta
 
                 target = date.today() + (timedelta(days=1) if day_key == "tomorrow" else timedelta(days=0))
-                day_key = ("monday", "tuesday", "wednesday", "thursday", "friday",
-                           "saturday", "sunday")[target.weekday()]
+                day_key = ("monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday")[
+                    target.weekday()
+                ]
                 limits.append(f"day={day_key} (system date {target.isoformat()})")
             else:
                 limits.append(f"day={day_key}")
@@ -111,16 +116,11 @@ class MarketService:
 
         if district is not None:
             needle = normalize_name(district)
-            selected = [
-                row for row in selected
-                if needle in normalize_name(row.get("district") or "")
-            ]
+            selected = [row for row in selected if needle in normalize_name(row.get("district") or "")]
             limits.append(f"district={district.strip()[:60]}")
 
         if lat is not None and lon is not None:
-            safe_radius = validate_radius(
-                1_500 if radius_m is None else radius_m, self.settings.max_radius_m
-            )
+            safe_radius = validate_radius(1_500 if radius_m is None else radius_m, self.settings.max_radius_m)
             with_distance = []
             for row in selected:
                 if row.get("lat") is None or row.get("lon") is None:

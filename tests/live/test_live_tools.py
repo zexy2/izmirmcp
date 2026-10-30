@@ -3,6 +3,7 @@
 Each tool must return a success envelope with non-empty data and its key fields.
 An error envelope (even a typed one) fails the check.
 """
+
 from __future__ import annotations
 
 import json

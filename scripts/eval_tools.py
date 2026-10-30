@@ -6,6 +6,7 @@ the pytest suite separately exercises dispatch and envelope preservation.
 
     python -m scripts.eval_tools [--predictions predictions.json]
 """
+
 from __future__ import annotations
 
 import argparse
@@ -22,12 +23,10 @@ def load_cases() -> list[dict]:
 
 def score_predictions(cases: list[dict], predictions: dict) -> dict:
     correct = sum(
-        predictions.get(case["id"]) == {"tool": case["tool"], "arguments": case["arguments"]}
-        for case in cases
+        predictions.get(case["id"]) == {"tool": case["tool"], "arguments": case["arguments"]} for case in cases
     )
     tool_only = sum(
-        isinstance(predictions.get(case["id"]), dict)
-        and predictions[case["id"]].get("tool") == case["tool"]
+        isinstance(predictions.get(case["id"]), dict) and predictions[case["id"]].get("tool") == case["tool"]
         for case in cases
     )
     return {"exact_matches": correct, "tool_matches": tool_only, "total": len(cases)}
@@ -40,8 +39,7 @@ async def footprint(server=None) -> dict:
 
         server = create_mcp_server(get_settings())
     tools = [tool.model_dump(by_alias=True, exclude_none=True) for tool in await server.list_tools()]
-    without_output = [{key: value for key, value in tool.items() if key != "outputSchema"}
-                      for tool in tools]
+    without_output = [{key: value for key, value in tool.items() if key != "outputSchema"} for tool in tools]
 
     def size(value) -> int:
         return len(json.dumps(value, ensure_ascii=False, separators=(",", ":")).encode())

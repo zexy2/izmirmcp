@@ -103,9 +103,7 @@ class DisruptionService:
             "metro": (self.operators.metro_announcements, sources.METRO_NOTICES),
             "izdeniz": (self.operators.ferry_announcements, sources.FERRY_NOTICES),
         }
-        outcomes = await asyncio.gather(
-            *(loaders[name][0]() for name in selected), return_exceptions=True
-        )
+        outcomes = await asyncio.gather(*(loaders[name][0]() for name in selected), return_exceptions=True)
 
         rows: list[dict[str, Any]] = []
         used: list[Source] = []
@@ -133,9 +131,7 @@ class DisruptionService:
             from app.services.sources import source_failure_envelope
 
             failures = [item for item in outcomes if isinstance(item, BaseException)]
-            if failures and all(
-                isinstance(item, SourceRateLimitedError) for item in failures
-            ):
+            if failures and all(isinstance(item, SourceRateLimitedError) for item in failures):
                 return source_failure_envelope(
                     failures[0],
                     summary="Tüm operatör duyuru kaynakları hız sınırına takıldı.",
@@ -188,9 +184,7 @@ class DisruptionService:
         data = rows[:safe_limit]
         truncated = matched > len(data)
         if truncated:
-            warnings.append(
-                f"Toplam {matched} duyuru eşleşti, ilk {len(data)} gösteriliyor; bu tam liste değildir."
-            )
+            warnings.append(f"Toplam {matched} duyuru eşleşti, ilk {len(data)} gösteriliyor; bu tam liste değildir.")
         if not data:
             warnings.append("Eşleşen duyuru yok. Bu, aksaklık olmadığının kanıtı değildir.")
 
@@ -213,9 +207,7 @@ class DisruptionService:
                 "Belirli bir operatör için operator parametresi kullanın.",
                 "Belirli bir hat için line parametresi kullanın (yalnızca ESHOT).",
             ],
-            result=result_info(
-                returned=len(data), matched=matched, truncated=truncated, scope="operator_notices"
-            ),
+            result=result_info(returned=len(data), matched=matched, truncated=truncated, scope="operator_notices"),
         )
 
     @staticmethod
@@ -232,10 +224,7 @@ class DisruptionService:
                     "starts_at": item.get("starts_at"),
                     "ends_at": item.get("ends_at"),
                     "published_at": item.get("starts_at"),
-                    "active": bool(
-                        (starts is None or starts <= reference)
-                        and (ends is None or ends >= reference)
-                    ),
+                    "active": bool((starts is None or starts <= reference) and (ends is None or ends >= reference)),
                     "url": None,
                 }
             )

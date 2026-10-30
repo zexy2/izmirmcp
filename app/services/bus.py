@@ -36,6 +36,7 @@ class _ScheduleUnavailable(Exception):
         super().__init__(envelope.get("summary") or "timetable unavailable")
         self.envelope = envelope
 
+
 ARRIVAL_LIMITS = [
     "Varış verisi dakika/ETA yayımlamaz; yalnızca kalan durak sayısı ve anlık araç konumu vardır.",
     "Kaynak 'yön' alanı için hat güzergâhı doğrulanmadı; değer kaynağın kendi kimliğidir.",
@@ -74,8 +75,7 @@ def _fuzzy_stops(rows: list[dict[str, Any]], needle: str) -> list[dict[str, Any]
             scored.append(
                 (
                     ratio,
-                    {**row, "match": "fuzzy", "_score": round(ratio, 3),
-                     "maps_url": maps_url(row["lat"], row["lon"])},
+                    {**row, "match": "fuzzy", "_score": round(ratio, 3), "maps_url": maps_url(row["lat"], row["lon"])},
                 )
             )
     scored.sort(key=lambda pair: (-pair[0], pair[1].get("name") or ""))
@@ -139,9 +139,7 @@ class BusService:
     ) -> dict[str, Any]:
         uses_coordinates = lat is not None or lon is not None
         if query is not None and uses_coordinates:
-            raise InputValidationError(
-                "query ile lat/lon'dan yalnızca birini kullanın", field="query"
-            )
+            raise InputValidationError("query ile lat/lon'dan yalnızca birini kullanın", field="query")
         if query is None and not uses_coordinates:
             raise InputValidationError(
                 "query veya lat/lon verin (radius_m yalnızca lat/lon ile geçerlidir)", field="query"
@@ -155,9 +153,7 @@ class BusService:
         try:
             rows, info = await self.api.stops()
         except Exception as exc:
-            return _source_error(
-                "EShot durak listesi kullanılamıyor.", exc, [sources.ESHOT_STOPS]
-            )
+            return _source_error("EShot durak listesi kullanılamıyor.", exc, [sources.ESHOT_STOPS])
         limits = [f"limit={safe_limit}"]
 
         if query is not None:
@@ -172,17 +168,15 @@ class BusService:
                 limits.append(f"query={query.strip()[:60]} (fuzzy)")
             summary = f"{len(matched)} durak '{query.strip()[:40]}' ile eşleşti; ilk {min(len(matched), safe_limit)} gösteriliyor."
         else:
-            safe_radius = validate_radius(
-                1_000 if radius_m is None else radius_m, self.settings.max_radius_m
-            )
+            # Both are set here: the guards above reject a lone lat or lon.
+            assert lat is not None and lon is not None
+            safe_radius = validate_radius(1_000 if radius_m is None else radius_m, self.settings.max_radius_m)
             matched = []
             for row in rows:
                 distance = haversine_m(lat, lon, row["lat"], row["lon"])
                 if distance > safe_radius:
                     continue
-                matched.append(
-                    {**row, "distance_m": distance, "maps_url": maps_url(row["lat"], row["lon"])}
-                )
+                matched.append({**row, "distance_m": distance, "maps_url": maps_url(row["lat"], row["lon"])})
             matched.sort(key=lambda row: (row["distance_m"], row.get("name") or ""))
             limits.extend([f"radius_m={safe_radius}", f"lat={lat:.5f}", f"lon={lon:.5f}"])
             summary = f"{len(matched)} durak {safe_radius} m içinde bulundu; ilk {min(len(matched), safe_limit)} gösteriliyor."
@@ -199,8 +193,7 @@ class BusService:
             ),
             limits=[*STOP_LIMITS, *limits],
             warnings=[
-                "Hat listesi durağın kendi satırındaki duraktan geçen hatlardır; "
-                "güncel servis garantisi değildir.",
+                "Hat listesi durağın kendi satırındaki duraktan geçen hatlardır; güncel servis garantisi değildir.",
             ],
             next_queries=["Canlı yaklaşan araçlar için izmir_bus_arrivals(stop_id=...) kullanın."],
             matched=len(matched),
@@ -211,9 +204,7 @@ class BusService:
         try:
             stop_rows, stop_info = await self.api.stops()
         except Exception as exc:
-            return _source_error(
-                "EShot durak listesi olmadan varış doğrulanamıyor.", exc, [sources.ESHOT_STOPS]
-            )
+            return _source_error("EShot durak listesi olmadan varış doğrulanamıyor.", exc, [sources.ESHOT_STOPS])
         known = {row["id"]: row for row in stop_rows}
         stop = known.get(stop_id)
         if stop is None:
@@ -244,9 +235,7 @@ class BusService:
             enriched = {**row, "stop_id": stop_id, "stop_name": stop.get("name")}
             if row.get("lat") is not None and row.get("lon") is not None:
                 enriched["maps_url"] = maps_url(row["lat"], row["lon"])
-                enriched["distance_to_stop_m"] = haversine_m(
-                    row["lat"], row["lon"], stop["lat"], stop["lon"]
-                )
+                enriched["distance_to_stop_m"] = haversine_m(row["lat"], row["lon"], stop["lat"], stop["lon"])
             data.append(enriched)
 
         warnings = list(ARRIVAL_LIMITS)
@@ -289,14 +278,10 @@ class BusService:
                 exc,
                 [sources.ESHOT_LINE_POSITIONS],
             )
-        data = [
-            {**row, "maps_url": maps_url(row["lat"], row["lon"])} for row in rows[:safe_limit]
-        ]
+        data = [{**row, "maps_url": maps_url(row["lat"], row["lon"])} for row in rows[:safe_limit]]
         warnings = ["Konumlar anlık araç konumudur; birkaç saniye içinde değişir."]
         if not rows:
-            warnings.append(
-                "Kaynak bu hat için araç konumu döndürmedi; bu 'hat çalışmıyor' kanıtı değildir."
-            )
+            warnings.append("Kaynak bu hat için araç konumu döndürmedi; bu 'hat çalışmıyor' kanıtı değildir.")
         return success_envelope(
             summary=(
                 f"{safe_line} hattında {len(data)} otobüsün anlık konumu."
@@ -322,9 +307,7 @@ class BusService:
             matched=len(rows),
         )
 
-    async def line_arrivals(
-        self, *, line: str, stop_id: str | None = None, limit: int | None = None
-    ) -> dict[str, Any]:
+    async def line_arrivals(self, *, line: str, stop_id: str | None = None, limit: int | None = None) -> dict[str, Any]:
         """Approaching buses filtered to one line.
 
         With ``stop_id`` this filters the stop's live arrivals by line. The
@@ -340,9 +323,7 @@ class BusService:
             return envelope
         safe_limit = resolve_limit(limit, self.settings.default_limit, self.settings.max_limit)
         wanted = safe_line.casefold()
-        filtered = [
-            row for row in envelope["data"] if str(row.get("line") or "").casefold() == wanted
-        ]
+        filtered = [row for row in envelope["data"] if str(row.get("line") or "").casefold() == wanted]
         envelope["data"] = filtered[:safe_limit]
         envelope["summary"] = (
             f"{safe_line} hattından {len(envelope['data'])} otobüs {stop_id} durağına yaklaşıyor."
@@ -354,9 +335,9 @@ class BusService:
             *envelope["warnings"],
             "Filtre durak yanıtındaki tüm otobüsler üzerinde uygulanır.",
         ]
-        envelope["result_info"] = result_info(
-            returned=len(envelope["data"]), matched=len(filtered)
-        ).model_dump(mode="json")
+        envelope["result_info"] = result_info(returned=len(envelope["data"]), matched=len(filtered)).model_dump(
+            mode="json"
+        )
         return envelope
 
     async def routes(
@@ -371,18 +352,14 @@ class BusService:
         if detail:
             return await self._route_detail(query=query, direction=direction, limit=limit)
         if direction is not None:
-            raise InputValidationError(
-                "direction yalnızca detail=true ile desteklenir", field="direction"
-            )
+            raise InputValidationError("direction yalnızca detail=true ile desteklenir", field="direction")
         safe_limit = resolve_limit(limit, self.settings.default_limit, self.settings.max_limit)
         if query is not None and not str(query).strip():
             raise InputValidationError("query boş olamaz", field="query")
         try:
             gtfs, info = await self.api.gtfs()
         except Exception as exc:
-            return _source_error(
-                "EShot GTFS arşivi okunamadı.", exc, [sources.ESHOT_GTFS]
-            )
+            return _source_error("EShot GTFS arşivi okunamadı.", exc, [sources.ESHOT_GTFS])
         routes = gtfs.get("routes", [])
         calendar_end = gtfs.get("calendar_end")
 
@@ -391,9 +368,8 @@ class BusService:
             matched = [
                 row
                 for row in routes
-                if needle in normalize_name(
-                    f"{row.get('short_name') or ''} {row.get('long_name') or ''} {row.get('route_id')}"
-                )
+                if needle
+                in normalize_name(f"{row.get('short_name') or ''} {row.get('long_name') or ''} {row.get('route_id')}")
             ]
         else:
             matched = list(routes)
@@ -414,9 +390,7 @@ class BusService:
             warnings.append("GTFS takvim penceresi okunamadı; güncellik doğrulanamadı.")
 
         return success_envelope(
-            summary=(
-                f"{len(data)} hat listelendi; GTFS takvim bitişi {calendar_end or 'bilinmiyor'}."
-            ),
+            summary=(f"{len(data)} hat listelendi; GTFS takvim bitişi {calendar_end or 'bilinmiyor'}."),
             data=data,
             sources=[sources.ESHOT_GTFS],
             freshness=Freshness(
@@ -428,7 +402,7 @@ class BusService:
                 f"limit={safe_limit}",
                 f"gtfs_calendar_end={calendar_end}",
                 "Kaynak: yayımlanmış GTFS ZIP (yalnızca routes/trips/calendar).",
-                *( [f"query={query.strip()[:80]}"] if query is not None else [] ),
+                *([f"query={query.strip()[:80]}"] if query is not None else []),
             ],
             warnings=warnings,
             next_queries=[
@@ -438,15 +412,11 @@ class BusService:
             matched=len(matched),
         )
 
-    async def _route_detail(
-        self, *, query: str | None, direction: str | None, limit: int | None
-    ) -> dict[str, Any]:
+    async def _route_detail(self, *, query: str | None, direction: str | None, limit: int | None) -> dict[str, Any]:
         resolve_limit(limit, self.settings.default_limit, self.settings.max_limit)
         text = str(query or "").strip()
         if not text:
-            raise InputValidationError(
-                "detail=true için hat kodu içeren query gerekir (örn. 304)", field="query"
-            )
+            raise InputValidationError("detail=true için hat kodu içeren query gerekir (örn. 304)", field="query")
         wanted_direction = None
         if direction is not None:
             wanted_direction = str(direction).strip()
@@ -461,18 +431,13 @@ class BusService:
         try:
             matches = await asyncio.to_thread(store.find_routes, text)
         except (GtfsScheduleError, OSError) as exc:
-            return _source_error(
-                "Yerel GTFS tarife deposu okunamadı.", exc, [sources.ESHOT_GTFS]
-            )
+            return _source_error("Yerel GTFS tarife deposu okunamadı.", exc, [sources.ESHOT_GTFS])
         if not matches:
-            raise InputValidationError(
-                "line yayımlanmış GTFS hat tablosunda yok", field="query"
-            )
+            raise InputValidationError("line yayımlanmış GTFS hat tablosunda yok", field="query")
         if len(matches) > 1:
             route_ids = ", ".join(str(row["route_id"]) for row in matches)
             raise InputValidationError(
-                f"line '{text}' birden çok GTFS hattıyla eşleşiyor ({route_ids}); "
-                "ayırmak için route_id kullanın",
+                f"line '{text}' birden çok GTFS hattıyla eşleşiyor ({route_ids}); ayırmak için route_id kullanın",
                 field="query",
             )
 
@@ -480,9 +445,7 @@ class BusService:
         try:
             payload = await asyncio.to_thread(store.route_detail, route["route_id"])
         except (GtfsScheduleError, OSError) as exc:
-            return _source_error(
-                "Yerel GTFS tarife deposu okunamadı.", exc, [sources.ESHOT_GTFS]
-            )
+            return _source_error("Yerel GTFS tarife deposu okunamadı.", exc, [sources.ESHOT_GTFS])
 
         directions = payload["directions"]
         if wanted_direction is not None:
@@ -494,9 +457,7 @@ class BusService:
                     + (f"; mevcut: {', '.join(labels)}" if labels else ""),
                     field="direction",
                 )
-            directions = [
-                row for row in directions if row["direction_id"] == wanted_direction
-            ]
+            directions = [row for row in directions if row["direction_id"] == wanted_direction]
 
         calendar_end = meta.get("calendar_end") or None
         calendar_start = meta.get("calendar_start") or None
@@ -629,9 +590,7 @@ class BusService:
                 "Kalkış sorguları bu pencere dışında planlı sefer döndürmez."
             )
         if age_seconds is not None and age_seconds > settings.eshot_gtfs_cache_ttl_seconds:
-            warnings.append(
-                "Yerel depo tazelik eşiğini aştı; sonraki kalkış sorgusu yeniden kurmayı dener."
-            )
+            warnings.append("Yerel depo tazelik eşiğini aştı; sonraki kalkış sorgusu yeniden kurmayı dener.")
 
         return success_envelope(
             summary=(
@@ -678,9 +637,7 @@ class BusService:
                     except Exception as exc:
                         # Keep the type and message in server logs; the public
                         # envelope stays generic and never leaks a path.
-                        logger.warning(
-                            "GTFS rebuild failed: %s: %s", type(exc).__name__, exc
-                        )
+                        logger.warning("GTFS rebuild failed: %s: %s", type(exc).__name__, exc)
                         if (
                             meta is not None
                             and age
@@ -743,13 +700,9 @@ class BusService:
                 "stop_id, stop_query veya lat/lon'dan tam olarak birini kullanın", field="stop_id"
             )
         if needle is None and sid is None and not uses_coordinates:
-            raise InputValidationError(
-                "stop_id, stop_query veya lat/lon verin", field="stop_id"
-            )
+            raise InputValidationError("stop_id, stop_query veya lat/lon verin", field="stop_id")
         if radius_m is not None and not uses_coordinates:
-            raise InputValidationError(
-                "radius_m yalnızca lat/lon ile geçerlidir", field="radius_m"
-            )
+            raise InputValidationError("radius_m yalnızca lat/lon ile geçerlidir", field="radius_m")
         if uses_coordinates and (lat is None or lon is None):
             raise InputValidationError("lat ve lon birlikte verilmelidir", field="lat")
 
@@ -759,9 +712,7 @@ class BusService:
             if not wanted_line:
                 raise InputValidationError("line boş olamaz", field="line")
             if needle is not None:
-                raise InputValidationError(
-                    "line, durak adı aramasını filtreleyemez", field="line"
-                )
+                raise InputValidationError("line, durak adı aramasını filtreleyemez", field="line")
         if needle is not None:
             if at is not None:
                 raise InputValidationError(
@@ -796,6 +747,8 @@ class BusService:
                 )
             query_stops = [stop]
         else:
+            # Both are set here: the guards above reject a lone lat or lon.
+            assert lat is not None and lon is not None
             validate_lat_lon(lat, lon)
             safe_radius = validate_radius(
                 DEPARTURE_RADIUS_DEFAULT_M if radius_m is None else radius_m,
@@ -807,18 +760,17 @@ class BusService:
                 if distance <= safe_radius:
                     candidates.append((distance, row))
             candidates.sort(key=lambda pair: (pair[0], pair[1].get("name") or ""))
-            extra_limits.extend([
-                "mode=radius",
-                f"radius_m={safe_radius}",
-                f"lat={lat:.5f}",
-                f"lon={lon:.5f}",
-            ])
+            extra_limits.extend(
+                [
+                    "mode=radius",
+                    f"radius_m={safe_radius}",
+                    f"lat={lat:.5f}",
+                    f"lon={lon:.5f}",
+                ]
+            )
             if not candidates:
                 return success_envelope(
-                    summary=(
-                        f"{safe_radius} m içinde yayımlanmış EShot durağı yok; "
-                        "kalkış sorgusu yapılmadı."
-                    ),
+                    summary=(f"{safe_radius} m içinde yayımlanmış EShot durağı yok; kalkış sorgusu yapılmadı."),
                     data=[],
                     sources=[sources.ESHOT_STOPS],
                     freshness=Freshness(
@@ -836,15 +788,16 @@ class BusService:
                         "Yarıçapı büyütün veya izmir_bus_stops ile durak listesini kontrol edin.",
                     ],
                     result=result_info(
-                        returned=0, matched=0, truncated=False,
+                        returned=0,
+                        matched=0,
+                        truncated=False,
                         scope="published_departures_near",
                     ),
                 )
             selected = candidates[:DEPARTURE_RADIUS_STOP_CAP]
             if len(candidates) > DEPARTURE_RADIUS_STOP_CAP:
                 extra_warnings.append(
-                    f"Yarıçapta {len(candidates)} durak var; en yakın "
-                    f"{DEPARTURE_RADIUS_STOP_CAP} durak sorgulandı."
+                    f"Yarıçapta {len(candidates)} durak var; en yakın {DEPARTURE_RADIUS_STOP_CAP} durak sorgulandı."
                 )
             distances = {row["id"]: distance for distance, row in selected}
             query_stops = [row for _distance, row in selected]
@@ -867,22 +820,15 @@ class BusService:
         except GtfsScheduleError as exc:
             if "not in the GTFS stop table" in str(exc):
                 raise InputValidationError(
-                    "stop_id yayımlanmış EShot listesinde var ancak geçerli GTFS "
-                    "tarifesinde stop_times kaydı yok",
+                    "stop_id yayımlanmış EShot listesinde var ancak geçerli GTFS tarifesinde stop_times kaydı yok",
                     field="stop_id",
                 ) from exc
-            return _source_error(
-                "Yerel GTFS tarife deposu okunamadı.", exc, [sources.ESHOT_GTFS]
-            )
+            return _source_error("Yerel GTFS tarife deposu okunamadı.", exc, [sources.ESHOT_GTFS])
         except OSError as exc:
-            return _source_error(
-                "Yerel GTFS tarife deposu okunamadı.", exc, [sources.ESHOT_GTFS]
-            )
+            return _source_error("Yerel GTFS tarife deposu okunamadı.", exc, [sources.ESHOT_GTFS])
 
         if distances:
-            rows = [
-                {**row, "distance_m": distances.get(row["stop_id"])} for row in rows
-            ]
+            rows = [{**row, "distance_m": distances.get(row["stop_id"])} for row in rows]
         truncated = len(rows) > safe_limit
         data = rows[:safe_limit]
         calendar_end = meta.get("calendar_end") or None
@@ -908,14 +854,11 @@ class BusService:
             )
             stale = True
         if calendar_start and query_day < calendar_start:
-            warnings.append(
-                f"{query_day} yayımlanmış GTFS takviminin ({calendar_start}) başlangıcından önce."
-            )
+            warnings.append(f"{query_day} yayımlanmış GTFS takviminin ({calendar_start}) başlangıcından önce.")
             stale = True
         if not data:
             warnings.append(
-                "Bu durak ve tarih için planlı kalkış bulunamadı; bu canlı sefer "
-                "yokluğunun kanıtı değildir."
+                "Bu durak ve tarih için planlı kalkış bulunamadı; bu canlı sefer yokluğunun kanıtı değildir."
             )
 
         stop_name = query_stops[0].get("name") or query_stops[0]["id"]
@@ -933,9 +876,7 @@ class BusService:
                     f"{calendar_end or 'bilinmiyor'}."
                 )
         elif calendar_end and query_day > calendar_end:
-            scope_label = (
-                stop_name if stop_count is None else f"Yakındaki {stop_count} durak"
-            )
+            scope_label = stop_name if stop_count is None else f"Yakındaki {stop_count} durak"
             summary = (
                 f"{scope_label} için {query_day}: GTFS takvimi {calendar_end} tarihinde "
                 "bittiği için yayımlanmış kalkış yok."
@@ -943,10 +884,7 @@ class BusService:
         elif stop_count is None:
             summary = f"{stop_name} için {query_day} tarihinde planlı kalkış bulunamadı."
         else:
-            summary = (
-                f"Yakındaki {stop_count} durak için {query_day} tarihinde planlı "
-                "kalkış bulunamadı."
-            )
+            summary = f"Yakındaki {stop_count} durak için {query_day} tarihinde planlı kalkış bulunamadı."
         matched = None if truncated else len(rows)
         warnings = [*warnings, *extra_warnings]
         return success_envelope(
@@ -965,15 +903,15 @@ class BusService:
                 f"calendar_end={calendar_end or 'bilinmiyor'}",
                 f"limit={safe_limit}",
                 "realtime=false",
-                *( [f"line={wanted_line}"] if wanted_line else [] ),
+                *([f"line={wanted_line}"] if wanted_line else []),
                 *extra_limits,
             ],
             warnings=warnings,
             next_queries=[
                 *(
                     [f"Canlı yaklaşan araçlar için izmir_bus_arrivals(stop_id={sid}) kullanın."]
-                    if sid is not None else
-                    ["Canlı yaklaşan araçlar için izmir_bus_arrivals(stop_id=...) kullanın."]
+                    if sid is not None
+                    else ["Canlı yaklaşan araçlar için izmir_bus_arrivals(stop_id=...) kullanın."]
                 ),
                 "Durak kimliğini doğrulamak için izmir_bus_stops(query=...) kullanın.",
             ],
@@ -986,9 +924,7 @@ class BusService:
             ),
         )
 
-    async def _departure_stop_candidates(
-        self, needle: str, safe_limit: int
-    ) -> dict[str, Any]:
+    async def _departure_stop_candidates(self, needle: str, safe_limit: int) -> dict[str, Any]:
         """Name discovery for departures: candidate stops, never a timetable."""
         normalized = normalize_name(needle)
         if not normalized:
@@ -996,9 +932,7 @@ class BusService:
         try:
             rows, info = await self.api.stops()
         except Exception as exc:
-            return _source_error(
-                "EShot durak listesi kullanılamıyor.", exc, [sources.ESHOT_STOPS]
-            )
+            return _source_error("EShot durak listesi kullanılamıyor.", exc, [sources.ESHOT_STOPS])
         matched = _match_stop_query(rows, normalized)
         data = matched[:safe_limit]
         truncated = len(matched) > len(data)
@@ -1008,14 +942,9 @@ class BusService:
             "Aynı adlı duraklar ayrı satırlardır; ilkini otomatik seçmeyin.",
         ]
         if any(row.get("match") == "fuzzy" for row in data):
-            warnings.append(
-                "Yakın yazım önerileri 'fuzzy' olarak etiketlendi; eşleşme garantisi değildir."
-            )
+            warnings.append("Yakın yazım önerileri 'fuzzy' olarak etiketlendi; eşleşme garantisi değildir.")
         return success_envelope(
-            summary=(
-                f"'{needle[:40]}' için {len(data)} durak adayı bulundu; "
-                "bu mod kalkış döndürmez."
-            ),
+            summary=(f"'{needle[:40]}' için {len(data)} durak adayı bulundu; bu mod kalkış döndürmez."),
             data=data,
             sources=[sources.ESHOT_STOPS],
             freshness=Freshness(

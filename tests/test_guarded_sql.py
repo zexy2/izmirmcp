@@ -4,6 +4,7 @@ A custom SQL endpoint is only safe if the parser and the SQLite authorizer both
 refuse everything outside one bounded SELECT over ``records``. These tests try
 the obvious escapes directly against the guard, without a service or network.
 """
+
 from __future__ import annotations
 
 import pytest
@@ -75,8 +76,7 @@ def test_guard_refuses_a_snapshot_without_a_stable_id():
 
 def test_guard_refuses_case_colliding_columns():
     with pytest.raises(ValueError):
-        validate_fields([{"id": "_id", "type": "int"}, {"id": "ilce", "type": "text"},
-                         {"id": "ILCE", "type": "text"}])
+        validate_fields([{"id": "_id", "type": "int"}, {"id": "ilce", "type": "text"}, {"id": "ILCE", "type": "text"}])
 
 
 def test_validate_sql_returns_canonical_sql():
@@ -87,8 +87,7 @@ def test_guard_caps_snapshot_rows():
     from app.storage.guarded_sql import SnapshotRejected
 
     with pytest.raises(SnapshotRejected):
-        execute_snapshot_query(FIELDS, ROWS, "SELECT ILCE FROM records",
-                               limit=10, timeout_seconds=1.0, max_rows=1)
+        execute_snapshot_query(FIELDS, ROWS, "SELECT ILCE FROM records", limit=10, timeout_seconds=1.0, max_rows=1)
 
 
 def test_guard_caps_snapshot_bytes():
@@ -96,10 +95,10 @@ def test_guard_caps_snapshot_bytes():
 
     rows = [{"_id": i, "ILCE": "x" * 1000, "N": i} for i in range(1, 6)]
     with pytest.raises(SnapshotRejected):
-        execute_snapshot_query(FIELDS, rows, "SELECT ILCE FROM records",
-                               limit=10, timeout_seconds=1.0, max_bytes=2048)
-    data, _ = execute_snapshot_query(FIELDS, rows, "SELECT COUNT(*) AS c FROM records",
-                                     limit=10, timeout_seconds=1.0, max_bytes=10_000)
+        execute_snapshot_query(FIELDS, rows, "SELECT ILCE FROM records", limit=10, timeout_seconds=1.0, max_bytes=2048)
+    data, _ = execute_snapshot_query(
+        FIELDS, rows, "SELECT COUNT(*) AS c FROM records", limit=10, timeout_seconds=1.0, max_bytes=10_000
+    )
     assert data == [{"c": 5}]
 
 
@@ -111,8 +110,9 @@ def test_guard_caller_cannot_raise_caps_above_hard_limit():
     guarded.MAX_SNAPSHOT_ROWS = 2
     try:
         with pytest.raises(guarded.SnapshotRejected):
-            execute_snapshot_query(FIELDS, rows, "SELECT ILCE FROM records",
-                                   limit=10, timeout_seconds=1.0, max_rows=10**9)
+            execute_snapshot_query(
+                FIELDS, rows, "SELECT ILCE FROM records", limit=10, timeout_seconds=1.0, max_rows=10**9
+            )
     finally:
         guarded.MAX_SNAPSHOT_ROWS = original
 

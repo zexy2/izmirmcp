@@ -5,6 +5,7 @@ Python: ``{"lat": true}`` became latitude 1.0 before any validator could see the
 caller's mistake. These aliases add a ``before`` validator that rejects booleans
 while keeping the string-to-number coercion the tools already advertise.
 """
+
 from __future__ import annotations
 
 from typing import Annotated, Optional

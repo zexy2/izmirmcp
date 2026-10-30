@@ -12,7 +12,14 @@ FreshnessStatus = Literal["fresh", "stale", "unknown", "broken"]
 MACHINE_HOST_MARKERS = ("api", "proxy")
 MACHINE_PATH_SEGMENTS = frozenset({"api", "download", "docs"})
 MACHINE_FILE_SUFFIXES = (
-    ".asmx", ".csv", ".geojson", ".json", ".xls", ".xlsx", ".xml", ".zip",
+    ".asmx",
+    ".csv",
+    ".geojson",
+    ".json",
+    ".xls",
+    ".xlsx",
+    ".xml",
+    ".zip",
 )
 
 
@@ -54,8 +61,7 @@ class Source(BaseModel):
     url: str | None = Field(
         default=None,
         description=(
-            "Human-readable source page for citations; null when the source is "
-            "only an API endpoint or data file."
+            "Human-readable source page for citations; null when the source is only an API endpoint or data file."
         ),
     )
     license: str | None = None
@@ -101,17 +107,17 @@ class ResultInfo(BaseModel):
 
 
 def result_info(
-    *, returned: int, matched: int | None = None,
-    truncated: bool | None = None, scope: str = "data",
+    *,
+    returned: int,
+    matched: int | None = None,
+    truncated: bool | None = None,
+    scope: str = "data",
 ) -> ResultInfo:
     if truncated is None and matched is not None:
         truncated = matched > returned
     note = None
     if truncated:
-        note = (
-            "Limiti duyurulan üst sınıra kadar artırın ya da filtreleri daraltın. "
-            "Bu, toplamın tamamı değildir."
-        )
+        note = "Limiti duyurulan üst sınıra kadar artırın ya da filtreleri daraltın. Bu, toplamın tamamı değildir."
     elif truncated is None:
         note = "Tamlık bilinmiyor; kaynak kapsamını, limitleri ve uyarıları inceleyin."
     return ResultInfo(returned=returned, matched=matched, truncated=truncated, scope=scope, next_step=note)
@@ -175,7 +181,9 @@ def error_envelope(
     code = code or "request_failed"
     if temporary is None:
         temporary = code in {
-            "source_unavailable", "source_rate_limited", "source_timeout",
+            "source_unavailable",
+            "source_rate_limited",
+            "source_timeout",
         }
     if next_step is None:
         next_step = (
@@ -196,7 +204,7 @@ def error_envelope(
             temporary=temporary,
             field=field,
             next_step=next_step,
-            repair=repair,
+            repair=Repair.model_validate(repair) if isinstance(repair, dict) else repair,
             retry_after_ms=retry_after_ms,
         ),
         result_info=result_info(returned=len(data or []), scope="error_details"),

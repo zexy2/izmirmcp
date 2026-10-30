@@ -72,9 +72,7 @@ class FailingJsonIzsu:
 
 @pytest.mark.asyncio
 async def test_csv_fallback_nulls_water_level_with_note():
-    envelope = await WaterService(settings=get_settings(), client=FailingJsonIzsu()).dam_status(
-        date="2026-10-14"
-    )
+    envelope = await WaterService(settings=get_settings(), client=FailingJsonIzsu()).dam_status(date="2026-10-14")
     assert envelope["ok"] is True
     assert envelope["data"]
     assert all(row["water_level"] is None for row in envelope["data"])

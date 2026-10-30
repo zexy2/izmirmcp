@@ -6,6 +6,7 @@ running a constrained SELECT there; this is the İzmir equivalent. No resource i
 downloaded unless its id is configured, and a snapshot that cannot be captured
 completely returns a typed error instead of a partial aggregate.
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -76,9 +77,7 @@ class DatastoreSqlService:
             scope="complete_local_snapshot",
         )
 
-    async def query(
-        self, *, resource_id: str, sql: str, limit: int | None = None
-    ) -> dict[str, Any]:
+    async def query(self, *, resource_id: str, sql: str, limit: int | None = None) -> dict[str, Any]:
         source = Source(
             name="İzmir Açık Veri Portalı — sınırlı yerel kopya",
             publisher="İzmir Büyükşehir Belediyesi",
@@ -90,8 +89,7 @@ class DatastoreSqlService:
             safe_id = validate_identifier(resource_id, field="resource_id")
             if safe_id not in self.settings.ckan_sql_allowed_resource_ids:
                 raise InputValidationError(
-                    "Kaynak SQL için etkin değil; "
-                    "IZMIR_MCP_CKAN_SQL_ALLOWED_RESOURCE_IDS ayarlayın",
+                    "Kaynak SQL için etkin değil; IZMIR_MCP_CKAN_SQL_ALLOWED_RESOURCE_IDS ayarlayın",
                     field="resource_id",
                 )
             validate_sql(sql)
@@ -157,8 +155,7 @@ class DatastoreSqlService:
             return error_envelope(
                 summary="Tam ve sınırlı veri kopyası alınamadı.",
                 warning=(
-                    f"{exc}. Kısmi toplam üretilmedi; kaynak toplamı ve yapılandırılmış "
-                    "kopya limitlerini kontrol edin."
+                    f"{exc}. Kısmi toplam üretilmedi; kaynak toplamı ve yapılandırılmış kopya limitlerini kontrol edin."
                 ),
                 code="source_unavailable",
                 temporary=False,
@@ -185,24 +182,18 @@ class DatastoreSqlService:
         )
         warnings = [
             "Freshness, satırların yaşı değil kopyanın alınma zamanıdır.",
-            "HTTP sayfaları işlemsel olarak dondurulmuş değildir; toplam değişmeden "
-            "satır güncellemesi olabilir.",
+            "HTTP sayfaları işlemsel olarak dondurulmuş değildir; toplam değişmeden satır güncellemesi olabilir.",
             "Sorgu tam kaynak toplamı üzerinde çalıştı; kısmi sonuç toplanmadı.",
         ]
         if truncated:
-            warnings.append(
-                "SQL çıktısı uygulanan sonuç limitiyle kesildi; toplam girdiler tamdı."
-            )
+            warnings.append("SQL çıktısı uygulanan sonuç limitiyle kesildi; toplam girdiler tamdı.")
         next_step = (
             "Sonucu daraltın veya limiti artırın; bu tam çıktı değildir."
             if truncated
             else "Bu SELECT için sonuç tamdır; kaynak anlık görüntüsü değişebilir."
         )
         return success_envelope(
-            summary=(
-                f"{len(data)} SQL satırı, {len(snapshot.records)} satırlık tam yerel "
-                "kopyadan üretildi."
-            ),
+            summary=(f"{len(data)} SQL satırı, {len(snapshot.records)} satırlık tam yerel kopyadan üretildi."),
             data=data,
             sources=[source],
             freshness=Freshness(
@@ -245,14 +236,8 @@ class DatastoreSqlService:
         metadata = await page(0, 0)
         fields = validate_fields(metadata.get("fields"))
         total = metadata.get("total")
-        if (
-            type(total) is not int
-            or not 0 <= total <= self.settings.ckan_sql_max_rows
-            or metadata.get("records") != []
-        ):
-            raise SnapshotRejected(
-                "Exact source total is required and must fit the snapshot row budget"
-            )
+        if type(total) is not int or not 0 <= total <= self.settings.ckan_sql_max_rows or metadata.get("records") != []:
+            raise SnapshotRejected("Exact source total is required and must fit the snapshot row budget")
         records: list[dict[str, Any]] = []
         column_names = {name for name, _kind in fields}
         last_id: int | None = None

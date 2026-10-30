@@ -9,11 +9,26 @@ from app.services.cbs import CbsService
 from tests.conftest import fresh
 
 RAW = [
-    {"Tur": "SERGİ", "Id": 6583, "Adi": "İzmir Fotoğrafhanesi", "EtkinlikBitisTarihi": "2026-12-13T18:00:00",
-     "EtkinlikMerkezi": "Kent Arşivi", "KisaAciklama": "Sergi", "BiletSatisLinki": None,
-     "UcretsizMi": True, "EtkinlikUrl": "sergi-izmir", "EtkinlikBaslamaTarihi": "2025-12-11T18:00:00"},
-    {"Tur": "KONSER", "Id": 7, "Adi": "Senfoni", "EtkinlikMerkezi": "AASSM", "UcretsizMi": False,
-     "EtkinlikBaslamaTarihi": "2026-11-01T20:00:00"},
+    {
+        "Tur": "SERGİ",
+        "Id": 6583,
+        "Adi": "İzmir Fotoğrafhanesi",
+        "EtkinlikBitisTarihi": "2026-12-13T18:00:00",
+        "EtkinlikMerkezi": "Kent Arşivi",
+        "KisaAciklama": "Sergi",
+        "BiletSatisLinki": None,
+        "UcretsizMi": True,
+        "EtkinlikUrl": "sergi-izmir",
+        "EtkinlikBaslamaTarihi": "2025-12-11T18:00:00",
+    },
+    {
+        "Tur": "KONSER",
+        "Id": 7,
+        "Adi": "Senfoni",
+        "EtkinlikMerkezi": "AASSM",
+        "UcretsizMi": False,
+        "EtkinlikBaslamaTarihi": "2026-11-01T20:00:00",
+    },
     "junk",
 ]
 

@@ -4,6 +4,7 @@ Every endpoint here was verified live on 2026-10-28 (see
 ``reports/eshot-ulasim-kaynak-arastirmasi.md``). Undocumented guesses such as
 ``/api/eshot/...`` returned 404 and are deliberately absent.
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -21,7 +22,13 @@ from app.core.settings import Settings
 from app.core.source_cache import CacheInfo, cached_source_data
 
 WEEKDAY_COLUMNS = (
-    "monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday",
+    "monday",
+    "tuesday",
+    "wednesday",
+    "thursday",
+    "friday",
+    "saturday",
+    "sunday",
 )
 GTFS_MEMBERS = {
     "stops.txt": 8 * 1024 * 1024,
@@ -29,6 +36,7 @@ GTFS_MEMBERS = {
     "trips.txt": 8 * 1024 * 1024,
     "calendar.txt": 64 * 1024,
 }
+
 
 async def _throttle() -> None:
     """Acquire an İZTEK token from the shared per-source budget.
@@ -101,9 +109,7 @@ def parse_gtfs_calendar(text: str) -> list[dict[str, Any]]:
     return rows
 
 
-def parse_gtfs_metadata(
-    *, routes: str, trips: str, calendar: str
-) -> dict[str, Any]:
+def parse_gtfs_metadata(*, routes: str, trips: str, calendar: str) -> dict[str, Any]:
     """Group GTFS routes/trips/calendar into a bounded per-route summary."""
     service_ids: dict[str, list[str]] = {}
     trip_counts: dict[str, int] = {}
@@ -153,9 +159,7 @@ class EshotConnector:
         rows: list[dict[str, Any]] = []
         offset = 0
         while True:
-            page = await self.ckan.datastore_search(
-                resource_id=resource_id, limit=page_size, offset=offset
-            )
+            page = await self.ckan.datastore_search(resource_id=resource_id, limit=page_size, offset=offset)
             records = page.get("records") or []
             if not isinstance(records, list):
                 raise SourceError("datastore records were not a list")
@@ -284,9 +288,7 @@ class EshotConnector:
 
         return await cached_source_data(
             key,
-            ttl_seconds=min(
-                15, int(getattr(self.settings, "iztek_positions_cache_ttl_seconds", 15))
-            ),
+            ttl_seconds=min(15, int(getattr(self.settings, "iztek_positions_cache_ttl_seconds", 15))),
             loader=loader,
         )
 

@@ -14,6 +14,7 @@ from the published archive at run time, either lazily by ``izmir_bus_departures`
 or eagerly with ``python -m app.storage.gtfs_schedule`` (used by the image
 entrypoint so the first query does not pay the build cost).
 """
+
 from __future__ import annotations
 
 import argparse
@@ -33,7 +34,13 @@ import httpx
 
 ISTANBUL = ZoneInfo("Europe/Istanbul")
 WEEKDAY_COLUMNS = (
-    "monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday",
+    "monday",
+    "tuesday",
+    "wednesday",
+    "thursday",
+    "friday",
+    "saturday",
+    "sunday",
 )
 REQUIRED_MEMBERS = ("stops.txt", "routes.txt", "trips.txt", "stop_times.txt", "calendar.txt")
 ZIP_SIGNATURES = (b"PK\x03\x04", b"PK\x05\x06", b"PK\x07\x08")
@@ -42,8 +49,14 @@ GTFS_ACCEPT = "*/*"
 GTFS_FETCH_TIMEOUT_SECONDS = 120.0
 INT_META_KEYS = frozenset(
     {
-        "stops_rows", "routes_rows", "trips_rows", "stop_times_rows",
-        "calendar_rows", "calendar_dates_rows", "skipped_stop_times", "zip_bytes",
+        "stops_rows",
+        "routes_rows",
+        "trips_rows",
+        "stop_times_rows",
+        "calendar_rows",
+        "calendar_dates_rows",
+        "skipped_stop_times",
+        "zip_bytes",
     }
 )
 
@@ -246,16 +259,10 @@ class GtfsScheduleStore:
             calendar_rows = list(self._read_dicts(zf, "calendar.txt"))
             if not calendar_rows:
                 raise GtfsScheduleError("calendar.txt contained no services")
-            exception_rows = (
-                list(self._read_dicts(zf, "calendar_dates.txt"))
-                if "calendar_dates.txt" in names
-                else []
-            )
+            exception_rows = list(self._read_dicts(zf, "calendar_dates.txt")) if "calendar_dates.txt" in names else []
 
             self.path.parent.mkdir(parents=True, exist_ok=True)
-            handle, temporary_name = tempfile.mkstemp(
-                prefix=f"{self.path.name}.", suffix=".tmp", dir=self.path.parent
-            )
+            handle, temporary_name = tempfile.mkstemp(prefix=f"{self.path.name}.", suffix=".tmp", dir=self.path.parent)
             os.close(handle)
             temporary = Path(temporary_name)
             connection: sqlite3.Connection | None = None
@@ -269,16 +276,13 @@ class GtfsScheduleStore:
                 stop_count = self._load_stops(connection, zf)
                 route_count = self._load_routes(connection, zf)
                 trip_count = self._load_trips(connection, zf)
-                stop_times_rows, skipped = self._load_stop_times(
-                    connection, zf, max_rows=max_rows
-                )
+                stop_times_rows, skipped = self._load_stop_times(connection, zf, max_rows=max_rows)
                 connection.executemany(
                     "INSERT INTO calendar VALUES (?,?,?,?,?,?,?,?,?,?)",
                     [
                         (
                             str(row.get("service_id") or "").strip(),
-                            *[1 if str(row.get(day) or "").strip() == "1" else 0
-                              for day in WEEKDAY_COLUMNS],
+                            *[1 if str(row.get(day) or "").strip() == "1" else 0 for day in WEEKDAY_COLUMNS],
                             _normalise_date(row.get("start_date")),
                             _normalise_date(row.get("end_date")),
                         )
@@ -291,14 +295,8 @@ class GtfsScheduleStore:
                     service_id = str(row.get("service_id") or "").strip()
                     exception_day = _normalise_date(row.get("date"))
                     exception_type = _int_or_none(row.get("exception_type"))
-                    if (
-                        service_id
-                        and exception_day
-                        and exception_type in (1, 2)
-                    ):
-                        exception_payload.append(
-                            (service_id, exception_day, exception_type)
-                        )
+                    if service_id and exception_day and exception_type in (1, 2):
+                        exception_payload.append((service_id, exception_day, exception_type))
                 connection.executemany(
                     "INSERT OR REPLACE INTO calendar_dates VALUES (?,?,?)",
                     exception_payload,
@@ -317,20 +315,14 @@ class GtfsScheduleStore:
                 ]
                 calendar_end = max((value for value in windows if value), default=None)
                 calendar_start = min((value for value in starts if value), default=None)
-                published = max(
-                    (info.date_time for info in zf.infolist()), default=None
-                )
+                published = max((info.date_time for info in zf.infolist()), default=None)
                 meta = {
                     "calendar_start": _iso_date(calendar_start) or "",
                     "calendar_end": _iso_date(calendar_end) or "",
                     "built_at": datetime.now(timezone.utc).isoformat(),
                     "source_url": source_url,
                     "zip_bytes": str(len(archive)),
-                    "feed_published_at": (
-                        datetime(*published, tzinfo=timezone.utc).isoformat()
-                        if published
-                        else ""
-                    ),
+                    "feed_published_at": (datetime(*published, tzinfo=timezone.utc).isoformat() if published else ""),
                     "stops_rows": str(stop_count),
                     "routes_rows": str(route_count),
                     "trips_rows": str(trip_count),
@@ -339,9 +331,7 @@ class GtfsScheduleStore:
                     "calendar_dates_rows": str(len(exception_payload)),
                     "skipped_stop_times": str(skipped),
                 }
-                connection.executemany(
-                    "INSERT INTO gtfs_meta VALUES (?, ?)", list(meta.items())
-                )
+                connection.executemany("INSERT INTO gtfs_meta VALUES (?, ?)", list(meta.items()))
                 connection.commit()
                 connection.close()
                 connection = None
@@ -438,9 +428,7 @@ class GtfsScheduleStore:
         return len(rows)
 
     @staticmethod
-    def _load_stop_times(
-        connection: sqlite3.Connection, archive: zipfile.ZipFile, *, max_rows: int
-    ) -> tuple[int, int]:
+    def _load_stop_times(connection: sqlite3.Connection, archive: zipfile.ZipFile, *, max_rows: int) -> tuple[int, int]:
         inserted = 0
         skipped = 0
         batch: list[tuple[Any, ...]] = []
@@ -480,9 +468,7 @@ class GtfsScheduleStore:
                     )
                     batch.append((trip_id, stop_id, seconds, sequence, pickup or None))
                     if len(batch) >= 50_000:
-                        connection.executemany(
-                            "INSERT INTO stop_times VALUES (?,?,?,?,?)", batch
-                        )
+                        connection.executemany("INSERT INTO stop_times VALUES (?,?,?,?,?)", batch)
                         batch.clear()
                 if batch:
                     connection.executemany("INSERT INTO stop_times VALUES (?,?,?,?,?)", batch)
@@ -532,15 +518,13 @@ class GtfsScheduleStore:
                 connection.row_factory = sqlite3.Row
                 connection.execute("PRAGMA query_only=ON")
                 route = connection.execute(
-                    "SELECT route_id, short_name, long_name, route_type FROM routes "
-                    "WHERE route_id = ?",
+                    "SELECT route_id, short_name, long_name, route_type FROM routes WHERE route_id = ?",
                     (wanted,),
                 ).fetchone()
                 if route is None:
                     raise GtfsScheduleError("route_id is not in the GTFS route table")
                 trips = connection.execute(
-                    "SELECT trip_id, service_id, direction_id, headsign FROM trips "
-                    "WHERE route_id = ? ORDER BY trip_id",
+                    "SELECT trip_id, service_id, direction_id, headsign FROM trips WHERE route_id = ? ORDER BY trip_id",
                     (wanted,),
                 ).fetchall()
                 rows = connection.execute(
@@ -574,8 +558,14 @@ class GtfsScheduleStore:
             direction_id = str(trip["direction_id"] or "")
             direction = grouped.setdefault(
                 direction_id,
-                {"direction_id": direction_id, "trip_count": 0, "headsigns": set(),
-                 "patterns": {}, "first_sec": None, "last_sec": None},
+                {
+                    "direction_id": direction_id,
+                    "trip_count": 0,
+                    "headsigns": set(),
+                    "patterns": {},
+                    "first_sec": None,
+                    "last_sec": None,
+                },
             )
             direction["trip_count"] += 1
             if trip["headsign"]:
@@ -585,12 +575,10 @@ class GtfsScheduleStore:
                 continue
             first_sec = stops[0]["departure_sec"]
             direction["first_sec"] = (
-                first_sec if direction["first_sec"] is None
-                else min(direction["first_sec"], first_sec)
+                first_sec if direction["first_sec"] is None else min(direction["first_sec"], first_sec)
             )
             direction["last_sec"] = (
-                first_sec if direction["last_sec"] is None
-                else max(direction["last_sec"], first_sec)
+                first_sec if direction["last_sec"] is None else max(direction["last_sec"], first_sec)
             )
             signature = tuple(stop["stop_id"] for stop in stops)
             pattern = direction["patterns"].setdefault(
@@ -639,12 +627,10 @@ class GtfsScheduleStore:
                     "trip_count": direction["trip_count"],
                     "pattern_count": len(patterns),
                     "first_departure": (
-                        _time_label(direction["first_sec"])
-                        if direction["first_sec"] is not None else None
+                        _time_label(direction["first_sec"]) if direction["first_sec"] is not None else None
                     ),
                     "last_departure": (
-                        _time_label(direction["last_sec"])
-                        if direction["last_sec"] is not None else None
+                        _time_label(direction["last_sec"]) if direction["last_sec"] is not None else None
                     ),
                     "headsigns": sorted(direction["headsigns"]),
                     "patterns": patterns,
@@ -670,9 +656,7 @@ class GtfsScheduleStore:
         line: str | None = None,
     ) -> list[dict[str, Any]]:
         """Return published departures at ``stop_id`` from ``at`` onwards."""
-        return self.departures_at_stops(
-            stop_ids=[stop_id], at=at, limit=limit, line=line
-        )
+        return self.departures_at_stops(stop_ids=[stop_id], at=at, limit=limit, line=line)
 
     def departures_at_stops(
         self,
@@ -703,8 +687,7 @@ class GtfsScheduleStore:
                 connection.row_factory = sqlite3.Row
                 connection.execute("PRAGMA query_only=ON")
                 found = connection.execute(
-                    "SELECT stop_id, stop_name, stop_lat, stop_lon FROM stops "
-                    f"WHERE stop_id IN ({stop_placeholders})",
+                    f"SELECT stop_id, stop_name, stop_lat, stop_lon FROM stops WHERE stop_id IN ({stop_placeholders})",
                     ids,
                 ).fetchall()
                 stops_by_id = {row["stop_id"]: row for row in found}
@@ -712,9 +695,7 @@ class GtfsScheduleStore:
                 if missing:
                     if len(ids) == 1:
                         raise GtfsScheduleError("stop_id is not in the GTFS stop table")
-                    raise GtfsScheduleError(
-                        "stops are not in the GTFS stop table: " + ", ".join(missing[:5])
-                    )
+                    raise GtfsScheduleError("stops are not in the GTFS stop table: " + ", ".join(missing[:5]))
                 calendar = connection.execute(
                     "SELECT service_id, monday, tuesday, wednesday, thursday, friday, "
                     "saturday, sunday, start_date, end_date FROM calendar"
@@ -770,9 +751,7 @@ class GtfsScheduleStore:
                                 "scheduled_at": absolute.isoformat(),
                                 "time": absolute.strftime("%H:%M"),
                                 "timetable_time": _time_label(int(row["departure_sec"])),
-                                "minutes_from_now": round(
-                                    (absolute - local).total_seconds() / 60, 1
-                                ),
+                                "minutes_from_now": round((absolute - local).total_seconds() / 60, 1),
                                 "realtime": False,
                                 "schedule_relationship": "STATIC",
                             }
@@ -842,7 +821,9 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--database", help="target SQLite path (default: settings)")
     parser.add_argument("--url", help="GTFS zip URL (default: settings)")
     parser.add_argument(
-        "--max-bytes", type=int, default=None,
+        "--max-bytes",
+        type=int,
+        default=None,
         help="reject archives larger than this many bytes",
     )
     return parser

@@ -4,6 +4,7 @@ Each İzmir city question pins (tool, arguments) -> (service, method, args) and
 checks that the envelope the service returns reaches the client unchanged, for
 fresh, stale and broken source states.
 """
+
 from __future__ import annotations
 
 import json
@@ -88,6 +89,5 @@ async def test_footprint_separates_output_schema_cost_and_discovery_primitives()
     assert result["instructions_utf8_bytes"] > 0
     assert result["output_schema_overhead_utf8_bytes"] > 0
     assert result["definition_utf8_bytes"] == (
-        result["definition_without_output_schema_utf8_bytes"]
-        + result["output_schema_overhead_utf8_bytes"]
+        result["definition_without_output_schema_utf8_bytes"] + result["output_schema_overhead_utf8_bytes"]
     )

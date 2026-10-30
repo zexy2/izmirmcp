@@ -191,6 +191,8 @@ def is_source_failure(exc: BaseException) -> bool:
     return isinstance(exc, (SourceError, ValueError, OSError, httpx.HTTPError)) and not isinstance(
         exc, (UnicodeError, AssertionError)
     )
+
+
 NEIGHBORHOOD_POPULATION = Source(
     name="İzmir mahalle nüfusu (cinsiyete göre)",
     publisher="İzmir Büyükşehir Belediyesi",

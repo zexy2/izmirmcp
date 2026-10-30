@@ -20,15 +20,45 @@ class FakeApi:
             raise RuntimeError("boom")
         return (
             [
-                {"id": "inside", "name": "İç Otopark", "lat": 38.4190, "lon": 27.1290,
-                 "free": 3, "occupied": 40, "capacity": 43, "status": "Opened",
-                 "is_paid": False, "address": None, "opening_hours_today": None},
-                {"id": "edge", "name": "Kenar Otopark", "lat": 38.4100, "lon": 27.1200,
-                 "free": 0, "occupied": 1, "capacity": 1, "status": "Opened",
-                 "is_paid": True, "address": None, "opening_hours_today": None},
-                {"id": "outside", "name": "Dış Otopark", "lat": 38.5000, "lon": 27.2000,
-                 "free": 1, "occupied": 1, "capacity": 2, "status": "Opened",
-                 "is_paid": True, "address": None, "opening_hours_today": None},
+                {
+                    "id": "inside",
+                    "name": "İç Otopark",
+                    "lat": 38.4190,
+                    "lon": 27.1290,
+                    "free": 3,
+                    "occupied": 40,
+                    "capacity": 43,
+                    "status": "Opened",
+                    "is_paid": False,
+                    "address": None,
+                    "opening_hours_today": None,
+                },
+                {
+                    "id": "edge",
+                    "name": "Kenar Otopark",
+                    "lat": 38.4100,
+                    "lon": 27.1200,
+                    "free": 0,
+                    "occupied": 1,
+                    "capacity": 1,
+                    "status": "Opened",
+                    "is_paid": True,
+                    "address": None,
+                    "opening_hours_today": None,
+                },
+                {
+                    "id": "outside",
+                    "name": "Dış Otopark",
+                    "lat": 38.5000,
+                    "lon": 27.2000,
+                    "free": 1,
+                    "occupied": 1,
+                    "capacity": 2,
+                    "status": "Opened",
+                    "is_paid": True,
+                    "address": None,
+                    "opening_hours_today": None,
+                },
             ],
             fresh(),
         )
@@ -38,22 +68,61 @@ class FakeApi:
             raise RuntimeError("boom")
         return (
             [
-                {"id": 1, "name": "Karşıyaka Bir", "lat": 38.4600, "lon": 27.1100,
-                 "phone": None, "address": "Alaybey", "district": "KARŞIYAKA 1",
-                 "area_note": None, "duty_date": "2026-10-28T08:00:00"},
-                {"id": 2, "name": "Karşıyaka İki", "lat": 38.4610, "lon": 27.1110,
-                 "phone": None, "address": "Bostanlı", "district": "KARŞIYAKA 3",
-                 "area_note": None, "duty_date": "2026-10-28T08:00:00"},
-                {"id": 3, "name": "Gümüşpala", "lat": 38.4620, "lon": 27.1120,
-                 "phone": None, "address": "Yamanlar", "district": "GÜMÜŞPALA",
-                 "area_note": "24:00DEN SONRA - KARŞIYAKA 4",
-                 "duty_date": "2026-10-28T08:00:00"},
-                {"id": 4, "name": "Bornova", "lat": 38.4700, "lon": 27.2200,
-                 "phone": None, "address": "Erzene", "district": "BORNOVA 1",
-                 "area_note": None, "duty_date": "2026-10-28T08:00:00"},
-                {"id": 5, "name": "Konak", "lat": 38.4189, "lon": 27.1285,
-                 "phone": None, "address": "Konak", "district": "KONAK",
-                 "area_note": None, "duty_date": "2026-10-28T08:00:00"},
+                {
+                    "id": 1,
+                    "name": "Karşıyaka Bir",
+                    "lat": 38.4600,
+                    "lon": 27.1100,
+                    "phone": None,
+                    "address": "Alaybey",
+                    "district": "KARŞIYAKA 1",
+                    "area_note": None,
+                    "duty_date": "2026-10-28T08:00:00",
+                },
+                {
+                    "id": 2,
+                    "name": "Karşıyaka İki",
+                    "lat": 38.4610,
+                    "lon": 27.1110,
+                    "phone": None,
+                    "address": "Bostanlı",
+                    "district": "KARŞIYAKA 3",
+                    "area_note": None,
+                    "duty_date": "2026-10-28T08:00:00",
+                },
+                {
+                    "id": 3,
+                    "name": "Gümüşpala",
+                    "lat": 38.4620,
+                    "lon": 27.1120,
+                    "phone": None,
+                    "address": "Yamanlar",
+                    "district": "GÜMÜŞPALA",
+                    "area_note": "24:00DEN SONRA - KARŞIYAKA 4",
+                    "duty_date": "2026-10-28T08:00:00",
+                },
+                {
+                    "id": 4,
+                    "name": "Bornova",
+                    "lat": 38.4700,
+                    "lon": 27.2200,
+                    "phone": None,
+                    "address": "Erzene",
+                    "district": "BORNOVA 1",
+                    "area_note": None,
+                    "duty_date": "2026-10-28T08:00:00",
+                },
+                {
+                    "id": 5,
+                    "name": "Konak",
+                    "lat": 38.4189,
+                    "lon": 27.1285,
+                    "phone": None,
+                    "address": "Konak",
+                    "district": "KONAK",
+                    "area_note": None,
+                    "duty_date": "2026-10-28T08:00:00",
+                },
             ],
             fresh("2026-10-28T08:00:00"),
         )
@@ -61,8 +130,7 @@ class FakeApi:
     async def metro_stations(self):
         if "metro_station" in self.fail:
             raise RuntimeError("boom")
-        return ([{"id": 2, "name": "Konak", "lat": 38.4175, "lon": 27.1283,
-                  "active": True, "order": 11}], fresh())
+        return ([{"id": 2, "name": "Konak", "lat": 38.4175, "lon": 27.1283, "active": True, "order": 11}], fresh())
 
     async def izban_stations(self):
         if "izban_station" in self.fail:
@@ -72,27 +140,25 @@ class FakeApi:
     async def ferry_piers(self):
         if "ferry_pier" in self.fail:
             raise RuntimeError("boom")
-        return ([{"id": 1, "name": "Konak", "lat": 38.4186, "lon": 27.1258,
-                  "active": True, "car_ferry": False}], fresh())
+        return (
+            [{"id": 1, "name": "Konak", "lat": 38.4186, "lon": 27.1258, "active": True, "car_ferry": False}],
+            fresh(),
+        )
 
 
 class FakeEshot:
     async def stops(self):
         return (
             [
-                {"id": "10030", "name": "Konak", "lat": 38.416218, "lon": 27.126321,
-                 "routes": ["303"]},
-                {"id": "90000", "name": "Dış", "lat": 38.6000, "lon": 27.4000,
-                 "routes": []},
+                {"id": "10030", "name": "Konak", "lat": 38.416218, "lon": 27.126321, "routes": ["303"]},
+                {"id": "90000", "name": "Dış", "lat": 38.6000, "lon": 27.4000, "routes": []},
             ],
             fresh(),
         )
 
 
 def service(**kwargs) -> NearbyService:
-    return NearbyService(
-        settings=get_settings(), api=FakeApi(**kwargs), eshot=FakeEshot()
-    )
+    return NearbyService(settings=get_settings(), api=FakeApi(**kwargs), eshot=FakeEshot())
 
 
 @pytest.mark.asyncio
@@ -109,8 +175,7 @@ async def test_bbox_has_no_distance_and_echoes_the_rectangle():
     envelope = await service().bbox(bbox=KONAK_BBOX, types=["parking"], limit=10)
 
     assert all(row["distance_m"] is None for row in envelope["data"])
-    assert all(row["maps_url"].startswith("https://www.google.com/maps?q=")
-               for row in envelope["data"])
+    assert all(row["maps_url"].startswith("https://www.google.com/maps?q=") for row in envelope["data"])
     assert f"bbox={','.join(str(value) for value in KONAK_BBOX)}" in envelope["limits"]
 
 
@@ -141,9 +206,7 @@ async def test_bbox_reports_truncation_and_total_match():
 
 @pytest.mark.asyncio
 async def test_bbox_keeps_partial_results_and_warns_about_coordinate_only_filtering():
-    envelope = await service(fail={"parking"}).bbox(
-        bbox=KONAK_BBOX, types=["parking", "metro_station"], limit=10
-    )
+    envelope = await service(fail={"parking"}).bbox(bbox=KONAK_BBOX, types=["parking", "metro_station"], limit=10)
 
     assert envelope["ok"] is True
     assert [row["kind"] for row in envelope["data"]] == ["metro_station"]
@@ -168,8 +231,7 @@ async def test_district_matches_published_region_text_only():
     assert envelope["ok"] is True
     assert [row["id"] for row in envelope["data"]] == [3, 1, 2]
     assert all(row["distance_m"] is None for row in envelope["data"])
-    assert all(row["district_match"] == "published_region_text"
-               for row in envelope["data"])
+    assert all(row["district_match"] == "published_region_text" for row in envelope["data"])
     joined = " ".join(envelope["warnings"]).lower()
     assert "sınır" in joined or "boundary" in joined
     assert "ilçe" in joined
@@ -177,9 +239,7 @@ async def test_district_matches_published_region_text_only():
 
 @pytest.mark.asyncio
 async def test_district_skips_types_without_a_district_field():
-    envelope = await service().district(
-        district="Karşıyaka", types=["pharmacy", "parking", "bus_stop"], limit=10
-    )
+    envelope = await service().district(district="Karşıyaka", types=["pharmacy", "parking", "bus_stop"], limit=10)
 
     assert envelope["ok"] is True
     assert {row["kind"] for row in envelope["data"]} == {"pharmacy"}
@@ -222,9 +282,7 @@ async def test_district_reports_truncation():
 
 @pytest.mark.asyncio
 async def test_district_source_failure_is_source_unavailable():
-    envelope = await service(fail={"pharmacy"}).district(
-        district="Karşıyaka", types=["pharmacy"], limit=5
-    )
+    envelope = await service(fail={"pharmacy"}).district(district="Karşıyaka", types=["pharmacy"], limit=5)
 
     assert envelope["ok"] is False
     assert envelope["error"]["code"] == "source_unavailable"

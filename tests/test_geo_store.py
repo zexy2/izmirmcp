@@ -39,10 +39,7 @@ def test_rtree_is_available_in_this_python(tmp_path: Path):
     """İzmir queries depend on SQLite RTree; fail loudly if it is missing."""
     with connect(tmp_path / "db.sqlite3") as conn:
         init_database(conn)
-        names = {
-            row[0]
-            for row in conn.execute("SELECT name FROM sqlite_master WHERE type='table'")
-        }
+        names = {row[0] for row in conn.execute("SELECT name FROM sqlite_master WHERE type='table'")}
     assert "geo_points_rtree" in names
 
 
@@ -121,10 +118,11 @@ def test_metadata_roundtrip(tmp_path: Path):
 def test_payload_survives_the_roundtrip(tmp_path: Path):
     """Rows must keep their source payload so callers can decorate them."""
     store = _store(tmp_path)
-    store.replace_all([
-        {"kind": "parking", "id": "p1", "name": "Konak", "lat": 38.4190, "lon": 27.1290,
-         "extra": {"free": 3}},
-    ])
+    store.replace_all(
+        [
+            {"kind": "parking", "id": "p1", "name": "Konak", "lat": 38.4190, "lon": 27.1290, "extra": {"free": 3}},
+        ]
+    )
     rows = store.radius(38.41872, 27.12827, radius_m=500)
     assert rows[0]["payload"]["extra"] == {"free": 3}
 

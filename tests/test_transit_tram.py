@@ -10,12 +10,21 @@ from app.core.validation import InputValidationError
 from app.services.transit import TransitService
 from tests.conftest import fresh
 
-LINES = [{"Aciklama": "Kara Tarafı", "Adi": "Fahrettin Altay - Halkapınar", "HatId": 1,
-          "HatBaslangic": "Fahrettin Altay", "HatBitis": "Halkapınar"}, None]
-STATIONS = [{"Boylam": 27.069416, "IstasyonId": 21, "Adi": "Fahrettin Altay", "Enlem": 38.397748},
-            {"Boylam": 999, "IstasyonId": 22, "Adi": "Bozuk", "Enlem": 38.4}]
-FREQ = [{"Sira": 1, "BaslangicSaati": "06:00:00", "TarifeId": 1, "BitisSaati": "06:30:00",
-         "Aralik": 7.5, "SeferId": 1}]
+LINES = [
+    {
+        "Aciklama": "Kara Tarafı",
+        "Adi": "Fahrettin Altay - Halkapınar",
+        "HatId": 1,
+        "HatBaslangic": "Fahrettin Altay",
+        "HatBitis": "Halkapınar",
+    },
+    None,
+]
+STATIONS = [
+    {"Boylam": 27.069416, "IstasyonId": 21, "Adi": "Fahrettin Altay", "Enlem": 38.397748},
+    {"Boylam": 999, "IstasyonId": 22, "Adi": "Bozuk", "Enlem": 38.4},
+]
+FREQ = [{"Sira": 1, "BaslangicSaati": "06:00:00", "TarifeId": 1, "BitisSaati": "06:30:00", "Aralik": 7.5, "SeferId": 1}]
 
 
 def _api(payloads: dict[str, object]) -> IzmirOpenApi:
@@ -30,11 +39,17 @@ def _api(payloads: dict[str, object]) -> IzmirOpenApi:
 
 @pytest.mark.asyncio
 async def test_tram_connector_parses_lines_stations_and_frequency():
-    api = _api({"tramvay/hatlar": LINES, "tramvay/istasyonlar/1": STATIONS,
-                "tramvay/seferler/1": FREQ})
+    api = _api({"tramvay/hatlar": LINES, "tramvay/istasyonlar/1": STATIONS, "tramvay/seferler/1": FREQ})
     lines, _ = await api.tram_lines()
-    assert lines == [{"line_id": 1, "name": "Fahrettin Altay - Halkapınar", "side": "Kara Tarafı",
-                      "start": "Fahrettin Altay", "end": "Halkapınar"}]
+    assert lines == [
+        {
+            "line_id": 1,
+            "name": "Fahrettin Altay - Halkapınar",
+            "side": "Kara Tarafı",
+            "start": "Fahrettin Altay",
+            "end": "Halkapınar",
+        }
+    ]
     stations, _ = await api.tram_stations(1)
     assert [row["id"] for row in stations] == [21]
     freq, _ = await api.tram_schedule(1)

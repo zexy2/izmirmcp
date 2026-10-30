@@ -6,6 +6,7 @@ measured a 6.87 s cold ``limit=2`` call because the service paged all 18,731
 rows before cutting. These tests pin both: an explicit newest-observation
 freshness basis, and a recent-page path whose fetched volume follows the limit.
 """
+
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -102,12 +103,16 @@ async def test_a_stale_cache_fallback_stays_stale_even_if_the_row_is_recent():
     class StaleApi(FakeApi):
         async def traffic_recent(self, limit: int):
             rows, _info, total = await super().traffic_recent(limit)
-            return rows, CacheInfo(
-                status="stale",
-                retrieved_at="2026-10-30T12:00:00+00:00",
-                source_updated_at="2026-10-30T09:00:00",
-                age_seconds=100.0,
-            ), total
+            return (
+                rows,
+                CacheInfo(
+                    status="stale",
+                    retrieved_at="2026-10-30T12:00:00+00:00",
+                    source_updated_at="2026-10-30T09:00:00",
+                    age_seconds=100.0,
+                ),
+                total,
+            )
 
     envelope = await service(StaleApi([row(0, "2026-10-30T09:00:00")])).list(limit=1)
 
@@ -119,12 +124,16 @@ async def test_a_stale_cache_without_a_timestamp_still_answers():
     class StaleApi(FakeApi):
         async def traffic_recent(self, limit: int):
             rows, _info, total = await super().traffic_recent(limit)
-            return rows, CacheInfo(
-                status="stale",
-                retrieved_at="2026-10-30T12:00:00+00:00",
-                source_updated_at=None,
-                age_seconds=100.0,
-            ), total
+            return (
+                rows,
+                CacheInfo(
+                    status="stale",
+                    retrieved_at="2026-10-30T12:00:00+00:00",
+                    source_updated_at=None,
+                    age_seconds=100.0,
+                ),
+                total,
+            )
 
     rows = [dict(row(0, "2026-10-22T19:05:00"), observed_at=None)]
     envelope = await service(StaleApi(rows)).list(limit=1)
@@ -169,7 +178,5 @@ async def test_results_are_identical_at_every_limit():
 
     for limit in (1, 2, 3, 4, 50):
         envelope = await service(api).list(limit=limit)
-        assert [item["observed_at"] for item in envelope["data"]] == [
-            item["observed_at"] for item in expected[:limit]
-        ]
+        assert [item["observed_at"] for item in envelope["data"]] == [item["observed_at"] for item in expected[:limit]]
         assert envelope["result_info"]["matched"] == 18_731

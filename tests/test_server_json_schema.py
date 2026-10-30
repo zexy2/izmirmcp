@@ -1,4 +1,5 @@
 """server.json against the pinned, offline copy of the official registry schema."""
+
 from __future__ import annotations
 
 import hashlib

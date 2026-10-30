@@ -4,6 +4,7 @@ Targets behaviour the existing suite does not pin: what happens at the *edges*
 of validation, caching, concurrency and lie-detection. A failure here is a bug
 candidate; the tests are never adjusted to match the implementation.
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -19,9 +20,7 @@ from app.core.settings import get_settings
 
 
 def test_success_envelope_marks_truncation_from_matched():
-    payload = success_envelope(
-        summary="x", data=[{"a": 1}], matched=5, limits=["limit=1"]
-    )
+    payload = success_envelope(summary="x", data=[{"a": 1}], matched=5, limits=["limit=1"])
     assert payload["result_info"]["returned"] == 1
     assert payload["result_info"]["matched"] == 5
     assert payload["result_info"]["truncated"] is True
@@ -40,9 +39,7 @@ def test_error_envelope_marks_source_codes_temporary():
 
 
 def test_error_envelope_marks_validation_not_temporary():
-    payload = error_envelope(
-        summary="x", warning="w", code="validation_error", field="lat"
-    )
+    payload = error_envelope(summary="x", warning="w", code="validation_error", field="lat")
     assert payload["error"]["temporary"] is False
 
 
@@ -145,12 +142,8 @@ async def test_stale_cache_is_served_within_the_grace_window():
             raise RuntimeError("boom")
         return ["first"]
 
-    first, info1 = await cached_source_data(
-        "probe.stale", ttl_seconds=0, stale_if_error_seconds=60, loader=loader
-    )
-    second, info2 = await cached_source_data(
-        "probe.stale", ttl_seconds=0, stale_if_error_seconds=60, loader=loader
-    )
+    first, info1 = await cached_source_data("probe.stale", ttl_seconds=0, stale_if_error_seconds=60, loader=loader)
+    second, info2 = await cached_source_data("probe.stale", ttl_seconds=0, stale_if_error_seconds=60, loader=loader)
     assert first == second == ["first"]
     assert info1.status == "fresh"
     assert info2.status == "stale"
@@ -167,9 +160,7 @@ async def test_cache_does_not_serve_stale_beyond_the_grace_window():
         raise RuntimeError("boom")
 
     with pytest.raises(RuntimeError):
-        await cached_source_data(
-            "probe.nostale", ttl_seconds=0, stale_if_error_seconds=0, loader=loader
-        )
+        await cached_source_data("probe.nostale", ttl_seconds=0, stale_if_error_seconds=0, loader=loader)
     clear_cache()
 
 
@@ -185,9 +176,7 @@ async def test_concurrent_loads_of_the_same_key_run_once():
         await asyncio.sleep(0.05)
         return ["value"]
 
-    await asyncio.gather(*(
-        cached_source_data("probe.lock", ttl_seconds=60, loader=loader) for _ in range(5)
-    ))
+    await asyncio.gather(*(cached_source_data("probe.lock", ttl_seconds=60, loader=loader) for _ in range(5)))
     assert calls["n"] == 1, "cache stampede: the loader ran more than once"
     clear_cache()
 
@@ -202,9 +191,11 @@ def test_geo_store_radius_is_inclusive_at_the_exact_edge(tmp_path):
     store = GeoStore(tmp_path / "g.sqlite3")
     origin = (38.41872, 27.12827)
     target = (38.42000, 27.13000)
-    store.replace_all([
-        {"kind": "parking", "id": "p", "name": "P", "lat": target[0], "lon": target[1]},
-    ])
+    store.replace_all(
+        [
+            {"kind": "parking", "id": "p", "name": "P", "lat": target[0], "lon": target[1]},
+        ]
+    )
     exact = haversine_m(origin[0], origin[1], target[0], target[1])
     inside = store.radius(origin[0], origin[1], radius_m=exact + 1)
     assert [row["id"] for row in inside] == ["p"]
@@ -214,9 +205,11 @@ def test_geo_store_bbox_edges_are_inclusive(tmp_path):
     from app.storage.geo import GeoStore
 
     store = GeoStore(tmp_path / "g.sqlite3")
-    store.replace_all([
-        {"kind": "parking", "id": "p", "name": "P", "lat": 38.41, "lon": 27.12},
-    ])
+    store.replace_all(
+        [
+            {"kind": "parking", "id": "p", "name": "P", "lat": 38.41, "lon": 27.12},
+        ]
+    )
     rows = store.bbox(min_lon=27.12, min_lat=38.41, max_lon=27.12, max_lat=38.41)
     assert [row["id"] for row in rows] == ["p"]
 
@@ -236,9 +229,7 @@ def test_quota_is_atomic_under_concurrent_consumption(tmp_path):
     allowed = [decision for decision in decisions if decision.allowed]
     assert len(allowed) == 1
     with sqlite3.connect(path) as connection:
-        used = connection.execute(
-            "SELECT used FROM request_quota WHERE subject='k'"
-        ).fetchone()[0]
+        used = connection.execute("SELECT used FROM request_quota WHERE subject='k'").fetchone()[0]
     assert used == 1
 
 
@@ -294,8 +285,13 @@ def test_api_key_pattern_rejects_short_and_spaced_keys():
 def test_cors_origin_validation_rejects_wildcards_and_paths():
     from app.core.cors import validate_cors_origins
 
-    for origin in ("*", "https://a.example/path", "http://a.example",
-                   "https://a.example?x=1", "https://user:pw@a.example"):
+    for origin in (
+        "*",
+        "https://a.example/path",
+        "http://a.example",
+        "https://a.example?x=1",
+        "https://user:pw@a.example",
+    ):
         with pytest.raises(ValueError):
             validate_cors_origins((origin,))
 
@@ -343,7 +339,11 @@ async def test_nearby_far_outside_izmir_returns_empty_not_error():
     from app.services.nearby import NearbyService
 
     envelope = await NearbyService(settings=get_settings()).nearby(
-        lat=0.0, lon=0.0, types=["metro_station"], radius_m=1000, limit=5,
+        lat=0.0,
+        lon=0.0,
+        types=["metro_station"],
+        radius_m=1000,
+        limit=5,
     )
     assert envelope["ok"] is True
     assert envelope["data"] == []
@@ -430,10 +430,14 @@ class _FakeStops:
 
         return (
             [
-                {"id": "10030", "name": "Konak", "lat": 38.416218, "lon": 27.126321,
-                 "routes": ["303"]},
-                {"id": "21050", "name": "Münevver Öğretmen Ortaokulu",
-                 "lat": 38.512338, "lon": 27.051353, "routes": ["346"]},
+                {"id": "10030", "name": "Konak", "lat": 38.416218, "lon": 27.126321, "routes": ["303"]},
+                {
+                    "id": "21050",
+                    "name": "Münevver Öğretmen Ortaokulu",
+                    "lat": 38.512338,
+                    "lon": 27.051353,
+                    "routes": ["346"],
+                },
             ],
             fresh(),
         )

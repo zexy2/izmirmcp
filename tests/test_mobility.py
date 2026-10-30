@@ -17,8 +17,7 @@ class FakeEshot:
             raise RuntimeError("boom")
         return (
             [
-                {"id": "10030", "name": "Konak", "lat": 38.416218, "lon": 27.126321,
-                 "routes": ["303", "304"]},
+                {"id": "10030", "name": "Konak", "lat": 38.416218, "lon": 27.126321, "routes": ["303", "304"]},
             ],
             fresh(),
         )
@@ -38,9 +37,7 @@ def _service(
     eshot_fail: bool = False,
     all_fail: bool = False,
 ) -> NearbyService:
-    service = NearbyService(
-        settings=get_settings(), api=FakeApi(fail=fail), eshot=FakeEshot(fail=eshot_fail)
-    )
+    service = NearbyService(settings=get_settings(), api=FakeApi(fail=fail), eshot=FakeEshot(fail=eshot_fail))
     if all_fail:
         service.taxis = Failing()
         service.charging = Failing()
@@ -52,9 +49,7 @@ def _service(
 
 @pytest.mark.asyncio
 async def test_mobility_groups_transport_modes_in_one_answer():
-    envelope = await _service().mobility(
-        lat=38.41872, lon=27.12827, radius_m=1000, limit=10, reference_label="Konak"
-    )
+    envelope = await _service().mobility(lat=38.41872, lon=27.12827, radius_m=1000, limit=10, reference_label="Konak")
 
     assert envelope["ok"] is True
     assert envelope["result_info"]["scope"] == "mobility_nearby"
@@ -66,9 +61,7 @@ async def test_mobility_groups_transport_modes_in_one_answer():
 
 @pytest.mark.asyncio
 async def test_mobility_summary_names_the_modes_it_found():
-    envelope = await _service().mobility(
-        lat=38.41872, lon=27.12827, radius_m=1000, limit=10, reference_label="Konak"
-    )
+    envelope = await _service().mobility(lat=38.41872, lon=27.12827, radius_m=1000, limit=10, reference_label="Konak")
 
     summary = envelope["summary"]
     assert "metro istasyonu" in summary
@@ -78,9 +71,7 @@ async def test_mobility_summary_names_the_modes_it_found():
 
 @pytest.mark.asyncio
 async def test_mobility_excludes_non_transport_layers():
-    envelope = await _service().mobility(
-        lat=38.41872, lon=27.12827, radius_m=3000, limit=20
-    )
+    envelope = await _service().mobility(lat=38.41872, lon=27.12827, radius_m=3000, limit=20)
 
     kinds = {row["kind"] for row in envelope["data"]}
     assert "pharmacy" not in kinds
@@ -90,9 +81,7 @@ async def test_mobility_excludes_non_transport_layers():
 
 @pytest.mark.asyncio
 async def test_mobility_says_which_components_it_cannot_cover():
-    envelope = await _service().mobility(
-        lat=38.41872, lon=27.12827, radius_m=1000, limit=10
-    )
+    envelope = await _service().mobility(lat=38.41872, lon=27.12827, radius_m=1000, limit=10)
 
     warnings = " ".join(envelope["warnings"]).lower()
     assert "hava kalitesi" in warnings
@@ -101,9 +90,7 @@ async def test_mobility_says_which_components_it_cannot_cover():
 
 @pytest.mark.asyncio
 async def test_mobility_points_at_departures_for_the_nearest_stop():
-    envelope = await _service().mobility(
-        lat=38.41872, lon=27.12827, radius_m=1000, limit=10
-    )
+    envelope = await _service().mobility(lat=38.41872, lon=27.12827, radius_m=1000, limit=10)
 
     queries = " ".join(envelope["next_queries"])
     assert "izmir_bus_departures" in queries

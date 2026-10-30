@@ -5,6 +5,7 @@
 * ``AsyncTokenBucket`` guards *upstream* sources, where the limit is imposed by
   the publisher (İZTEK answers 429) and must be shared by every request.
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -64,9 +65,7 @@ class AsyncTokenBucket:
 
     def _refill_locked(self, now: float) -> None:
         elapsed = max(0.0, now - self._updated_at)
-        self._tokens = min(
-            float(self.capacity), self._tokens + elapsed * self.refill_per_second
-        )
+        self._tokens = min(float(self.capacity), self._tokens + elapsed * self.refill_per_second)
         self._updated_at = now
 
     def _retry_after_locked(self, now: float) -> float:
@@ -87,9 +86,7 @@ class AsyncTokenBucket:
             self._refill_locked(now)
             wait = self._retry_after_locked(now)
             if wait > self.max_wait_seconds:
-                raise SourceRateLimitExceeded(
-                    source=self.source, retry_after_seconds=wait
-                )
+                raise SourceRateLimitExceeded(source=self.source, retry_after_seconds=wait)
             if wait > 0:
                 self._waits += 1
                 await asyncio.sleep(wait)
@@ -100,7 +97,7 @@ class AsyncTokenBucket:
         """Block the bucket after an upstream 429 so callers back off together."""
         self._blocked_until = self._now() + max(0.0, retry_after_seconds)
 
-    def snapshot(self) -> dict[str, float | str]:
+    def snapshot(self) -> dict[str, object]:
         return {
             "source": self.source,
             "tokens": round(self._tokens, 3),
@@ -136,9 +133,7 @@ class ClientRateLimiter:
                 bucket = _Bucket(float(self.capacity), now, now)
                 self._buckets[client_id] = bucket
             elapsed = max(0.0, now - bucket.updated_at)
-            bucket.tokens = min(
-                float(self.capacity), bucket.tokens + elapsed * self.refill_per_second
-            )
+            bucket.tokens = min(float(self.capacity), bucket.tokens + elapsed * self.refill_per_second)
             bucket.updated_at = now
             bucket.last_seen_at = now
             if bucket.tokens >= 1.0:
@@ -162,9 +157,7 @@ class ClientRateLimiter:
         if len(self._buckets) < self.max_clients:
             return
         stale_before = now - max(60.0, self.capacity / self.refill_per_second)
-        for client_id in [
-            key for key, bucket in self._buckets.items() if bucket.last_seen_at < stale_before
-        ]:
+        for client_id in [key for key, bucket in self._buckets.items() if bucket.last_seen_at < stale_before]:
             self._buckets.pop(client_id, None)
         while len(self._buckets) >= self.max_clients:
             oldest = min(self._buckets, key=lambda key: self._buckets[key].last_seen_at)

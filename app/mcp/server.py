@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Literal
+from typing import TYPE_CHECKING, Literal
 
 from app.core.envelope import Freshness, Source, error_envelope, success_envelope
 from app.core.settings import get_settings
@@ -33,10 +33,14 @@ settings = get_settings()
 
 # Derived from the service's own list: a layer the service learns to answer
 # cannot stay rejected by the tool schema, and vice versa.
-NearbyType = Literal[*SUPPORTED_TYPES]
+if TYPE_CHECKING:
+    # mypy cannot evaluate a Literal built from a runtime tuple; the JSON schema
+    # still comes from the runtime branch below.
+    NearbyType = str
+else:
+    NearbyType = Literal[*SUPPORTED_TYPES]
 TransitMode = Literal["metro", "izban", "izdeniz"]
 DisruptionOperator = Literal["eshot", "metro", "izdeniz", "izban"]
-
 
 
 def _reject_boolean_number(value: object, field: str) -> None:
@@ -89,9 +93,7 @@ async def izmir_search_datasets(
     limit: _OptInt = None,
 ) -> dict:
     """Search the İzmir open data catalog by topic."""
-    return await CatalogService(settings=get_settings()).search_datasets(
-        query=query, formats=formats, limit=limit
-    )
+    return await CatalogService(settings=get_settings()).search_datasets(query=query, formats=formats, limit=limit)
 
 
 async def izmir_get_dataset(dataset_id: str) -> dict:
@@ -140,9 +142,7 @@ async def izmir_datastore_query(
     aggregate. The resource must be enabled in
     ``IZMIR_MCP_CKAN_SQL_ALLOWED_RESOURCE_IDS``.
     """
-    return await DatastoreSqlService(settings=get_settings()).query(
-        resource_id=resource_id, sql=sql, limit=limit
-    )
+    return await DatastoreSqlService(settings=get_settings()).query(resource_id=resource_id, sql=sql, limit=limit)
 
 
 async def izmir_nearby(
@@ -178,9 +178,7 @@ async def izmir_nearby(
             raise InputValidationError("lat ve lon birlikte verilmelidir", field="lat")
         if place is not None and lat is not None:
             raise InputValidationError("place ile lat/lon birlikte kullanılamaz", field="place")
-        location_modes = sum(
-            [bbox is not None, district is not None, place is not None, lat is not None]
-        )
+        location_modes = sum([bbox is not None, district is not None, place is not None, lat is not None])
         if location_modes > 1:
             raise InputValidationError(
                 "bbox, district, place ve lat/lon aynı anda kullanılamaz; yalnızca bir mod seçin",
@@ -198,22 +196,14 @@ async def izmir_nearby(
                 field="types",
             )
         if len(selected) > settings.max_nearby_types:
-            raise InputValidationError(
-                f"types en fazla {settings.max_nearby_types} öğe içerebilir", field="types"
-            )
+            raise InputValidationError(f"types en fazla {settings.max_nearby_types} öğe içerebilir", field="types")
         if bbox is not None:
-            return await NearbyService(settings=settings).bbox(
-                bbox=bbox, types=selected, limit=safe_limit
-            )
+            return await NearbyService(settings=settings).bbox(bbox=bbox, types=selected, limit=safe_limit)
         if district is not None:
-            return await NearbyService(settings=settings).district(
-                district=district, types=selected, limit=safe_limit
-            )
+            return await NearbyService(settings=settings).district(district=district, types=selected, limit=safe_limit)
         reference_label = None
         if place_district is not None and place is None:
-            raise InputValidationError(
-                "place_district yalnızca place ile kullanılabilir", field="place_district"
-            )
+            raise InputValidationError("place_district yalnızca place ile kullanılabilir", field="place_district")
         if place is not None:
             resolved = PlaceResolver().resolve(place, district=place_district)
             lat, lon = resolved.lat, resolved.lon
@@ -273,9 +263,7 @@ async def izmir_mobility_nearby(
         _reject_boolean_number(lat, "lat")
         _reject_boolean_number(lon, "lon")
         lat_value, lon_value, label = _require_point(lat, lon, place, place_district)
-        safe_radius = validate_radius(
-            1000 if radius_m is None else radius_m, settings.max_radius_m
-        )
+        safe_radius = validate_radius(1000 if radius_m is None else radius_m, settings.max_radius_m)
         safe_limit = resolve_limit(limit, settings.default_limit, settings.max_limit)
     except InputValidationError as exc:
         return _validation(exc, tool="izmir_mobility_nearby")
@@ -287,10 +275,14 @@ async def izmir_mobility_nearby(
         reference_label=label,
     )
     if place is not None:
-        envelope["warnings"] = sorted(set([
-            *envelope.get("warnings", []),
-            "Konum, ilçe/mahalle için yaklaşık referans noktasıdır; kesin adres değildir.",
-        ]))
+        envelope["warnings"] = sorted(
+            set(
+                [
+                    *envelope.get("warnings", []),
+                    "Konum, ilçe/mahalle için yaklaşık referans noktasıdır; kesin adres değildir.",
+                ]
+            )
+        )
     return envelope
 
 
@@ -324,9 +316,7 @@ async def izmir_air_quality(
         day = validate_date(date)
     except InputValidationError as exc:
         return _validation(exc, tool="izmir_air_quality")
-    return await AirQualityService(settings=get_settings()).readings(
-        day=day, station=station, limit=limit
-    )
+    return await AirQualityService(settings=get_settings()).readings(day=day, station=station, limit=limit)
 
 
 async def izmir_transit_stations(
@@ -398,9 +388,7 @@ async def izmir_traffic_history(
     settings = get_settings()
     try:
         safe_limit = resolve_limit(limit, settings.default_limit, settings.max_limit)
-        return await TrafficService(settings=settings).list(
-            segment=segment, since=since, until=until, limit=safe_limit
-        )
+        return await TrafficService(settings=settings).list(segment=segment, since=since, until=until, limit=safe_limit)
     except InputValidationError as exc:
         return _validation(exc, tool="izmir_traffic_history")
 
@@ -445,9 +433,7 @@ async def izmir_bus_arrivals(stop_id: str, limit: int | None = None) -> dict:
     has no ETA in minutes. An empty payload does not prove that no bus is running.
     """
     try:
-        return await BusService(settings=get_settings()).arrivals(
-            stop_id=str(stop_id or "").strip(), limit=limit
-        )
+        return await BusService(settings=get_settings()).arrivals(stop_id=str(stop_id or "").strip(), limit=limit)
     except InputValidationError as exc:
         return _validation(exc, tool="izmir_bus_arrivals")
 
@@ -483,8 +469,14 @@ async def izmir_bus_departures(
     _reject_boolean_number(lon, "lon")
     try:
         return await BusService(settings=get_settings()).departures(
-            stop_id=stop_id, stop_query=stop_query, lat=lat, lon=lon,
-            radius_m=radius_m, at=at, line=line, limit=limit,
+            stop_id=stop_id,
+            stop_query=stop_query,
+            lat=lat,
+            lon=lon,
+            radius_m=radius_m,
+            at=at,
+            line=line,
+            limit=limit,
         )
     except InputValidationError as exc:
         return _validation(exc, tool="izmir_bus_departures")
@@ -537,9 +529,7 @@ def _require_point(
         where = f"{resolved.name}, {resolved.district}" if resolved.district else resolved.name
         return resolved.lat, resolved.lon, f"{where} (referans noktası)"
     if lat is None or lon is None:
-        raise InputValidationError(
-            "lat/lon veya place verin (örn. place='Konak')", field="place"
-        )
+        raise InputValidationError("lat/lon veya place verin (örn. place='Konak')", field="place")
     validate_lat_lon(lat, lon)
     return lat, lon, None
 
@@ -624,7 +614,7 @@ async def izmir_city_services_nearby(
     settings = get_settings()
     try:
         safe_limit = resolve_limit(limit, settings.default_limit, settings.max_limit)
-        selected = list(CITY_SERVICE_KINDS) if kinds is None else list(kinds)
+        selected: list[str] = list(CITY_SERVICE_KINDS) if kinds is None else list(kinds)
         if not selected or any(kind not in CITY_SERVICE_KINDS for kind in selected):
             raise InputValidationError(
                 f"kinds boş olamaz; şunlardan bir alt küme olmalıdır: {', '.join(CITY_SERVICE_KINDS)}",
@@ -634,9 +624,7 @@ async def izmir_city_services_nearby(
             raise InputValidationError("lat ve lon birlikte verilmelidir", field="lat")
         if place is not None and lat is not None:
             raise InputValidationError("place ile lat/lon birlikte kullanılamaz", field="place")
-        location_modes = sum(
-            [bbox is not None, district is not None, place is not None, lat is not None]
-        )
+        location_modes = sum([bbox is not None, district is not None, place is not None, lat is not None])
         if location_modes > 1:
             raise InputValidationError(
                 "bbox, district, place ve lat/lon aynı anda kullanılamaz; yalnızca bir mod seçin",
@@ -648,16 +636,12 @@ async def izmir_city_services_nearby(
                 field="radius_m",
             )
         if bbox is not None:
-            return await CityServicesService(settings=settings).bbox(
-                bbox=bbox, kinds=selected, limit=safe_limit
-            )
+            return await CityServicesService(settings=settings).bbox(bbox=bbox, kinds=selected, limit=safe_limit)
         if district is not None:
             return await CityServicesService(settings=settings).district(
                 district=district, kinds=selected, limit=safe_limit
             )
-        resolved_lat, resolved_lon, reference_label = _require_point(
-            lat, lon, place, place_district
-        )
+        resolved_lat, resolved_lon, reference_label = _require_point(lat, lon, place, place_district)
         if radius_m is None:
             safe_radius = settings.max_radius_m if place is not None else 1500
         else:
@@ -680,8 +664,12 @@ async def izmir_city_services_nearby(
     return envelope
 
 
-CbsLayer = Literal[*CBS_LAYERS]
-HalKind = Literal[*MARKET_KINDS]
+if TYPE_CHECKING:
+    CbsLayer = str
+    HalKind = str
+else:
+    CbsLayer = Literal[*CBS_LAYERS]
+    HalKind = Literal[*MARKET_KINDS]
 
 
 async def izmir_tram_lines() -> dict:
@@ -705,9 +693,7 @@ async def izmir_tram_schedule(line_id: int) -> dict:
         return _validation(exc, tool="izmir_tram_schedule")
 
 
-async def izmir_bus_line_arrivals(
-    line: str, stop_id: str | None = None, limit: _OptInt = None
-) -> dict:
+async def izmir_bus_line_arrivals(line: str, stop_id: str | None = None, limit: _OptInt = None) -> dict:
     """Return buses of one EShot line approaching a stop.
 
     With `stop_id` (from `izmir_bus_stops`) the stop's live arrivals are filtered
@@ -715,9 +701,7 @@ async def izmir_bus_line_arrivals(
     positions are returned instead. No ETA in minutes is published.
     """
     try:
-        return await BusService(settings=get_settings()).line_arrivals(
-            line=line, stop_id=stop_id, limit=limit
-        )
+        return await BusService(settings=get_settings()).line_arrivals(line=line, stop_id=stop_id, limit=limit)
     except InputValidationError as exc:
         return _validation(exc, tool="izmir_bus_line_arrivals")
 
@@ -729,25 +713,19 @@ async def izmir_bus_live_positions(line: str, limit: _OptInt = None) -> dict:
     result does not prove that no bus is running.
     """
     try:
-        return await BusService(settings=get_settings()).line_live_positions(
-            line=line, limit=limit
-        )
+        return await BusService(settings=get_settings()).line_live_positions(line=line, limit=limit)
     except InputValidationError as exc:
         return _validation(exc, tool="izmir_bus_live_positions")
 
 
-async def izmir_dam_status(
-    date: str | None = None, dam_name: str | None = None, limit: _OptInt = None
-) -> dict:
+async def izmir_dam_status(date: str | None = None, dam_name: str | None = None, limit: _OptInt = None) -> dict:
     """Return İZSU dam levels for one day, optionally a single dam.
 
     `date` is `YYYY-MM-DD` (default today, never in the future). `dam_name`
     matches case- and Turkish-letter-insensitively (e.g. "Tahtalı").
     """
     try:
-        return await WaterService(settings=get_settings()).dam_status(
-            date=date, dam_name=dam_name, limit=limit
-        )
+        return await WaterService(settings=get_settings()).dam_status(date=date, dam_name=dam_name, limit=limit)
     except InputValidationError as exc:
         return _validation(exc, tool="izmir_dam_status")
 
@@ -770,8 +748,12 @@ async def izmir_pharmacies_all(
         _reject_boolean_number(lat, "lat")
         _reject_boolean_number(lon, "lon")
         return await CbsService(settings=get_settings()).pharmacies_all(
-            area=area, query=query, near_lat=lat, near_lon=lon,
-            radius_m=radius_m, limit=limit,
+            area=area,
+            query=query,
+            near_lat=lat,
+            near_lon=lon,
+            radius_m=radius_m,
+            limit=limit,
         )
     except InputValidationError as exc:
         return _validation(exc, tool="izmir_pharmacies_all")
@@ -794,25 +776,25 @@ async def izmir_cbs_layer(
         _reject_boolean_number(lat, "lat")
         _reject_boolean_number(lon, "lon")
         return await CbsService(settings=get_settings()).layer(
-            layer=layer, near_lat=lat, near_lon=lon, radius_m=radius_m,
-            district=district, limit=limit,
+            layer=layer,
+            near_lat=lat,
+            near_lon=lon,
+            radius_m=radius_m,
+            district=district,
+            limit=limit,
         )
     except InputValidationError as exc:
         return _validation(exc, tool="izmir_cbs_layer")
 
 
-async def izmir_events(
-    query: str | None = None, free_only: bool = False, limit: _OptInt = None
-) -> dict:
+async def izmir_events(query: str | None = None, free_only: bool = False, limit: _OptInt = None) -> dict:
     """Return İzmir Büyükşehir culture and arts events.
 
     `query` matches title/venue text; `free_only` keeps free events. Confirm
     times with the organiser before attending.
     """
     try:
-        return await CbsService(settings=get_settings()).events(
-            query=query, free_only=free_only, limit=limit
-        )
+        return await CbsService(settings=get_settings()).events(query=query, free_only=free_only, limit=limit)
     except InputValidationError as exc:
         return _validation(exc, tool="izmir_events")
 
@@ -830,8 +812,6 @@ async def izmir_market_prices(
     neighbourhood market days use `izmir_market_schedule`.
     """
     try:
-        return await CbsService(settings=get_settings()).market_prices(
-            kind=kind, day=day, query=query, limit=limit
-        )
+        return await CbsService(settings=get_settings()).market_prices(kind=kind, day=day, query=query, limit=limit)
     except InputValidationError as exc:
         return _validation(exc, tool="izmir_market_prices")

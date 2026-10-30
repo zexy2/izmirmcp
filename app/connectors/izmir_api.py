@@ -37,7 +37,7 @@ def _coordinates(lat_value: Any, lon_value: Any) -> tuple[float, float] | None:
     """
     lat = finite_number(lat_value)
     lon = finite_number(lon_value)
-    if not valid_lat_lon(lat, lon):
+    if lat is None or lon is None or not valid_lat_lon(lat, lon):
         return None
     return lat, lon
 
@@ -117,8 +117,7 @@ class IzmirOpenApi:
             lat, lon = pair
             rows.append(
                 {
-                    "id": bounded_id(item.get("EczaneId"))
-                    if item.get("EczaneId") not in (None, -1, 0) else None,
+                    "id": bounded_id(item.get("EczaneId")) if item.get("EczaneId") not in (None, -1, 0) else None,
                     "name": bounded_text(item.get("Adi")),
                     "lat": lat,
                     "lon": lon,
@@ -132,9 +131,7 @@ class IzmirOpenApi:
         return rows, info
 
     async def air_quality(self, day: str) -> tuple[list[dict[str, Any]], CacheInfo]:
-        payload, info = await self._cached(
-            f"ibb/cevre/havadegerleri/{day}", f"openapi.air.{day}"
-        )
+        payload, info = await self._cached(f"ibb/cevre/havadegerleri/{day}", f"openapi.air.{day}")
         grouped: dict[str, dict[str, Any]] = {}
         for item in _records(payload):
             station = str(item.get("BolgeAdi") or "").strip()
@@ -202,9 +199,7 @@ class IzmirOpenApi:
         ]
         return rows, info
 
-    async def izban_schedule(
-        self, from_id: int, to_id: int
-    ) -> tuple[list[dict[str, Any]], CacheInfo]:
+    async def izban_schedule(self, from_id: int, to_id: int) -> tuple[list[dict[str, Any]], CacheInfo]:
         payload, info = await self._cached(
             f"izban/sefersaatleri/{from_id}/{to_id}",
             f"openapi.izban.schedule.{from_id}.{to_id}",
@@ -222,9 +217,7 @@ class IzmirOpenApi:
         ]
         return rows, info
 
-    async def izdeniz_pier_schedule(
-        self, pier_id: int, day: int
-    ) -> tuple[dict[str, Any], CacheInfo]:
+    async def izdeniz_pier_schedule(self, pier_id: int, day: int) -> tuple[dict[str, Any], CacheInfo]:
         payload, info = await self._cached(
             f"izdeniz/iskelesefersaatleri/{pier_id}/{day}",
             f"openapi.izdeniz.pier.{pier_id}.{day}",
@@ -235,17 +228,14 @@ class IzmirOpenApi:
                 {
                     "time": item.get("KalkisSaati"),
                     "destinations": [
-                        place.get("iskeleAdi")
-                        for place in item.get("VarisYerleri") or []
-                        if isinstance(place, dict)
+                        place.get("iskeleAdi") for place in item.get("VarisYerleri") or [] if isinstance(place, dict)
                     ],
                     "car_ferry": item.get("arabaliVapurSeferi"),
                     "cancelled": item.get("IptalMi"),
                     "note": (item.get("Aciklama") or "").strip() or None,
                 }
             )
-        return {"day_id": payload.get("gunId") if isinstance(payload, dict) else day,
-                "departures": departures}, info
+        return {"day_id": payload.get("gunId") if isinstance(payload, dict) else day, "departures": departures}, info
 
     async def izdeniz_route_schedule(
         self, from_id: int, to_id: int, day: int
@@ -263,7 +253,8 @@ class IzmirOpenApi:
                     {
                         "times": [
                             {"departure": t.get("KalkisSaati"), "arrival": t.get("VarisSaati")}
-                            for t in times if isinstance(t, dict)
+                            for t in times
+                            if isinstance(t, dict)
                         ],
                         "cancelled": row.get("IptalMi"),
                         "note": (row.get("Aciklama") or "").strip() or None,
@@ -277,7 +268,6 @@ class IzmirOpenApi:
                 }
             )
         return routes, info
-
 
     async def tram_lines(self) -> tuple[list[dict[str, Any]], CacheInfo]:
         payload, info = await self._cached("tramvay/hatlar", "openapi.tram.lines")
@@ -294,9 +284,7 @@ class IzmirOpenApi:
         return rows, info
 
     async def tram_stations(self, line_id: int) -> tuple[list[dict[str, Any]], CacheInfo]:
-        payload, info = await self._cached(
-            f"tramvay/istasyonlar/{line_id}", f"openapi.tram.stations.{line_id}"
-        )
+        payload, info = await self._cached(f"tramvay/istasyonlar/{line_id}", f"openapi.tram.stations.{line_id}")
         rows = []
         for item in _records(payload):
             pair = _coordinates(item.get("Enlem"), item.get("Boylam"))
@@ -313,9 +301,7 @@ class IzmirOpenApi:
         return rows, info
 
     async def tram_schedule(self, line_id: int) -> tuple[list[dict[str, Any]], CacheInfo]:
-        payload, info = await self._cached(
-            f"tramvay/seferler/{line_id}", f"openapi.tram.schedule.{line_id}"
-        )
+        payload, info = await self._cached(f"tramvay/seferler/{line_id}", f"openapi.tram.schedule.{line_id}")
         rows = [
             {
                 "order": item.get("Sira"),

@@ -30,8 +30,7 @@ class FakeClient:
             raise CkanNotFoundError("not found")
         return DATASET
 
-    async def datastore_search(self, *, resource_id, limit, filters=None, offset=0,
-                               query=None, sort=None):
+    async def datastore_search(self, *, resource_id, limit, filters=None, offset=0, query=None, sort=None):
         if resource_id == "missing":
             raise CkanNotFoundError("not found")
         return {
@@ -86,11 +85,16 @@ class SearchClient(FakeClient):
     def __init__(self):
         self.calls = []
 
-    async def datastore_search(self, *, resource_id, limit, filters=None, offset=0,
-                               query=None, sort=None):
+    async def datastore_search(self, *, resource_id, limit, filters=None, offset=0, query=None, sort=None):
         self.calls.append(
-            {"resource_id": resource_id, "limit": limit, "filters": filters,
-             "offset": offset, "query": query, "sort": sort}
+            {
+                "resource_id": resource_id,
+                "limit": limit,
+                "filters": filters,
+                "offset": offset,
+                "query": query,
+                "sort": sort,
+            }
         )
         return {
             "fields": [{"id": "ADI"}, {"id": "ILCE"}],

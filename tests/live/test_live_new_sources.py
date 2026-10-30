@@ -3,6 +3,7 @@
 These call the services directly. Every call must return a success envelope with
 non-empty data. Allowed exception: live bus positions may legitimately be 0 vehicles.
 """
+
 from __future__ import annotations
 
 import pytest

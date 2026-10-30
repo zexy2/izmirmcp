@@ -72,9 +72,7 @@ class Settings:
     openapi_cache_ttl_seconds: int = 120
     openapi_stale_if_error_seconds: int = 900
 
-    izsu_dams_csv_url: str = (
-        "https://openfiles.izmir.bel.tr/309436/docs/izsu-baraj-doluluk-oranlari.csv"
-    )
+    izsu_dams_csv_url: str = "https://openfiles.izmir.bel.tr/309436/docs/izsu-baraj-doluluk-oranlari.csv"
     izsu_cache_ttl_seconds: int = 3_600
     izsu_stale_if_error_seconds: int = 86_400
     izsu_api_base_url: str = "https://izsu.gov.tr/api/proxy"
@@ -114,9 +112,7 @@ class Settings:
     # index/quota database prevents a rebuild from silently wiping other state.
     gtfs_database_path: str = ".data/izmir_mcp_gtfs.sqlite3"
 
-    eshot_notices_csv_url: str = (
-        "https://openfiles.izmir.bel.tr/211488/docs/eshot-otobus-hat-duyurulari.csv"
-    )
+    eshot_notices_csv_url: str = "https://openfiles.izmir.bel.tr/211488/docs/eshot-otobus-hat-duyurulari.csv"
     eshot_notices_cache_ttl_seconds: int = 1_800
 
     city_layer_cache_ttl_seconds: int = 86_400
@@ -152,6 +148,7 @@ class Settings:
     source_rate_refill_per_second: float = 2.0
     source_rate_max_wait_seconds: float = 2.0
 
+
 @lru_cache(maxsize=1)
 def get_settings() -> Settings:
     return Settings(
@@ -163,117 +160,61 @@ def get_settings() -> Settings:
         default_limit=_env_int("IZMIR_MCP_DEFAULT_LIMIT", 10),
         max_limit=_env_int("IZMIR_MCP_MAX_LIMIT", 50),
         max_radius_m=_env_int("IZMIR_MCP_MAX_RADIUS_M", 5_000),
-        ckan_base_url=os.getenv(
-            "IZMIR_MCP_CKAN_BASE_URL", "https://acikveri.bizizmir.com/api/3/action"
-        ),
-        ckan_sql_allowed_resource_ids=_env_list(
-            "IZMIR_MCP_CKAN_SQL_ALLOWED_RESOURCE_IDS"
-        ),
+        ckan_base_url=os.getenv("IZMIR_MCP_CKAN_BASE_URL", "https://acikveri.bizizmir.com/api/3/action"),
+        ckan_sql_allowed_resource_ids=_env_list("IZMIR_MCP_CKAN_SQL_ALLOWED_RESOURCE_IDS"),
         ckan_sql_max_rows=_env_int("IZMIR_MCP_CKAN_SQL_MAX_ROWS", 50_000),
-        ckan_sql_max_bytes=_env_int(
-            "IZMIR_MCP_CKAN_SQL_MAX_BYTES", 20 * 1024 * 1024
-        ),
+        ckan_sql_max_bytes=_env_int("IZMIR_MCP_CKAN_SQL_MAX_BYTES", 20 * 1024 * 1024),
         ckan_sql_page_size=_env_int("IZMIR_MCP_CKAN_SQL_PAGE_SIZE", 5_000),
-        ckan_sql_snapshot_ttl_seconds=_env_int(
-            "IZMIR_MCP_CKAN_SQL_SNAPSHOT_TTL_SECONDS", 900
-        ),
-        ckan_sql_load_timeout_seconds=_env_float(
-            "IZMIR_MCP_CKAN_SQL_LOAD_TIMEOUT_SECONDS", 30.0
-        ),
-        ckan_sql_query_timeout_seconds=_env_float(
-            "IZMIR_MCP_CKAN_SQL_QUERY_TIMEOUT_SECONDS", 0.5
-        ),
-        openapi_base_url=os.getenv(
-            "IZMIR_MCP_OPENAPI_BASE_URL", "https://openapi.izmir.bel.tr/api"
-        ),
+        ckan_sql_snapshot_ttl_seconds=_env_int("IZMIR_MCP_CKAN_SQL_SNAPSHOT_TTL_SECONDS", 900),
+        ckan_sql_load_timeout_seconds=_env_float("IZMIR_MCP_CKAN_SQL_LOAD_TIMEOUT_SECONDS", 30.0),
+        ckan_sql_query_timeout_seconds=_env_float("IZMIR_MCP_CKAN_SQL_QUERY_TIMEOUT_SECONDS", 0.5),
+        openapi_base_url=os.getenv("IZMIR_MCP_OPENAPI_BASE_URL", "https://openapi.izmir.bel.tr/api"),
         izsu_dams_csv_url=os.getenv(
             "IZMIR_MCP_IZSU_DAMS_CSV_URL",
             "https://openfiles.izmir.bel.tr/309436/docs/izsu-baraj-doluluk-oranlari.csv",
         ),
-        izsu_api_base_url=os.getenv(
-            "IZMIR_MCP_IZSU_API_BASE_URL", "https://izsu.gov.tr/api/proxy"
-        ),
-        izsu_past_cache_ttl_seconds=_env_int(
-            "IZMIR_MCP_IZSU_PAST_CACHE_TTL_SECONDS", 7 * 86_400
-        ),
-        iztek_positions_cache_ttl_seconds=_env_int(
-            "IZMIR_MCP_IZTEK_POSITIONS_CACHE_TTL_SECONDS", 15
-        ),
+        izsu_api_base_url=os.getenv("IZMIR_MCP_IZSU_API_BASE_URL", "https://izsu.gov.tr/api/proxy"),
+        izsu_past_cache_ttl_seconds=_env_int("IZMIR_MCP_IZSU_PAST_CACHE_TTL_SECONDS", 7 * 86_400),
+        iztek_positions_cache_ttl_seconds=_env_int("IZMIR_MCP_IZTEK_POSITIONS_CACHE_TTL_SECONDS", 15),
         cbs_max_pages=_env_int("IZMIR_MCP_CBS_MAX_PAGES", 10),
         cbs_cache_ttl_seconds=_env_int("IZMIR_MCP_CBS_CACHE_TTL_SECONDS", 86_400),
         events_cache_ttl_seconds=_env_int("IZMIR_MCP_EVENTS_CACHE_TTL_SECONDS", 3_600),
         hal_cache_ttl_seconds=_env_int("IZMIR_MCP_HAL_CACHE_TTL_SECONDS", 7 * 86_400),
-        pharmacies_all_cache_ttl_seconds=_env_int(
-            "IZMIR_MCP_PHARMACIES_ALL_CACHE_TTL_SECONDS", 86_400
-        ),
-        eshot_stops_resource_id=os.getenv(
-            "IZMIR_MCP_ESHOT_STOPS_RESOURCE_ID", "0c791266-a2e4-4f14-82b8-9a9b102fbf94"
-        ),
+        pharmacies_all_cache_ttl_seconds=_env_int("IZMIR_MCP_PHARMACIES_ALL_CACHE_TTL_SECONDS", 86_400),
+        eshot_stops_resource_id=os.getenv("IZMIR_MCP_ESHOT_STOPS_RESOURCE_ID", "0c791266-a2e4-4f14-82b8-9a9b102fbf94"),
         eshot_routes_resource_id=os.getenv(
             "IZMIR_MCP_ESHOT_ROUTES_RESOURCE_ID", "bd6c84f8-49ba-4cf4-81f8-81a0fbb5caa3"
         ),
         eshot_cache_ttl_seconds=_env_int("IZMIR_MCP_ESHOT_CACHE_TTL_SECONDS", 86_400),
-        eshot_stale_if_error_seconds=_env_int(
-            "IZMIR_MCP_ESHOT_STALE_IF_ERROR_SECONDS", 604_800
-        ),
-        iztek_base_url=os.getenv(
-            "IZMIR_MCP_IZTEK_BASE_URL", "https://openapi.izmir.bel.tr/api/iztek"
-        ),
+        eshot_stale_if_error_seconds=_env_int("IZMIR_MCP_ESHOT_STALE_IF_ERROR_SECONDS", 604_800),
+        iztek_base_url=os.getenv("IZMIR_MCP_IZTEK_BASE_URL", "https://openapi.izmir.bel.tr/api/iztek"),
         iztek_cache_ttl_seconds=_env_int("IZMIR_MCP_IZTEK_CACHE_TTL_SECONDS", 20),
-        iztek_min_request_interval_seconds=_env_float(
-            "IZMIR_MCP_IZTEK_MIN_REQUEST_INTERVAL_SECONDS", 0.5
-        ),
+        iztek_min_request_interval_seconds=_env_float("IZMIR_MCP_IZTEK_MIN_REQUEST_INTERVAL_SECONDS", 0.5),
         eshot_gtfs_url=os.getenv(
             "IZMIR_MCP_ESHOT_GTFS_URL",
             "https://www.eshot.gov.tr/gtfs/bus-eshot-gtfs.zip",
         ),
-        eshot_gtfs_max_bytes=_env_int(
-            "IZMIR_MCP_ESHOT_GTFS_MAX_BYTES", 64 * 1024 * 1024
-        ),
-        eshot_gtfs_member_max_bytes=_env_int(
-            "IZMIR_MCP_ESHOT_GTFS_MEMBER_MAX_BYTES", 8 * 1024 * 1024
-        ),
-        eshot_gtfs_stop_times_max_bytes=_env_int(
-            "IZMIR_MCP_ESHOT_GTFS_STOP_TIMES_MAX_BYTES", 128 * 1024 * 1024
-        ),
+        eshot_gtfs_max_bytes=_env_int("IZMIR_MCP_ESHOT_GTFS_MAX_BYTES", 64 * 1024 * 1024),
+        eshot_gtfs_member_max_bytes=_env_int("IZMIR_MCP_ESHOT_GTFS_MEMBER_MAX_BYTES", 8 * 1024 * 1024),
+        eshot_gtfs_stop_times_max_bytes=_env_int("IZMIR_MCP_ESHOT_GTFS_STOP_TIMES_MAX_BYTES", 128 * 1024 * 1024),
         eshot_gtfs_max_rows=_env_int("IZMIR_MCP_ESHOT_GTFS_MAX_ROWS", 2_500_000),
-        eshot_gtfs_cache_ttl_seconds=_env_int(
-            "IZMIR_MCP_ESHOT_GTFS_CACHE_TTL_SECONDS", 86_400
-        ),
-        eshot_gtfs_stale_if_error_seconds=_env_int(
-            "IZMIR_MCP_ESHOT_GTFS_STALE_IF_ERROR_SECONDS", 604_800
-        ),
+        eshot_gtfs_cache_ttl_seconds=_env_int("IZMIR_MCP_ESHOT_GTFS_CACHE_TTL_SECONDS", 86_400),
+        eshot_gtfs_stale_if_error_seconds=_env_int("IZMIR_MCP_ESHOT_GTFS_STALE_IF_ERROR_SECONDS", 604_800),
         eshot_notices_csv_url=os.getenv(
             "IZMIR_MCP_ESHOT_NOTICES_CSV_URL",
             "https://openfiles.izmir.bel.tr/211488/docs/eshot-otobus-hat-duyurulari.csv",
         ),
-        eshot_notices_cache_ttl_seconds=_env_int(
-            "IZMIR_MCP_ESHOT_NOTICES_CACHE_TTL_SECONDS", 1_800
-        ),
-        city_layer_cache_ttl_seconds=_env_int(
-            "IZMIR_MCP_CITY_LAYER_CACHE_TTL_SECONDS", 86_400
-        ),
-        city_layer_stale_if_error_seconds=_env_int(
-            "IZMIR_MCP_CITY_LAYER_STALE_IF_ERROR_SECONDS", 604_800
-        ),
-        traffic_stale_after_hours=_env_int(
-            "IZMIR_MCP_TRAFFIC_STALE_AFTER_HOURS", 72
-        ),
-        database_path=os.getenv(
-            "IZMIR_MCP_DATABASE_PATH", ".data/izmir_mcp.sqlite3"
-        ),
-        gtfs_database_path=os.getenv(
-            "IZMIR_MCP_GTFS_DATABASE_PATH", ".data/izmir_mcp_gtfs.sqlite3"
-        ),
+        eshot_notices_cache_ttl_seconds=_env_int("IZMIR_MCP_ESHOT_NOTICES_CACHE_TTL_SECONDS", 1_800),
+        city_layer_cache_ttl_seconds=_env_int("IZMIR_MCP_CITY_LAYER_CACHE_TTL_SECONDS", 86_400),
+        city_layer_stale_if_error_seconds=_env_int("IZMIR_MCP_CITY_LAYER_STALE_IF_ERROR_SECONDS", 604_800),
+        traffic_stale_after_hours=_env_int("IZMIR_MCP_TRAFFIC_STALE_AFTER_HOURS", 72),
+        database_path=os.getenv("IZMIR_MCP_DATABASE_PATH", ".data/izmir_mcp.sqlite3"),
+        gtfs_database_path=os.getenv("IZMIR_MCP_GTFS_DATABASE_PATH", ".data/izmir_mcp_gtfs.sqlite3"),
         client_max_body_bytes=_env_int("IZMIR_MCP_CLIENT_MAX_BODY_BYTES", 1_000_000),
         client_rate_limit_capacity=_env_int("IZMIR_MCP_CLIENT_RATE_LIMIT_CAPACITY", 60),
-        client_rate_limit_refill_per_second=_env_float(
-            "IZMIR_MCP_CLIENT_RATE_LIMIT_REFILL_PER_SECOND", 1.0
-        ),
+        client_rate_limit_refill_per_second=_env_float("IZMIR_MCP_CLIENT_RATE_LIMIT_REFILL_PER_SECOND", 1.0),
         client_rate_limit_max_clients=_env_int("IZMIR_MCP_CLIENT_RATE_LIMIT_MAX_CLIENTS", 10_000),
-        client_max_concurrent_requests=_env_int(
-            "IZMIR_MCP_CLIENT_MAX_CONCURRENT_REQUESTS", 32
-        ),
+        client_max_concurrent_requests=_env_int("IZMIR_MCP_CLIENT_MAX_CONCURRENT_REQUESTS", 32),
         mcp_api_keys=_env_list("IZMIR_MCP_API_KEYS"),
         api_key_daily_quota=_env_int("IZMIR_MCP_API_KEY_DAILY_QUOTA", 0),
         mcp_cors_allowed_origins=_env_list("IZMIR_MCP_CORS_ALLOWED_ORIGINS"),
@@ -284,8 +225,6 @@ def get_settings() -> Settings:
         source_cache_max_entries=_env_int("IZMIR_MCP_SOURCE_CACHE_MAX_ENTRIES", 512),
         event_loop_watchdog_seconds=_env_float("IZMIR_MCP_EVENT_LOOP_WATCHDOG_SECONDS", 0.0),
         source_rate_capacity=_env_int("IZMIR_MCP_SOURCE_RATE_CAPACITY", 10),
-        source_rate_refill_per_second=_env_float(
-            "IZMIR_MCP_SOURCE_RATE_REFILL_PER_SECOND", 2.0
-        ),
+        source_rate_refill_per_second=_env_float("IZMIR_MCP_SOURCE_RATE_REFILL_PER_SECOND", 2.0),
         source_rate_max_wait_seconds=_env_float("IZMIR_MCP_SOURCE_RATE_MAX_WAIT_SECONDS", 2.0),
     )

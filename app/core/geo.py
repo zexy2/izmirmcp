@@ -11,8 +11,19 @@ IZMIR_BOUNDS = (37.7, 26.0, 39.6, 28.6)
 
 TURKISH_ASCII = str.maketrans(
     {
-        "ç": "c", "ğ": "g", "ı": "i", "ö": "o", "ş": "s", "ü": "u",
-        "Ç": "c", "Ğ": "g", "İ": "i", "I": "i", "Ö": "o", "Ş": "s", "Ü": "u",
+        "ç": "c",
+        "ğ": "g",
+        "ı": "i",
+        "ö": "o",
+        "ş": "s",
+        "ü": "u",
+        "Ç": "c",
+        "Ğ": "g",
+        "İ": "i",
+        "I": "i",
+        "Ö": "o",
+        "Ş": "s",
+        "Ü": "u",
     }
 )
 
@@ -67,9 +78,7 @@ def outside_izmir(lat: float, lon: float) -> bool:
     return not (south <= lat <= north and west <= lon <= east)
 
 
-def in_bbox(
-    lat: float, lon: float, *, min_lon: float, min_lat: float, max_lon: float, max_lat: float
-) -> bool:
+def in_bbox(lat: float, lon: float, *, min_lon: float, min_lat: float, max_lon: float, max_lat: float) -> bool:
     """Return whether a point is inside a rectangle, edges included."""
     return min_lat <= lat <= max_lat and min_lon <= lon <= max_lon
 

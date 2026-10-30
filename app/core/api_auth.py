@@ -4,6 +4,7 @@ Authentication is off unless keys are configured, so the default local setup
 stays frictionless. Keys are compared as SHA-256 digests and never stored or
 logged in plaintext.
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -20,12 +21,8 @@ PROTECTED_PATHS = {"/status"}
 
 
 def validate_api_keys(keys: tuple[str, ...]) -> None:
-    if len(keys) > 100 or len(set(keys)) != len(keys) or any(
-        not KEY_PATTERN.fullmatch(key) for key in keys
-    ):
-        raise ValueError(
-            "IZMIR_MCP_API_KEYS must contain 1-100 unique 32-256 character URL-safe keys"
-        )
+    if len(keys) > 100 or len(set(keys)) != len(keys) or any(not KEY_PATTERN.fullmatch(key) for key in keys):
+        raise ValueError("IZMIR_MCP_API_KEYS must contain 1-100 unique 32-256 character URL-safe keys")
 
 
 def _is_protected(path: str) -> bool:
@@ -44,9 +41,7 @@ class ApiKeyAuthMiddleware:
         self.app = app
         self.daily_quota = max(0, int(daily_quota))
         self.quota = QuotaStore(quota_path) if quota_path and self.daily_quota else None
-        self.key_hashes = tuple(
-            hashlib.sha256(key.encode("ascii")).hexdigest() for key in keys
-        )
+        self.key_hashes = tuple(hashlib.sha256(key.encode("ascii")).hexdigest() for key in keys)
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
         if scope["type"] != "http" or not self.key_hashes:
@@ -107,9 +102,7 @@ class ApiKeyAuthMiddleware:
     def _match_key(self, scope: Scope) -> str | None:
         """Return the matched key hash (never the plaintext) or ``None``."""
         headers = [
-            value.decode("latin-1")
-            for key, value in scope.get("headers", [])
-            if key.lower() == b"authorization"
+            value.decode("latin-1") for key, value in scope.get("headers", []) if key.lower() == b"authorization"
         ]
         if len(headers) != 1:
             return None
@@ -126,9 +119,7 @@ class ApiKeyAuthMiddleware:
 
     def _matches(self, scope: Scope) -> bool:
         headers = [
-            value.decode("latin-1")
-            for key, value in scope.get("headers", [])
-            if key.lower() == b"authorization"
+            value.decode("latin-1") for key, value in scope.get("headers", []) if key.lower() == b"authorization"
         ]
         if len(headers) != 1:
             return False

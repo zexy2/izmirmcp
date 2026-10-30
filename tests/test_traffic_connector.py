@@ -3,6 +3,7 @@
 Filtered queries keep the full scan (a match can sit anywhere in the dataset),
 but an unfiltered small limit must not page 18,731 rows.
 """
+
 from __future__ import annotations
 
 import pytest

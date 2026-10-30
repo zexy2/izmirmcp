@@ -4,6 +4,7 @@ These probes are written against the *documented* contract (envelope, honesty
 rules, no fabricated data) rather than the current implementation. A failure
 here is a candidate bug to investigate, not necessarily a design choice.
 """
+
 from __future__ import annotations
 
 import math
@@ -65,10 +66,8 @@ async def test_parking_capacity_requires_two_integers():
     """free+occupied is a capacity only when both are real integers."""
     api, _stub = _api(
         [
-            {"ufid": "a", "name": "A", "lat": 38.4, "lng": 27.1,
-             "occupancy": {"total": {"free": 3, "occupied": "40"}}},
-            {"ufid": "b", "name": "B", "lat": 38.4, "lng": 27.1,
-             "occupancy": {"total": {"free": 3, "occupied": 40}}},
+            {"ufid": "a", "name": "A", "lat": 38.4, "lng": 27.1, "occupancy": {"total": {"free": 3, "occupied": "40"}}},
+            {"ufid": "b", "name": "B", "lat": 38.4, "lng": 27.1, "occupancy": {"total": {"free": 3, "occupied": 40}}},
         ]
     )
     rows, _info = await api.parking()
@@ -113,10 +112,20 @@ async def test_pharmacy_sentinel_id_becomes_null():
 async def test_air_quality_groups_by_station_and_keeps_latest_observation():
     api, _stub = _api(
         [
-            {"BolgeAdi": "Konak", "BolgeId": 1, "OlcumTarihi": "2026-10-27T10:00:00",
-             "GazAdi": "CO", "OlcumDegeri": 1.0},
-            {"BolgeAdi": "Konak", "BolgeId": 1, "OlcumTarihi": "2026-10-27T12:00:00",
-             "GazAdi": "NO2", "OlcumDegeri": 2.0},
+            {
+                "BolgeAdi": "Konak",
+                "BolgeId": 1,
+                "OlcumTarihi": "2026-10-27T10:00:00",
+                "GazAdi": "CO",
+                "OlcumDegeri": 1.0,
+            },
+            {
+                "BolgeAdi": "Konak",
+                "BolgeId": 1,
+                "OlcumTarihi": "2026-10-27T12:00:00",
+                "GazAdi": "NO2",
+                "OlcumDegeri": 2.0,
+            },
         ]
     )
     rows, _info = await api.air_quality("2026-10-27")
@@ -278,10 +287,12 @@ FIXTURES = {
     "izmir_api": {
         "malformed": MALFORMED_UTF8,
         "empty": b"[]",
-        "duplicates": _json.dumps([
-            {"ufid": "a", "name": "A", "lat": 38.4, "lng": 27.1},
-            {"ufid": "a", "name": "A", "lat": 38.4, "lng": 27.1},
-        ]).encode(),
+        "duplicates": _json.dumps(
+            [
+                {"ufid": "a", "name": "A", "lat": 38.4, "lng": 27.1},
+                {"ufid": "a", "name": "A", "lat": 38.4, "lng": 27.1},
+            ]
+        ).encode(),
         "schema_drift": b'"maintenance"',
     },
     "eshot": {
@@ -299,8 +310,9 @@ FIXTURES = {
     "ckan": {
         "malformed": b'{"success": true, "result": "\xff"}',
         "empty": b'{"success": true, "result": {"results": [], "count": 0}}',
-        "duplicates": _json.dumps({"success": True, "result": {
-            "results": [{"id": "x"}, {"id": "x"}], "count": 2}}).encode(),
+        "duplicates": _json.dumps(
+            {"success": True, "result": {"results": [{"id": "x"}, {"id": "x"}], "count": 2}}
+        ).encode(),
         "schema_drift": b'["not", "an", "envelope"]',
     },
 }

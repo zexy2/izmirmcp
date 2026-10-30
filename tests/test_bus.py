@@ -9,18 +9,29 @@ from app.services.bus import BusService
 from tests.conftest import fresh
 
 STOP_ROWS = [
-    {"id": "10030", "name": "Konak", "lat": 38.416218, "lon": 27.126321,
-     "routes": ["303", "304"]},
-    {"id": "21050", "name": "Münevver Öğretmen Ortaokulu", "lat": 38.512338,
-     "lon": 27.051353, "routes": ["346", "446", "810", "816"]},
-    {"id": "820001", "name": "Teknofest Alanı", "lat": 38.499314,
-     "lon": 27.022115, "routes": []},
+    {"id": "10030", "name": "Konak", "lat": 38.416218, "lon": 27.126321, "routes": ["303", "304"]},
+    {
+        "id": "21050",
+        "name": "Münevver Öğretmen Ortaokulu",
+        "lat": 38.512338,
+        "lon": 27.051353,
+        "routes": ["346", "446", "810", "816"],
+    },
+    {"id": "820001", "name": "Teknofest Alanı", "lat": 38.499314, "lon": 27.022115, "routes": []},
 ]
 
 ARRIVALS = [
-    {"bus_id": 12536, "line": "303", "line_name": "BUCA HEYKEL - KONAK",
-     "direction": 1, "stops_remaining": 2, "lat": 38.40078, "lon": 27.149745,
-     "wheelchair_accessible": True, "bike_rack": False},
+    {
+        "bus_id": 12536,
+        "line": "303",
+        "line_name": "BUCA HEYKEL - KONAK",
+        "direction": 1,
+        "stops_remaining": 2,
+        "lat": 38.40078,
+        "lon": 27.149745,
+        "wheelchair_accessible": True,
+        "bike_rack": False,
+    },
 ]
 
 GTFS_ROUTE = {
@@ -33,9 +44,18 @@ GTFS_ROUTE = {
 }
 
 GTFS_CALENDAR = [
-    {"service_id": "3633", "monday": True, "tuesday": True, "wednesday": True,
-     "thursday": True, "friday": True, "saturday": False, "sunday": False,
-     "start_date": "2026-08-05", "end_date": "2026-10-05"},
+    {
+        "service_id": "3633",
+        "monday": True,
+        "tuesday": True,
+        "wednesday": True,
+        "thursday": True,
+        "friday": True,
+        "saturday": False,
+        "sunday": False,
+        "start_date": "2026-08-05",
+        "end_date": "2026-10-05",
+    },
 ]
 
 
@@ -47,15 +67,12 @@ class FakeApi:
         return (list(ARRIVALS) if stop_id == "10030" else []), fresh()
 
     async def gtfs(self):
-        return {"routes": [GTFS_ROUTE], "calendar": GTFS_CALENDAR,
-                "calendar_end": "2026-10-05"}, fresh()
+        return {"routes": [GTFS_ROUTE], "calendar": GTFS_CALENDAR, "calendar_end": "2026-10-05"}, fresh()
 
 
 @pytest.mark.asyncio
 async def test_stop_search_filters_by_name_and_reports_total():
-    envelope = await BusService(settings=get_settings(), api=FakeApi()).stops(
-        query="konak", limit=10
-    )
+    envelope = await BusService(settings=get_settings(), api=FakeApi()).stops(query="konak", limit=10)
     assert envelope["ok"] is True
     assert [row["id"] for row in envelope["data"]] == ["10030"]
     assert envelope["result_info"]["matched"] == 1
@@ -70,9 +87,7 @@ async def test_stop_search_requires_query_or_coordinates():
 @pytest.mark.asyncio
 async def test_stop_search_rejects_both_query_and_coordinates():
     with pytest.raises(InputValidationError):
-        await BusService(settings=get_settings(), api=FakeApi()).stops(
-            query="konak", lat=38.4, lon=27.1
-        )
+        await BusService(settings=get_settings(), api=FakeApi()).stops(query="konak", lat=38.4, lon=27.1)
 
 
 @pytest.mark.asyncio
@@ -149,11 +164,7 @@ def test_parse_gtfs_metadata_groups_routes_and_feed_window():
         "303,303,BUCA HEYKEL - KONAK,3\n"
         "5,5,NARLIDERE - ÜÇKUYULAR İSKELE,3\n"
     )
-    trips = (
-        "route_id,service_id,trip_id,direction_id\n"
-        "303,3633,t1,0\n"
-        "303,3633,t2,1\n"
-    )
+    trips = "route_id,service_id,trip_id,direction_id\n303,3633,t1,0\n303,3633,t2,1\n"
     calendar = (
         "service_id,monday,tuesday,wednesday,thursday,friday,saturday,sunday,"
         "start_date,end_date\n"
@@ -192,9 +203,7 @@ async def test_dead_gtfs_source_returns_source_unavailable_not_a_raise():
 
 @pytest.mark.asyncio
 async def test_rate_limited_arrivals_return_source_rate_limited():
-    envelope = await BusService(settings=get_settings(), api=RateLimitedApi()).arrivals(
-        stop_id="10030"
-    )
+    envelope = await BusService(settings=get_settings(), api=RateLimitedApi()).arrivals(stop_id="10030")
     assert envelope["ok"] is False
     assert envelope["error"]["code"] == "source_rate_limited"
     assert envelope["error"]["temporary"] is True

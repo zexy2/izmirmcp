@@ -1,4 +1,5 @@
 """Build the advertised MCP surface."""
+
 from __future__ import annotations
 
 from importlib import metadata
@@ -13,7 +14,10 @@ from app.mcp.resources import register_resources
 from app.mcp.structured import with_envelope_output
 
 READ_ONLY = ToolAnnotations(
-    read_only_hint=True, destructive_hint=False, idempotent_hint=True, open_world_hint=True,
+    read_only_hint=True,
+    destructive_hint=False,
+    idempotent_hint=True,
+    open_world_hint=True,
 )
 
 DEFAULT_TOOL_NAMES = (

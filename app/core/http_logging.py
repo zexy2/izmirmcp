@@ -3,6 +3,7 @@
 Logs method, path, status and duration. Query strings, bodies, headers and API
 keys are never logged, so a shared log cannot leak caller content or credentials.
 """
+
 from __future__ import annotations
 
 import json

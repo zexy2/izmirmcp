@@ -77,10 +77,8 @@ MODE_LABELS = {
     "charging_station": "şarj istasyonu",
 }
 MOBILITY_LIMITS = [
-    "Ulaşım özeti yalnızca koordinat yayımlayan katmanları içerir; canlı sefer, "
-    "doluluk veya ETA değildir.",
-    "Hava kalitesi istasyonları bu özette yoktur: İzmir kaynağı istasyon "
-    "koordinatı yayımlamıyor.",
+    "Ulaşım özeti yalnızca koordinat yayımlayan katmanları içerir; canlı sefer, doluluk veya ETA değildir.",
+    "Hava kalitesi istasyonları bu özette yoktur: İzmir kaynağı istasyon koordinatı yayımlamıyor.",
     "Canlı trafik yoğunluğu bu özette yoktur: İzmir'de canlı trafik indeksi "
     "yayımlanmıyor (/api/ibb/trafikyogunluk 404).",
 ]
@@ -93,11 +91,7 @@ def _common(
     lon: float | None,
     source_name: str,
 ) -> dict[str, Any]:
-    distance = (
-        haversine_m(lat, lon, item["lat"], item["lon"])
-        if lat is not None and lon is not None
-        else None
-    )
+    distance = haversine_m(lat, lon, item["lat"], item["lon"]) if lat is not None and lon is not None else None
     return {
         "kind": kind,
         "id": item.get("id"),
@@ -111,10 +105,7 @@ def _common(
 
 
 def _matches_district(kind: str, item: dict[str, Any], district_name: str) -> bool:
-    return any(
-        has_name_token(item.get(field), district_name)
-        for field in DISTRICT_TEXT_FIELDS.get(kind, ())
-    )
+    return any(has_name_token(item.get(field), district_name) for field in DISTRICT_TEXT_FIELDS.get(kind, ()))
 
 
 class NearbyService:
@@ -158,14 +149,10 @@ class NearbyService:
             return "Boş yer sayıları anlık bildirimdir; kesin kapasite garantisi değildir."
         if kind == "bus_stop":
             return (
-                "EShot durak konumları yayımlanmış listedir; canlı varış için "
-                "izmir_bus_arrivals(stop_id=...) kullanın."
+                "EShot durak konumları yayımlanmış listedir; canlı varış için izmir_bus_arrivals(stop_id=...) kullanın."
             )
         if kind == "taxi_stand":
-            return (
-                "Taksi durağı konumları yayımlanmış statik listedir; orada taksi "
-                "bulunması garanti değildir."
-            )
+            return "Taksi durağı konumları yayımlanmış statik listedir; orada taksi bulunması garanti değildir."
         if kind == "charging_station":
             return (
                 "Şarj istasyonu konumları yayımlanmış statik listedir; istasyonun "
@@ -184,9 +171,7 @@ class NearbyService:
     ]:
         """Load each selected layer once, preserving partial failures."""
         loaders = self._loaders()
-        results = await asyncio.gather(
-            *(loaders[kind][0]() for kind in selected), return_exceptions=True
-        )
+        results = await asyncio.gather(*(loaders[kind][0]() for kind in selected), return_exceptions=True)
         by_kind: dict[str, tuple[Source, list[dict[str, Any]]]] = {}
         used_sources: list[Source] = []
         warnings: list[str] = []
@@ -247,22 +232,19 @@ class NearbyService:
             warnings.append(f"{kind} mekânsal indekse yazılamadı ({error}); sonuç kısmi.")
         by_kind = {kind: loaders[kind][1] for kind in outcome.answered}
         used = list(by_kind.values())
-        statuses = [outcome.reports[kind].status for kind in outcome.answered]
-        observed = [
-            outcome.reports[kind].source_updated_at
-            for kind in outcome.answered
-            if outcome.reports[kind].source_updated_at
-        ]
+        statuses: list[str] = [outcome.reports[kind].status for kind in outcome.answered]
+        observed: list[str] = []
+        for kind in outcome.answered:
+            updated_at = outcome.reports[kind].source_updated_at
+            if updated_at:
+                observed.append(updated_at)
         if not outcome.answered:
             return {}, [], warnings, statuses, observed
         if not outcome.refreshed:
             # Every layer answered but none yielded indexable rows. That is an
             # empty result, not a source outage, so the caller still gets a
             # successful envelope with an explicit warning.
-            warnings.append(
-                "Kaynaklar yanıt verdi ancak indekslenecek koordinatlı kayıt yok; "
-                "sonuç boş olabilir."
-            )
+            warnings.append("Kaynaklar yanıt verdi ancak indekslenecek koordinatlı kayıt yok; sonuç boş olabilir.")
             return by_kind, used, warnings, statuses, observed
         return (
             {kind: by_kind[kind] for kind in outcome.refreshed if kind in by_kind},
@@ -361,8 +343,13 @@ class NearbyService:
     def _indexed_row(item: dict[str, Any]) -> dict[str, Any]:
         """Flatten an indexed row back into the source-item shape."""
         payload = item.get("payload") or {}
-        return {**payload, "id": item.get("id"), "name": item.get("name"),
-                "lat": item.get("lat"), "lon": item.get("lon")}
+        return {
+            **payload,
+            "id": item.get("id"),
+            "name": item.get("name"),
+            "lat": item.get("lat"),
+            "lon": item.get("lon"),
+        }
 
     async def nearby(
         self,
@@ -394,9 +381,7 @@ class NearbyService:
                     "Verilen koordinat İzmir il sınırları dışında görünüyor; boş sonuç "
                     "'İzmir'de hizmet yok' kanıtı değildir."
                 ],
-                result=result_info(
-                    returned=0, matched=0, truncated=False, scope="outside_coverage"
-                ),
+                result=result_info(returned=0, matched=0, truncated=False, scope="outside_coverage"),
             )
         by_kind, used_sources, warnings, statuses, observed = await self._layers(selected)
         if not used_sources:
@@ -427,9 +412,8 @@ class NearbyService:
             sort_key=lambda row: (row["distance_m"], row.get("name") or ""),
         )
         reference = reference_label or f"{lat:.5f}, {lon:.5f}"
-        summary = (
-            f"{len(data)} sonuç bulundu; {reference} çevresinde {radius_m} m içinde."
-            + (" İlk sonuçlar gösteriliyor." if truncated else "")
+        summary = f"{len(data)} sonuç bulundu; {reference} çevresinde {radius_m} m içinde." + (
+            " İlk sonuçlar gösteriliyor." if truncated else ""
         )
         return self._envelope(
             summary=summary,
@@ -485,29 +469,19 @@ class NearbyService:
         for row in envelope["data"]:
             kind = row["kind"]
             counts[kind] = counts.get(kind, 0) + 1
-        breakdown = ", ".join(
-            f"{counts[kind]} {MODE_LABELS[kind]}"
-            for kind in MOBILITY_TYPES
-            if counts.get(kind)
-        )
+        breakdown = ", ".join(f"{counts[kind]} {MODE_LABELS[kind]}" for kind in MOBILITY_TYPES if counts.get(kind))
         reference = reference_label or f"{lat:.5f}, {lon:.5f}"
         shown = len(envelope["data"])
         matched = (envelope.get("result_info") or {}).get("matched")
         truncated = bool((envelope.get("result_info") or {}).get("truncated"))
         if breakdown:
             envelope["summary"] = (
-                f"{reference} çevresinde {radius_m} m içinde {shown} ulaşım noktası "
-                f"gösteriliyor: {breakdown}."
+                f"{reference} çevresinde {radius_m} m içinde {shown} ulaşım noktası gösteriliyor: {breakdown}."
             )
             if truncated and matched is not None:
-                envelope["summary"] += (
-                    f" Toplam {matched} eşleşmeden ilk {shown} gösteriliyor."
-                )
+                envelope["summary"] += f" Toplam {matched} eşleşmeden ilk {shown} gösteriliyor."
         else:
-            envelope["summary"] = (
-                f"{reference} çevresinde {radius_m} m içinde yayımlanmış ulaşım "
-                "noktası bulunamadı."
-            )
+            envelope["summary"] = f"{reference} çevresinde {radius_m} m içinde yayımlanmış ulaşım noktası bulunamadı."
 
         envelope["limits"] = [
             *envelope["limits"],
@@ -520,18 +494,18 @@ class NearbyService:
         next_queries: list[str] = []
         if bus_stops:
             nearest = bus_stops[0]["id"]
-            next_queries.extend([
-                f"En yakın duraktan planlı kalkışlar için izmir_bus_departures(stop_id={nearest}) kullanın.",
-                f"Canlı yaklaşan otobüsler için izmir_bus_arrivals(stop_id={nearest}) kullanın.",
-            ])
+            next_queries.extend(
+                [
+                    f"En yakın duraktan planlı kalkışlar için izmir_bus_departures(stop_id={nearest}) kullanın.",
+                    f"Canlı yaklaşan otobüsler için izmir_bus_arrivals(stop_id={nearest}) kullanın.",
+                ]
+            )
         next_queries.append("Yalnızca tek tür için izmir_nearby(types=[...]) kullanın.")
         envelope["next_queries"] = next_queries
         envelope["result_info"]["scope"] = "mobility_nearby"
         return envelope
 
-    async def bbox(
-        self, *, bbox: list[float] | tuple[float, ...], types: list[str], limit: int
-    ) -> dict[str, Any]:
+    async def bbox(self, *, bbox: list[float] | tuple[float, ...], types: list[str], limit: int) -> dict[str, Any]:
         min_lon, min_lat, max_lon, max_lat = validate_bbox(bbox)
         selected = self._selected(types)
         if not selected:
@@ -579,13 +553,10 @@ class NearbyService:
             ]
         )
         if not data:
-            warnings.append(
-                "Bu bbox içinde seçilen türlerde kayıt bulunamadı; bu 'hiç yok' kanıtı değildir."
-            )
+            warnings.append("Bu bbox içinde seçilen türlerde kayıt bulunamadı; bu 'hiç yok' kanıtı değildir.")
         rectangle = f"{min_lon},{min_lat},{max_lon},{max_lat}"
-        summary = (
-            f"{len(data)} sonuç bbox içinde bulundu; toplam {matched} eşleşme."
-            + (" İlk sonuçlar gösteriliyor." if truncated else "")
+        summary = f"{len(data)} sonuç bbox içinde bulundu; toplam {matched} eşleşme." + (
+            " İlk sonuçlar gösteriliyor." if truncated else ""
         )
         return self._envelope(
             summary=summary,
@@ -610,9 +581,7 @@ class NearbyService:
             scope="bbox",
         )
 
-    async def district(
-        self, *, district: str, types: list[str], limit: int
-    ) -> dict[str, Any]:
+    async def district(self, *, district: str, types: list[str], limit: int) -> dict[str, Any]:
         place = PlaceResolver().resolve_district(district)
         selected = self._selected(types)
         if not selected:
@@ -661,8 +630,7 @@ class NearbyService:
             [
                 f"İlçe eşleşmesi {place.name} için kaynağın kendi bölge/bölge açıklaması "
                 "metnine dayanır; idari sınır doğrulaması değildir.",
-                "Yalnızca kaynak bölge metninde ilçe adı geçen satırlar eşleşir; bu tam "
-                "ilçe envanteri değildir.",
+                "Yalnızca kaynak bölge metninde ilçe adı geçen satırlar eşleşir; bu tam ilçe envanteri değildir.",
                 "distance_m null: ilçe modunda referans nokta yoktur, mesafe hesaplanmaz.",
             ]
         )
@@ -676,9 +644,8 @@ class NearbyService:
                 f"{place.name} için kaynak bölge metninde eşleşen eczane bulunamadı; "
                 "bu ilçede eczane olmadığının kanıtı değildir."
             )
-        summary = (
-            f"{place.name} ilçesiyle {len(data)} eczane eşleşti; toplam {matched} kayıt."
-            + (" İlk sonuçlar gösteriliyor." if truncated else "")
+        summary = f"{place.name} ilçesiyle {len(data)} eczane eşleşti; toplam {matched} kayıt." + (
+            " İlk sonuçlar gösteriliyor." if truncated else ""
         )
         return self._envelope(
             summary=summary,

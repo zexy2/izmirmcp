@@ -6,6 +6,7 @@ returned every hit. bbox and district reported the total; radius silently cut.
 These tests pin the shared contract: every mode and mobility report the same
 ``returned/matched/truncated`` triple, and a cold index fetches each layer once.
 """
+
 from __future__ import annotations
 
 import pytest
@@ -52,9 +53,7 @@ async def test_radius_reports_matched_and_truncation():
 async def test_radius_without_truncation_says_it_is_complete():
     service = NearbyService(settings=get_settings(), api=FakeApi())
 
-    envelope = await service.nearby(
-        lat=38.41872, lon=27.12827, types=["parking"], radius_m=1000, limit=10
-    )
+    envelope = await service.nearby(lat=38.41872, lon=27.12827, types=["parking"], radius_m=1000, limit=10)
 
     assert envelope["result_info"]["matched"] == 1
     assert envelope["result_info"]["truncated"] is False
@@ -65,14 +64,10 @@ async def test_radius_without_truncation_says_it_is_complete():
 async def test_cold_index_fetches_each_layer_once(tmp_path):
     api = CountingApi()
     settings = get_settings()
-    scoped = type(settings)(
-        **{**settings.__dict__, "database_path": str(tmp_path / "geo.sqlite3")}
-    )
+    scoped = type(settings)(**{**settings.__dict__, "database_path": str(tmp_path / "geo.sqlite3")})
     service = NearbyService(settings=scoped, api=api)
 
-    await service.nearby(
-        lat=38.41872, lon=27.12827, types=["parking"], radius_m=500, limit=10
-    )
+    await service.nearby(lat=38.41872, lon=27.12827, types=["parking"], radius_m=500, limit=10)
 
     assert api.calls == 1
 
@@ -99,9 +94,7 @@ async def test_mobility_reports_the_same_truncation_contract():
         )(),
     )
 
-    envelope = await service.mobility(
-        lat=38.41872, lon=27.12827, radius_m=1000, limit=2
-    )
+    envelope = await service.mobility(lat=38.41872, lon=27.12827, radius_m=1000, limit=2)
 
     assert envelope["result_info"]["scope"] == "mobility_nearby"
     assert envelope["result_info"]["matched"] > 2

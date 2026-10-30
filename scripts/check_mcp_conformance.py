@@ -13,6 +13,7 @@ Usage:
     .venv/bin/python scripts/check_mcp_conformance.py
     .venv/bin/python scripts/check_mcp_conformance.py --output /tmp/evidence
 """
+
 from __future__ import annotations
 
 import argparse
@@ -74,7 +75,10 @@ class Server:
         with log_path.open("ab") as log:
             self.process = subprocess.Popen(
                 [sys.executable, "-m", "app.main"],
-                cwd=ROOT, env=env, stdout=log, stderr=subprocess.STDOUT,
+                cwd=ROOT,
+                env=env,
+                stdout=log,
+                stderr=subprocess.STDOUT,
             )
         deadline = time.monotonic() + STARTUP_BUDGET_SECONDS
         while self.process.poll() is None and time.monotonic() < deadline:
@@ -83,8 +87,7 @@ class Server:
             time.sleep(0.05)
         self.stop()
         raise RuntimeError(
-            "server did not become ready; log follows:\n"
-            + log_path.read_text(encoding="utf-8", errors="replace")
+            "server did not become ready; log follows:\n" + log_path.read_text(encoding="utf-8", errors="replace")
         )
 
     def stop(self) -> None:
@@ -130,8 +133,7 @@ def main() -> int:
     installed = json.loads((PACKAGE / "package.json").read_text(encoding="utf-8"))
     if installed.get("version") != profile["version"]:
         print(
-            f"installed conformance {installed.get('version')} != pinned {profile['version']};"
-            " run npm ci",
+            f"installed conformance {installed.get('version')} != pinned {profile['version']}; run npm ci",
             file=sys.stderr,
         )
         return 2
@@ -151,12 +153,19 @@ def main() -> int:
                 with (destination / "cli.log").open("w", encoding="utf-8") as log:
                     completed = subprocess.run(
                         [
-                            "node", str(PACKAGE / "dist" / "index.js"), "server",
-                            "--url", server.base + "/mcp/",
-                            "--scenario", scenario,
-                            "--output-dir", str(destination),
+                            "node",
+                            str(PACKAGE / "dist" / "index.js"),
+                            "server",
+                            "--url",
+                            server.base + "/mcp/",
+                            "--scenario",
+                            scenario,
+                            "--output-dir",
+                            str(destination),
                         ],
-                        stdout=log, stderr=subprocess.STDOUT, timeout=180,
+                        stdout=log,
+                        stderr=subprocess.STDOUT,
+                        timeout=180,
                     )
                 ok, count, failures = _read_checks(destination)
                 if completed.returncode != 0 and ok:
@@ -174,13 +183,10 @@ def main() -> int:
         "coverage": profile["coverage"],
         "exclusions": profile.get("exclusions", []),
         "scenarios": [
-            {"scenario": name, "ok": ok, "checks": count, "failures": failures}
-            for name, ok, count, failures in results
+            {"scenario": name, "ok": ok, "checks": count, "failures": failures} for name, ok, count, failures in results
         ],
     }
-    (output / "summary.json").write_text(
-        json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8"
-    )
+    (output / "summary.json").write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
 
     for name, ok, count, failures in results:
         status = "ok" if ok else "FAIL"

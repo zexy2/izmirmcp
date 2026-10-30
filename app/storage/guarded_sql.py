@@ -6,6 +6,7 @@ into a throwaway SQLite database, and a single bounded SELECT is executed with a
 deny-by-default authorizer. No caller SQL ever reaches CKAN or the application
 database.
 """
+
 from __future__ import annotations
 
 from contextlib import closing
@@ -33,12 +34,35 @@ MAX_SNAPSHOT_BYTES = 20 * 1024 * 1024
 # overhead, far below the previous 128 MiB ceiling.
 MAX_PAGE_COUNT = 16_384
 
-ALLOWED_FUNCTIONS = frozenset({
-    "count", "sum", "avg", "min", "max", "total", "round", "abs",
-    "coalesce", "ifnull", "nullif", "lower", "upper", "length",
-    "substr", "substring", "trim", "ltrim", "rtrim", "like", "glob",
-    "date", "datetime", "strftime", "julianday",
-})
+ALLOWED_FUNCTIONS = frozenset(
+    {
+        "count",
+        "sum",
+        "avg",
+        "min",
+        "max",
+        "total",
+        "round",
+        "abs",
+        "coalesce",
+        "ifnull",
+        "nullif",
+        "lower",
+        "upper",
+        "length",
+        "substr",
+        "substring",
+        "trim",
+        "ltrim",
+        "rtrim",
+        "like",
+        "glob",
+        "date",
+        "datetime",
+        "strftime",
+        "julianday",
+    }
+)
 
 
 class QueryRejected(ValueError):
@@ -67,8 +91,7 @@ def validate_sql(sql: str) -> str:
         if sum(1 for _node in tree.walk()) > 256:
             raise ValueError("SQL expression is too large")
         tables = list(tree.find_all(exp.Table))
-        forbidden = (exp.Join, exp.Subquery, exp.CTE, exp.Window, exp.Union,
-                     exp.Intersect, exp.Except)
+        forbidden = (exp.Join, exp.Subquery, exp.CTE, exp.Window, exp.Union, exp.Intersect, exp.Except)
         if (
             len(tables) != 1
             or tables[0].name.casefold() != "records"
@@ -117,8 +140,7 @@ def _quote(name: str) -> str:
 
 def _affinity(kind: str) -> str:
     lowered = kind.lower()
-    if lowered in {"int", "int2", "int4", "int8", "integer", "bigint", "smallint",
-                   "bool", "boolean"}:
+    if lowered in {"int", "int2", "int4", "int8", "integer", "bigint", "smallint", "bool", "boolean"}:
         return "INTEGER"
     if lowered in {"float", "float4", "float8", "real", "double", "numeric", "decimal"}:
         return "REAL"
@@ -139,7 +161,7 @@ def _cell(value: Any, kind: str) -> Any:
             raise SnapshotRejected("Numeric source value does not match its declared type") from exc
     if isinstance(value, float) and not math.isfinite(value):
         raise SnapshotRejected("Non-finite source values")
-    if isinstance(value, int) and not -(2 ** 63) <= value < 2 ** 63:
+    if isinstance(value, int) and not -(2**63) <= value < 2**63:
         raise SnapshotRejected("Source integer exceeds SQLite range")
     if isinstance(value, (dict, list)):
         value = json.dumps(value, ensure_ascii=False, allow_nan=False)
@@ -180,6 +202,7 @@ def execute_snapshot_query(
             if budget["bytes"] > max_bytes:
                 raise SnapshotRejected("Snapshot exceeds the local byte budget")
             yield cells
+
     with closing(sqlite3.connect(":memory:")) as conn:
         conn.setlimit(sqlite3.SQLITE_LIMIT_LENGTH, 65_536)
         conn.setlimit(sqlite3.SQLITE_LIMIT_SQL_LENGTH, 8_192)
@@ -235,13 +258,12 @@ def execute_snapshot_query(
         try:
             # execute(), never executescript(). The outer LIMIT is independent of
             # whatever the caller wrote, so a missing LIMIT cannot dump the table.
-            cursor = conn.execute(
-                f"SELECT * FROM ({sql}) AS bounded_result LIMIT ?", (limit + 1,)
-            )
+            cursor = conn.execute(f"SELECT * FROM ({sql}) AS bounded_result LIMIT ?", (limit + 1,))
             names = [column[0] for column in cursor.description or []]
             if len({name.casefold() for name in names}) != len(names):
                 raise QueryRejected("Output columns need unique aliases")
-            data, size, truncated = [], 0, False
+            data: list[dict[str, Any]] = []
+            size, truncated = 0, False
             for row in cursor:
                 if len(data) == limit:
                     truncated = True
@@ -256,6 +278,4 @@ def execute_snapshot_query(
         except (sqlite3.Error, MemoryError, ValueError, TypeError) as exc:
             if isinstance(exc, QueryRejected):
                 raise
-            raise QueryRejected(
-                "SQL rejected: check columns, allowed functions and execution budget"
-            ) from exc
+            raise QueryRejected("SQL rejected: check columns, allowed functions and execution budget") from exc

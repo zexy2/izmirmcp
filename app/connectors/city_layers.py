@@ -5,6 +5,7 @@ below (see ``reports/eshot-ulasim-kaynak-arastirmasi.md`` and
 ``reports/izmir-sehir-katmanlari.md``). Coordinate parsing tolerates the
 source's Turkish decimal comma without rescaling arbitrary values.
 """
+
 from __future__ import annotations
 
 import csv
@@ -60,7 +61,7 @@ def parse_lat_lon(lat_value: Any, lon_value: Any) -> tuple[float, float] | None:
     """Return a valid WGS84 pair, or ``None`` when the row is not placeable."""
     lat = parse_coordinate(lat_value)
     lon = parse_coordinate(lon_value)
-    if not valid_lat_lon(lat, lon):
+    if lat is None or lon is None or not valid_lat_lon(lat, lon):
         return None
     return lat, lon
 
@@ -89,9 +90,7 @@ class CityLayerConnector:
         rows: list[dict[str, Any]] = []
         offset = 0
         while True:
-            page = await self.ckan.datastore_search(
-                resource_id=resource_id, limit=page_size, offset=offset
-            )
+            page = await self.ckan.datastore_search(resource_id=resource_id, limit=page_size, offset=offset)
             records = page.get("records") or []
             if not isinstance(records, list):
                 raise SourceError("datastore records were not a list")
@@ -104,17 +103,12 @@ class CityLayerConnector:
             raise SourceError("city layer returned no rows")
         return rows
 
-    async def _layer(
-        self, key: str, resource_id: str, mapper
-    ) -> tuple[list[dict[str, Any]], CacheInfo]:
+    async def _layer(self, key: str, resource_id: str, mapper) -> tuple[list[dict[str, Any]], CacheInfo]:
         async def loader() -> list[dict[str, Any]]:
             rows = [mapper(item) for item in await self._datastore_rows(resource_id)]
             # A layer is "usable" if a row carries identifying text; traffic
             # rows identify themselves by their segment endpoints, not a name.
-            usable = [
-                row for row in rows
-                if row.get("name") or row.get("address") or row.get("segment_from")
-            ]
+            usable = [row for row in rows if row.get("name") or row.get("address") or row.get("segment_from")]
             if not usable:
                 raise SourceError(f"city layer {key} contained no usable rows")
             return usable
@@ -182,8 +176,8 @@ class CityLayerConnector:
 
         def mapper(item: dict[str, Any]) -> dict[str, Any]:
             return {
-                "district": bounded_text(item.get("ILCE_ADI") or "").strip() or None,
-                "name": bounded_text(item.get("MAHALLE_ADI") or "").strip() or None,
+                "district": (bounded_text(item.get("ILCE_ADI") or "") or "").strip() or None,
+                "name": (bounded_text(item.get("MAHALLE_ADI") or "") or "").strip() or None,
                 "male": finite_number(item.get("NUFUS_ERKEK_TOPLAM")),
                 "female": finite_number(item.get("NUFUS_KADIN_TOPLAM")),
             }
@@ -231,9 +225,7 @@ class CityLayerConnector:
         """
         return await self._layer("traffic", TRAFFIC_RESOURCE_ID, self._traffic_record)
 
-    async def traffic_recent(
-        self, limit: int
-    ) -> tuple[list[dict[str, Any]], CacheInfo, int]:
+    async def traffic_recent(self, limit: int) -> tuple[list[dict[str, Any]], CacheInfo, int]:
         """Newest ``limit`` rows plus the published total, in one page.
 
         The datastore is sorted server-side, so an unfiltered small limit does
@@ -254,11 +246,7 @@ class CityLayerConnector:
             records = page.get("records") or []
             if not isinstance(records, list):
                 raise SourceError("traffic records were not a list")
-            rows = [
-                self._traffic_record(item)
-                for item in records
-                if isinstance(item, dict)
-            ]
+            rows = [self._traffic_record(item) for item in records if isinstance(item, dict)]
             usable = [row for row in rows if row.get("segment_from")]
             total = page.get("total")
             if not usable or not isinstance(total, int):

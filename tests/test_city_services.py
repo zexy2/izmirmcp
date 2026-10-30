@@ -12,10 +12,22 @@ class FakeApi:
     async def wifi_points(self):
         return (
             [
-                {"id": "1", "name": "ADNAN SAYGUN", "district": "KONAK",
-                 "neighborhood": "MEHMET ALİ AKMAN", "lat": 38.4180, "lon": 27.1280},
-                {"id": "2", "name": "UZAK NOKTА", "district": "ÇEŞME",
-                 "neighborhood": "MERKEZ", "lat": 38.30, "lon": 26.30},
+                {
+                    "id": "1",
+                    "name": "ADNAN SAYGUN",
+                    "district": "KONAK",
+                    "neighborhood": "MEHMET ALİ AKMAN",
+                    "lat": 38.4180,
+                    "lon": 27.1280,
+                },
+                {
+                    "id": "2",
+                    "name": "UZAK NOKTА",
+                    "district": "ÇEŞME",
+                    "neighborhood": "MERKEZ",
+                    "lat": 38.30,
+                    "lon": 26.30,
+                },
             ],
             fresh(),
         )
@@ -23,8 +35,7 @@ class FakeApi:
     async def izmirim_card_points(self):
         return (
             [
-                {"id": "1", "address": "1639 Sok. No:8/D BAYRAKLI",
-                 "lat": 38.4185, "lon": 27.1285},
+                {"id": "1", "address": "1639 Sok. No:8/D BAYRAKLI", "lat": 38.4185, "lon": 27.1285},
             ],
             fresh("2023-08-21T00:00:00"),
         )
@@ -32,9 +43,15 @@ class FakeApi:
     async def libraries(self):
         return (
             [
-                {"id": "1", "name": "Kent Kütüphanesi", "district": "Konak",
-                 "address": "Alsancak Mah. Atatürk Cad. No: 454 Konak/İzmir",
-                 "hours": "08.30-17.30", "open_days": "Hafta içi", "opened_year": 2008},
+                {
+                    "id": "1",
+                    "name": "Kent Kütüphanesi",
+                    "district": "Konak",
+                    "address": "Alsancak Mah. Atatürk Cad. No: 454 Konak/İzmir",
+                    "hours": "08.30-17.30",
+                    "open_days": "Hafta içi",
+                    "opened_year": 2008,
+                },
             ],
             fresh(),
         )

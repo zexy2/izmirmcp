@@ -28,11 +28,7 @@ CALENDAR = (
     "WK,1,1,1,1,1,0,0,20260801,20261009\r\n"
     "SAT,0,0,0,0,0,1,0,20260801,20261009\r\n"
 )
-CALENDAR_DATES = (
-    "service_id,date,exception_type\r\n"
-    "WK,20261007,2\r\n"
-    "SAT,20261007,1\r\n"
-)
+CALENDAR_DATES = "service_id,date,exception_type\r\nWK,20261007,2\r\nSAT,20261007,1\r\n"
 FUTURE_CALENDAR = (
     "service_id,monday,tuesday,wednesday,thursday,friday,saturday,sunday,"
     "start_date,end_date\r\n"
@@ -72,15 +68,12 @@ NEAR_TRIPS = TRIPS + "446,WK,T6,0\r\n"
 NEAR_STOP_TIMES = STOP_TIMES + "T6,08:15:00,08:15:00,10040,2,0\r\n"
 
 STOP_ROWS = [
-    {"id": "10030", "name": "Konak", "lat": 38.416218, "lon": 27.126321,
-     "routes": ["303", "446"]},
+    {"id": "10030", "name": "Konak", "lat": 38.416218, "lon": 27.126321, "routes": ["303", "446"]},
 ]
 NEAR_STOP_ROWS = [
     *STOP_ROWS,
-    {"id": "10040", "name": "Gazi Bulvarı", "lat": 38.4180, "lon": 27.1250,
-     "routes": ["446"]},
-    {"id": "21050", "name": "Münevver Öğretmen Ortaokulu", "lat": 38.512338,
-     "lon": 27.051353, "routes": ["303"]},
+    {"id": "10040", "name": "Gazi Bulvarı", "lat": 38.4180, "lon": 27.1250, "routes": ["446"]},
+    {"id": "21050", "name": "Münevver Öğretmen Ortaokulu", "lat": 38.512338, "lon": 27.051353, "routes": ["303"]},
 ]
 
 
@@ -146,12 +139,30 @@ def test_parse_gtfs_time_rejects_invalid_values(text):
 
 def test_active_service_ids_applies_weekday_window_and_exceptions():
     calendar = [
-        {"service_id": "WK", "monday": 1, "tuesday": 1, "wednesday": 1,
-         "thursday": 1, "friday": 1, "saturday": 0, "sunday": 0,
-         "start_date": "20260801", "end_date": "20261009"},
-        {"service_id": "OLD", "monday": 1, "tuesday": 1, "wednesday": 1,
-         "thursday": 1, "friday": 1, "saturday": 0, "sunday": 0,
-         "start_date": "20250101", "end_date": "20251009"},
+        {
+            "service_id": "WK",
+            "monday": 1,
+            "tuesday": 1,
+            "wednesday": 1,
+            "thursday": 1,
+            "friday": 1,
+            "saturday": 0,
+            "sunday": 0,
+            "start_date": "20260801",
+            "end_date": "20261009",
+        },
+        {
+            "service_id": "OLD",
+            "monday": 1,
+            "tuesday": 1,
+            "wednesday": 1,
+            "thursday": 1,
+            "friday": 1,
+            "saturday": 0,
+            "sunday": 0,
+            "start_date": "20250101",
+            "end_date": "20251009",
+        },
     ]
     exceptions = [
         {"service_id": "WK", "date": "20261007", "exception_type": 2},
@@ -188,9 +199,7 @@ def test_failed_rebuild_keeps_the_previous_database(tmp_path):
 
 def test_store_handles_a_feed_without_calendar_dates(tmp_path):
     store = GtfsScheduleStore(tmp_path / "schedule.sqlite3")
-    meta = store.rebuild(
-        gtfs_zip(calendar_dates=None), source_url="https://example.invalid/gtfs.zip"
-    )
+    meta = store.rebuild(gtfs_zip(calendar_dates=None), source_url="https://example.invalid/gtfs.zip")
     assert meta["calendar_dates_rows"] == 0
     rows = store.departures(
         stop_id="10030",
@@ -238,9 +247,7 @@ def test_previous_service_day_after_midnight_times_are_included(tmp_path):
 def test_exception_removal_empties_the_day_and_addition_adds_saturday_service(tmp_path):
     store = GtfsScheduleStore(tmp_path / "schedule.sqlite3")
     store.rebuild(
-        gtfs_zip(
-            calendar_dates="service_id,date,exception_type\r\nWK,20261007,2\r\n"
-        ),
+        gtfs_zip(calendar_dates="service_id,date,exception_type\r\nWK,20261007,2\r\n"),
         source_url="https://example.invalid/gtfs.zip",
     )
 
@@ -276,13 +283,9 @@ def test_line_filter_matches_route_short_name_case_insensitively(tmp_path):
 
 @pytest.mark.asyncio
 async def test_service_returns_departures_with_stop_and_calendar_context(tmp_path):
-    service = BusService(
-        settings=settings_for(tmp_path), api=FakeApi(gtfs_zip(calendar=FUTURE_CALENDAR))
-    )
+    service = BusService(settings=settings_for(tmp_path), api=FakeApi(gtfs_zip(calendar=FUTURE_CALENDAR)))
 
-    envelope = await service.departures(
-        stop_id="10030", at="2026-10-05T08:00", limit=5
-    )
+    envelope = await service.departures(stop_id="10030", at="2026-10-05T08:00", limit=5)
 
     assert envelope["ok"] is True
     assert envelope["data"][0]["line"] == "446"
@@ -296,9 +299,7 @@ async def test_service_returns_departures_with_stop_and_calendar_context(tmp_pat
 async def test_service_reports_expired_calendar_instead_of_claiming_no_bus(tmp_path):
     service = BusService(settings=settings_for(tmp_path), api=FakeApi())
 
-    envelope = await service.departures(
-        stop_id="10030", at="2026-10-28T08:00", limit=5
-    )
+    envelope = await service.departures(stop_id="10030", at="2026-10-28T08:00", limit=5)
 
     assert envelope["ok"] is True
     assert envelope["data"] == []
@@ -361,8 +362,7 @@ async def test_service_rejects_published_stop_missing_from_the_gtfs_timetable(tm
         async def stops(self):
             return [
                 *STOP_ROWS,
-                {"id": "99999", "name": "Eski Durak", "lat": 38.4, "lon": 27.1,
-                 "routes": []},
+                {"id": "99999", "name": "Eski Durak", "lat": 38.4, "lon": 27.1, "routes": []},
             ], fresh()
 
     with pytest.raises(InputValidationError) as excinfo:
@@ -421,9 +421,7 @@ def test_store_merges_departures_for_several_stops_in_time_order(tmp_path):
     assert [row["time"] for row in rows[:2]] == ["08:10", "08:15"]
     assert [row["stop_name"] for row in rows[:2]] == ["Konak", "Gazi Bulvarı"]
     assert [row["minutes_from_now"] for row in rows[:2]] == [10.0, 15.0]
-    assert [row["scheduled_at"] for row in rows] == sorted(
-        row["scheduled_at"] for row in rows
-    )
+    assert [row["scheduled_at"] for row in rows] == sorted(row["scheduled_at"] for row in rows)
 
 
 def test_store_rejects_an_empty_stop_list(tmp_path):
@@ -431,9 +429,7 @@ def test_store_rejects_an_empty_stop_list(tmp_path):
     store.rebuild(gtfs_zip(), source_url="https://example.invalid/gtfs.zip")
 
     with pytest.raises(GtfsScheduleError):
-        store.departures_at_stops(
-            stop_ids=[], at=datetime(2026, 10, 5, 8, 0, tzinfo=ISTANBUL), limit=5
-        )
+        store.departures_at_stops(stop_ids=[], at=datetime(2026, 10, 5, 8, 0, tzinfo=ISTANBUL), limit=5)
 
 
 class NearApi(FakeApi):
@@ -445,17 +441,13 @@ class NearApi(FakeApi):
 
 class NearTimetableApi(NearApi):
     def __init__(self):
-        super().__init__(
-            gtfs_zip(stops=NEAR_STOPS, trips=NEAR_TRIPS, stop_times=NEAR_STOP_TIMES)
-        )
+        super().__init__(gtfs_zip(stops=NEAR_STOPS, trips=NEAR_TRIPS, stop_times=NEAR_STOP_TIMES))
 
 
 @pytest.mark.asyncio
 async def test_stop_query_returns_stop_candidates_not_departures(tmp_path):
     api = NearApi()
-    envelope = await BusService(settings=settings_for(tmp_path), api=api).departures(
-        stop_query="gazi", limit=5
-    )
+    envelope = await BusService(settings=settings_for(tmp_path), api=api).departures(stop_query="gazi", limit=5)
 
     assert envelope["ok"] is True
     assert [row["id"] for row in envelope["data"]] == ["10040"]
@@ -473,26 +465,19 @@ async def test_stop_query_ranks_an_exact_name_before_a_longer_one(tmp_path):
     class NameApi(NearApi):
         async def stops(self):
             return [
-                {"id": "52047", "name": "Güzel Konak", "lat": 38.4, "lon": 27.1,
-                 "routes": []},
-                {"id": "10030", "name": "Konak", "lat": 38.416218,
-                 "lon": 27.126321, "routes": ["446"]},
-                {"id": "10031", "name": "Konak İskele", "lat": 38.42, "lon": 27.13,
-                 "routes": []},
+                {"id": "52047", "name": "Güzel Konak", "lat": 38.4, "lon": 27.1, "routes": []},
+                {"id": "10030", "name": "Konak", "lat": 38.416218, "lon": 27.126321, "routes": ["446"]},
+                {"id": "10031", "name": "Konak İskele", "lat": 38.42, "lon": 27.13, "routes": []},
             ], fresh()
 
-    envelope = await BusService(settings=settings_for(tmp_path), api=NameApi()).departures(
-        stop_query="Konak", limit=3
-    )
+    envelope = await BusService(settings=settings_for(tmp_path), api=NameApi()).departures(stop_query="Konak", limit=3)
 
     assert [row["id"] for row in envelope["data"]] == ["10030", "10031", "52047"]
 
 
 @pytest.mark.asyncio
 async def test_stop_query_fuzzy_matches_are_labelled(tmp_path):
-    envelope = await BusService(settings=settings_for(tmp_path), api=NearApi()).departures(
-        stop_query="Konakk", limit=5
-    )
+    envelope = await BusService(settings=settings_for(tmp_path), api=NearApi()).departures(stop_query="Konakk", limit=5)
 
     assert envelope["ok"] is True
     assert envelope["data"][0]["match"] == "fuzzy"
@@ -501,9 +486,9 @@ async def test_stop_query_fuzzy_matches_are_labelled(tmp_path):
 
 @pytest.mark.asyncio
 async def test_radius_mode_merges_departures_from_nearby_stops(tmp_path):
-    envelope = await BusService(
-        settings=settings_for(tmp_path), api=NearTimetableApi()
-    ).departures(lat=38.4169, lon=27.1260, radius_m=500, at="2026-10-05T08:00", limit=5)
+    envelope = await BusService(settings=settings_for(tmp_path), api=NearTimetableApi()).departures(
+        lat=38.4169, lon=27.1260, radius_m=500, at="2026-10-05T08:00", limit=5
+    )
 
     assert envelope["ok"] is True
     assert [row["stop_id"] for row in envelope["data"][:2]] == ["10030", "10040"]

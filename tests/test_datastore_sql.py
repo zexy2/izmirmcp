@@ -4,6 +4,7 @@ These tests never touch the network. The fake client reproduces CKAN's
 ``datastore_search`` page shape, including the stable ``_id`` ordering the
 snapshot loader requires.
 """
+
 from __future__ import annotations
 
 import dataclasses
@@ -55,7 +56,7 @@ class FakeClient:
         if limit == 0:
             result = {"fields": self.fields, "records": [], "total": self.total}
         else:
-            page = self.rows[offset:offset + limit]
+            page = self.rows[offset : offset + limit]
             result = {"fields": self.fields, "records": page, "total": self.total}
         size = len(json.dumps(result, ensure_ascii=False).encode())
         if size > max_bytes:
@@ -68,10 +69,7 @@ async def test_aggregate_runs_on_a_complete_snapshot():
     client = FakeClient()
     envelope = await DatastoreSqlService(settings=settings(), client=client).query(
         resource_id="r1",
-        sql=(
-            "SELECT ILCE, COUNT(*) AS n, ROUND(AVG(N), 1) AS avg_n "
-            "FROM records GROUP BY ILCE ORDER BY n DESC"
-        ),
+        sql=("SELECT ILCE, COUNT(*) AS n, ROUND(AVG(N), 1) AS avg_n FROM records GROUP BY ILCE ORDER BY n DESC"),
     )
     assert envelope["ok"] is True
     assert envelope["data"] == [
@@ -99,9 +97,9 @@ async def test_result_limit_is_enforced_and_reported():
 @pytest.mark.asyncio
 async def test_resource_must_be_allowlisted_before_any_download():
     client = FakeClient()
-    envelope = await DatastoreSqlService(
-        settings=settings(ckan_sql_allowed_resource_ids=()), client=client
-    ).query(resource_id="r1", sql="SELECT COUNT(*) AS n FROM records")
+    envelope = await DatastoreSqlService(settings=settings(ckan_sql_allowed_resource_ids=()), client=client).query(
+        resource_id="r1", sql="SELECT COUNT(*) AS n FROM records"
+    )
     assert envelope["ok"] is False
     assert envelope["error"]["code"] == "validation_error"
     assert envelope["error"]["field"] == "resource_id"
@@ -123,9 +121,9 @@ async def test_malformed_sql_is_rejected_without_a_download():
 @pytest.mark.asyncio
 async def test_snapshot_over_the_row_budget_is_never_partially_aggregated():
     client = FakeClient(total=101)
-    envelope = await DatastoreSqlService(
-        settings=settings(ckan_sql_max_rows=100), client=client
-    ).query(resource_id="r1", sql="SELECT COUNT(*) AS n FROM records")
+    envelope = await DatastoreSqlService(settings=settings(ckan_sql_max_rows=100), client=client).query(
+        resource_id="r1", sql="SELECT COUNT(*) AS n FROM records"
+    )
     assert envelope["ok"] is False
     assert envelope["error"]["code"] == "source_unavailable"
     assert any("100" in warning or "budget" in warning.lower() for warning in envelope["warnings"])

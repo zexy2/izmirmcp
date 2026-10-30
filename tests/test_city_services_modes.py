@@ -19,12 +19,30 @@ class FakeApi:
             raise RuntimeError("boom")
         return (
             [
-                {"id": "in", "name": "İç Nokta", "district": "KONAK",
-                 "neighborhood": "MEHMET ALİ AKMAN", "lat": 38.4190, "lon": 27.1290},
-                {"id": "edge", "name": "Kenar Nokta", "district": "KONAK",
-                 "neighborhood": "HİSARÖNÜ", "lat": 38.4100, "lon": 27.1200},
-                {"id": "out", "name": "Dış Nokta", "district": "ÇEŞME",
-                 "neighborhood": "MERKEZ", "lat": 38.5000, "lon": 27.2000},
+                {
+                    "id": "in",
+                    "name": "İç Nokta",
+                    "district": "KONAK",
+                    "neighborhood": "MEHMET ALİ AKMAN",
+                    "lat": 38.4190,
+                    "lon": 27.1290,
+                },
+                {
+                    "id": "edge",
+                    "name": "Kenar Nokta",
+                    "district": "KONAK",
+                    "neighborhood": "HİSARÖNÜ",
+                    "lat": 38.4100,
+                    "lon": 27.1200,
+                },
+                {
+                    "id": "out",
+                    "name": "Dış Nokta",
+                    "district": "ÇEŞME",
+                    "neighborhood": "MERKEZ",
+                    "lat": 38.5000,
+                    "lon": 27.2000,
+                },
             ],
             fresh(),
         )
@@ -34,10 +52,8 @@ class FakeApi:
             raise RuntimeError("boom")
         return (
             [
-                {"id": "c1", "address": "1639 Sok. No:8/D KONAK",
-                 "lat": 38.4195, "lon": 27.1295},
-                {"id": "c2", "address": "UZAK BAYRAKLI",
-                 "lat": 38.5000, "lon": 27.2000},
+                {"id": "c1", "address": "1639 Sok. No:8/D KONAK", "lat": 38.4195, "lon": 27.1295},
+                {"id": "c2", "address": "UZAK BAYRAKLI", "lat": 38.5000, "lon": 27.2000},
             ],
             fresh("2023-08-21T00:00:00"),
         )
@@ -47,14 +63,28 @@ class FakeApi:
             raise RuntimeError("boom")
         return (
             [
-                {"id": "l1", "name": "Kent Kütüphanesi", "district": "Konak",
-                 "address": "Alsancak Mah. Atatürk Cad. No: 454 Konak/İzmir",
-                 "hours": "08.30-17.30", "open_days": "Hafta içi", "opened_year": 2008,
-                 "lat": None, "lon": None},
-                {"id": "l2", "name": "Buca Kütüphanesi", "district": "Buca",
-                 "address": "Ufuk Mah. 916 Sk. No: 3 Buca/İzmir",
-                 "hours": "08.30-17.30", "open_days": "Hafta içi", "opened_year": 2020,
-                 "lat": None, "lon": None},
+                {
+                    "id": "l1",
+                    "name": "Kent Kütüphanesi",
+                    "district": "Konak",
+                    "address": "Alsancak Mah. Atatürk Cad. No: 454 Konak/İzmir",
+                    "hours": "08.30-17.30",
+                    "open_days": "Hafta içi",
+                    "opened_year": 2008,
+                    "lat": None,
+                    "lon": None,
+                },
+                {
+                    "id": "l2",
+                    "name": "Buca Kütüphanesi",
+                    "district": "Buca",
+                    "address": "Ufuk Mah. 916 Sk. No: 3 Buca/İzmir",
+                    "hours": "08.30-17.30",
+                    "open_days": "Hafta içi",
+                    "opened_year": 2020,
+                    "lat": None,
+                    "lon": None,
+                },
             ],
             fresh(),
         )
@@ -111,9 +141,9 @@ async def test_bbox_warns_that_libraries_have_no_coordinates():
 
 @pytest.mark.asyncio
 async def test_bbox_keeps_partial_results_when_one_layer_fails():
-    envelope = await CityServicesService(
-        settings=get_settings(), api=FakeApi(fail={"wifi"})
-    ).bbox(bbox=KONAK_BBOX, kinds=["wifi", "izmirim_card"], limit=10)
+    envelope = await CityServicesService(settings=get_settings(), api=FakeApi(fail={"wifi"})).bbox(
+        bbox=KONAK_BBOX, kinds=["wifi", "izmirim_card"], limit=10
+    )
     assert envelope["ok"] is True
     assert {row["kind"] for row in envelope["data"]} == {"izmirim_card"}
     assert any("wifi" in warning for warning in envelope["warnings"])

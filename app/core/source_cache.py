@@ -5,6 +5,7 @@ key, and stale-if-error: a recent copy is served, marked ``stale``, when the
 source fails. ``snapshot()`` exposes hashed keys only, so /status never leaks
 the request parameters that make up a cache key.
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -68,7 +69,8 @@ def _now() -> float:
 
 def _evict_before_insert(key: str, *, now: float, max_entries: int) -> None:
     expired = [
-        other for other, entry in _entries.items()
+        other
+        for other, entry in _entries.items()
         if other != key and now - entry.stored_at >= entry.ttl_seconds + entry.stale_if_error_seconds
     ]
     for other in expired:
@@ -107,11 +109,7 @@ async def cached_source_data(
         try:
             result = await loader()
         except Exception:
-            if (
-                entry is not None
-                and age is not None
-                and age <= ttl_seconds + stale_if_error_seconds
-            ):
+            if entry is not None and age is not None and age <= ttl_seconds + stale_if_error_seconds:
                 return entry.value, CacheInfo(
                     status="stale",
                     retrieved_at=utc_now_iso(),
@@ -124,9 +122,7 @@ async def cached_source_data(
                 _locks.pop(key, None)
             raise
         value, source_updated_at = result if isinstance(result, tuple) else (result, None)
-        _evict_before_insert(
-            key, now=current, max_entries=max_entries if max_entries is not None else _max_entries()
-        )
+        _evict_before_insert(key, now=current, max_entries=max_entries if max_entries is not None else _max_entries())
         retrieved = utc_now_iso()
         _entries[key] = _Entry(
             value=value,

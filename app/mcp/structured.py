@@ -1,4 +1,5 @@
 """Validate MCP output without changing the bare-dict Python handler contract."""
+
 from __future__ import annotations
 
 import inspect
@@ -43,7 +44,9 @@ def with_envelope_output(
 
     signature = inspect.signature(handler, eval_str=True)
     structured.__annotations__ = {
-        **get_type_hints(handler, include_extras=True), "return": ResponseEnvelope,
+        **get_type_hints(handler, include_extras=True),
+        "return": ResponseEnvelope,
     }
-    structured.__signature__ = signature.replace(return_annotation=ResponseEnvelope)
+    # FastMCP reads __signature__ to build the tool schema; functools types omit it.
+    structured.__signature__ = signature.replace(return_annotation=ResponseEnvelope)  # type: ignore[attr-defined]
     return structured

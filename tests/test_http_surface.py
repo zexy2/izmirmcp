@@ -15,9 +15,7 @@ def _settings(**overrides) -> Settings:
 
 
 def _client(app) -> httpx.AsyncClient:
-    return httpx.AsyncClient(
-        transport=httpx.ASGITransport(app=app), base_url="http://127.0.0.1:8000"
-    )
+    return httpx.AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://127.0.0.1:8000")
 
 
 def _app(settings: Settings):
@@ -82,11 +80,13 @@ async def test_mcp_path_rate_limits_per_client():
     settings = _settings(client_rate_limit_capacity=1, client_rate_limit_refill_per_second=0.001)
     async with _running_app(settings) as app, _client(app) as client:
         first = await client.post(
-            "/mcp/", json={"jsonrpc": "2.0", "id": 1, "method": "tools/list"},
+            "/mcp/",
+            json={"jsonrpc": "2.0", "id": 1, "method": "tools/list"},
             headers={"accept": "application/json, text/event-stream"},
         )
         second = await client.post(
-            "/mcp/", json={"jsonrpc": "2.0", "id": 2, "method": "tools/list"},
+            "/mcp/",
+            json={"jsonrpc": "2.0", "id": 2, "method": "tools/list"},
             headers={"accept": "application/json, text/event-stream"},
         )
     assert second.status_code == 429
@@ -236,8 +236,12 @@ async def test_status_exposes_tool_telemetry_after_a_call():
     async with _running_app(_settings()) as app, _client(app) as client:
         await client.post(
             "/mcp/",
-            json={"jsonrpc": "2.0", "id": 1, "method": "tools/call",
-                  "params": {"name": "izmir_health", "arguments": {}}},
+            json={
+                "jsonrpc": "2.0",
+                "id": 1,
+                "method": "tools/call",
+                "params": {"name": "izmir_health", "arguments": {}},
+            },
             headers={"accept": "application/json, text/event-stream"},
         )
         response = await client.get("/status")

@@ -6,6 +6,7 @@ runner does not open an incident. Exit code 0 = healthy, 1 = down, 2 = no URL
 configured. Inside GitHub Actions the result is also written to $GITHUB_OUTPUT
 (healthy, reason, url).
 """
+
 from __future__ import annotations
 
 import argparse
@@ -39,8 +40,9 @@ def _decode(raw: bytes, content_type: str) -> dict:
     return value
 
 
-def _request(url: str, *, timeout: float, payload: dict | None = None,
-             session: str | None = None) -> tuple[int, dict, str | None]:
+def _request(
+    url: str, *, timeout: float, payload: dict | None = None, session: str | None = None
+) -> tuple[int, dict, str | None]:
     data = None if payload is None else json.dumps(payload).encode()
     headers = dict(HEADERS)
     if session:
@@ -59,18 +61,34 @@ def probe(base_url: str, *, timeout: float = 20.0) -> str | None:
         status, health, _ = _request(base + "/healthz", timeout=timeout)
         if status != 200 or health.get("ok") is not True:
             return f"/healthz returned HTTP {status}"
-        _, init, session = _request(base + "/mcp/", timeout=timeout, payload={
-            "jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {
-                "protocolVersion": "2025-03-26", "capabilities": {},
-                "clientInfo": {"name": "izmir-mcp-uptime", "version": "1"},
+        _, init, session = _request(
+            base + "/mcp/",
+            timeout=timeout,
+            payload={
+                "jsonrpc": "2.0",
+                "id": 1,
+                "method": "initialize",
+                "params": {
+                    "protocolVersion": "2025-03-26",
+                    "capabilities": {},
+                    "clientInfo": {"name": "izmir-mcp-uptime", "version": "1"},
+                },
             },
-        })
+        )
         name = str(init.get("result", {}).get("serverInfo", {}).get("name", ""))
         if "izmir" not in name.lower():
             return "MCP initialize did not return izmir server info"
-        _, listed, _ = _request(base + "/mcp/", timeout=timeout, session=session, payload={
-            "jsonrpc": "2.0", "id": 2, "method": "tools/list", "params": {},
-        })
+        _, listed, _ = _request(
+            base + "/mcp/",
+            timeout=timeout,
+            session=session,
+            payload={
+                "jsonrpc": "2.0",
+                "id": 2,
+                "method": "tools/list",
+                "params": {},
+            },
+        )
         if not listed.get("result", {}).get("tools"):
             return "MCP tools/list returned no tools"
     except (OSError, ValueError, http.client.HTTPException) as exc:

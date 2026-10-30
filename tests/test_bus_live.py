@@ -39,18 +39,21 @@ def _patch(monkeypatch, payload):
 
 @pytest.mark.asyncio
 async def test_line_positions_parse_comma_coordinates(monkeypatch):
-    calls = _patch(monkeypatch, {
-        "HataMesaj": "", "HataVarMi": False,
-        "HatOtobusKonumlari": [
-            {"OtobusId": 11991, "Yon": 0, "KoorY": "27,14515167", "KoorX": "38,35391167"},
-            {"OtobusId": 1, "Yon": 1, "KoorY": "bozuk", "KoorX": "38,1"},
-            None,
-        ],
-    })
+    calls = _patch(
+        monkeypatch,
+        {
+            "HataMesaj": "",
+            "HataVarMi": False,
+            "HatOtobusKonumlari": [
+                {"OtobusId": 11991, "Yon": 0, "KoorY": "27,14515167", "KoorX": "38,35391167"},
+                {"OtobusId": 1, "Yon": 1, "KoorY": "bozuk", "KoorX": "38,1"},
+                None,
+            ],
+        },
+    )
     rows, _ = await EshotConnector(settings=get_settings()).line_positions("5")
     assert calls[0].endswith("/hatotobuskonumlari/5")
-    assert rows == [{"bus_id": 11991, "line": "5", "direction": 0,
-                     "lat": 38.35391167, "lon": 27.14515167}]
+    assert rows == [{"bus_id": 11991, "line": "5", "direction": 0, "lat": 38.35391167, "lon": 27.14515167}]
 
 
 @pytest.mark.asyncio
@@ -106,9 +109,7 @@ async def test_line_is_validated(bad):
 
 @pytest.mark.asyncio
 async def test_line_arrivals_filters_stop_arrivals_by_line():
-    envelope = await BusService(settings=get_settings(), api=FakeApi()).line_arrivals(
-        line="303", stop_id="10030"
-    )
+    envelope = await BusService(settings=get_settings(), api=FakeApi()).line_arrivals(line="303", stop_id="10030")
     assert envelope["ok"] is True
     assert [row["line"] for row in envelope["data"]] == ["303"]
     assert envelope["result_info"]["matched"] == 1

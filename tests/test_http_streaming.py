@@ -86,8 +86,17 @@ async def test_private_targets_refused_before_any_request(monkeypatch, location)
 def test_ip_classification_covers_ipv6_and_mapped_forms():
     assert mod._is_public_ip("93.184.216.34")
     assert mod._is_public_ip("2606:4700::1111")
-    for address in ("10.1.2.3", "100.64.0.1", "::1", "fe80::1", "::ffff:127.0.0.1",
-                    "2002:7f00:0001::", "fc00::1", "224.0.0.1", "0.0.0.0"):
+    for address in (
+        "10.1.2.3",
+        "100.64.0.1",
+        "::1",
+        "fe80::1",
+        "::ffff:127.0.0.1",
+        "2002:7f00:0001::",
+        "fc00::1",
+        "224.0.0.1",
+        "0.0.0.0",
+    ):
         assert not mod._is_public_ip(address), address
 
 

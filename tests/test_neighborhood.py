@@ -58,9 +58,9 @@ async def test_missing_layer_is_null_not_zero():
         async def building_rows(self):
             raise RuntimeError("boom")
 
-    envelope = await NeighborhoodService(
-        settings=get_settings(), api=OnlyPopulation()
-    ).profile(neighborhood="Alsancak", district="Konak")
+    envelope = await NeighborhoodService(settings=get_settings(), api=OnlyPopulation()).profile(
+        neighborhood="Alsancak", district="Konak"
+    )
     assert envelope["ok"] is True
     row = envelope["data"][0]
     assert row["buildings"] is None
@@ -80,9 +80,7 @@ async def test_neighborhood_absent_from_both_layers_is_a_validation_error():
 
 @pytest.mark.asyncio
 async def test_district_lists_neighborhoods_with_data():
-    envelope = await NeighborhoodService(settings=get_settings(), api=FakeApi()).profile(
-        district="Konak"
-    )
+    envelope = await NeighborhoodService(settings=get_settings(), api=FakeApi()).profile(district="Konak")
     assert envelope["ok"] is True
     assert [row["neighborhood"] for row in envelope["data"]] == ["Alsancak"]
 
@@ -90,9 +88,7 @@ async def test_district_lists_neighborhoods_with_data():
 @pytest.mark.asyncio
 async def test_unknown_district_is_rejected():
     with pytest.raises(InputValidationError) as excinfo:
-        await NeighborhoodService(settings=get_settings(), api=FakeApi()).profile(
-            district="Atlantis"
-        )
+        await NeighborhoodService(settings=get_settings(), api=FakeApi()).profile(district="Atlantis")
     assert excinfo.value.field == "district"
 
 
@@ -105,8 +101,6 @@ async def test_all_layers_failing_is_source_unavailable():
         async def population_rows(self):
             raise RuntimeError("boom")
 
-    envelope = await NeighborhoodService(settings=get_settings(), api=Broken()).profile(
-        district="Konak"
-    )
+    envelope = await NeighborhoodService(settings=get_settings(), api=Broken()).profile(district="Konak")
     assert envelope["ok"] is False
     assert envelope["error"]["code"] == "source_unavailable"
