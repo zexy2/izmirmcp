@@ -27,6 +27,9 @@ import urllib.request
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+EXPECTED_TOOL_COUNT = len(
+    json.loads((ROOT / "tests" / "fixtures" / "tool_compatibility_snapshot.json").read_text("utf-8"))
+)
 ACCEPT = "application/json, text/event-stream"
 STARTUP_BUDGET_SECONDS = 45
 REQUEST_TIMEOUT_SECONDS = 15
@@ -208,7 +211,7 @@ def public_mode(checks: Checks) -> None:
             status, tools, _ = request(base, "/mcp/", payload=rpc("tools/list", request_id=2))
             names = [tool["name"] for tool in (tools.get("result") or {}).get("tools", [])]
             checks.check("tools/list 200", status == 200, str(status))
-            checks.check("tools/list non-empty", len(names) == 22, f"{len(names)} tools")
+            checks.check("tools/list non-empty", len(names) == EXPECTED_TOOL_COUNT, f"{len(names)} tools")
             checks.check(
                 "every tool title and schema",
                 all(
@@ -420,7 +423,7 @@ def stdio_mode(checks: Checks) -> None:
         process.stdin.flush()
         tools = send(rpc("tools/list", request_id=2))
         names = [tool["name"] for tool in (tools.get("result") or {}).get("tools", [])]
-        checks.check("stdio: tools/list", len(names) == 22, f"{len(names)} tools")
+        checks.check("stdio: tools/list", len(names) == EXPECTED_TOOL_COUNT, f"{len(names)} tools")
     finally:
         if process.poll() is None:
             process.terminate()
