@@ -1,0 +1,28 @@
+# Local, hardened run of the HTTP transport: docker compose up --build
+services:
+  izmir-mcp:
+    build:
+      context: .
+    image: izmir-mcp:local
+    ports:
+      # Loopback only; put a TLS proxy in front before exposing it further.
+      - "127.0.0.1:8000:8000"
+    environment:
+      IZMIR_MCP_ALLOWED_HOSTS: "localhost,127.0.0.1"
+      IZMIR_MCP_EVENT_LOOP_WATCHDOG_SECONDS: "60"
+      # IZMIR_MCP_API_KEYS: "change-me"   # required before a non-loopback bind
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m
+    volumes:
+      - izmir-data:/data
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    restart: on-failure
+    mem_limit: 1g
+    pids_limit: 256
+
+volumes:
+  izmir-data:

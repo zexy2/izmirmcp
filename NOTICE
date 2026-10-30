@@ -1,0 +1,24 @@
+izmir-mcp
+Copyright (c) zexy2. Licensed under the MIT License (see LICENSE).
+
+This product adapts endpoint lists (paths, layer names and parameter formats)
+from the following Apache License 2.0 projects. No other source code is copied.
+
+1. halilcengel/IzmirMCP — https://github.com/halilcengel/IzmirMCP
+   Apache License 2.0. Used for: tram and ESHOT live bus position
+   endpoint paths (app/connectors/izmir_api.py, app/connectors/eshot.py).
+
+2. AtaCanYmc/izmir-open-data-py — https://github.com/AtaCanYmc/izmir-open-data-py
+   Apache License 2.0. Used for: the ibb/cbs layer allowlist and the events,
+   wholesale market and pharmacy endpoint paths (app/connectors/ibb_cbs.py,
+   app/services/cbs.py).
+
+A copy of the Apache License 2.0 is available at
+https://www.apache.org/licenses/LICENSE-2.0
+
+The İZSU DamWaterStatus endpoint (izsu.gov.tr) was identified independently;
+no code was taken from unlicensed projects (IzmirDamMcp, izmir-ulasim-mcp).
+
+City data belongs to the publishing institutions (İzmir Büyükşehir Belediyesi,
+ESHOT, İZSU, İZBAN, İZDENİZ, İzmir Metro). OpenStreetMap reference points are
+© OpenStreetMap contributors, ODbL 1.0.

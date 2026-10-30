@@ -1,0 +1,17 @@
+# Lint config lives here rather than in pyproject.toml so packaging edits and
+# lint edits do not collide.
+target-version = "py311"
+line-length = 120
+extend-exclude = [".data", "reports", "tests/conformance/node_modules"]
+
+[lint]
+# Correctness and security rules only; style churn is not worth a red CI.
+# Baseline: unused imports (F401/F841/F541) and pyupgrade (UP) still have
+# findings in the tree; enable them once that cleanup lands.
+# S608 is ignored because SQL goes through app/core guarded_sql validation.
+select = ["E9", "F63", "F7", "F82", "B", "S"]
+ignore = ["S101", "S311", "S608", "S110", "B008", "B905"]
+
+[lint.per-file-ignores]
+"tests/**" = ["S", "B"]
+"scripts/**" = ["S310", "S603", "S607"]
