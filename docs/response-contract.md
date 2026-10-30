@@ -79,10 +79,16 @@ engeller. Atıf daima `name` + `publisher` ile yapılır.
 | `error_details` | Her hata zarfı. |
 | `bbox` | `izmir_nearby` ve `izmir_city_services_nearby` `bbox` modu. |
 | `district` | `izmir_nearby` ve `izmir_city_services_nearby` `district` modu. |
-| `radius` | `izmir_city_services_nearby` yarıçap modu. |
+| `radius` | `izmir_nearby` ve `izmir_city_services_nearby` yarıçap modu. |
+| `mobility_nearby` | `izmir_mobility_nearby` ulaşım özeti; sayımlar gösterilen satırlara aittir (`counts_scope=shown`). |
 | `route_detail` | `izmir_bus_routes(detail=true)`. |
-| `published_departures` | `izmir_bus_departures`. |
+| `published_departures` | `izmir_bus_departures` (`stop_id` modu). |
+| `published_departures_near` | `izmir_bus_departures` `lat`/`lon` yarıçap modu. |
+| `stop_candidates` | `izmir_bus_departures(stop_query=...)` durak keşfi; kalkış değildir. |
 | `operator_notices` | `izmir_transport_disruptions`. |
+| `traffic_history` | `izmir_traffic_history`. |
+| `sql` | `izmir_datastore_query`. |
+| `outside_coverage` | `izmir_nearby`/`izmir_mobility_nearby` koordinatı İzmir il sınırları dışında. |
 
 `truncated` **bilinmiyorsa** `result_info` "tam toplam değil" notu bırakır;
 kesilmişse "limit içinde artır veya filtreyi daralt, bu tam toplam değil"
@@ -140,7 +146,7 @@ Zarf sözleşmesi tahmin değil, test edilir:
 
 | Test | Neyi kilitler |
 |---|---|
-| `tests/test_contract_conformance.py` | 17 aracın her biri için `set(payload) == ResponseEnvelope.model_fields`; `result_info.returned == len(data)`; `ok=true` iken `error=null`; `ok=false` iken `scope="error_details"`. |
+| `tests/test_contract_conformance.py` | 22 aracın her biri için `set(payload) == ResponseEnvelope.model_fields`; `result_info.returned == len(data)`; `ok=true` iken `error=null`; `ok=false` iken `scope="error_details"`. |
 | aynı dosya, hata parametreleri | Geçersiz girdi ağa çıkmadan `validation_error` + `error.field` + `temporary=false` döner. |
 | aynı dosya, yeniden oynatma | Kaydedilmiş kaynak yanıtı 503/500 olarak tekrar oynatıldığında her araç ya tipli `source_*` hatası ya da `warnings` taşıyan kısmi sonuç döner; asla exception sızmaz. |
 | `tests/test_discovery_surface.py` | `output_schema` `ResponseEnvelope` şemasıyla aynı alanları ve aynı `required` kümesini taşır; resources/prompts şemaları geçerlidir. |
@@ -149,10 +155,9 @@ Testler konnektörü `httpx.MockTransport` ile değiştirir; ağ yoktur. Bu, **a
 şeklinin ve hata taksonomisinin** doğrulamasıdır, kaynağın bugün aynı veriyi
 yayımladığının kanıtı değildir — o kanıt `scripts/smoke_live.py`'den gelir.
 
-### Bilinen etiket kabalığı
+### 429 etiketi
 
-HTTP 429 kaynak yanıtı hava, ulaşım ve baraj servislerinde
-`source_rate_limited` döner. Katalog, yakınlık, semt pazarı ve duyuru servisleri
-429'u hâlâ `source_unavailable` (`temporary=true`) olarak etiketler. Bu bir kod
-boşluğu değil, etiket tutarsızlığıdır ve `tests/test_contract_conformance.py`
-içinde strict `xfail` ile açıkça izlenir.
+Tüm servisler kaynak arızalarını ortak `source_failure_envelope` yardımcısıyla
+çevirir: HTTP 429 `source_rate_limited`, zaman aşımı `source_timeout`, diğer
+arızalar `source_unavailable`. Üçü de `temporary=true` taşır. Bu etiket
+`tests/test_contract_conformance.py` ile kilitlidir.

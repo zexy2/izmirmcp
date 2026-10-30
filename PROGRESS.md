@@ -1,8 +1,9 @@
 # PROGRESS — İzmir MCP
 
-Son güncelleme: 2026-10-28
-Durum: **17 araç, 333 test (+1 bilinçli xfail), canlı smoke yeşil.** Mission:
-upstream parity (olabildiğince, İzmir verisi olan kadarıyla).
+Son güncelleme: 2026-10-30
+Durum: **22 araç**, 613 test yeşil, canlı smoke 37/37, UAT 24/24, protokol smoke
+32/32. Mission: upstream istanbulmcp parity (İzmir'in gerçekten yayımladığı veri
+kadarıyla).
 
 Bu dosya döngünün hafızasıdır. Her pass sonunda güncellenir.
 
@@ -16,231 +17,191 @@ Bu dosya döngünün hafızasıdır. Her pass sonunda güncellenir.
 | GTFS tarifesi | `izmir_bus_departures` (SQLite stop_times), `izmir_bus_routes(detail=true)` | `0db0421` |
 | Alan modları | `izmir_nearby` ve `izmir_city_services_nearby` bbox + ilçe | `0db0421` |
 | HTTP sertleştirme | gövde tavanı, hız sınırı, eşzamanlılık, auth, CORS, log, gerçek `/readyz` | `27f1177` |
-| P1 operatör duyuruları | Metro + İZDENİZ duyuruları bağlandı; İZBAN kanıtla unavailable | `be740c0` |
-| P2 paketleme | Dockerfile + .dockerignore + entrypoint, server.json, CI, CHANGELOG, console script | `5097c3d` |
-| P3 dokümantasyon | `docs/` beş belge + `tests/test_docs.py` kilit testleri | `ca18f3f` |
-| P5 mahalle envanteri | 24 → 1.219 mahalle referansı (muhtarlıklar), `place_district` ile belirsizlik çözümü | bu pass |
-| P4 sözleşme + güvenlik | zarf conformance (17 araç), keşif yüzeyi şeması, auth/origin/gövde/XFF testleri; 3 serviste sızan kaynak hatası ve XFF liste atlatması düzeltildi; tüm servislerde 429→`source_rate_limited` | bu pass |
+| P1 operatör duyuruları | Metro + İZDENİZ duyuruları; İZBAN kanıtla unavailable | `be740c0` |
+| P2 paketleme | Dockerfile, server.json, CI, CHANGELOG, console script | `5097c3d` |
+| P3 dokümantasyon | `docs/` belge seti + `tests/test_docs.py` kilitleri | `ca18f3f` |
+| P4 sözleşme + güvenlik | zarf conformance, keşif yüzeyi, auth/origin/gövde/XFF testleri | `e2c89fb` |
+| P5 mahalle envanteri | 24 → 1.219 mahalle; `place_district` belirsizlik çözümü | `e2c89fb` |
+| P6–P9 | GTFS durumu, mahalle profili, query search/sort, taksi durakları | `e2c89fb` |
+| P10 protokol smoke | `scripts/smoke_mcp.py` 32+ kontrol, CI'da bloklayan | `710b64f` |
+| P11 altyapı parity | RTree, kalıcı kota, resmî conformance, 404/500 kanıt raporu | `e2c89fb` |
+| P12 core parity | telemetri, gerçek readiness, JSON-RPC kapısı, repair, kaynak limitleri | `1e2557f` |
+| P13 sertleştirme | güvenlik ve kırmızı takım bulguları, sınır probe'ları | `8a539bb` |
+| P14 trafik/şarj/bulanık arama | `izmir_traffic_history`, `charging_station`, fuzzy durak, Retry-After | bu pass |
+| P15 yerel SQL | `izmir_datastore_query`: tam kopya + izole SQLite + deny-by-default guard | bu pass |
+| P16 kalkış modları | `izmir_bus_departures`: `stop_query` keşfi + `lat`/`lon` yarıçap birleştirmesi | bu pass |
+| P17 ulaşım özeti | `izmir_mobility_nearby`: tek zarfta tür başına sayımlı ulaşım noktaları | bu pass |
+| P18 sahiplik + kesilme | `GeoIndex` depolama katmanında; üç mod tek zarf yolunda; yarıçap/mobility `matched` bildirir | bu pass |
+| P19 trafik tazeliği + hacim | `source_updated_at` en yeni ölçümden; filtresiz küçük `limit` tek sayfa | bu pass |
 
-## P12 — Core parity (telemetri, readiness, JSON-RPC, repair, kaynak limitleri) ✅ TAMAMLANDI
+## P19 — Trafik tazeliği ve okuma hacmi ✅ TAMAMLANDI
 
-Upstream'de olup bizde olmayan beş core modülü tamamlandı.
+Denetim iki kusur ölçtü: tazelik yeniden indirme zamanından "fresh" diyordu
+(`source_updated_at=null`, en yeni ölçüm 8 günlük) ve filtresiz `limit=2`
+soğuk çağrısı 18.731 satırı 19 sayfada indirip 6,87 sn sürüyordu.
 
-- **`core/tool_telemetry.py`** — araç başına çağrı/hata/kod/p50/p95, 256 örnek
-  sınırı, en fazla 64 araç. Girdi ve yanıt metni asla saklanmaz. `structured.py`
-  sarmalayıcısına bağlandı; `/status` içinde `tools_telemetry`.
-- **`core/status.py`** — gerçek readiness: `tool_surface`, `timetable_store`,
-  `database_directory`. `absent` normaldir, `broken` değildir. `/readyz` detay
-  sızdırmaz (kimlik istemez), `/status` detaylı verir.
-- **`core/mcp_transport.py`** — JSON-RPC ön kapısı: `-32700`/`-32600`, batch ve
-  bildirim desteği, SDK'ya ulaşmadan red.
-- **`core/error_responses.py` + `Repair`** — `validation_error` artık
-  `error.repair` (next_step, tool, constraint) taşıyor; alan başına 20 ipucu.
-- **`core/source_limits.py`** — kaynak başına token bucket; İZTEK'in elle
-  yazılmış throttle'ı bu sisteme taşındı. `SourceRateLimitExceeded` →
-  `source_rate_limited`.
-- **`docs/browser-cors.md`** eklendi (doküman 13), `monitoring.md` genişletildi.
+- `freshness.source_updated_at` artık kaynağın en yeni yayımlanmış ölçümü;
+  `limits` içinde `en_yeni_olcum=`, `tazelik_kaynagi=`, `veri_yasi_saat=` ve
+  `stale_after_hours=` var. Eşik `IZMIR_MCP_TRAFFIC_STALE_AFTER_HOURS`
+  (varsayılan 72 saat); eski veri `stale`, çözümlenemeyen zaman `unknown`.
+- `CityLayerConnector.traffic_recent(limit)`: CKAN'da `TARIH desc, SAAT desc`
+  sıralı tek sayfa + `include_total=true`. Filtresiz küçük `limit` artık 0,34 sn
+  (ölçüldü), `matched` kaynağın `total` alanından (18.731) geliyor.
+- `segment`/`since`/`until` filtreleri tam taramada kaldı: eşleşme veri setinin
+  herhangi bir yerinde olabilir ve CKAN substring/aralık filtresi ifade
+  edemiyor; bu yüzden filtrelenmiş `matched` ve sıralama değişmedi.
 
-437 test (47 yeni), CI'da act ile doğrulanacak.
+## P18 — Alan sorgusu sahipliği ve kesilme sözleşmesi ✅ TAMAMLANDI
 
-## P11 — Altyapı parity (storage + conformance + doküman) ✅ TAMAMLANDI
+Denetim üç kusuru kanıtladı: yarıçap modu `rows[:limit]` ile sessizce
+kesiyordu (`result_info.matched = null`), üç mod aynı zarf bloğunu kopyalıyordu
+ve RTree yaşam döngüsü serviste, SQLite ise depolamadaydı.
 
-- **`app/storage/db.py`** — paylaşılan SQLite bootstrap: WAL, `user_version`,
-  RTree şeması. RTree yoksa açıkça hata verir.
-- **`app/storage/geo.py`** — `GeoStore`: RTree ile yarıçap ve dikdörtgen
-  sorgusu. `izmir_nearby` artık her çağrıda tüm katmanı belleğe almıyor;
-  sıcak indekste kaynak **hiç** çağrılmıyor (ölçüm: 0,003 sn).
-  Boş indeks yazımı reddedilir; bozuk DB `GeoStoreError` verir.
-- **`app/storage/quota.py`** — kalıcı günlük kota; restart'a dayanıklı,
-  fail-closed. `IZMIR_MCP_API_KEY_DAILY_QUOTA` ile açılır.
-- **`scripts/check_mcp_conformance.py`** — resmî
-  `@modelcontextprotocol/conformance@0.1.16` paketiyle 5 senaryo
-  (initialize, ping, tools-list, resources-list, prompts-list). Kanıt
-  `checks.json` + `summary.json`; boş/eksik kanıt fail-closed.
-- **Doküman 10 → 12**: `source-reachability-analysis.md` (tüm 404/500/HTML
-  kanıtları tek yerde), `api-access.md` (anahtar, kota, rotasyon).
-- `server.json` ve `docs/registry.md` adresleri `zexy2`'ye düzeltildi.
-- CI: Node kurulumu + resmî conformance adımı (bloklayan).
+- `GeoIndex` (`app/storage/geo.py`): indeksin kapsamı, yaşı, `built_at` damgası
+  ve yeniden kurma politikası artık depolama katmanında. Yükleyiciler servis
+  tarafından enjekte edilir; depolama konnektör veya kullanıcı metni import
+  etmez. `NearbyService._layers` yalnızca sonucu kaynak/uyarıya çevirir.
+- Üç mod tek `_cut` + `_envelope` yolunda: kesilme tek sahip. Yarıçap ve
+  `izmir_mobility_nearby` artık `matched`/`truncated` bildirir; özet kesilince
+  "İlk sonuçlar gösteriliyor." der. Mobility ayrıca "Toplam N eşleşmeden ilk M".
+- Soğuk indekste çift fetch kaldırıldı: eski yol `_collect` ile bir kez, sonra
+  `refresh_index` ile aynı katmanı ikinci kez okuyordu. Yeni yol tek okuma.
+- `_maps_url` dört kopyadan `app.core.geo.maps_url`'e taşındı; `NearbyType`
+  `SUPPORTED_TYPES`'tan türetiliyor; ölü `_ensure_index` silindi.
 
-**Yan bulgular:** (1) Testler geliştiricinin gerçek `.data/` indeksini okuyordu;
-`conftest.py`'ye env tabanlı DB izolasyonu eklendi. (2) Kaynak yanıt verip
-koordinatlı satır döndürmediğinde `izmir_nearby` yanlışlıkla
-`source_unavailable` diyordu; artık boş sonuç + uyarı.
+## P17 — `izmir_mobility_nearby` ✅ TAMAMLANDI
 
-## P10 — Protokol smoke ve doküman seti ✅ TAMAMLANDI
+Upstream `istanbul_mobility_nearby` kompozit cevabının İzmir karşılığı.
+Uydurma yok, kopya yok: `NearbyService.mobility()` `nearby()` üzerine ince bir
+ön ayardır — aynı mekânsal indeks, aynı satır şekli, aynı hata taksonomisi.
 
-- `scripts/smoke_mcp.py`: gerçek sunucuyu başlatıp MCP tel protokolünü sınar;
-  **üçüncü taraf API'ye çıkmaz**, bu yüzden CI'da bloklar. 32 kontrol: el
-  sıkışma, yüzey, kaynak okuma, zarf, şema reddi, yerel doğrulama, auth,
-  origin, stdio.
-  `smoke_live.py` servis katmanını canlı kaynaklara karşı sınar ve bloklamaz —
-  iki script farklı iş yapar.
-- Doküman seti 5 → **10**: `mcp-interface.md`, `privacy.md`, `registry.md`,
-  `place-resolution.md`, `gtfs-schedule.md` eklendi. Hepsi `tests/test_docs.py`
-  ile koda karşı kilitli.
-- CI'ya çevrimdışı protokol smoke'u eklendi (bloklayan adım).
+- Katmanlar: metro, İZBAN, vapur iskelesi, ESHOT durağı, taksi durağı, şarj
+  istasyonu, otopark (`MOBILITY_TYPES`). Eczane/WiFi/kart/kütüphane bu sorunun
+  cevabı değil, dışarıda.
+- `summary` tür başına sayım verir ("3 otobüs durağı, 1 metro istasyonu…");
+  `counts_scope=shown` sayımların `limit` sonrası gösterilen satırlara ait
+  olduğunu söyler (ilçe toplamı değil).
+- En yakın otobüs durağı varsa `next_queries` doğrudan
+  `izmir_bus_departures(stop_id=…)` ve `izmir_bus_arrivals(stop_id=…)` önerir.
+- Kapsam dışı bileşenler `warnings`'te açıkça yazılır: hava kalitesi istasyonları
+  (İzmir kaynağı koordinat yayımlamıyor) ve canlı trafik indeksi (404).
+- İl sınırı dışı koordinat `outside_coverage` olarak, kaynağa hiç gidilmeden döner.
 
-**Yan bulgu:** README ve `deployment.md` hâlâ "17 araç" diyordu; 19'a göre
-düzeltildi. Doküman drift'i gerçekti.
+Testler: `tests/test_mobility.py` (7 test: mod gruplaması, özet etiketleri,
+ulaşım dışı katmanların dışlanması, dürüst kapsam uyarıları, kalkış önerisi, il
+dışı, hepsi başarısız → `source_unavailable`), `tests/test_mcp_surface.py` şema
+ve `place`+`lat` reddi. `izmir://coverage` kaynağına `mobility` yeteneği eklendi.
 
-## Sırada (öncelik sırasıyla)
+## P16 — `izmir_bus_departures` keşif ve yarıçap modları ✅ TAMAMLANDI
 
-### P1 — Çok operatörlü ulaşım aksaklıkları ✅ TAMAMLANDI
-Metro (`metrotramapi.iztek.tr/api/v1/announcements`) ve İZDENİZ
-(`coreapi.izdeniz.com.tr/api/v1/announcements`) bağlandı. İZBAN'ın erişilebilir
-akışı yok (302→FileNotFound, 404); `operator="izban"` açık `source_unavailable`.
-Kanıt: `reports/operator-duyuru-kaynaklari.md`.
+Upstream `istanbul_next_departures` üç hedef modu destekliyor; İzmir karşılığı
+artık aynı yüzeye sahip:
 
-### P2 — Paketleme ve yayın hazırlığı ✅ TAMAMLANDI
-Dockerfile (digest pinli slim, root olmayan kullanıcı, `/data` hacmi, çalışma
-anında GTFS kurulumu), `.dockerignore`, `docker/entrypoint.sh`, `server.json`,
-`.github/workflows/ci.yml`, `CHANGELOG.md`, `izmir-mcp` / `izmir-mcp-stdio`
-console script'leri.
+- `stop_id`: tek durak (önceki davranış **değişmedi**).
+- `stop_query`: durak adından kimlik keşfi. Kalkış **döndürmez**; adaylar
+  `match=exact|fuzzy` ile etiketlenir, tarife deposu hiç açılmaz. Aynı ada sahip
+  duraklar ayrı satır kalır, ilki otomatik seçilmez.
+- `lat`+`lon` (+`radius_m`, varsayılan 500 m, en yakın 25 durak): yarıçaptaki
+  durakların kalkışları **tek zaman sırasında** birleşir. Satırlar `stop_id`,
+  `stop_name`, kuş uçuşu `distance_m` taşır; `limit` tüm küme için toplamdır.
+  Yarıçapta durak yoksa tarife deposu açılmaz (boş `data` + uyarı).
+- Modlar birbirini dışlar; `line` yalnızca kalkış modlarında, `at` yalnızca
+  kalkış modlarında geçerlidir (`stop_query` ile reddedilir).
 
-**Doğrulandı (2026-10-28):** imaj gerçekten derlendi ve çalıştırıldı
-(`izmir-mcp:local`, 276 MB, arm64). Konteyner `healthy`; 19 araç; `/healthz`,
-`/readyz`, `/status` 200; `/mcp/` Streamable HTTP çalışıyor; GTFS deposu
-konteyner içinde kuruldu (2.108.736 stop_times); non-root `uid=10001`; `/data`
-hacmi yazılabilir; stdio transport konteyner içinde el sıkışıyor; auth açıkken
-`401/200` doğru.
+Depo tarafında tek SQL, `stop_id IN (...)` ile gün başına `departure_sec`
+sırasında okur (`GtfsScheduleStore.departures_at_stops`). Tek duraklı
+`departures()` bu metodun ince sarmalayıcısıdır; böylece GTFS SQL sahibi tek
+modül kalır. Durak adı eşleştirme (`_match_stop_query`) `izmir_bus_stops` ile
+ortaktır.
 
-**Bu doğrulamada bulunan gerçek hata:** `pyproject.toml` hem `packages = ["app"]`
-hem `force-include "app/data"` içeriyordu. Editable kurulum bunu gizliyordu ama
-gerçek wheel üretimi `ValueError: A second file is being added to the wheel
-archive: app/data/neighborhoods.json` ile ölüyordu — yani `pip install .`
-(Dockerfile'ın tek kurulum adımı) her ortamda bozuktu. `force-include` kaldırıldı
-ve `tests/test_packaging.py::test_wheel_can_actually_be_built` bu sınıf hatayı
-statik olarak kilitliyor.
+Testler: `tests/test_bus_departures.py` (+11 test: birleşik sıralama, boş liste
+reddi, keşif modu, fuzzy etiketi, ad sıralaması, yarıçap birleştirmesi, duraksız
+yarıçap, mod çakışmaları, `at`/`line` reddi, koordinat/yarıçap doğrulaması) ve
+`tests/test_mcp_surface.py` şema kilidi. Canlı: `scripts/smoke_live.py` iki yeni
+kontrol, `scripts/live_mcp_uat.py` iki yeni kullanıcı sorusu (bugün: smoke 36/36,
+UAT 24/24).
 
-### P3 — Dokümantasyon seti (`docs/`) ✅ TAMAMLANDI (P10'da 10'a çıkarıldı)
-- `response-contract.md` — zarf alanları, hata taksonomisi, `result_info` scope'ları.
-- `tool-reference.md` — 17 aracın girdi şeması (canlı `input_schema`'dan) ve
-  davranış sözleşmesi.
-- `deployment.md` — 38 env değişkeni, auth, CORS, guard kodları, Docker, CLI.
-- `sources.md` — kanonik `Source.name` tablosu, uçlar, durum, lisans (ODbL).
-- `monitoring.md` — `/healthz`, `/readyz`, `/status`, guard kodları, log formatı.
-- `tests/test_docs.py` — belgeleri koda karşı kilitler: zarf alanları, hata
-  kodları, scope'lar, araç girdileri, env değişkenleri, kaynak adları, uçlar ve
-  log alanları koddan türetilir. Doc drift'i testi kırar.
+Ad araması artık birebir eşleşmeyi öne alır: `Konak` sorgusu "Güzel Konak"
+arkasında kalmaz; sıra (birebir, önek, iç geçiş) ve `izmir_bus_stops` ile
+ortaktır.
 
-### P4 — Sözleşme ve güvenlik testleri ✅ TAMAMLANDI
-- `tests/test_contract_conformance.py` — 17 aracın her biri için zarf alan
-  kümesi/tipi ve `result_info` tutarlılığı. Konnektör `httpx.MockTransport` ile
-  değiştirilir: ilk koşum gerçek yanıtı kaydeder, ikinci koşum onu yeniden
-  oynatır. Geçersiz girdi ağa hiç çıkmaz. Kaydedilen yanıt 503/500'e çevrilerek
-  her araç için hata taksonomisi sınanır. Sağlık aracı yereldir (ağ yok).
-- `tests/test_discovery_surface.py` — tools/resources/prompts şema geçerliliği,
-  çıktı şeması = `ResponseEnvelope`, `required` kümesi eşleşmesi, handler
-  varsayılanları, kaynak listesinin gizli bilgi/API ucu sızdırmaması, prompt
-  argümanlarının JSON verisi olarak kodlanması ve güvensiz değerlerin reddi.
-- `tests/test_http_security.py` — auth (10 şema/uzunluk/çift başlık varyantı, üç
-  korumalı yol, 10 yol kodlama varyantı), origin (8 bypass varyantı, çift başlık,
-  auth'tan önce 403, preflight), gövde tavanı (Content-Length, chunked, sahte
-  uzunluk, tüm guard'lı metotlar), XFF spoofing (public bind, liste, yinelenen
-  başlık, `X-Real-IP`/`Forwarded`/`CF-Connecting-IP`) ve log hijyeni.
-- `tests/test_service_source_errors.py` — servis katmanı kaynak hatasını yutar,
-  programlama hatasını yutmaz.
-- Katalog, pazar ve duyuru servisleri de artık ortak `source_failure_envelope`
-  kullanıyor: HTTP 429 her yerde `source_rate_limited`. P4 turunda açık kalan
-  tek boşluk buydu; kapatıldı ve `xfail` gerçek iddiaya çevrildi.
+## P15 — `izmir_datastore_query` ✅ TAMAMLANDI
 
-**Bu pass'te bulunan ve düzeltilen iki gerçek hata:**
-1. `izmir_air_quality`, `izmir_transit_stations`/`izmir_transit_schedule` ve
-   `izmir_water_status(kind="dams")` konnektör hatasını zarfa çevirmiyordu;
-   MCP `UnexpectedToolError` sızıyordu (AGENTS kural 2 ihlali). Düzeltme:
-   `app/services/sources.py` içine `source_failure_envelope` +
-   `is_source_failure`; üç servis bu sarmalayıcıyı kullanır.
-2. `_client_id` loopback bind'de virgüllü `X-Forwarded-For` listesinin ilk öğesini
-   güveniyordu; tek bağlantıdan istek başına yeni kimlik üretip hız sınırı
-   atlatılabiliyordu. Düzeltme: yalnızca tek başlık + tek bare değer güvenilir.
+Upstream'in `istanbul_datastore_query` aracının İzmir karşılığı. Bu portalda
+`datastore_search_sql` yok (`"Action name not known"`); bu yüzden araç sunucu
+tarafı SQL **değildir**:
 
-**P4'te açık kalan boşluk kapatıldı:** katalog, pazar ve duyuru servisleri HTTP
-429'u `source_unavailable` diye etiketliyordu. Artık üçü de ortak
-`source_failure_envelope` kullanıyor; strict `xfail` gerçek iddiaya çevrildi.
+- Yalnızca `IZMIR_MCP_CKAN_SQL_ALLOWED_RESOURCE_IDS` listesindeki kaynaklar.
+- Kaynak tam olarak sayfalanır (`_id asc`, `include_total`); toplam, şema ve
+  `_id` sırası her sayfada doğrulanır.
+- Kopya `ckan_sql_max_rows` (50.000) ve `ckan_sql_max_bytes` (20 MiB) ile sınırlı.
+  Aşım/oynama → `source_unavailable`; **kısmi toplam yok**.
+- Sorgu ayrı bellek içi SQLite'ta; yalnızca `records` tablosu, tek SELECT, JOIN /
+  alt sorgu / CTE / UNION / pencere / yazma / allowlist dışı fonksiyon yok.
+- SQLite authorizer deny-by-default; `sqlite_master`, `ATTACH`, `PRAGMA`,
+  `load_extension`, `readfile` reddedilir.
+- Sonuç 256 KiB, 2.000.000 VM adımı ve 0,5 sn ile sınırlı.
+- `tests/test_guarded_sql.py` (17 test) ve `tests/test_datastore_sql.py` (9 test).
 
-### P9 — Taksi durakları (`izmir_nearby`) ✅ TAMAMLANDI
-Upstream'in `mobility_nearby` aracı bizde yoktu; İzmir'de moto-taksi/kültür
-merkezi katmanı doğrulanamadı ama **taksi durakları** gerçek ve koordinatlı.
-Yeni araç açmak yerine `izmir_nearby`'ye `taxi_stand` tipi eklendi (upstream de
-mobiliteyi ayrı bir nearby aracında topluyor). `types` üst sınırı 6 → 7.
+Canlı doğrulama (2026-10-29): ESHOT durak kaynağı **11.965 satır**, 12 sayfa,
+**1.690.495 wire byte**; `SELECT COUNT(*)` → `11965`. Kısmi kopya yok.
 
-### P8 — `izmir_query_resource` arama + sıralama ✅ TAMAMLANDI
-Sunucu `q` ve `sort` destekliyordu ama araç yalnızca `filters` kullanıyordu.
-Artık `search` (serbest metin, SQL değil) ve `sort` (`KOLON [asc|desc]`) var;
-ikisi de ağa çıkmadan doğrulanır ve kolon adı şemaya karşı kontrol edilir.
-Canlı ölçüm: pazar yerlerinde `search=Konak` 14 eşleşme (filtre 13).
+## P14 — Trafik geçmişi, şarj istasyonu, bulanık durak, Retry-After ✅
 
-Yan bulgu: kaynak önbelleği süreç-global olduğu için testler sıraya bağımlıydı;
-`conftest.py`'ye autouse cache izolasyonu eklendi.
-
-### P7 — `izmir_neighborhood_profile` (parity) ✅ TAMAMLANDI
-Upstream'in `istanbul_neighborhood_profile` karşılığı. İzmir'de birebir aynı üç
-katman (sosyal yardım / bina stok / deprem senaryosu) yok; bunun yerine
-yayımlanmış **nüfus** (1.297) ve **bina sayısı** (1.295) katmanları birleştirildi.
-Eksik katman null döner (sıfır değil). Yıllar ayrı yayımlandığı için `*_year`
-null bırakılır, uydurulmaz.
-
-### P6 — `izmir_gtfs_status` (parity) ✅ TAMAMLANDI
-Upstream'in `istanbul_gtfs_snapshot_status` karşılığı. Yerel depoyu ağa
-çıkmadan raporlar; takvim eskimesini, satır sayılarını ve kurulum zamanını
-açıkça döndürür. Depo yoksa `source_unavailable`, boş tarife değil.
-
-### P5 — Yer çözümleme derinleştirme ✅ KISMEN TAMAMLANDI
-Mahalle envanteri 24 → 1.219 (muhtarlıklar), `place_district` ile belirsizlik
-çözümü, Türkçe'ye duyarlı ad normalizasyonu. Lanetli boşluk kapatıldı.
-
-**Serbest metin adres geocoding yapılmayacak (karar):** İzmir'de resmî
-makine-okunur geocoding ucu yok (`ibb/cbs/adres*` → 404), upstream'de de yok.
-Nominatim'i birincil geocoder yapmak kullanım politikası, önbellek ve hız
-sınırı yükü getirir; yayımlanmış envanter (30 ilçe + 1.219 mahalle) İzmir
-sorgularının çoğunu karşılıyor. Bu bilinçli bir sınır, eksik değil.
+- `izmir_traffic_history`: 18.731 ana arter ölçümü (2020-06 → 2026-10).
+  **Geçmiş** veridir; canlı trafik indeksi yoktur (`/api/ibb/trafikyogunluk` 404).
+- `izmir_nearby(types=["charging_station"])`: 48 engelli şarj istasyonu.
+- `izmir_bus_stops(query=...)`: tek harf yazım hatasında fuzzy eşleşme; sonuç
+  `match="exact"|"fuzzy"` ile etiketlenir, uydurma durak yok.
+- HTTP 429 `Retry-After` başlığı `SourceRateLimitedError.retry_after_seconds`
+  içinde korunur; hemen yeniden denenmez.
+- `scripts/live_mcp_uat.py`: 23 gerçek kullanıcı sorusu, MCP üzerinden.
 
 ## Parity tablosu (upstream → izmirmcp)
 
-Son durum: **19 araç**, upstream'in 16 aracından gerçek veri karşılığı olanların
-tamamı karşılandı.
+Son durum: **22 araç**. Upstream'in 16 aracından İzmir'de gerçek veri karşılığı
+olanların tamamı karşılandı.
 
 | Upstream aracı | izmirmcp karşılığı | Durum |
 |---|---|---|
 | `health` | `izmir_health` | ✅ |
 | `search_datasets` / `get_dataset` / `get_resource_schema` | aynı adlar | ✅ |
 | `query_resource` | `izmir_query_resource` (+ `search`, `sort`) | ✅ daha geniş |
-| `nearby` | `izmir_nearby` (+ bbox/ilçe/taksi) | ✅ daha geniş |
-| `mobility_nearby` | `izmir_nearby(types=["taxi_stand"])` | ✅ kısmi (taksi) |
+| `datastore_query` (SQL) | `izmir_datastore_query` (tam yerel kopya) | ✅ |
+| `nearby` | `izmir_nearby` (+ bbox/ilçe/şarj/taksi) | ✅ daha geniş |
+| `mobility_nearby` | `izmir_mobility_nearby` (7 ulaşım katmanı, tür sayımlı) | ✅ hava kalitesi/canlı trafik kapsam dışı |
 | `city_services_nearby` | `izmir_city_services_nearby` (+ bbox/ilçe) | ✅ daha geniş |
 | `neighborhood_profile` | `izmir_neighborhood_profile` | ✅ farklı katmanlar |
 | `market_schedule` | `izmir_market_schedule` | ✅ |
 | `water_status` | `izmir_water_status` | ✅ (arıza kanıtlı 500) |
 | `transport_disruptions` | `izmir_transport_disruptions` (4 operatör) | ✅ |
 | `transit_line` | `izmir_bus_routes(detail=true)` | ✅ otobüs; metro/İZBAN hat detayı yok |
-| `traffic_status` | — | ❌ `404`, kaynak yok |
-| `metro_accessibility_status` | — | ❌ `metro/ekipmanlar` `404` |
-| `datastore_query` (SQL) | — | ❌ `datastore_search_sql` bu CKAN'da yok |
-
-**Yalnız izmirmcp'de olanlar:** `izmir_air_quality`, `izmir_transit_stations`,
-`izmir_transit_schedule`, `izmir_bus_stops`, `izmir_bus_arrivals`,
-`izmir_bus_departures`, `izmir_bus_routes`, `izmir_gtfs_status`.
+| `next_departures` (stop_id + ad keşfi + koordinat) | `izmir_bus_departures` (`stop_id`/`stop_query`/`lat`+`lon`) | ✅ |
+| `traffic_status` | `izmir_traffic_history` | ✅ geçmiş; canlı yok |
+| `metro_accessibility_status` | — | ❌ `metro/ekipmanlar` 404 |
+| — | `izmir_air_quality`, `izmir_transit_stations`, `izmir_transit_schedule`, `izmir_bus_stops`, `izmir_bus_arrivals`, `izmir_bus_departures`, `izmir_bus_routes`, `izmir_gtfs_status`, `izmir_traffic_history`, `izmir_datastore_query` | yalnız bizde |
 
 ## Bilinçli boşluklar (yapılmayacak, kanıtlı)
 
 | Upstream yeteneği | İzmir durumu |
 |---|---|
-| Şehir geneli trafik indeksi | `ibb/trafikyogunluk` → 404. Yalnız geçmiş XLSX + 2023 kamera listesi var. |
+| Şehir geneli canlı trafik indeksi | `ibb/trafikyogunluk` → 404. Yalnız geçmiş segment verisi var. |
 | Metro ekipman/erişilebilirlik | `metro/ekipmanlar`, `metro/arizalar` → 404. |
-| İZSU arıza akışı | `izsu/arizakaynaklisukesintileri` → 500. `kind=faults` açıkça unavailable. |
+| İZSU arıza akışı | `izsu/arizakaynaklisukesintileri` → 500. `kind=faults` unavailable. |
 | Sosyal tesis nearby | "Sosyal tesis" adıyla yayımlanmış veri seti yok. |
-| Sınırlı SQL (datastore_query) | **Bu CKAN'da sunucu tarafı yok**: `datastore_search_sql` → `"Action name not known"` (2026-10-28). Upstream'in kendi yaklaşımı (tam snapshot + yerel SQLite + allowlist) 20 MiB'a kadar kopya, ayrı bir altyapı ve kendi enjeksiyon yüzeyini gerektirir. Yalnızca güvenli `filters` + limit sunuluyor; bu bilinçli bir güvenlik tercihi. |
-| Legacy araç alias'ları | Yayımlanmış eski ad yok; alias gereksiz. |
-| İZDENİZ GTFS | ZIP HTML dönüyor; mevcut openapi sefer araçları kullanılıyor. |
-| İZBAN GTFS | 2023 feed, takvim 2025-01-01'de bitti; güncel değil. |
-| İZBAN duyuruları | RSS ve tüm `Single.aspx` sayfaları 302→FileNotFound; metrotramapi'de yol 404. `unavailable`. |
+| İZBAN duyuruları | RSS/Single sayfaları 302→FileNotFound; yol 404. |
+| İZBAN GTFS | 2023 feed; takvim 2025-01-01'de bitti. |
+| İZDENİZ GTFS | ZIP `text/html` dönüyor. |
+| Serbest metin adres geocoding | Resmî makine-okunur uç yok; yayımlanmış 30 ilçe + 1.219 mahalle kullanılıyor. |
+| Metro/İZBAN hat detayı | Yayımlanmış hat-üstü durak sırası yok; istasyon listesi ve tarife var. |
+| `city_feature` birleşik türü | Ayrı araçlar ve `types` seçimiyle karşılanıyor; ayrı alias açılmadı. |
 
 ## Bilinen riskler
 
-- GTFS SQLite deposu (`.data/`, ~141 MB) git dışında; ilk kalkış sorgusu
-  birkaç saniye sürer. `.data/` yoksa yeniden kurulur.
+- GTFS SQLite deposu (`.data/`, ~141 MB) git dışında; ilk kalkış sorgusu birkaç
+  saniye sürer. `.data/` yoksa yeniden kurulur.
 - Hız sınırı ve sayaçlar süreç içi; çok işçili dağıtımda işçi başına bütçe.
 - Lisans: depoda LICENSE yok. Upstream'de de yok. Yayımlamadan önce karar gerekli.
-- Docker imajı yerelde derlenip çalıştırıldı, ancak `ghcr.io` registry'sine
-  push yapılmadı; `server.json` içindeki `ghcr.io/batu1-1an/izmir-mcp:0.1.0`
-  imajı henüz yayımlanmadı.
+- Docker imajı yerelde derlenip çalıştırıldı; `ghcr.io` push'u yapılmadı.
+- GitHub Actions bulut CI'sı kullanıcı hesabındaki ödeme hatası nedeniyle
+  başlamıyor; CI yerelde `act` ile iki job için de geçti.

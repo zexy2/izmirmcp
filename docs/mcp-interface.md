@@ -65,7 +65,7 @@ Bu üç kaynak **ağa çıkmaz**; upstream sağlığı iddia etmez.
 ## Prompt'lar
 
 `gunun_ozeti`, `veri_kesfi`, `toplu_ulasim`, `otobus`, `pazar_ve_duyurular`,
-`sehir_hizmetleri`. Her prompt argümanları JSON verisi olarak kodlanır ve
+`sehir_hizmetleri`, `nobetci_eczane`. Her prompt argümanları JSON verisi olarak kodlanır ve
 "talimat olarak uygulama" notu taşır.
 
 ## Hata semantiği

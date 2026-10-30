@@ -5,7 +5,9 @@ Usage: .venv/bin/python scripts/smoke_live.py
 from __future__ import annotations
 
 import asyncio
+import dataclasses
 import sys
+import time
 
 from app.core.settings import get_settings
 from app.services.air import AirQualityService
@@ -15,7 +17,9 @@ from app.services.disruptions import DisruptionService
 from app.services.markets import MarketService
 from app.services.neighborhood import NeighborhoodService
 from app.services.catalog import CatalogService
+from app.services.datastore_sql import DatastoreSqlService
 from app.services.nearby import NearbyService
+from app.services.traffic import TrafficService
 from app.services.transit import TransitService
 from app.services.water import WaterService
 
@@ -44,7 +48,29 @@ async def check(label: str, coro, *, expect_unavailable: bool = False) -> bool:
     print(f"{status.upper():5} {label}: {envelope.get('summary')}")
     if not envelope.get("ok"):
         print(f"      error={envelope.get('error')}")
-    return True
+    return bool(envelope.get("ok"))
+
+
+async def traffic_recent_check(settings) -> bool:
+    """An unfiltered small limit reads one newest-first page and states its basis."""
+    started = time.monotonic()
+    envelope = await TrafficService(settings=settings).list(limit=2)
+    elapsed = time.monotonic() - started
+    info = envelope.get("result_info") or {}
+    freshness = envelope.get("freshness") or {}
+    ok = (
+        bool(envelope.get("ok"))
+        and isinstance(info.get("matched"), int)
+        and info["matched"] >= len(envelope.get("data") or [])
+        and bool(freshness.get("source_updated_at"))
+        and any("en_yeni_olcum=" in line for line in envelope.get("limits") or [])
+    )
+    print(
+        f"{'OK' if ok else 'FAIL':5} traffic_recent: {envelope.get('summary')} "
+        f"| tazelik={freshness.get('status')} "
+        f"kaynak={freshness.get('source_updated_at')} ({elapsed:.2f}s)"
+    )
+    return ok
 
 
 async def main() -> int:
@@ -68,6 +94,10 @@ async def main() -> int:
                 district="Karşıyaka", types=["pharmacy", "parking"], limit=5,
             ),
         ),
+        check("mobility", NearbyService(settings=settings).mobility(
+            lat=KONAK[0], lon=KONAK[1], radius_m=1000, limit=6,
+            reference_label="Konak",
+        )),
         check("water", WaterService(settings=settings).status(limit=5)),
         check("air", AirQualityService(settings=settings).readings(day="2026-10-28", limit=6)),
         check("metro", TransitService(settings=settings).stations(mode="metro", limit=3)),
@@ -94,6 +124,11 @@ async def main() -> int:
             query="304", detail=True)),
         check("bus_departures", BusService(settings=settings).departures(
             stop_id="10030", at="2026-10-05T08:00", limit=3)),
+        check("bus_departures_stop_query", BusService(settings=settings).departures(
+            stop_query="Konak", limit=3)),
+        check("bus_departures_nearby", BusService(settings=settings).departures(
+            lat=KONAK[0], lon=KONAK[1], radius_m=300,
+            at="2026-10-05T08:00", limit=3)),
         check("market_day", MarketService(settings=settings).schedule(day="cumartesi", limit=3)),
         check("disruptions", DisruptionService(settings=settings).list(active_only=True, limit=3)),
         check("disruptions_metro", DisruptionService(settings=settings).list(
@@ -111,6 +146,20 @@ async def main() -> int:
             kinds=["wifi", "izmirim_card"], limit=3)),
         check("city_district", CityServicesService(settings=settings).district(
             district="Karşıyaka", kinds=["wifi", "library"], limit=3)),
+        check("charging_nearby", NearbyService(settings=settings).nearby(
+            lat=KONAK[0], lon=KONAK[1], types=["charging_station"], radius_m=3000, limit=3)),
+        check("traffic_history", TrafficService(settings=settings).list(
+            segment="Konak", limit=3)),
+        traffic_recent_check(settings),
+        check("datastore_sql", DatastoreSqlService(
+            settings=dataclasses.replace(
+                settings,
+                ckan_sql_allowed_resource_ids=("0c791266-a2e4-4f14-82b8-9a9b102fbf94",),
+            )
+        ).query(
+            resource_id="0c791266-a2e4-4f14-82b8-9a9b102fbf94",
+            sql="SELECT COUNT(*) AS n FROM records",
+        )),
     )
     return 0 if all(results) else 1
 

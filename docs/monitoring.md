@@ -34,7 +34,7 @@ Yalnızca süreç canlılığıdır. Docker `HEALTHCHECK` bunu yoklar.
   "service": "izmir-mcp",
   "ready": true,
   "upstream_health": "not_checked",
-  "checks": {"tool_surface": "ok", "tool_count": 17}
+  "checks": {"tool_surface": "ok", "tool_count": 22}
 }
 ```
 
@@ -49,7 +49,7 @@ vermez.
 {
   "service": "izmir-mcp",
   "tools": ["izmir_health", "…"],
-  "tool_count": 17,
+  "tool_count": 22,
   "limits": {"default_limit": 10, "max_limit": 50, "max_radius_m": 5000, "max_body_bytes": 1000000},
   "rate_limit": {"tracked_clients": 0, "capacity": 60, "refill_per_second": 1.0, "max_clients": 10000, "allowed": 0, "rejected": 0},
   "concurrency": {"current": 0, "max_concurrent": 32, "rejected": 0},
@@ -111,7 +111,7 @@ logların çağıran içeriğini veya kimlik bilgisini sızdırmasını engeller
 - Readiness: `GET /readyz` başlangıçta ve dağıtım sonrası; `503` trafiği
   yönlendirmeyi durdurur.
 - Uyarı: `/status` içinde `rate_limit.rejected`, `concurrency.rejected` ve
-  `tool_count != 17` (beklenmedik yüzey değişimi).
+  `tool_count != 22` (beklenmedik yüzey değişimi).
 - Kaynak sağlığını probe ile değil, örnek araç çağrılarının
   `freshness.status` ve `warnings` çıktısıyla izleyin. Canlı duman testi:
   `python scripts/smoke_live.py` (ağa çıkar, CI'da bloklamaz).

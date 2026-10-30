@@ -1,8 +1,9 @@
 # Kaynak erişilebilirlik analizi
 
 Hangi uçların gerçekten çalıştığını, hangilerinin **kapalı** olduğunu ve bunun
-kodda nasıl temsil edildiğini tek yerde toplar. Tüm ölçümler **2026-10-28**
-tarihinde doğrudan HTTP ile yapıldı.
+kodda nasıl temsil edildiğini tek yerde toplar. Tüm ölçümler doğrudan HTTP ile
+yapıldı; kapalı uçlar **2026-10-29**'da yeniden denendi ve aynı sonuçlar alındı
+(ilk ölçüm 2026-10-28).
 
 Bu belge bir "yapılacaklar" listesi değil, **kanıt kaydıdır**: kapalı bir kaynak
 için veri üretilmez, araç açıkça `source_unavailable` döner.
@@ -26,7 +27,7 @@ için veri üretilmez, araç açıkça `source_unavailable` döner.
 | `openfiles.izmir.bel.tr/.../izsu-baraj-doluluk-oranlari.csv` | 200 | `izmir_water_status` |
 | `openfiles.izmir.bel.tr/211488/docs/eshot-otobus-duraklari.csv` | 200 | (DataStore tercih edildi) |
 | `openfiles.izmir.bel.tr/211488/docs/eshot-otobus-hat-duyurulari.csv` | 200 | `izmir_transport_disruptions` |
-| `www.eshot.gov.tr/gtfs/bus-eshot-gtfs.zip` | 200, geçerli ZIP | `izmir_bus_departures`, `izmir_bus_routes`, `izmir_gtfs_status` |
+| `www.eshot.gov.tr/gtfs/bus-eshot-gtfs.zip` | 200, geçerli ZIP, 18,4 MB; **2026-10-29'da yeniden indirildi**, `calendar.txt` hâlâ 2026-08-05 → 2026-10-09 | `izmir_bus_departures`, `izmir_bus_routes`, `izmir_gtfs_status` |
 | `www.izmirmetro.com.tr/gtfs/rail-metro-gtfs.zip` | 200, geçerli ZIP | (doğrulandı, bağlanmadı) |
 | `www.tramizmir.com/gtfs/rail-tramizmir-gtfs.zip` | 200, geçerli ZIP | (doğrulandı, bağlanmadı) |
 | `www.izban.com.tr/gtfs/rail-izban-gtfs.zip` | 200, geçerli ZIP | (bağlanmadı: takvim 2025-01-01'de bitti) |
@@ -62,11 +63,29 @@ için veri üretilmez, araç açıkça `source_unavailable` döner.
 | Kütüphane katmanında **koordinat yok** | yarıçap uygulanamaz | ilçe/adres listesi, `distance_m` null |
 | İzmirim Kart verisi **2023-08-21** | eskimiş | statik/eskimiş uyarısı |
 
-## Yeniden doğrulama
+## Yeniden doğrulama (2026-10-29)
+
+Kapalı uçlar bugün tekrar denendi; hiçbiri açılmadı:
+
+| Uç | 2026-10-29 sonucu |
+|---|---|
+| `/api/izsu/arizakaynaklisukesintileri` | **500** (JSON) |
+| `/api/izsu/barajdurum` | **500** (JSON) |
+| `/api/ibb/trafikyogunluk`, `/api/ibb/trafik` | **404** |
+| `/api/metro/ekipmanlar`, `/api/metro/arizalar` | **404** |
+| `/api/ibb/cbs/adres` | **404** |
+| `swagger/v1/swagger.json` (her iki kök) | **404** — makine-okunur uç listesi yayımlanmıyor |
+| `izdeniz.com.tr/gtfs/ship-izdeniz-gtfs.zip` | 200, `text/html` |
+| `izban.com.tr/Rss.aspx?MenuId=45` | **302** |
+| `metrotramapi.iztek.tr/api/v1/izbanannouncements` | **404** |
+
+İkinci bulgu: canlı ESHOT arşivi bugün de **2026-10-09**'da biten aynı takvimi
+yayımlıyor. Yani eskime uyarısı bir kurulum hatası değil, kaynağın durumu;
+yeniden indirmek bir şeyi düzeltmez.
 
 ```bash
 .venv/bin/python scripts/smoke_live.py     # tüm canlı kaynaklar, exit 0 beklenir
 ```
 
-Bu betik 30 kontrol yapar; `disruptions_izban_unavailable` bilerek
+Bu betik 35 kontrol yapar; `disruptions_izban_unavailable` bilerek
 `source_unavailable` bekler ve **geçer** sayılır.

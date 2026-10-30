@@ -25,8 +25,14 @@ Atıf bu adlarla yapılır:
 | İzmir Metro sefer sıklığı | İzmir Metro A.Ş. | `published_timetable` |
 | İZBAN sefer saatleri | İZBAN A.Ş. | `published_timetable` |
 | İZDENİZ vapur sefer saatleri | İZDENİZ A.Ş. | `published_timetable` |
+| İzmir Tramvay hatları, istasyonları ve sefer sıklığı | İzmir Metro A.Ş. | `published_timetable` |
 | EShot otobüs durakları | İzmir Büyükşehir Belediyesi / EShot | `stops` |
 | EShot durağa yaklaşan otobüsler | İzmir İnovasyon ve Teknoloji A.Ş. (İZTEK) | `live_vehicle_positions` |
+| EShot hat otobüs konumları | İzmir İnovasyon ve Teknoloji A.Ş. (İZTEK) | `live_vehicle_positions` |
+| İzmir Büyükşehir CBS önemli yer katmanları | İzmir Büyükşehir Belediyesi | `static_service_locations` |
+| İzmir Büyükşehir kültür sanat etkinlikleri | İzmir Büyükşehir Belediyesi | `published_events` |
+| İzmir hal fiyatları (sebze-meyve ve balık) | İzmir Büyükşehir Belediyesi | `wholesale_price_bulletin` |
+| İzmir eczane listesi | İzmir Büyükşehir Belediyesi | `static_service_locations` |
 | EShot GTFS toplu ulaşım verisi | İzmir Büyükşehir Belediyesi / EShot | `published_timetable` |
 | İzmir semt pazar yerleri | İzmir Büyükşehir Belediyesi | `static_market_locations` |
 | WizmirNET ücretsiz kablosuz internet noktaları | İzmir Büyükşehir Belediyesi | `static_service_locations` |
@@ -39,6 +45,8 @@ Atıf bu adlarla yapılır:
 | İzmir mahalle nüfusu (cinsiyete göre) | İzmir Büyükşehir Belediyesi | `published_neighborhood_demographics` |
 | İzmir mahalle bazlı bina sayıları | İzmir Büyükşehir Belediyesi | `published_building_stock` |
 | İzmir taksi durakları | İzmir Büyükşehir Belediyesi | `static_service_locations` |
+| İzmir ana arter hız ve süre verileri | İzmir Büyükşehir Belediyesi | `historical_segment_speed` |
+| İzmir engelli şarj istasyonları | İzmir Büyükşehir Belediyesi | `static_service_locations` |
 
 ## Katalog ve DataStore
 
