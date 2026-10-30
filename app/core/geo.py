@@ -5,6 +5,10 @@ import re
 
 EARTH_RADIUS_M = 6_371_008.8
 
+# İzmir province bounding box (south, west, north, east). Used only to say that
+# a coordinate cannot possibly match city data — never to reject a query.
+IZMIR_BOUNDS = (37.7, 26.0, 39.6, 28.6)
+
 TURKISH_ASCII = str.maketrans(
     {
         "ç": "c", "ğ": "g", "ı": "i", "ö": "o", "ş": "s", "ü": "u",
@@ -51,6 +55,18 @@ def normalize_name(value: str) -> str:
     return " ".join(value.translate(TURKISH_ASCII).casefold().split())
 
 
+def outside_izmir(lat: float, lon: float) -> bool:
+    """True when a WGS84 point is outside İzmir province.
+
+    A rectangle is accepted anywhere (shape-only validation), but a point query
+    outside the province cannot match any İzmir layer. Answering empty without
+    contacting a source keeps that answer deterministic and avoids a needless
+    upstream call.
+    """
+    south, west, north, east = IZMIR_BOUNDS
+    return not (south <= lat <= north and west <= lon <= east)
+
+
 def in_bbox(
     lat: float, lon: float, *, min_lon: float, min_lat: float, max_lon: float, max_lat: float
 ) -> bool:
@@ -85,6 +101,11 @@ def valid_lat_lon(lat: float | None, lon: float | None) -> bool:
         if not math.isfinite(value) or not low <= value <= high:
             return False
     return True
+
+
+def maps_url(lat: float, lon: float) -> str:
+    """Return the map link used by every layer that publishes a coordinate."""
+    return f"https://www.google.com/maps?q={lat:.6f},{lon:.6f}"
 
 
 def haversine_m(lat1: float, lon1: float, lat2: float, lon2: float) -> float:

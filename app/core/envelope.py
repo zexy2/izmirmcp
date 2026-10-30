@@ -108,9 +108,12 @@ def result_info(
         truncated = matched > returned
     note = None
     if truncated:
-        note = "Increase limit within the advertised maximum or narrow the filters. This is not a complete total."
+        note = (
+            "Limiti duyurulan üst sınıra kadar artırın ya da filtreleri daraltın. "
+            "Bu, toplamın tamamı değildir."
+        )
     elif truncated is None:
-        note = "Completeness is unknown; inspect source coverage, limits and warnings."
+        note = "Tamlık bilinmiyor; kaynak kapsamını, limitleri ve uyarıları inceleyin."
     return ResultInfo(returned=returned, matched=matched, truncated=truncated, scope=scope, next_step=note)
 
 
@@ -176,9 +179,9 @@ def error_envelope(
         }
     if next_step is None:
         next_step = (
-            "Retry later; source availability is not guaranteed."
+            "Daha sonra yeniden deneyin; kaynağın erişilebilirliği garanti değildir."
             if temporary
-            else "Review the inputs and advertised tool limits before retrying."
+            else "Yeniden denemeden önce girdileri ve duyurulan araç limitlerini gözden geçirin."
         )
     envelope = ResponseEnvelope(
         ok=False,

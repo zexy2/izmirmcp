@@ -47,7 +47,7 @@ def check_timetable_store(settings: Settings) -> Check:
     A *missing* store is not a failure: it is built lazily on first use. A
     present-but-corrupt store is, because lazy rebuild will not help.
     """
-    path = Path(settings.database_path)
+    path = Path(settings.gtfs_database_path)
     if not path.exists():
         return Check(
             "timetable_store",
@@ -68,15 +68,15 @@ def check_timetable_store(settings: Settings) -> Check:
 
 
 def check_database_writable(settings: Settings) -> Check:
-    """Quota and spatial-index writes need a writable parent directory."""
-    path = Path(settings.database_path)
-    parent = path.parent
-    try:
-        parent.mkdir(parents=True, exist_ok=True)
-    except OSError as exc:
-        return Check("database_directory", "broken", type(exc).__name__)
-    if not parent.is_dir():
-        return Check("database_directory", "broken", "not a directory")
+    """Quota, spatial-index and GTFS writes need writable parent directories."""
+    for raw_path in (settings.database_path, settings.gtfs_database_path):
+        parent = Path(raw_path).parent
+        try:
+            parent.mkdir(parents=True, exist_ok=True)
+        except OSError as exc:
+            return Check("database_directory", "broken", type(exc).__name__)
+        if not parent.is_dir():
+            return Check("database_directory", "broken", "not a directory")
     return Check("database_directory", "ok")
 
 
@@ -103,6 +103,13 @@ def evaluate(settings: Settings, tool_count: int) -> Readiness:
         and checks["database_directory"].status == "ok"
     )
     return Readiness(ready=ready, checks=checks)
+
+
+def source_cache_status() -> dict[str, Any]:
+    """Upstream cache health for /status; keys are hashed, never raw."""
+    from app.core.source_cache import snapshot
+
+    return snapshot()
 
 
 def public_readiness(readiness: Readiness) -> dict[str, Any]:

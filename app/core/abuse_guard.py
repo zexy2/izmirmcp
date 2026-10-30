@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from starlette.responses import JSONResponse
-from starlette.types import ASGIApp, Receive, Scope, Send
+from starlette.types import ASGIApp, Message, Receive, Scope, Send
 
 from app.core.rate_limit import ClientRateLimiter, ConcurrencyLimiter
 
@@ -45,6 +45,10 @@ def _content_length(scope: Scope) -> int | None:
             except ValueError:
                 return None
     return None
+
+
+class _BodyLimitExceeded(Exception):
+    """Internal: abort the inner app once the streamed body crossed the cap."""
 
 
 class McpAbuseGuardMiddleware:
@@ -94,9 +98,44 @@ class McpAbuseGuardMiddleware:
             )
             return
         try:
-            await self.app(scope, receive, send)
+            await self.app(scope, self._bounded_receive(scope, receive, send), send)
+        except _BodyLimitExceeded:
+            pass
         finally:
             await self.concurrency_limiter.release()
+
+    def _bounded_receive(self, scope: Scope, receive: Receive, send: Send) -> Receive:
+        """Count streamed body bytes; a chunked body has no Content-Length.
+
+        Once the cap is crossed a 413 is sent (if the response has not started)
+        and the request is aborted instead of handing more bytes inward.
+        """
+        received = 0
+        limit = self.max_body_bytes
+
+        async def wrapped() -> Message:
+            nonlocal received
+            message = await receive()
+            if message["type"] == "http.request":
+                received += len(message.get("body", b""))
+                if received > limit:
+                    response = JSONResponse(
+                        {
+                            "ok": False,
+                            "error_code": "payload_too_large",
+                            "summary": "Request body exceeds the advertised limit.",
+                        },
+                        status_code=413,
+                        headers={"Cache-Control": "no-store"},
+                    )
+                    try:
+                        await response(scope, receive, send)
+                    except Exception:  # noqa: BLE001 - response may have started
+                        pass
+                    raise _BodyLimitExceeded
+            return message
+
+        return wrapped
 
     async def _reject(
         self,

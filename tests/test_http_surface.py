@@ -201,7 +201,10 @@ async def test_structured_json_log_line_is_emitted(caplog):
 
 @pytest.mark.asyncio
 async def test_readyz_reports_local_checks_and_hides_details(tmp_path):
-    settings = _settings(database_path=str(tmp_path / "db.sqlite3"))
+    settings = _settings(
+        database_path=str(tmp_path / "db.sqlite3"),
+        gtfs_database_path=str(tmp_path / "gtfs.sqlite3"),
+    )
     async with _running_app(settings) as app, _client(app) as client:
         response = await client.get("/readyz")
     payload = response.json()
@@ -214,8 +217,11 @@ async def test_readyz_reports_local_checks_and_hides_details(tmp_path):
 
 @pytest.mark.asyncio
 async def test_readyz_is_503_when_the_store_is_corrupt(tmp_path):
-    (tmp_path / "db.sqlite3").write_bytes(b"garbage")
-    settings = _settings(database_path=str(tmp_path / "db.sqlite3"))
+    (tmp_path / "gtfs.sqlite3").write_bytes(b"garbage")
+    settings = _settings(
+        database_path=str(tmp_path / "db.sqlite3"),
+        gtfs_database_path=str(tmp_path / "gtfs.sqlite3"),
+    )
     async with _running_app(settings) as app, _client(app) as client:
         response = await client.get("/readyz")
     assert response.status_code == 503

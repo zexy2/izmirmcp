@@ -348,3 +348,102 @@ async def test_nearby_far_outside_izmir_returns_empty_not_error():
     assert envelope["ok"] is True
     assert envelope["data"] == []
     assert envelope["warnings"], "an empty result must carry an explanation"
+
+
+# --- Retry-After honouring ---------------------------------------------------
+
+
+def test_rate_limit_error_carries_the_source_retry_after():
+    """A 429 telling us to wait 30 s must not be retried every 0.35 s."""
+    from app.connectors.http import SourceRateLimitedError
+
+    error = SourceRateLimitedError("limited", retry_after_seconds=30)
+    assert error.retry_after_seconds == 30
+
+
+@pytest.mark.asyncio
+async def test_429_with_retry_after_is_not_retried_immediately():
+    import httpx
+
+    import app.connectors.http as mod
+
+    calls: list[float] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        calls.append(1)
+        return httpx.Response(429, headers={"retry-after": "30"})
+
+    transport = httpx.MockTransport(handler)
+    original = httpx.AsyncClient
+
+    def patched(*args, **kwargs):
+        kwargs["transport"] = transport
+        return original(*args, **kwargs)
+
+    mod.httpx.AsyncClient = patched  # type: ignore[assignment]
+    try:
+        with pytest.raises(mod.SourceRateLimitedError) as excinfo:
+            await mod.get_text("https://example.test/x", timeout=2, attempts=3, max_bytes=1000)
+    finally:
+        mod.httpx.AsyncClient = original  # type: ignore[assignment]
+    assert len(calls) == 1, f"retried {len(calls)} times despite Retry-After"
+    assert excinfo.value.retry_after_seconds == 30
+
+
+# --- fuzzy stop search -------------------------------------------------------
+
+
+@pytest.mark.asyncio
+async def test_stop_search_tolerates_a_typo():
+    from app.services.bus import BusService
+
+    service = BusService(settings=get_settings(), api=_FakeStops())
+    envelope = await service.stops(query="Konakk", limit=3)
+    assert envelope["ok"] is True
+    assert envelope["data"], "a one-letter typo returned nothing"
+    assert "Konak" in (envelope["data"][0].get("name") or "")
+
+
+@pytest.mark.asyncio
+async def test_fuzzy_matches_are_labelled_so_callers_can_tell():
+    from app.services.bus import BusService
+
+    service = BusService(settings=get_settings(), api=_FakeStops())
+    exact = await service.stops(query="Konak", limit=3)
+    fuzzy = await service.stops(query="Konakk", limit=3)
+    assert exact["data"][0].get("match") == "exact"
+    assert fuzzy["data"][0].get("match") == "fuzzy"
+
+
+@pytest.mark.asyncio
+async def test_fuzzy_search_never_invents_a_stop():
+    from app.services.bus import BusService
+
+    service = BusService(settings=get_settings(), api=_FakeStops())
+    envelope = await service.stops(query="zzzzzzzz", limit=3)
+    assert envelope["data"] == []
+
+
+class _FakeStops:
+    async def stops(self):
+        from tests.conftest import fresh
+
+        return (
+            [
+                {"id": "10030", "name": "Konak", "lat": 38.416218, "lon": 27.126321,
+                 "routes": ["303"]},
+                {"id": "21050", "name": "Münevver Öğretmen Ortaokulu",
+                 "lat": 38.512338, "lon": 27.051353, "routes": ["346"]},
+            ],
+            fresh(),
+        )
+
+    async def arrivals(self, stop_id):
+        from tests.conftest import fresh
+
+        return [], fresh()
+
+    async def gtfs(self):
+        from tests.conftest import fresh
+
+        return {"routes": [], "calendar": [], "calendar_end": None}, fresh()

@@ -91,6 +91,13 @@ def _exceeds_depth(body: bytes, limit: int) -> bool:
     return False
 
 
+DEFAULT_MAX_BODY_BYTES = 1_000_000
+
+
+class BodyTooLargeError(Exception):
+    """The streamed request body exceeded the configured cap."""
+
+
 class McpJsonRpcGuard:
     """ASGI middleware that validates the JSON envelope of MCP requests.
 
@@ -99,8 +106,9 @@ class McpJsonRpcGuard:
     consumes rate-limit budget and cannot be used to probe the server cheaply.
     """
 
-    def __init__(self, app: ASGIApp):
+    def __init__(self, app: ASGIApp, *, max_body_bytes: int = DEFAULT_MAX_BODY_BYTES):
         self.app = app
+        self.max_body_bytes = max(1, int(max_body_bytes))
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
         if (
@@ -111,7 +119,13 @@ class McpJsonRpcGuard:
             await self.app(scope, receive, send)
             return
 
-        body = await self._read_body(scope, receive)
+        try:
+            body = await self._read_body(scope, receive, self.max_body_bytes)
+        except BodyTooLargeError:
+            await self._send(
+                scope, receive, send, _error(INVALID_REQUEST, "Request body is too large."), 413
+            )
+            return
         if body is None:
             await self._send(scope, receive, send, _error(INVALID_REQUEST, "Request body is required."), 400)
             return
@@ -147,13 +161,20 @@ class McpJsonRpcGuard:
         await self.app(scope, self._replay(receive, body), send)
 
     @staticmethod
-    async def _read_body(scope: Scope, receive: Receive) -> bytes | None:
+    async def _read_body(
+        scope: Scope, receive: Receive, max_bytes: int = DEFAULT_MAX_BODY_BYTES
+    ) -> bytes | None:
         chunks: list[bytes] = []
+        total = 0
         while True:
             message = await receive()
             if message["type"] != "http.request":
                 break
-            chunks.append(message.get("body", b""))
+            chunk = message.get("body", b"")
+            total += len(chunk)
+            if total > max_bytes:
+                raise BodyTooLargeError
+            chunks.append(chunk)
             if not message.get("more_body", False):
                 break
         body = b"".join(chunks)

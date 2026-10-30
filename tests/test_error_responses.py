@@ -24,7 +24,7 @@ def test_empty_selection_gets_its_own_hint():
         InputValidationError("kinds must be a non-empty subset of: wifi", field="kinds"),
         tool="izmir_city_services_nearby",
     )
-    assert "at least one" in payload["error"]["repair"]["next_step"]
+    assert "En az bir" in payload["error"]["repair"]["next_step"]
 
 
 def test_unknown_field_still_returns_a_valid_envelope():
