@@ -60,6 +60,14 @@ varyasyonları sırasıyla `10`, `50`, `5000`'dir. Bu değerler `/status` yanıt
 | `IZMIR_MCP_CKAN_BASE_URL` | `https://acikveri.bizizmir.com/api/3/action` |
 | `IZMIR_MCP_OPENAPI_BASE_URL` | `https://openapi.izmir.bel.tr/api` |
 | `IZMIR_MCP_IZSU_DAMS_CSV_URL` | `https://openfiles.izmir.bel.tr/309436/docs/izsu-baraj-doluluk-oranlari.csv` |
+| `IZMIR_MCP_IZSU_API_BASE_URL` | `https://izsu.gov.tr/api/proxy` |
+| `IZMIR_MCP_IZSU_PAST_CACHE_TTL_SECONDS` | `604800` |
+| `IZMIR_MCP_IZTEK_POSITIONS_CACHE_TTL_SECONDS` | `15` |
+| `IZMIR_MCP_CBS_MAX_PAGES` | `10` |
+| `IZMIR_MCP_CBS_CACHE_TTL_SECONDS` | `86400` |
+| `IZMIR_MCP_EVENTS_CACHE_TTL_SECONDS` | `3600` |
+| `IZMIR_MCP_HAL_CACHE_TTL_SECONDS` | `604800` |
+| `IZMIR_MCP_PHARMACIES_ALL_CACHE_TTL_SECONDS` | `86400` |
 | `IZMIR_MCP_IZTEK_BASE_URL` | `https://openapi.izmir.bel.tr/api/iztek` |
 | `IZMIR_MCP_ESHOT_GTFS_URL` | `https://www.eshot.gov.tr/gtfs/bus-eshot-gtfs.zip` |
 | `IZMIR_MCP_ESHOT_NOTICES_CSV_URL` | `https://openfiles.izmir.bel.tr/211488/docs/eshot-otobus-hat-duyurulari.csv` |
@@ -72,6 +80,7 @@ varyasyonları sırasıyla `10`, `50`, `5000`'dir. Bu değerler `/status` yanıt
 | `IZMIR_MCP_ESHOT_NOTICES_CACHE_TTL_SECONDS` | `1800` |
 | `IZMIR_MCP_CITY_LAYER_CACHE_TTL_SECONDS` | `86400` |
 | `IZMIR_MCP_CITY_LAYER_STALE_IF_ERROR_SECONDS` | `604800` |
+| `IZMIR_MCP_TRAFFIC_STALE_AFTER_HOURS` | `72` |
 
 CKAN TTL'leri (`catalog` 21600 sn, `resource` 300 sn), OpenAPI TTL'i (120 sn /
 900 sn stale) ve İZSU TTL'i (3600 sn / 86400 sn stale) `Settings` alanıdır ama
@@ -81,13 +90,30 @@ ortam değişkeniyle açılmaz; değiştirmek için kod gerekir.
 
 | Değişken | Varsayılan | Açıklama |
 |---|---|---|
-| `IZMIR_MCP_DATABASE_PATH` | `.data/izmir_mcp.sqlite3` | Yerel GTFS SQLite yolu (`/data/...` konteynerde). |
+| `IZMIR_MCP_DATABASE_PATH` | `.data/izmir_mcp.sqlite3` | Kota ve mekânsal indeksin ortak SQLite yolu (`/data/...` konteynerde). |
+| `IZMIR_MCP_GTFS_DATABASE_PATH` | `.data/izmir_mcp_gtfs.sqlite3` | Tarife deposunun SQLite yolu; ayrı tutulur çünkü yeniden kurulumu 2,1M satır yazar. |
 | `IZMIR_MCP_ESHOT_GTFS_MAX_BYTES` | `67108864` | ZIP tavani (64 MB). |
 | `IZMIR_MCP_ESHOT_GTFS_MEMBER_MAX_BYTES` | `8388608` | Üye dosya tavanı (8 MB). |
 | `IZMIR_MCP_ESHOT_GTFS_STOP_TIMES_MAX_BYTES` | `134217728` | `stop_times.txt` tavanı (128 MB). |
 | `IZMIR_MCP_ESHOT_GTFS_MAX_ROWS` | `2500000` | Satır tavanı. |
 | `IZMIR_MCP_ESHOT_GTFS_CACHE_TTL_SECONDS` | `86400` | Yeniden kurulum eşiği. |
 | `IZMIR_MCP_ESHOT_GTFS_STALE_IF_ERROR_SECONDS` | `604800` | Yenilenemezse eski depoyu kullanma süresi. |
+
+### Yerel SQL snapshot'ı
+
+`izmir_datastore_query` yalnızca açıkça izin verilen kaynakları indirir; liste
+varsayılan olarak **boştur**. Her sınır koda gömülü güvenli aralıklarla
+kontrol edilir; ayar aralık dışındaysa süreç başlamaz.
+
+| Değişken | Varsayılan | Açıklama |
+|---|---|---|
+| `IZMIR_MCP_CKAN_SQL_ALLOWED_RESOURCE_IDS` | boş | Virgülle ayrılmış, en fazla 100 DataStore resource id. |
+| `IZMIR_MCP_CKAN_SQL_MAX_ROWS` | `50000` | Tam kopya için satır tavanı (1–50000). |
+| `IZMIR_MCP_CKAN_SQL_MAX_BYTES` | `20971520` | Kopya için toplam wire byte tavanı (1 KiB–20 MiB). |
+| `IZMIR_MCP_CKAN_SQL_PAGE_SIZE` | `5000` | Sayfa başına satır (1–5000). |
+| `IZMIR_MCP_CKAN_SQL_SNAPSHOT_TTL_SECONDS` | `900` | Kopya önbelleği (1–3600 sn). |
+| `IZMIR_MCP_CKAN_SQL_LOAD_TIMEOUT_SECONDS` | `30.0` | Tam kopya zaman aşımı (0,01–60 sn). |
+| `IZMIR_MCP_CKAN_SQL_QUERY_TIMEOUT_SECONDS` | `0.5` | SELECT yürütme bütçesi (0,001–2 sn). |
 
 ### HTTP güvenliği
 
@@ -102,6 +128,14 @@ ortam değişkeniyle açılmaz; değiştirmek için kod gerekir.
 | `IZMIR_MCP_API_KEY_DAILY_QUOTA` | `0` | Anahtar başına günlük istek kotası; `0` sınırsız. Kalıcıdır (SQLite). |
 | `IZMIR_MCP_CORS_ALLOWED_ORIGINS` | boş | Tarayıcı Origin allowlist'i. |
 | `IZMIR_MCP_ACCESS_LOG_ENABLED` | `true` | Yapısal erişim logu. |
+| `IZMIR_MCP_ALLOWED_HOSTS` | boş | Kabul edilen `Host` başlıkları (virgüllü). Boşsa doğrulama yapılmaz, yalnızca uyarı loglanır; doluysa diğer host'lar `421 misdirected_request` alır. |
+| `IZMIR_MCP_REQUIRE_AUTH` | `false` | `true` iken `IZMIR_MCP_API_KEYS` boşsa sunucu başlamaz (fail closed). |
+| `IZMIR_MCP_HTTP_TOTAL_DEADLINE_SECONDS` | `0` | Upstream isteğinin toplam süre sınırı; `0` = 2 × istek zaman aşımı. |
+| `IZMIR_MCP_SOURCE_CACHE_MAX_ENTRIES` | `512` | Kaynak önbelleğinin en fazla kayıt sayısı. |
+| `IZMIR_MCP_EVENT_LOOP_WATCHDOG_SECONDS` | `0` | Event loop takılma izleyicisi eşiği; `0` kapalı. |
+| `IZMIR_MCP_SOURCE_RATE_CAPACITY` | `10` | Kaynak başına istek kovası kapasitesi. |
+| `IZMIR_MCP_SOURCE_RATE_REFILL_PER_SECOND` | `2.0` | Kaynak kovası dolum hızı. |
+| `IZMIR_MCP_SOURCE_RATE_MAX_WAIT_SECONDS` | `2.0` | Kaynak kovası için en uzun bekleme. |
 
 Not: `IZMIR_MCP_MCP_MAX_BODY_BYTES` kodu MCP SDK'nın kendi gövde sınırını
 `mcp_max_body_bytes` alanından (varsayılan 1 MB) alır; ortamla ayrı açılmaz,
@@ -185,9 +219,24 @@ Başarı `0`, herhangi bir hata `2` döner; geçersiz arşivde hiçbir şey yaz�
 
 ## CI
 
-`.github/workflows/ci.yml`: `pytest`, import + 19 araç yüzeyi kontrolü, çevrimdışı
-protokol smoke'u (`scripts/smoke_mcp.py`), canlı smoke (bloklamaz), sunucuyu başlatıp `/healthz`+`/readyz`+`/status` probe'u, ve
-imaj derleyip konteynerde `/healthz` doğrulaması (`IZMIR_MCP_SKIP_GTFS_BUILD=1`).
+`.github/workflows/ci.yml` işleri (action'lar commit SHA'sıyla sabitli,
+`permissions: contents: read`):
+
+- `lint` — `ruff check` (bloklayıcı) ve `mypy` (şimdilik yalnızca rapor).
+- `test` — Python 3.11/3.12/3.13 matrisi: `pytest` (22 araç yüzeyi
+  `tests/test_tool_compatibility.py` ile kilitli), çevrimdışı protokol smoke'u
+  (`scripts/smoke_mcp.py`), sunucuyu başlatıp `/healthz`+`/readyz`+`/status` probe'u.
+- `conformance` — resmî MCP conformance alt kümesi; raporlar artifact olarak yüklenir.
+- `docker` — imaj derleme, konteynerde `/healthz` (`IZMIR_MCP_SKIP_GTFS_BUILD=1`),
+  Trivy taraması (HIGH/CRITICAL) ve syft SBOM.
+- `audit` — `requirements.lock` üzerinde `pip-audit`.
+- `live` — `IZMIR_LIVE=1` canlı testler, UAT ve smoke; bloklamaz.
+
+`release.yml` bir `v*` etiketiyle paketi derler, PyPI'ye trusted publishing
+(OIDC) ile yükler, imajı GHCR'ye iter ve `server.json`'u MCP registry'ye
+yayımlar. `uptime.yml` 10 dakikada bir `UPTIME_URL` repo değişkenindeki uca
+`scripts/uptime_check.py` ile probe atar; arızada tek bir olay issue'su açar,
+düzelince kapatır. Ayrıntı: [Geliştirme](development.md).
 
 ## CI'yı yerelde çalıştırma
 

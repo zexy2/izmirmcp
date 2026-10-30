@@ -1,24 +1,53 @@
 {
-  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-09-29/server.schema.json",
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.zexy2/izmir-mcp",
-  "description": "Read-only MCP server for İzmir open city data: CKAN catalog, nearby services, water, air quality, transit timetables and EShot buses.",
+  "title": "İzmir MCP",
+  "description": "Read-only MCP server for İzmir open city data: catalog, transit, buses, water, air.",
   "version": "0.1.0",
+  "repository": {
+    "url": "https://github.com/zexy2/izmirmcp",
+    "source": "github"
+  },
   "packages": [
     {
       "registryType": "pypi",
+      "registryBaseUrl": "https://pypi.org",
       "identifier": "izmir-mcp",
       "version": "0.1.0",
+      "runtimeHint": "uvx",
+      "packageArguments": [
+        {
+          "type": "positional",
+          "value": "stdio"
+        }
+      ],
       "transport": {
         "type": "stdio"
-      },
-      "runtimeHint": "python -m app.stdio"
+      }
     },
     {
       "registryType": "oci",
       "identifier": "ghcr.io/zexy2/izmir-mcp:0.1.0",
+      "runtimeHint": "docker",
+      "packageArguments": [
+        {
+          "type": "positional",
+          "value": "izmir-mcp"
+        },
+        {
+          "type": "positional",
+          "value": "stdio"
+        }
+      ],
+      "environmentVariables": [
+        {
+          "name": "IZMIR_MCP_SKIP_GTFS_BUILD",
+          "description": "1 skips the GTFS timetable build at container start (faster stdio start).",
+          "default": "1"
+        }
+      ],
       "transport": {
-        "type": "streamable-http",
-        "url": "http://127.0.0.1:8000/mcp/"
+        "type": "stdio"
       }
     }
   ]

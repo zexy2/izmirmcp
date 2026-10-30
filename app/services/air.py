@@ -16,8 +16,7 @@ class AirQualityService:
         self.settings = settings
         self.api = api or IzmirOpenApi(settings)
 
-    async def readings(self, *, day: str, station: str | None = None,
-                       limit: int | None = None) -> dict[str, Any]:
+    async def readings(self, *, day: str, station: str | None = None, limit: int | None = None) -> dict[str, Any]:
         safe_limit = resolve_limit(limit, self.settings.max_limit, self.settings.max_limit)
         try:
             stations, info = await self.api.air_quality(day)
@@ -49,10 +48,7 @@ class AirQualityService:
         data.sort(key=lambda row: (row["station"], row["pollutant"] or ""))
         returned = data[:safe_limit]
         return success_envelope(
-            summary=(
-                f"{len(returned)} hava kalitesi ölçümü listelendi"
-                + (f" ({station})." if station else ".")
-            ),
+            summary=(f"{len(returned)} hava kalitesi ölçümü listelendi" + (f" ({station})." if station else ".")),
             data=returned,
             sources=[sources.AIR],
             freshness=Freshness(

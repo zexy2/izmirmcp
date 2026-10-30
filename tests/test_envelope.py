@@ -20,8 +20,16 @@ def test_success_envelope_has_canonical_fields():
     assert envelope["freshness"]["status"] == "unknown"
     assert envelope["result_info"]["returned"] == 1
     assert set(envelope) >= {
-        "ok", "summary", "data", "freshness", "sources",
-        "limits", "warnings", "next_queries", "error", "result_info",
+        "ok",
+        "summary",
+        "data",
+        "freshness",
+        "sources",
+        "limits",
+        "warnings",
+        "next_queries",
+        "error",
+        "result_info",
     }
 
 

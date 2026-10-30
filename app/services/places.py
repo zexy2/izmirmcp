@@ -96,11 +96,7 @@ class PlaceResolver:
     # -- lookups ---------------------------------------------------------
 
     def _districts(self) -> list[Place]:
-        return [
-            values[0]
-            for values in self._by_key.values()
-            if any(place.kind == "district" for place in values)
-        ]
+        return [values[0] for values in self._by_key.values() if any(place.kind == "district" for place in values)]
 
     def _single(self, key: str, value: str) -> Place | None:
         for suffix in (", izmir", " izmir"):
@@ -126,8 +122,7 @@ class PlaceResolver:
 
     def _ambiguous(self, value: str, values: list[Place]) -> InputValidationError:
         options = ", ".join(
-            f"{place.name} ({place.district})" if place.district else place.name
-            for place in values[:6]
+            f"{place.name} ({place.district})" if place.district else place.name for place in values[:6]
         )
         return InputValidationError(
             f"'{value}' birden fazla yeri gösteriyor: {options}. "
@@ -147,8 +142,7 @@ class PlaceResolver:
                 place
                 for values in self._by_key.values()
                 for place in values
-                if place.kind == "neighborhood"
-                and (wanted is None or normalize_name(place.district or "") == wanted)
+                if place.kind == "neighborhood" and (wanted is None or normalize_name(place.district or "") == wanted)
             ),
             key=lambda place: (place.district or "", place.name),
         )
@@ -160,11 +154,7 @@ class PlaceResolver:
         key = normalize_name(value)
         if district is not None:
             wanted = normalize_name(district)
-            matches = [
-                place
-                for place in self._by_key.get(key, [])
-                if normalize_name(place.district or "") == wanted
-            ]
+            matches = [place for place in self._by_key.get(key, []) if normalize_name(place.district or "") == wanted]
             if not matches:
                 raise InputValidationError(
                     f"'{value}' için '{district}' ilçesinde yayımlanmış mahalle bulunamadı.",
@@ -176,8 +166,8 @@ class PlaceResolver:
             return place
         examples = ", ".join(sorted(self.districts())[:8])
         raise InputValidationError(
-            f"Unknown place '{value}'. Use coordinates or one of the supported "
-            f"district/neighborhood names (for example: {examples}).",
+            f"Bilinmeyen yer '{value}'. Koordinat ya da desteklenen ilçe/mahalle "
+            f"adlarından birini kullanın (örn. {examples}).",
             field="place",
         )
 
@@ -201,8 +191,7 @@ class PlaceResolver:
         if not matches:
             examples = ", ".join(sorted(self.districts())[:8])
             raise InputValidationError(
-                f"Unknown İzmir district '{value}'. Use one of the published district "
-                f"names (for example: {examples}).",
+                f"Bilinmeyen İzmir ilçesi '{value}'. Yayımlanmış ilçe adlarından birini kullanın (örn. {examples}).",
                 field="district",
             )
         return matches[0]

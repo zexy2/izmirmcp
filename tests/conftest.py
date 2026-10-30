@@ -38,6 +38,7 @@ def _isolated_database(tmp_path, monkeypatch):
     """
     path = str(tmp_path / "isolated.sqlite3")
     monkeypatch.setenv("IZMIR_MCP_DATABASE_PATH", path)
+    monkeypatch.setenv("IZMIR_MCP_GTFS_DATABASE_PATH", str(tmp_path / "isolated-gtfs.sqlite3"))
     import app.core.settings as settings_module
 
     settings_module.get_settings.cache_clear()

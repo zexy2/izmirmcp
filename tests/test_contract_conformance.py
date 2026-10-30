@@ -1,9 +1,10 @@
 """P4 contract conformance: every advertised behaviour keeps the envelope contract.
 
 These tests never touch the network. Every upstream call is replaced at the HTTP
-connector boundary with a fixed fixture, so the suite can drive all 19 tools
+connector boundary with a fixed fixture, so the suite can drive all 35 tools
 through success *and* failure paths and assert the same envelope shape each time.
 """
+
 from __future__ import annotations
 
 import json
@@ -19,9 +20,7 @@ from app.mcp.registry import DEFAULT_TOOL_NAMES, TOOL_TITLES, create_mcp_server
 
 ENVELOPE_FIELDS = frozenset(ResponseEnvelope.model_fields)
 
-TEMPORARY_CODES = frozenset(
-    {"source_unavailable", "source_rate_limited", "source_timeout"}
-)
+TEMPORARY_CODES = frozenset({"source_unavailable", "source_rate_limited", "source_timeout"})
 
 # One minimally valid success call per tool. Bus departures is excluded here
 # because it needs the local GTFS SQLite store and is covered separately against
@@ -33,6 +32,7 @@ SUCCESS_CALLS: dict[str, dict[str, Any]] = {
     "izmir_get_resource_schema": {"resource_id": "r1"},
     "izmir_query_resource": {"resource_id": "r1", "limit": 1},
     "izmir_nearby": {"lat": 38.41872, "lon": 27.12827, "types": ["parking"], "limit": 1},
+    "izmir_mobility_nearby": {"lat": 38.41872, "lon": 27.12827, "limit": 2},
     "izmir_water_status": {"kind": "dams", "limit": 1},
     "izmir_air_quality": {"date": "2026-10-01", "limit": 1},
     "izmir_transit_stations": {"mode": "metro", "limit": 1},
@@ -42,7 +42,10 @@ SUCCESS_CALLS: dict[str, dict[str, Any]] = {
     "izmir_market_schedule": {"district": "Konak", "limit": 1},
     "izmir_transport_disruptions": {"operator": "metro", "limit": 1},
     "izmir_city_services_nearby": {
-        "lat": 38.41872, "lon": 27.12827, "kinds": ["wifi"], "limit": 1,
+        "lat": 38.41872,
+        "lon": 27.12827,
+        "kinds": ["wifi"],
+        "limit": 1,
     },
 }
 
@@ -52,7 +55,9 @@ INVALID_CALLS: dict[str, dict[str, Any]] = {
     "izmir_get_dataset": {"dataset_id": ""},
     "izmir_get_resource_schema": {"resource_id": "../etc/passwd"},
     "izmir_query_resource": {"resource_id": "r1", "filters": {"bad key!": 1}},
+    "izmir_datastore_query": {"resource_id": "r1", "sql": "DELETE FROM records"},
     "izmir_nearby": {"lat": 38.4, "lon": 27.1, "radius_m": -1},
+    "izmir_mobility_nearby": {"lat": 38.4, "lon": 27.1, "radius_m": 0},
     "izmir_air_quality": {"date": "2026-13-99"},
     "izmir_bus_stops": {},
     "izmir_bus_departures": {"stop_id": "", "at": "25:99"},
@@ -70,18 +75,29 @@ CSV_FIXTURE = (
 # Columns the published city-layer and notice datasets carry; a fixture row with
 # these names keeps every layer mapper happy without inventing content.
 DATASET_COLUMNS = (
-    "_id", "ADI", "ILCE", "MAHALLE", "YOL", "ACIKLAMA", "ENLEM", "BOYLAM",
-    "DURAK_ID", "DURAK_ADI", "DURAKTAN_GECEN_HATLAR",
-    "HAT_KODU", "HAT_ADI", "BASLANGIC_TARIHI", "BITIS_TARIHI", "DUYURU",
+    "_id",
+    "ADI",
+    "ILCE",
+    "MAHALLE",
+    "YOL",
+    "ACIKLAMA",
+    "ENLEM",
+    "BOYLAM",
+    "DURAK_ID",
+    "DURAK_ADI",
+    "DURAKTAN_GECEN_HATLAR",
+    "HAT_KODU",
+    "HAT_ADI",
+    "BASLANGIC_TARIHI",
+    "BITIS_TARIHI",
+    "DUYURU",
 )
+
 
 def _gtfs_rows(name: str) -> str:
     """Minimal but valid GTFS members for the envelope-level replay."""
     members = {
-        "routes.txt": (
-            "route_id,route_short_name,route_long_name,route_type\r\n"
-            "1,1,Fixtures - Konak,3\r\n"
-        ),
+        "routes.txt": ("route_id,route_short_name,route_long_name,route_type\r\n1,1,Fixtures - Konak,3\r\n"),
         "trips.txt": "route_id,service_id,trip_id,direction_id\r\n1,WK,T1,0\r\n",
         "calendar.txt": (
             "service_id,monday,tuesday,wednesday,thursday,friday,saturday,sunday,"
@@ -89,8 +105,7 @@ def _gtfs_rows(name: str) -> str:
         ),
         "stops.txt": "stop_id,stop_name,stop_lat,stop_lon\r\n10001,Fixtures Durak,38.4,27.1\r\n",
         "stop_times.txt": (
-            "trip_id,arrival_time,departure_time,stop_id,stop_sequence\r\n"
-            "T1,08:00:00,08:00:00,10001,1\r\n"
+            "trip_id,arrival_time,departure_time,stop_id,stop_sequence\r\nT1,08:00:00,08:00:00,10001,1\r\n"
         ),
     }
     return members[name]
@@ -203,8 +218,15 @@ class Recorder:
         rows["DURAK_ADI"] = "Fixtures Durak"
         rows["DURAKTAN_GECEN_HATLAR"] = "1"
         if "announcement" in path:
-            body = [{"id": "fixture", "title": "Fixture duyuru", "summary": "Fixture",
-                     "publishedAt": "2026-10-27T00:00:00", "slug": "fixture"}]
+            body = [
+                {
+                    "id": "fixture",
+                    "title": "Fixture duyuru",
+                    "summary": "Fixture",
+                    "publishedAt": "2026-10-27T00:00:00",
+                    "slug": "fixture",
+                }
+            ]
             if "metrotramapi" in str(request.url.host):
                 return _ok_json({"isSuccessful": True, "data": body})
             return _ok_json({"data": {"data": body}})
@@ -214,15 +236,20 @@ class Recorder:
                 return _ok_json({"departures": []})
             return _ok_json([])
         if "/api/v1/announcements" in path:
-            body = [{"id": "fixture", "title": "Fixture duyuru", "summary": "Fixture",
-                     "publishedAt": "2026-10-27T00:00:00", "slug": "fixture"}]
+            body = [
+                {
+                    "id": "fixture",
+                    "title": "Fixture duyuru",
+                    "summary": "Fixture",
+                    "publishedAt": "2026-10-27T00:00:00",
+                    "slug": "fixture",
+                }
+            ]
             if "metrotramapi" in path or "metrotramapi" in str(request.url.host):
                 return _ok_json({"isSuccessful": True, "data": body})
             return _ok_json({"data": {"data": body}})
         if path.endswith(".zip") or "gtfs" in path:
-            return httpx.Response(
-                200, content=_gtfs_archive(), headers={"content-type": "application/zip"}
-            )
+            return httpx.Response(200, content=_gtfs_archive(), headers={"content-type": "application/zip"})
         if "/api/3/action/" in path:
             action = path.rsplit("/", 1)[-1]
             result: Any = {"results": [], "count": 0}
@@ -236,8 +263,10 @@ class Recorder:
                 }
             return _ok_json({"success": True, "result": result})
         if "dam" in path or path.endswith(".csv"):
-            return _ok_json([]) if path.endswith(".json") else httpx.Response(
-                200, text=CSV_FIXTURE, headers={"content-type": "text/csv"}
+            return (
+                _ok_json([])
+                if path.endswith(".json")
+                else httpx.Response(200, text=CSV_FIXTURE, headers={"content-type": "text/csv"})
             )
         return _ok_json([])
 
@@ -376,12 +405,10 @@ async def test_rate_limited_source_is_typed_across_services():
         async def market_rows(self):
             raise SourceRateLimitedError("source rate limit exceeded")
 
-    catalog = await CatalogService(
-        settings=get_settings(), client=LimitedCkan()
-    ).search_datasets(query="otopark", limit=3)
-    market = await MarketService(
-        settings=get_settings(), api=LimitedMarket()
-    ).schedule(limit=3)
+    catalog = await CatalogService(settings=get_settings(), client=LimitedCkan()).search_datasets(
+        query="otopark", limit=3
+    )
+    market = await MarketService(settings=get_settings(), api=LimitedMarket()).schedule(limit=3)
 
     for payload in (catalog, market):
         assert payload["ok"] is False
@@ -452,7 +479,7 @@ def test_public_page_url_drops_machine_endpoints():
 
 def test_tool_titles_and_names_stay_in_sync():
     assert set(TOOL_TITLES) == set(DEFAULT_TOOL_NAMES)
-    assert len(DEFAULT_TOOL_NAMES) == len(set(DEFAULT_TOOL_NAMES)) == 19
+    assert len(DEFAULT_TOOL_NAMES) == len(set(DEFAULT_TOOL_NAMES)) == 35
 
 
 @pytest.mark.asyncio

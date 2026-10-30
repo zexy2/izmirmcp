@@ -6,9 +6,7 @@ from app.core.mcp_transport import INVALID_REQUEST, PARSE_ERROR, validate_messag
 
 
 def test_accepts_a_minimal_request():
-    ok, problem, request_id = validate_message(
-        {"jsonrpc": "2.0", "id": 1, "method": "tools/list"}
-    )
+    ok, problem, request_id = validate_message({"jsonrpc": "2.0", "id": 1, "method": "tools/list"})
     assert ok is True
     assert problem is None
     assert request_id == 1
@@ -44,9 +42,7 @@ def test_rejects_a_non_string_method():
 
 
 def test_rejects_an_oversized_method():
-    ok, _problem, _rid = validate_message(
-        {"jsonrpc": "2.0", "id": 1, "method": "x" * 500}
-    )
+    ok, _problem, _rid = validate_message({"jsonrpc": "2.0", "id": 1, "method": "x" * 500})
     assert ok is False
 
 
@@ -57,27 +53,19 @@ def test_rejects_bool_id():
 
 
 def test_rejects_an_oversized_id():
-    ok, _problem, _rid = validate_message(
-        {"jsonrpc": "2.0", "id": "x" * 200, "method": "ping"}
-    )
+    ok, _problem, _rid = validate_message({"jsonrpc": "2.0", "id": "x" * 200, "method": "ping"})
     assert ok is False
 
 
 def test_rejects_scalar_params():
-    ok, problem, _rid = validate_message(
-        {"jsonrpc": "2.0", "id": 1, "method": "tools/call", "params": "nope"}
-    )
+    ok, problem, _rid = validate_message({"jsonrpc": "2.0", "id": 1, "method": "tools/call", "params": "nope"})
     assert ok is False
     assert "params" in problem
 
 
 def test_accepts_object_and_array_params():
-    assert validate_message(
-        {"jsonrpc": "2.0", "id": 1, "method": "a", "params": {}}
-    )[0]
-    assert validate_message(
-        {"jsonrpc": "2.0", "id": 1, "method": "a", "params": []}
-    )[0]
+    assert validate_message({"jsonrpc": "2.0", "id": 1, "method": "a", "params": {}})[0]
+    assert validate_message({"jsonrpc": "2.0", "id": 1, "method": "a", "params": []})[0]
 
 
 def test_error_codes_are_protocol_values():

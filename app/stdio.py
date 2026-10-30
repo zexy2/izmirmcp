@@ -2,6 +2,7 @@
 
 Run with: .venv/bin/python -m app.stdio
 """
+
 from __future__ import annotations
 
 from app.core.settings import get_settings

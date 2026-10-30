@@ -4,7 +4,7 @@ from typing import Any
 
 from app.connectors.city_layers import CityLayerConnector, parse_market_days
 from app.core.envelope import Freshness, error_envelope, success_envelope
-from app.core.geo import haversine_m, normalize_name
+from app.core.geo import haversine_m, maps_url, normalize_name
 from app.core.settings import Settings
 from app.core.validation import InputValidationError, resolve_limit, validate_lat_lon, validate_radius
 from app.services import sources
@@ -20,8 +20,12 @@ DAY_ALIASES = {
     "pazar": "sunday",
 }
 DAY_LABELS = {
-    "monday": "Pazartesi", "tuesday": "Salı", "wednesday": "Çarşamba",
-    "thursday": "Perşembe", "friday": "Cuma", "saturday": "Cumartesi",
+    "monday": "Pazartesi",
+    "tuesday": "Salı",
+    "wednesday": "Çarşamba",
+    "thursday": "Perşembe",
+    "friday": "Cuma",
+    "saturday": "Cumartesi",
     "sunday": "Pazar",
 }
 
@@ -30,10 +34,6 @@ LIMITS = [
     "Kurulma günü yalnızca kaynağın serbest metnindeki açık gün adından çıkarılır.",
     "Yakınlık kuş uçuşu metredir.",
 ]
-
-
-def _maps_url(lat: float, lon: float) -> str:
-    return f"https://www.google.com/maps?q={lat:.6f},{lon:.6f}"
 
 
 def resolve_day(value: str | None) -> str | None:
@@ -47,7 +47,7 @@ def resolve_day(value: str | None) -> str | None:
     day = DAY_ALIASES.get(text) or DAY_ALIASES.get(str(value).strip().casefold())
     if day is None:
         raise InputValidationError(
-            "day must be a Turkish weekday name (pazartesi..pazar), bugun or yarin", field="day"
+            "day bir Türkçe hafta günü (pazartesi..pazar), bugun veya yarin olmalıdır", field="day"
         )
     return day
 
@@ -70,7 +70,7 @@ class MarketService:
         day_key = resolve_day(day)
         uses_coordinates = lat is not None or lon is not None
         if uses_coordinates and (lat is None or lon is None):
-            raise InputValidationError("lat and lon must be supplied together", field="lat")
+            raise InputValidationError("lat ve lon birlikte verilmelidir", field="lat")
         if lat is not None and lon is not None:
             validate_lat_lon(lat, lon)
         safe_limit = resolve_limit(limit, self.settings.default_limit, self.settings.max_limit)
@@ -80,9 +80,7 @@ class MarketService:
         except Exception as exc:
             from app.services.sources import source_failure_envelope
 
-            return source_failure_envelope(
-                exc, summary="Semt pazarı verisi kullanılamıyor.", used=[sources.MARKET]
-            )
+            return source_failure_envelope(exc, summary="Semt pazarı verisi kullanılamıyor.", used=[sources.MARKET])
 
         limits = [f"limit={safe_limit}"]
         selected = []
@@ -94,16 +92,19 @@ class MarketService:
                 unknown_days += 1
             selected.append({**row, "days": days, "day_confidence": confidence})
 
-        warnings = ["Kurulma günü kaynağın serbest metninden türetilir; listede olmayan pazar yeri "
-                    "günü bilinmiyor demektir, 'her gün kurulmuyor' kanıtı değildir."]
+        warnings = [
+            "Kurulma günü kaynağın serbest metninden türetilir; listede olmayan pazar yeri "
+            "günü bilinmiyor demektir, 'her gün kurulmuyor' kanıtı değildir."
+        ]
 
         if day_key is not None:
             if day_key in {"today", "tomorrow"}:
                 from datetime import date, timedelta
 
                 target = date.today() + (timedelta(days=1) if day_key == "tomorrow" else timedelta(days=0))
-                day_key = ("monday", "tuesday", "wednesday", "thursday", "friday",
-                           "saturday", "sunday")[target.weekday()]
+                day_key = ("monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday")[
+                    target.weekday()
+                ]
                 limits.append(f"day={day_key} (system date {target.isoformat()})")
             else:
                 limits.append(f"day={day_key}")
@@ -115,16 +116,11 @@ class MarketService:
 
         if district is not None:
             needle = normalize_name(district)
-            selected = [
-                row for row in selected
-                if needle in normalize_name(row.get("district") or "")
-            ]
+            selected = [row for row in selected if needle in normalize_name(row.get("district") or "")]
             limits.append(f"district={district.strip()[:60]}")
 
         if lat is not None and lon is not None:
-            safe_radius = validate_radius(
-                1_500 if radius_m is None else radius_m, self.settings.max_radius_m
-            )
+            safe_radius = validate_radius(1_500 if radius_m is None else radius_m, self.settings.max_radius_m)
             with_distance = []
             for row in selected:
                 if row.get("lat") is None or row.get("lon") is None:
@@ -136,11 +132,11 @@ class MarketService:
             selected = with_distance
             limits.extend([f"radius_m={safe_radius}", f"lat={lat:.5f}", f"lon={lon:.5f}"])
         elif radius_m is not None:
-            raise InputValidationError("radius_m requires lat and lon", field="radius_m")
+            raise InputValidationError("radius_m için lat ve lon gerekir", field="radius_m")
 
         for row in selected:
             if row.get("lat") is not None and row.get("lon") is not None:
-                row["maps_url"] = _maps_url(row["lat"], row["lon"])
+                row["maps_url"] = maps_url(row["lat"], row["lon"])
 
         selected.sort(
             key=lambda row: (

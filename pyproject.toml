@@ -4,16 +4,26 @@ build-backend = "hatchling.build"
 
 [project]
 name = "izmir-mcp"
-version = "0.1.0"
-description = "Remote MCP server for İzmir open city data."
+dynamic = ["version"]
+description = "Read-only MCP server for İzmir open city data: catalog, transit, buses, water, air."
 readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "zexy2" }]
 requires-python = ">=3.11"
+classifiers = [
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "License :: OSI Approved :: MIT License",
+]
 dependencies = [
-  "httpx>=0.27",
+  "httpx>=0.27,<1",
   "mcp>=2.3,<3",
   "pydantic>=2.12,<3",
-  "starlette>=0.37",
-  "uvicorn>=0.30",
+  "sqlglot>=25,<28",
+  "starlette>=0.37,<2",
+  "uvicorn>=0.30,<1",
 ]
 
 [project.scripts]
@@ -22,9 +32,19 @@ izmir-mcp-stdio = "app.stdio:main"
 
 [project.optional-dependencies]
 dev = [
-  "pytest>=8.2",
-  "pytest-asyncio>=0.23",
+  "jsonschema>=4.21,<5",
+  "pytest>=8.2,<10",
+  "pytest-asyncio>=0.23,<2",
 ]
+
+[project.urls]
+Homepage = "https://github.com/zexy2/izmirmcp"
+Source = "https://github.com/zexy2/izmirmcp"
+
+[tool.hatch.version]
+# Single source of truth: app/__init__.py. server.json and the Docker label
+# are checked against it by tests/test_packaging.py.
+path = "app/__init__.py"
 
 [tool.hatch.build.targets.wheel]
 # `app` already contains app/data; a force-include for the same files makes

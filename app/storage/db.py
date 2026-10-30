@@ -1,4 +1,5 @@
 """Shared SQLite bootstrap: WAL, schema version and the spatial index."""
+
 from __future__ import annotations
 
 import sqlite3

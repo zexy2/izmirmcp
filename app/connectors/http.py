@@ -2,10 +2,16 @@ from __future__ import annotations
 
 import asyncio
 import io
+import ipaddress
 import json
+import os
+import socket
+import time
 import zipfile
+from collections import OrderedDict
 from collections.abc import Mapping
 from typing import Any
+from urllib.parse import urlsplit
 
 import httpx
 
@@ -23,32 +29,188 @@ class SourceTimeoutError(SourceError):
 
 
 class SourceRateLimitedError(SourceError):
-    """The upstream rejected the request with HTTP 429."""
+    """The upstream rejected the request with HTTP 429.
+
+    ``retry_after_seconds`` echoes the source's own ``Retry-After`` header when
+    present; the caller can then back off for the period the publisher asked for
+    instead of hammering on a fixed schedule.
+    """
+
+    def __init__(self, message: str, *, retry_after_seconds: float = 0.0):
+        super().__init__(message)
+        self.retry_after_seconds = max(0.0, float(retry_after_seconds))
 
 
 MAX_REDIRECTS = 3
+MAX_RETRY_AFTER_SECONDS = 300
 
 
-async def _get_same_origin(
-    client: httpx.AsyncClient, url: str
-) -> tuple[httpx.Response, str]:
+def _retry_after_seconds(response: httpx.Response) -> float:
+    """Parse ``Retry-After`` as seconds; ignore dates and absurd values.
+
+    Only the delta-seconds form is honoured. A malformed or hostile value must
+    not park the caller forever, so it is clamped.
+    """
+    raw = (response.headers.get("retry-after") or "").strip()
+    if not raw:
+        return 0.0
+    try:
+        value = float(raw)
+    except ValueError:
+        return 0.0
+    if value < 0 or value != value:  # negative or NaN
+        return 0.0
+    return min(value, MAX_RETRY_AFTER_SECONDS)
+
+
+# --- Upstream destination policy -------------------------------------------
+#
+# Every upstream is a public government endpoint. A hostname that resolves to
+# loopback, RFC1918, link-local (169.254.169.254 metadata), CGNAT, multicast or
+# any reserved range is refused. The check runs on the address the socket will
+# actually use: ``_GuardedTransport`` resolves once, validates every answer and
+# connects to the vetted IP, so DNS rebinding between check and connect is not
+# possible. ``IZMIR_MCP_ALLOW_PRIVATE_UPSTREAMS=1`` exists only for local test
+# servers and is never on by default.
+
+ALLOW_PRIVATE_ENV = "IZMIR_MCP_ALLOW_PRIVATE_UPSTREAMS"
+DEFAULT_CONNECT_TIMEOUT = 5.0
+HOST_COOLDOWN_SECONDS = 60.0
+MAX_COOLDOWN_HOSTS = 256
+_NAT64_PREFIX = ipaddress.IPv6Network("64:ff9b::/96")
+
+
+def _private_upstreams_allowed() -> bool:
+    return os.environ.get(ALLOW_PRIVATE_ENV, "").strip().lower() in {"1", "true", "yes"}
+
+
+def _is_public_ip(address: str) -> bool:
+    try:
+        ip = ipaddress.ip_address(address.split("%", 1)[0])
+    except ValueError:
+        return False
+    if isinstance(ip, ipaddress.IPv6Address):
+        mapped = ip.ipv4_mapped or ip.sixtofour
+        if mapped is not None:
+            ip = mapped
+        elif ip.teredo is not None:
+            ip = ip.teredo[1]
+        elif ip in _NAT64_PREFIX:
+            # A NAT64 gateway would translate 64:ff9b::7f00:1 to 127.0.0.1.
+            ip = ipaddress.IPv4Address(int(ip) & 0xFFFFFFFF)
+    return ip.is_global and not ip.is_multicast
+
+
+def _check_literal_host(host: str) -> None:
+    """Refuse a URL whose host is a non-public IP literal or a local name."""
+    if _private_upstreams_allowed():
+        return
+    bare = host.strip("[]").rstrip(".").lower()
+    if not bare:
+        raise SourceError("source URL has no host")
+    if bare == "localhost" or bare.endswith((".localhost", ".local", ".internal")):
+        raise SourceError("source URL points to a local host")
+    try:
+        ipaddress.ip_address(bare.split("%", 1)[0])
+    except ValueError:
+        return
+    if not _is_public_ip(bare):
+        raise SourceError("source URL points to a non-public address")
+
+
+async def _resolve_public(host: str, port: int) -> str:
+    """Resolve ``host`` and return one vetted public address.
+
+    All answers must be public: a resolver returning a mix of public and private
+    records is treated as hostile rather than filtered.
+    """
+    try:
+        infos = await asyncio.get_running_loop().getaddrinfo(host, port, type=socket.SOCK_STREAM)
+    except socket.gaierror as exc:
+        raise httpx.ConnectError(f"could not resolve {host}") from exc
+    addresses = [str(info[4][0]) for info in infos]
+    if not addresses:
+        raise httpx.ConnectError(f"could not resolve {host}")
+    if not all(_is_public_ip(address) for address in addresses):
+        raise SourceError("source host resolves to a non-public address")
+    return addresses[0]
+
+
+class _GuardedTransport(httpx.AsyncBaseTransport):
+    """Connect only to vetted public IPs, keeping Host and TLS SNI intact."""
+
+    def __init__(self, **kwargs: Any):
+        self._inner = httpx.AsyncHTTPTransport(**kwargs)
+
+    async def handle_async_request(self, request: httpx.Request) -> httpx.Response:
+        host = request.url.host
+        _check_literal_host(host)
+        if _private_upstreams_allowed():
+            return await self._inner.handle_async_request(request)
+        try:
+            ipaddress.ip_address(host)
+            is_literal = True
+        except ValueError:
+            is_literal = False
+        if not is_literal:
+            port = request.url.port or (443 if request.url.scheme == "https" else 80)
+            address = await _resolve_public(host, port)
+            request.url = request.url.copy_with(host=address)
+            request.extensions = {**request.extensions, "sni_hostname": host}
+        return await self._inner.handle_async_request(request)
+
+    async def aclose(self) -> None:
+        await self._inner.aclose()
+
+
+# Per-host "recently unreachable" memory. A dead host otherwise costs every
+# caller the full connect timeout × attempts; after a connect failure the host
+# is skipped for ``HOST_COOLDOWN_SECONDS``. Bounded LRU so hostile hostnames
+# cannot grow it without limit.
+_host_cooldowns: OrderedDict[str, float] = OrderedDict()
+
+
+def _cooldown_active(host: str) -> bool:
+    until = _host_cooldowns.get(host)
+    if until is None:
+        return False
+    if until <= time.monotonic():
+        _host_cooldowns.pop(host, None)
+        return False
+    return True
+
+
+def _mark_unreachable(host: str) -> None:
+    _host_cooldowns[host] = time.monotonic() + HOST_COOLDOWN_SECONDS
+    _host_cooldowns.move_to_end(host)
+    while len(_host_cooldowns) > MAX_COOLDOWN_HOSTS:
+        _host_cooldowns.popitem(last=False)
+
+
+def clear_host_cooldowns() -> None:
+    _host_cooldowns.clear()
+
+
+async def _get_same_origin(client: httpx.AsyncClient, url: str) -> tuple[httpx.Response, str]:
     """GET ``url`` following at most ``MAX_REDIRECTS`` same-origin redirects.
 
     A cross-host or scheme-changing redirect is refused with ``SourceError`` so
-    a hijacked source cannot redirect us into the local network.
+    a hijacked source cannot redirect us into the local network. The returned
+    response is *streamed*: the caller owns it and must ``aclose()`` it.
     """
-    from urllib.parse import urlsplit
-
     original = urlsplit(url)
     origin = (original.scheme, original.netloc.lower())
     current = url
     for _ in range(MAX_REDIRECTS + 1):
-        response = await client.get(current)
+        _check_literal_host(httpx.URL(current).host)
+        request = client.build_request("GET", current)
+        response = await client.send(request, stream=True)
         if response.status_code not in {301, 302, 303, 307, 308}:
             return response, origin[1]
         location = response.headers.get("location")
         if not location:
             return response, origin[1]
+        await response.aclose()
         target = httpx.URL(current).join(location)
         target_origin = (target.scheme, target.netloc.lower())
         if target_origin != origin:
@@ -76,36 +238,85 @@ async def _get_bytes(
     attempts: int,
     max_bytes: int,
     accept: str,
+    total_deadline: float | None = None,
+) -> bytes:
+    host = (urlsplit(url).hostname or "").lower()
+    if _cooldown_active(host):
+        raise SourceError("source host is temporarily unreachable")
+    deadline = total_deadline if total_deadline is not None else timeout * 2
+    try:
+        async with asyncio.timeout(deadline):
+            return await _get_bytes_inner(url, timeout=timeout, attempts=attempts, max_bytes=max_bytes, accept=accept)
+    except TimeoutError as exc:
+        raise SourceTimeoutError("source request exceeded its total deadline") from exc
+
+
+async def _get_bytes_inner(
+    url: str,
+    *,
+    timeout: float,
+    attempts: int,
+    max_bytes: int,
+    accept: str,
 ) -> bytes:
     last_error: Exception | None = None
+    host = (urlsplit(url).hostname or "").lower()
     # Redirects are followed only when the target stays on the same host and
     # scheme. Blindly following a 302 from a compromised source is a textbook
     # SSRF: the next hop could be 169.254.169.254 or an internal address.
+    # ``trust_env=False``: a stray HTTP(S)_PROXY must not reroute upstream calls
+    # around the destination policy.
     async with httpx.AsyncClient(
-        timeout=httpx.Timeout(timeout),
+        timeout=httpx.Timeout(timeout, connect=min(DEFAULT_CONNECT_TIMEOUT, timeout)),
         follow_redirects=False,
+        trust_env=False,
+        transport=_GuardedTransport(),
         headers={"User-Agent": USER_AGENT, "Accept": accept},
     ) as client:
         for attempt in range(max(1, attempts)):
             try:
                 response, original_host = await _get_same_origin(client, url)
-                if response.status_code == 429:
-                    raise SourceRateLimitedError("source rate limit exceeded")
-                response.raise_for_status()
-                return await _read_bounded(response, max_bytes)
+                try:
+                    if response.status_code == 429:
+                        raise SourceRateLimitedError(
+                            "source rate limit exceeded",
+                            retry_after_seconds=_retry_after_seconds(response),
+                        )
+                    response.raise_for_status()
+                    return await _read_bounded(response, max_bytes)
+                finally:
+                    await response.aclose()
             except (httpx.HTTPError, SourceError) as exc:
                 last_error = exc
                 if isinstance(exc, httpx.HTTPStatusError) and exc.response.status_code < 500:
                     break
                 if isinstance(exc, SourceRateLimitedError):
                     break
+                if isinstance(exc, SourceError) and not isinstance(exc, SourceTimeoutError):
+                    # Policy and budget violations are deterministic; retrying
+                    # only repeats the download.
+                    break
+                if isinstance(exc, httpx.ConnectError):
+                    _mark_unreachable(host)
+                    break
                 if attempt + 1 < max(1, attempts):
                     await asyncio.sleep(0.35 * (attempt + 1))
     if isinstance(last_error, httpx.TimeoutException):
         raise SourceTimeoutError("source request timed out") from last_error
     if isinstance(last_error, (SourceRateLimitedError, SourceError)):
-        raise type(last_error)(str(last_error)) from last_error
+        # Re-raise the original so typed attributes (retry_after_seconds) survive;
+        # rebuilding it from the message dropped them.
+        raise last_error
     raise SourceError(f"source request failed: {type(last_error).__name__}") from last_error
+
+
+def _decode(body: bytes, *, strict: bool) -> str:
+    if not strict:
+        return body.decode("utf-8-sig", errors="replace")
+    try:
+        return body.decode("utf-8-sig")
+    except UnicodeDecodeError as exc:
+        raise SourceError("source returned text that is not valid UTF-8") from exc
 
 
 async def get_text(
@@ -115,11 +326,32 @@ async def get_text(
     attempts: int,
     max_bytes: int,
     accept: str = "text/csv,text/plain,*/*",
+    strict: bool = False,
 ) -> str:
+    body = await _get_bytes(url, timeout=timeout, attempts=attempts, max_bytes=max_bytes, accept=accept)
+    return _decode(body, strict=strict)
+
+
+async def get_json_with_size(
+    url: str,
+    *,
+    timeout: float,
+    attempts: int,
+    max_bytes: int,
+    strict: bool = False,
+) -> tuple[Any, int]:
+    """Fetch JSON and report the exact wire bytes consumed by the budget."""
     body = await _get_bytes(
-        url, timeout=timeout, attempts=attempts, max_bytes=max_bytes, accept=accept
+        url,
+        timeout=timeout,
+        attempts=attempts,
+        max_bytes=max_bytes,
+        accept="application/json",
     )
-    return body.decode("utf-8-sig", errors="replace")
+    try:
+        return json.loads(_decode(body, strict=strict)), len(body)
+    except json.JSONDecodeError as exc:
+        raise SourceError("source returned invalid JSON") from exc
 
 
 async def get_json(
@@ -128,18 +360,12 @@ async def get_json(
     timeout: float,
     attempts: int,
     max_bytes: int,
+    strict: bool = False,
 ) -> Any:
-    text = await get_text(
-        url,
-        timeout=timeout,
-        attempts=attempts,
-        max_bytes=max_bytes,
-        accept="application/json",
+    payload, _size = await get_json_with_size(
+        url, timeout=timeout, attempts=attempts, max_bytes=max_bytes, strict=strict
     )
-    try:
-        return json.loads(text)
-    except json.JSONDecodeError as exc:
-        raise SourceError("source returned invalid JSON") from exc
+    return payload
 
 
 # A 18 MB archive with 200k empty entries cost ~113 MB and ~5 s just to build
@@ -158,10 +384,28 @@ def _declared_entry_count(body: bytes) -> int | None:
     before the ceiling was even checked. The EOCD trailer states the count in
     fixed offsets, so it can be rejected before the archive is opened.
     """
-    index = body.rfind(EOCD_SIGNATURE, max(0, len(body) - (EOCD_SIZE + 65_535)))
-    if index < 0 or index + EOCD_SIZE > len(body):
-        return None
-    return int.from_bytes(body[index + 10:index + 12], "little")
+    floor = max(0, len(body) - (EOCD_SIZE + 65_535))
+    end = len(body)
+    # A forged EOCD planted in the archive comment can be self-consistent too,
+    # so every candidate whose comment length reaches the end of the body is
+    # considered and the largest count wins: a fake can only raise the count.
+    counts: list[int] = []
+    while True:
+        index = body.rfind(EOCD_SIGNATURE, floor, end)
+        if index < 0:
+            break
+        end = index + 3
+        if index + EOCD_SIZE > len(body):
+            continue
+        comment_length = int.from_bytes(body[index + 20 : index + 22], "little")
+        if index + EOCD_SIZE + comment_length == len(body):
+            counts.append(
+                max(
+                    int.from_bytes(body[index + 8 : index + 10], "little"),
+                    int.from_bytes(body[index + 10 : index + 12], "little"),
+                )
+            )
+    return max(counts) if counts else None
 
 
 def read_zip_members(
@@ -182,9 +426,7 @@ def read_zip_members(
         raise SourceError("source did not return a ZIP archive")
     declared = _declared_entry_count(body)
     if declared is not None and declared > max_entries:
-        raise SourceError(
-            f"ZIP archive declares {declared} entries; limit is {max_entries}"
-        )
+        raise SourceError(f"ZIP archive declares {declared} entries; limit is {max_entries}")
     try:
         archive = zipfile.ZipFile(io.BytesIO(body))
     except zipfile.BadZipFile as exc:
@@ -192,9 +434,7 @@ def read_zip_members(
     with archive:
         infos = archive.infolist()
         if len(infos) > max_entries:
-            raise SourceError(
-                f"ZIP archive declares {len(infos)} entries; limit is {max_entries}"
-            )
+            raise SourceError(f"ZIP archive declares {len(infos)} entries; limit is {max_entries}")
         names = {info.filename for info in infos}
         missing = [name for name in required if name not in names]
         if missing:

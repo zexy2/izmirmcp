@@ -5,6 +5,7 @@ HTTP failure escaped as ``UnexpectedToolError`` instead of the documented
 ``source_unavailable`` / ``source_rate_limited`` / ``source_timeout`` taxonomy.
 These tests pin the corrected behaviour without any network access.
 """
+
 from __future__ import annotations
 
 import httpx
@@ -17,10 +18,7 @@ from app.services.air import AirQualityService
 from app.services.transit import TransitService
 from app.services.water import WaterService
 
-CSV = (
-    "BARAJ_KUYU_ID;BARAJ_KUYU_ADI;DURUM_TARIHI;DOLULUK_ORANI\n"
-    "1;Tahtalı;2026-10-27;42,5\n"
-)
+CSV = "BARAJ_KUYU_ID;BARAJ_KUYU_ADI;DURUM_TARIHI;DOLULUK_ORANI\n1;Tahtalı;2026-10-27;42,5\n"
 
 
 class _FailingClient:
@@ -62,9 +60,7 @@ async def test_air_quality_maps_connector_failures(exc, code, temporary):
 @pytest.mark.asyncio
 async def test_air_quality_does_not_swallow_non_source_bugs():
     """A programming bug must not be relabelled as a source outage."""
-    service = AirQualityService(
-        settings=get_settings(), api=_FailingClient(RuntimeError("bug"))
-    )
+    service = AirQualityService(settings=get_settings(), api=_FailingClient(RuntimeError("bug")))
     with pytest.raises(RuntimeError):
         await service.readings(day="2026-10-01")
 

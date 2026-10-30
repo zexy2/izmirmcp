@@ -11,11 +11,21 @@ class FakeApi:
     async def air_quality(self, day: str):
         return (
             [
-                {"station": "ÇİĞLİ", "station_id": 6, "observed_at": "2026-10-27T00:00:00",
-                 "readings": [{"pollutant": "PM10", "value": 10.0, "unit": None},
-                              {"pollutant": "SO2", "value": 3.0, "unit": None}]},
-                {"station": "ALSANCAK", "station_id": 1, "observed_at": "2026-10-27T00:00:00",
-                 "readings": [{"pollutant": "PM10", "value": None, "unit": None}]},
+                {
+                    "station": "ÇİĞLİ",
+                    "station_id": 6,
+                    "observed_at": "2026-10-27T00:00:00",
+                    "readings": [
+                        {"pollutant": "PM10", "value": 10.0, "unit": None},
+                        {"pollutant": "SO2", "value": 3.0, "unit": None},
+                    ],
+                },
+                {
+                    "station": "ALSANCAK",
+                    "station_id": 1,
+                    "observed_at": "2026-10-27T00:00:00",
+                    "readings": [{"pollutant": "PM10", "value": None, "unit": None}],
+                },
             ],
             fresh(),
         )
@@ -23,9 +33,7 @@ class FakeApi:
 
 @pytest.mark.asyncio
 async def test_air_quality_lists_readings_without_inventing_units():
-    envelope = await AirQualityService(settings=get_settings(), api=FakeApi()).readings(
-        day="2026-10-28", limit=10
-    )
+    envelope = await AirQualityService(settings=get_settings(), api=FakeApi()).readings(day="2026-10-28", limit=10)
     assert envelope["ok"] is True
     assert len(envelope["data"]) == 3
     assert all(row["unit"] is None for row in envelope["data"])

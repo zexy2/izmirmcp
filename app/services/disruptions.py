@@ -70,17 +70,17 @@ class DisruptionService:
     ) -> dict[str, Any]:
         safe_limit = resolve_limit(limit, self.settings.default_limit, self.settings.max_limit)
         if line is not None and not str(line).strip():
-            raise InputValidationError("line must not be blank", field="line")
+            raise InputValidationError("line boş olamaz", field="line")
         if operator is not None:
             operator = str(operator).strip().casefold()
             if operator not in OPERATORS:
                 raise InputValidationError(
-                    f"operator must be one of: {', '.join(OPERATORS)}", field="operator"
+                    f"operator şunlardan biri olmalıdır: {', '.join(OPERATORS)}", field="operator"
                 )
         try:
             reference = date.fromisoformat(today) if today else date.today()
         except ValueError as exc:
-            raise InputValidationError("today must use YYYY-MM-DD", field="today") from exc
+            raise InputValidationError("today YYYY-MM-DD biçiminde olmalıdır", field="today") from exc
 
         selected = [operator] if operator else ["eshot", "metro", "izdeniz"]
 
@@ -103,9 +103,7 @@ class DisruptionService:
             "metro": (self.operators.metro_announcements, sources.METRO_NOTICES),
             "izdeniz": (self.operators.ferry_announcements, sources.FERRY_NOTICES),
         }
-        outcomes = await asyncio.gather(
-            *(loaders[name][0]() for name in selected), return_exceptions=True
-        )
+        outcomes = await asyncio.gather(*(loaders[name][0]() for name in selected), return_exceptions=True)
 
         rows: list[dict[str, Any]] = []
         used: list[Source] = []
@@ -133,9 +131,7 @@ class DisruptionService:
             from app.services.sources import source_failure_envelope
 
             failures = [item for item in outcomes if isinstance(item, BaseException)]
-            if failures and all(
-                isinstance(item, SourceRateLimitedError) for item in failures
-            ):
+            if failures and all(isinstance(item, SourceRateLimitedError) for item in failures):
                 return source_failure_envelope(
                     failures[0],
                     summary="Tüm operatör duyuru kaynakları hız sınırına takıldı.",
@@ -188,9 +184,7 @@ class DisruptionService:
         data = rows[:safe_limit]
         truncated = matched > len(data)
         if truncated:
-            warnings.append(
-                f"Toplam {matched} duyuru eşleşti, ilk {len(data)} gösteriliyor; bu tam liste değildir."
-            )
+            warnings.append(f"Toplam {matched} duyuru eşleşti, ilk {len(data)} gösteriliyor; bu tam liste değildir.")
         if not data:
             warnings.append("Eşleşen duyuru yok. Bu, aksaklık olmadığının kanıtı değildir.")
 
@@ -213,9 +207,7 @@ class DisruptionService:
                 "Belirli bir operatör için operator parametresi kullanın.",
                 "Belirli bir hat için line parametresi kullanın (yalnızca ESHOT).",
             ],
-            result=result_info(
-                returned=len(data), matched=matched, truncated=truncated, scope="operator_notices"
-            ),
+            result=result_info(returned=len(data), matched=matched, truncated=truncated, scope="operator_notices"),
         )
 
     @staticmethod
@@ -232,10 +224,7 @@ class DisruptionService:
                     "starts_at": item.get("starts_at"),
                     "ends_at": item.get("ends_at"),
                     "published_at": item.get("starts_at"),
-                    "active": bool(
-                        (starts is None or starts <= reference)
-                        and (ends is None or ends >= reference)
-                    ),
+                    "active": bool((starts is None or starts <= reference) and (ends is None or ends >= reference)),
                     "url": None,
                 }
             )

@@ -13,8 +13,10 @@ okunur. Ölçülen kurulum: **~3,7 sn**, ~141 MB veritabanı.
 
 ## Dosya düzeni
 
-- Varsayılan yol: `.data/izmir_mcp.sqlite3`
-- `IZMIR_MCP_DATABASE_PATH` ile değiştirilir.
+- Varsayılan yol: `.data/izmir_mcp_gtfs.sqlite3`
+- `IZMIR_MCP_GTFS_DATABASE_PATH` ile değiştirilir. Kota ve mekânsal indeksin
+  kullandığı `IZMIR_MCP_DATABASE_PATH`'ten ayrıdır: tarife yeniden kurulumu
+  2,1M satır yazar, o dosyayı kilitlememelidir.
 - `.gitignore` ve `.dockerignore` kapsamındadır: **asla** depoya veya imaja girmez.
 - Konteynerde `/data` hacmine yazılır ve açılışta `docker/entrypoint.sh` kurar.
 
@@ -59,6 +61,22 @@ ve uyarı kendiliğinden kaybolur.
 
 `pickup_type=1` (binilemeyen) satırlar elenir. Kaynakta `trip_headsign` yoktur;
 yön adı **uydurulmaz**, yalnızca `direction_id` verilir.
+
+## Sorgu modları
+
+`izmir_bus_departures` üç hedef modu kabul eder; yalnızca ikisi tarifeye dokunur.
+
+| Mod | Ne döner | Tarife deposu |
+|---|---|---|
+| `stop_id` | O durağın `stop_times` satırları | Açılır |
+| `lat`+`lon` (+`radius_m`) | Yarıçaptaki en yakın 25 durağın kalkışları, tek zaman sırasında | Açılır |
+| `stop_query` | Durak adayları (`match=exact\|fuzzy`) | **Açılmaz** |
+
+Yarıçap modunda tek SQL, tüm durak kimliklerini `IN (...)` ile tarar ve gün
+başına `departure_sec` sırasına göre döner; böylece sonuç durak başına bloklar
+değil, gerçek zaman sırasıdır. `distance_m` kuş uçuşudur. Yarıçapta yayımlanmış
+durak yoksa depo hiç açılmaz: boş `data` + uyarı, "sefer yok" iddiası değil.
+`limit` yarıçap modunda **tüm durak kümesi** için toplam sınırdır.
 
 ## 24:00 sonrası saatler
 

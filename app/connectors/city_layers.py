@@ -5,6 +5,7 @@ below (see ``reports/eshot-ulasim-kaynak-arastirmasi.md`` and
 ``reports/izmir-sehir-katmanlari.md``). Coordinate parsing tolerates the
 source's Turkish decimal comma without rescaling arbitrary values.
 """
+
 from __future__ import annotations
 
 import csv
@@ -29,6 +30,40 @@ LIBRARY_RESOURCE_ID = "0c1b15b9-3f52-4437-bc16-56d366045ef5"
 # Neighborhood profile layers, verified live on 2026-10-28. Both are keyed by
 # district + mahalle name and join cleanly onto the muhtarlık inventory.
 TAXI_STAND_RESOURCE_ID = "64a72577-5f4c-404c-8842-780d88f351df"
+# Historical arterial speed/duration snapshots (18.731 rows, 2020-06 → 2026-10).
+# İzmir publishes no live traffic index: /api/ibb/trafikyogunluk is 404.
+TRAFFIC_RESOURCE_ID = "a3bd880f-dfc6-4f65-bbfd-5fcc998268c3"
+# Accessible EV charging stations (48 rows, coordinates published).
+CHARGING_RESOURCE_ID = "028f2692-d930-481f-ab27-17a321bd1283"
+
+# Verified live on 2026-10-31: 39 tariff rows, 92 camera points, 10 IZSU rows.
+PARKING_FEE_RESOURCE_ID = "8dca3fb5-b7fe-4f16-91af-d8248da59f87"
+TRAFFIC_CAMERA_RESOURCE_ID = "b91cb15d-05c6-45b7-8a75-48e030aad368"
+WATER_PRODUCTION_RESOURCE_ID = "0eca9087-41de-4beb-93a2-d7129faede40"
+
+# Published tariff columns (TL) → our keys. Several columns are typed text
+# upstream and arrive as ''; those become None like nulls.
+PARKING_FEE_COLUMNS = (
+    ("0-1 Saat", "h0_1"),
+    ("0-2 saat", "h0_2"),
+    ("0-3 saat", "h0_3"),
+    ("2-4 saat", "h2_4"),
+    ("3-6 saat", "h3_6"),
+    ("4-6 saat", "h4_6"),
+    ("0-6 saat", "h0_6"),
+    ("6-12 saat", "h6_12"),
+    ("0-12 saat", "h0_12"),
+    ("12-24 saat", "h12_24"),
+    ("0-24 saat", "h0_24"),
+    ("17:00-09:00 Arası (16 Saat)", "night_17_09"),
+    ("19:00-09:00 Arası (14 Saat)", "night_19_09"),
+    ("Kayıp Bilet", "lost_ticket"),
+    ("Aylık Abone Ücreti", "monthly_subscription"),
+    ("0-12 Saat(Motosiklet )", "motorcycle_h0_12"),
+    ("0-24 Saat(Motosiklet )", "motorcycle_h0_24"),
+    ("Motosiklet Aylık Abone Ücreti", "motorcycle_monthly_subscription"),
+    ("0-24 Saat(Engelli Aracı )", "accessible_h0_24"),
+)
 
 BUILDING_RESOURCE_ID = "54af6862-2d36-48d0-838f-a42133e8b943"
 POPULATION_RESOURCE_ID = "7ef10678-8a84-4e43-9122-3ac15c818b51"
@@ -55,7 +90,7 @@ def parse_lat_lon(lat_value: Any, lon_value: Any) -> tuple[float, float] | None:
     """Return a valid WGS84 pair, or ``None`` when the row is not placeable."""
     lat = parse_coordinate(lat_value)
     lon = parse_coordinate(lon_value)
-    if not valid_lat_lon(lat, lon):
+    if lat is None or lon is None or not valid_lat_lon(lat, lon):
         return None
     return lat, lon
 
@@ -84,9 +119,7 @@ class CityLayerConnector:
         rows: list[dict[str, Any]] = []
         offset = 0
         while True:
-            page = await self.ckan.datastore_search(
-                resource_id=resource_id, limit=page_size, offset=offset
-            )
+            page = await self.ckan.datastore_search(resource_id=resource_id, limit=page_size, offset=offset)
             records = page.get("records") or []
             if not isinstance(records, list):
                 raise SourceError("datastore records were not a list")
@@ -99,12 +132,12 @@ class CityLayerConnector:
             raise SourceError("city layer returned no rows")
         return rows
 
-    async def _layer(
-        self, key: str, resource_id: str, mapper
-    ) -> tuple[list[dict[str, Any]], CacheInfo]:
+    async def _layer(self, key: str, resource_id: str, mapper) -> tuple[list[dict[str, Any]], CacheInfo]:
         async def loader() -> list[dict[str, Any]]:
             rows = [mapper(item) for item in await self._datastore_rows(resource_id)]
-            usable = [row for row in rows if row.get("name") or row.get("address")]
+            # A layer is "usable" if a row carries identifying text; traffic
+            # rows identify themselves by their segment endpoints, not a name.
+            usable = [row for row in rows if row.get("name") or row.get("address") or row.get("segment_from")]
             if not usable:
                 raise SourceError(f"city layer {key} contained no usable rows")
             return usable
@@ -172,13 +205,50 @@ class CityLayerConnector:
 
         def mapper(item: dict[str, Any]) -> dict[str, Any]:
             return {
-                "district": bounded_text(item.get("ILCE_ADI") or "").strip() or None,
-                "name": bounded_text(item.get("MAHALLE_ADI") or "").strip() or None,
+                "district": bounded_text(item.get("ILCE_ADI")),
+                "name": bounded_text(item.get("MAHALLE_ADI")),
                 "male": finite_number(item.get("NUFUS_ERKEK_TOPLAM")),
                 "female": finite_number(item.get("NUFUS_KADIN_TOPLAM")),
             }
 
         return await self._layer("neighborhood_population", POPULATION_RESOURCE_ID, mapper)
+
+    async def parking_fee_rows(self) -> tuple[list[dict[str, Any]], CacheInfo]:
+        """Published İZELMAN parking tariffs in TL; ``''`` and null become None."""
+
+        def mapper(item: dict[str, Any]) -> dict[str, Any]:
+            return {
+                "id": bounded_id(item.get("_id")),
+                "name": bounded_text(item.get("Otopark / Fiyat")),
+                "fees_try": {key: finite_number(item.get(column)) for column, key in PARKING_FEE_COLUMNS},
+            }
+
+        return await self._layer("parking_fees", PARKING_FEE_RESOURCE_ID, mapper)
+
+    async def traffic_camera_rows(self) -> tuple[list[dict[str, Any]], CacheInfo]:
+        """Traffic camera locations only; the source publishes no stream URL."""
+
+        def mapper(item: dict[str, Any]) -> dict[str, Any]:
+            return {
+                "id": bounded_id(item.get("_id")),
+                "name": bounded_text(item.get("ADI")),
+                **_lat_lon(item.get("ENLEM"), item.get("BOYLAM")),
+            }
+
+        return await self._layer("traffic_cameras", TRAFFIC_CAMERA_RESOURCE_ID, mapper)
+
+    async def water_production_rows(self) -> tuple[list[dict[str, Any]], CacheInfo]:
+        """IZSU production per dam/well group; the resource carries no date."""
+
+        def mapper(item: dict[str, Any]) -> dict[str, Any]:
+            return {
+                "id": bounded_id(item.get("BARAJ_KUYU_ID")),
+                "name": bounded_text(item.get("BARAJ_KUYU_ADI")),
+                "kind": bounded_text(item.get("TUR_ADI"), 64),
+                "production": finite_number(item.get("URETIM_MIKTARI")),
+            }
+
+        return await self._layer("water_production", WATER_PRODUCTION_RESOURCE_ID, mapper)
 
     async def taxi_stands(self) -> tuple[list[dict[str, Any]], CacheInfo]:
         """Published taxi stand locations (district/mahalle/street labels)."""
@@ -195,6 +265,82 @@ class CityLayerConnector:
             }
 
         return await self._layer("taxi_stands", TAXI_STAND_RESOURCE_ID, mapper)
+
+    @staticmethod
+    def _traffic_record(item: dict[str, Any]) -> dict[str, Any]:
+        day = bounded_text(item.get("TARIH"), 10)
+        hour = bounded_text(item.get("SAAT"), 8)
+        # The source splits date and time; sortable timestamps need one value,
+        # otherwise "most recent first" only orders by day.
+        observed = f"{day}T{hour}" if day and hour else day
+        return {
+            "segment_from": bounded_text(item.get("BASLAMA")),
+            "segment_to": bounded_text(item.get("BITIS")),
+            "observed_at": observed,
+            "hour": hour,
+            "speed_kmh": finite_number(item.get("HIZ")),
+            "duration_minutes": finite_number(item.get("SURE")),
+        }
+
+    async def traffic_rows(self) -> tuple[list[dict[str, Any]], CacheInfo]:
+        """Arterial speed and duration history (never live).
+
+        Full scan: required when the caller filters, because an exact match can
+        sit anywhere in the dataset and CKAN cannot express the service's
+        substring/range filters server-side.
+        """
+        return await self._layer("traffic", TRAFFIC_RESOURCE_ID, self._traffic_record)
+
+    async def traffic_recent(self, limit: int) -> tuple[list[dict[str, Any]], CacheInfo, int]:
+        """Newest ``limit`` rows plus the published total, in one page.
+
+        The datastore is sorted server-side, so an unfiltered small limit does
+        not page the whole history before cutting. The total still comes from
+        CKAN, which keeps ``matched`` exact without reading every row.
+        """
+        if limit < 1:
+            raise SourceError("traffic limit must be positive")
+
+        async def loader() -> tuple[dict[str, Any], str | None]:
+            page = await self.ckan.datastore_search(
+                resource_id=TRAFFIC_RESOURCE_ID,
+                limit=limit,
+                offset=0,
+                sort="TARIH desc,SAAT desc",
+                include_total=True,
+            )
+            records = page.get("records") or []
+            if not isinstance(records, list):
+                raise SourceError("traffic records were not a list")
+            rows = [self._traffic_record(item) for item in records if isinstance(item, dict)]
+            usable = [row for row in rows if row.get("segment_from")]
+            total = page.get("total")
+            if not usable or not isinstance(total, int):
+                raise SourceError("traffic layer returned no usable rows")
+            return {"rows": usable, "total": total}, usable[0].get("observed_at")
+
+        data, info = await cached_source_data(
+            f"city_layer.traffic.recent.{limit}",
+            ttl_seconds=self.settings.city_layer_cache_ttl_seconds,
+            stale_if_error_seconds=self.settings.city_layer_stale_if_error_seconds,
+            loader=loader,
+        )
+        return data["rows"], info, int(data["total"])
+
+    async def charging_points(self) -> tuple[list[dict[str, Any]], CacheInfo]:
+        """Accessible EV charging station locations."""
+
+        def mapper(item: dict[str, Any]) -> dict[str, Any]:
+            return {
+                "id": bounded_id(item.get("_id")),
+                "name": bounded_text(item.get("ADRES")),
+                "district": bounded_text(item.get("ILCE"), 128),
+                "neighborhood": bounded_text(item.get("MAHALLE")),
+                "address": bounded_text(item.get("ADRES")),
+                **_lat_lon(item.get("ENLEM"), item.get("BOYLAM")),
+            }
+
+        return await self._layer("charging", CHARGING_RESOURCE_ID, mapper)
 
     async def libraries(self) -> tuple[list[dict[str, Any]], CacheInfo]:
         def mapper(item: dict[str, Any]) -> dict[str, Any]:

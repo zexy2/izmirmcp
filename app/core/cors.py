@@ -5,6 +5,7 @@ When a browser sends an ``Origin``, it must appear in the explicit allowlist;
 there is no wildcard, so a misconfigured deployment fails closed instead of
 silently allowing every site to call the server.
 """
+
 from __future__ import annotations
 
 import re
@@ -16,17 +17,24 @@ from starlette.types import ASGIApp, Receive, Scope, Send
 
 ALLOW_METHODS = ("GET", "POST", "DELETE", "OPTIONS")
 ALLOW_HEADERS = (
-    "Accept", "Content-Type", "Authorization", "Mcp-Session-Id",
-    "Mcp-Protocol-Version", "Mcp-Method", "Mcp-Name", "Last-Event-ID",
+    "Accept",
+    "Content-Type",
+    "Authorization",
+    "Mcp-Session-Id",
+    "Mcp-Protocol-Version",
+    "Mcp-Method",
+    "Mcp-Name",
+    "Last-Event-ID",
 )
 EXPOSE_HEADERS = (
-    "Mcp-Session-Id", "Mcp-Protocol-Version", "WWW-Authenticate", "Retry-After",
+    "Mcp-Session-Id",
+    "Mcp-Protocol-Version",
+    "WWW-Authenticate",
+    "Retry-After",
 )
 MCP_PATHS = {"/mcp", "/mcp/"}
 MAX_AGE_SECONDS = 600
-HOST_PATTERN = re.compile(
-    r"[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)*"
-)
+HOST_PATTERN = re.compile(r"[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)*")
 
 
 def validate_cors_origins(origins: tuple[str, ...]) -> None:
@@ -49,8 +57,7 @@ def validate_cors_origins(origins: tuple[str, ...]) -> None:
                 and (host == "::1" or HOST_PATTERN.fullmatch(host) is not None)
                 and (port is None or 1 <= port <= 65535)
                 and (
-                    parsed.scheme == "https"
-                    or (parsed.scheme == "http" and host in {"localhost", "127.0.0.1", "::1"})
+                    parsed.scheme == "https" or (parsed.scheme == "http" and host in {"localhost", "127.0.0.1", "::1"})
                 )
                 and parsed.username is None
                 and parsed.password is None
@@ -84,11 +91,7 @@ class McpCorsMiddleware:
         if scope["type"] != "http" or scope.get("path") not in MCP_PATHS:
             await self.app(scope, receive, send)
             return
-        origins = [
-            value.decode("latin-1")
-            for key, value in scope.get("headers", [])
-            if key.lower() == b"origin"
-        ]
+        origins = [value.decode("latin-1") for key, value in scope.get("headers", []) if key.lower() == b"origin"]
         if origins and (len(origins) != 1 or origins[0] not in self.allowed_origins):
             response = JSONResponse(
                 {

@@ -4,6 +4,7 @@ Every test drives the real ASGI app through its lifespan (no network, no live
 source). Each case is an attack the README claims is blocked; a regression here
 means the hardening claim is false.
 """
+
 from __future__ import annotations
 
 import contextlib
@@ -50,6 +51,7 @@ def _client_for(scope: dict) -> str:
 
 # --- authentication -------------------------------------------------------
 
+
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
     "authorisation",
@@ -84,8 +86,7 @@ async def test_auth_rejects_duplicate_authorisation_headers():
         response = await client.post(
             "/mcp/",
             json=LIST_TOOLS,
-            headers=[*MCP_HEADERS.items(), ("authorization", f"Bearer {KEY}"),
-                     ("authorization", f"Bearer {KEY}")],
+            headers=[*MCP_HEADERS.items(), ("authorization", f"Bearer {KEY}"), ("authorization", f"Bearer {KEY}")],
         )
     assert response.status_code == 401
 
@@ -161,6 +162,7 @@ async def test_correct_key_authenticates():
 
 # --- origin policy --------------------------------------------------------
 
+
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
     "origin",
@@ -177,9 +179,7 @@ async def test_correct_key_authenticates():
 )
 async def test_origin_bypass_variants_are_rejected(origin):
     async with _app(_settings(mcp_cors_allowed_origins=(ALLOWED_ORIGIN,))) as app, _client(app) as client:
-        response = await client.post(
-            "/mcp/", json=LIST_TOOLS, headers={**MCP_HEADERS, "origin": origin}
-        )
+        response = await client.post("/mcp/", json=LIST_TOOLS, headers={**MCP_HEADERS, "origin": origin})
     assert response.status_code == 403
     assert response.json()["error_code"] == "origin_not_allowed"
     assert "access-control-allow-origin" not in {key.lower() for key in response.headers}
@@ -191,8 +191,7 @@ async def test_duplicate_origin_headers_are_rejected():
         response = await client.post(
             "/mcp/",
             json=LIST_TOOLS,
-            headers=[*MCP_HEADERS.items(), ("origin", ALLOWED_ORIGIN),
-                     ("origin", "https://evil.example.com")],
+            headers=[*MCP_HEADERS.items(), ("origin", ALLOWED_ORIGIN), ("origin", "https://evil.example.com")],
         )
     assert response.status_code == 403
 
@@ -200,17 +199,16 @@ async def test_duplicate_origin_headers_are_rejected():
 @pytest.mark.asyncio
 async def test_origin_is_enforced_before_auth_so_errors_do_not_echo_state():
     """An evil browser origin gets 403 without learning whether its key worked."""
-    async with _app(
-        _settings(mcp_api_keys=(KEY,), mcp_cors_allowed_origins=(ALLOWED_ORIGIN,))
-    ) as app, _client(app) as client:
+    async with (
+        _app(_settings(mcp_api_keys=(KEY,), mcp_cors_allowed_origins=(ALLOWED_ORIGIN,))) as app,
+        _client(app) as client,
+    ):
         good_key = await client.post(
             "/mcp/",
             json=LIST_TOOLS,
             headers={"authorization": f"Bearer {KEY}", "origin": "https://evil.example.com"},
         )
-        no_key = await client.post(
-            "/mcp/", json=LIST_TOOLS, headers={"origin": "https://evil.example.com"}
-        )
+        no_key = await client.post("/mcp/", json=LIST_TOOLS, headers={"origin": "https://evil.example.com"})
     assert good_key.status_code == no_key.status_code == 403
     assert good_key.text == no_key.text
 
@@ -239,18 +237,24 @@ async def test_allowed_preflight_advertises_only_safe_headers():
     assert response.status_code in {200, 204}
     assert response.headers["access-control-allow-origin"] == ALLOWED_ORIGIN
     assert response.headers.get("access-control-allow-credentials") in (None, "false")
-    allowed = {
-        name.strip().lower()
-        for name in response.headers["access-control-allow-headers"].split(",")
-    }
+    allowed = {name.strip().lower() for name in response.headers["access-control-allow-headers"].split(",")}
     assert {"authorization", "content-type", "mcp-session-id"} <= allowed
     assert "x-forwarded-for" not in allowed
     # Starlette appends its CORS-safelisted defaults; nothing else, and no
     # custom/forwarding header, may appear.
     assert allowed.issubset(
-        {"accept", "content-type", "authorization", "mcp-session-id",
-         "mcp-protocol-version", "mcp-method", "mcp-name", "last-event-id",
-         "accept-language", "content-language"}
+        {
+            "accept",
+            "content-type",
+            "authorization",
+            "mcp-session-id",
+            "mcp-protocol-version",
+            "mcp-method",
+            "mcp-name",
+            "last-event-id",
+            "accept-language",
+            "content-language",
+        }
     )
 
 
@@ -282,6 +286,7 @@ def test_api_key_configuration_rejects_weak_or_duplicate_keys():
 
 
 # --- body limits ----------------------------------------------------------
+
 
 async def _send_body(app, body: bytes, headers: dict[str, str]):
     async with _client(app) as client:
@@ -337,6 +342,7 @@ async def test_body_cap_applies_to_every_guarded_method():
 
 # --- X-Forwarded-For spoofing --------------------------------------------
 
+
 def _scope(host: str, *, forwarded: list[str] | None = None, client=("203.0.113.50", 1234)):
     headers = [(b"x-forwarded-for", value.encode()) for value in (forwarded or [])]
     return {"type": "http", "server": (host, 8000), "client": client, "headers": headers}
@@ -381,11 +387,13 @@ async def test_spoofed_xff_cannot_reset_the_rate_limit_on_a_public_bind():
     )
     async with _app(settings) as app, _client(app, server=("0.0.0.0", 8000)) as client:
         first = await client.post(
-            "/mcp/", json={**LIST_TOOLS, "id": 1},
+            "/mcp/",
+            json={**LIST_TOOLS, "id": 1},
             headers={**MCP_HEADERS, "x-forwarded-for": "198.51.100.1"},
         )
         second = await client.post(
-            "/mcp/", json={**LIST_TOOLS, "id": 2},
+            "/mcp/",
+            json={**LIST_TOOLS, "id": 2},
             headers={**MCP_HEADERS, "x-forwarded-for": "198.51.100.2"},
         )
     assert first.status_code != 429
@@ -405,15 +413,14 @@ async def test_forwarded_header_variants_cannot_override_the_socket_peer():
     async with _app(settings) as app, _client(app) as client:
         statuses = []
         for index, extra in enumerate(variants):
-            response = await client.post(
-                "/mcp/", json={**LIST_TOOLS, "id": index}, headers={**MCP_HEADERS, **extra}
-            )
+            response = await client.post("/mcp/", json={**LIST_TOOLS, "id": index}, headers={**MCP_HEADERS, **extra})
             statuses.append(response.status_code)
     assert statuses[0] != 429
     assert statuses[1:] == [429] * (len(variants) - 1), statuses
 
 
 # --- logging hygiene ------------------------------------------------------
+
 
 @pytest.mark.asyncio
 async def test_access_log_never_contains_keys_headers_or_query_strings(caplog):
@@ -443,13 +450,15 @@ def test_daily_quota_blocks_after_the_limit_and_survives_restart(tmp_path):
 
     key = "q" * 40
     base = get_settings()
-    settings = Settings(**{
-        **base.__dict__,
-        "mcp_api_keys": (key,),
-        "api_key_daily_quota": 2,
-        "database_path": str(tmp_path / "quota.sqlite3"),
-        "access_log_enabled": False,
-    })
+    settings = Settings(
+        **{
+            **base.__dict__,
+            "mcp_api_keys": (key,),
+            "api_key_daily_quota": 2,
+            "database_path": str(tmp_path / "quota.sqlite3"),
+            "access_log_enabled": False,
+        }
+    )
     headers = {
         "accept": "application/json, text/event-stream",
         "authorization": f"Bearer {key}",

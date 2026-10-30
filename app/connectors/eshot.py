@@ -4,6 +4,7 @@ Every endpoint here was verified live on 2026-10-28 (see
 ``reports/eshot-ulasim-kaynak-arastirmasi.md``). Undocumented guesses such as
 ``/api/eshot/...`` returned 404 and are deliberately absent.
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -14,12 +15,20 @@ from typing import Any
 
 from app.connectors.ckan import CkanClient
 from app.connectors.http import SourceError, get_json, get_zip, get_zip_members
+from app.connectors.schema import decode_member, expect_type
 from app.core.envelope import bounded_id, bounded_text, finite_number
+from app.core.geo import valid_lat_lon
 from app.core.settings import Settings
 from app.core.source_cache import CacheInfo, cached_source_data
 
 WEEKDAY_COLUMNS = (
-    "monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday",
+    "monday",
+    "tuesday",
+    "wednesday",
+    "thursday",
+    "friday",
+    "saturday",
+    "sunday",
 )
 GTFS_MEMBERS = {
     "stops.txt": 8 * 1024 * 1024,
@@ -27,6 +36,7 @@ GTFS_MEMBERS = {
     "trips.txt": 8 * 1024 * 1024,
     "calendar.txt": 64 * 1024,
 }
+
 
 async def _throttle() -> None:
     """Acquire an İZTEK token from the shared per-source budget.
@@ -64,6 +74,17 @@ def _rows(text: str) -> list[dict[str, str]]:
     return list(csv.DictReader(io.StringIO(text.lstrip("\ufeff"))))
 
 
+def parse_comma_number(value: Any) -> float | None:
+    """Parse ``"27,1451"`` or ``27.1451`` into a finite float."""
+    if isinstance(value, str):
+        value = value.strip().replace(",", ".")
+        try:
+            value = float(value)
+        except ValueError:
+            return None
+    return finite_number(value)
+
+
 def split_line_codes(value: Any) -> list[str]:
     """EShot separates route numbers in a stop row with hyphens, not commas."""
     text = str(value or "").strip()
@@ -88,9 +109,7 @@ def parse_gtfs_calendar(text: str) -> list[dict[str, Any]]:
     return rows
 
 
-def parse_gtfs_metadata(
-    *, routes: str, trips: str, calendar: str
-) -> dict[str, Any]:
+def parse_gtfs_metadata(*, routes: str, trips: str, calendar: str) -> dict[str, Any]:
     """Group GTFS routes/trips/calendar into a bounded per-route summary."""
     service_ids: dict[str, list[str]] = {}
     trip_counts: dict[str, int] = {}
@@ -140,9 +159,7 @@ class EshotConnector:
         rows: list[dict[str, Any]] = []
         offset = 0
         while True:
-            page = await self.ckan.datastore_search(
-                resource_id=resource_id, limit=page_size, offset=offset
-            )
+            page = await self.ckan.datastore_search(resource_id=resource_id, limit=page_size, offset=offset)
             records = page.get("records") or []
             if not isinstance(records, list):
                 raise SourceError("datastore records were not a list")
@@ -196,9 +213,9 @@ class EshotConnector:
                 timeout=self.settings.request_timeout_seconds,
                 attempts=self.settings.request_attempts,
                 max_bytes=self.settings.response_max_bytes,
+                strict=True,
             )
-            if not isinstance(payload, list):
-                raise SourceError("arrival payload was not a list")
+            expect_type(payload, list, what="iztek arrivals")
             rows: list[dict[str, Any]] = []
             for item in payload:
                 if not isinstance(item, dict):
@@ -230,6 +247,51 @@ class EshotConnector:
             loader=loader,
         )
 
+    async def line_positions(self, line: str) -> tuple[list[dict[str, Any]], CacheInfo]:
+        """Live vehicle positions for one line (İZTEK ``hatotobuskonumlari``).
+
+        The source writes coordinates as strings with a comma decimal
+        separator (``"38,35391167"``) and names latitude ``KoorX``.
+        """
+        key = f"iztek.positions.{line}"
+
+        async def loader() -> list[dict[str, Any]]:
+            await _throttle()
+            payload = await get_json(
+                f"{self.iztek_base_url}/hatotobuskonumlari/{line}",
+                timeout=self.settings.request_timeout_seconds,
+                attempts=self.settings.request_attempts,
+                max_bytes=self.settings.response_max_bytes,
+                strict=True,
+            )
+            expect_type(payload, dict, what="iztek line positions")
+            if payload.get("HataVarMi") is True:
+                raise SourceError("İZTEK reported an error for the line position query")
+            rows: list[dict[str, Any]] = []
+            for item in payload.get("HatOtobusKonumlari") or []:
+                if not isinstance(item, dict):
+                    continue
+                lat = parse_comma_number(item.get("KoorX"))
+                lon = parse_comma_number(item.get("KoorY"))
+                if not valid_lat_lon(lat, lon):
+                    continue
+                rows.append(
+                    {
+                        "bus_id": item.get("OtobusId"),
+                        "line": line,
+                        "direction": item.get("Yon"),
+                        "lat": lat,
+                        "lon": lon,
+                    }
+                )
+            return rows
+
+        return await cached_source_data(
+            key,
+            ttl_seconds=min(15, int(getattr(self.settings, "iztek_positions_cache_ttl_seconds", 15))),
+            loader=loader,
+        )
+
     async def gtfs_archive(self) -> bytes:
         """Download the full GTFS ZIP once for the local timetable build."""
         return await get_zip(
@@ -253,9 +315,9 @@ class EshotConnector:
                 required=("stops.txt", "routes.txt", "trips.txt", "calendar.txt"),
             )
             return parse_gtfs_metadata(
-                routes=members["routes.txt"].decode("utf-8-sig", errors="replace"),
-                trips=members["trips.txt"].decode("utf-8-sig", errors="replace"),
-                calendar=members["calendar.txt"].decode("utf-8-sig", errors="replace"),
+                routes=decode_member(members["routes.txt"], name="routes.txt"),
+                trips=decode_member(members["trips.txt"], name="trips.txt"),
+                calendar=decode_member(members["calendar.txt"], name="calendar.txt"),
             )
 
         return await cached_source_data(

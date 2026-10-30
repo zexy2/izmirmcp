@@ -43,7 +43,7 @@ Sürüm çıkarken:
 ## Bilinen durum
 
 - İmaj 2026-10-28'de **yerelde** derlenip çalıştırıldı (`izmir-mcp:local`,
-  276 MB, arm64): konteyner `healthy`, 19 araç, GTFS deposu açılışta kuruldu.
+  276 MB, arm64): konteyner `healthy`, 22 araç, GTFS deposu açılışta kuruldu.
 - `ghcr.io`'ya **push yapılmadı**; `server.json`'daki OCI girdisi henüz
   yayımlanmış bir imajı göstermiyor.
 - PyPI'ye yayın yapılmadı.

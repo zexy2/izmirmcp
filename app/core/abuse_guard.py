@@ -1,8 +1,9 @@
 """Body-size, per-client rate and concurrency guards for the MCP endpoint."""
+
 from __future__ import annotations
 
 from starlette.responses import JSONResponse
-from starlette.types import ASGIApp, Receive, Scope, Send
+from starlette.types import ASGIApp, Message, Receive, Scope, Send
 
 from app.core.rate_limit import ClientRateLimiter, ConcurrencyLimiter
 
@@ -23,15 +24,11 @@ def _client_id(scope: Scope) -> str:
     server = scope.get("server")
     host = server[0] if server else ""
     forwarded = [
-        value.decode("latin-1")
-        for key, value in scope.get("headers", [])
-        if key.lower() == b"x-forwarded-for"
+        value.decode("latin-1") for key, value in scope.get("headers", []) if key.lower() == b"x-forwarded-for"
     ]
     if host in {"127.0.0.1", "localhost", "::1"} and len(forwarded) == 1:
         candidate = forwarded[0].strip()
-        if candidate and "," not in candidate and not any(
-            character.isspace() for character in candidate
-        ):
+        if candidate and "," not in candidate and not any(character.isspace() for character in candidate):
             return candidate
     client = scope.get("client")
     return client[0] if client else "unknown"
@@ -45,6 +42,10 @@ def _content_length(scope: Scope) -> int | None:
             except ValueError:
                 return None
     return None
+
+
+class _BodyLimitExceeded(Exception):
+    """Internal: abort the inner app once the streamed body crossed the cap."""
 
 
 class McpAbuseGuardMiddleware:
@@ -72,7 +73,11 @@ class McpAbuseGuardMiddleware:
         declared = _content_length(scope)
         if declared is not None and declared > self.max_body_bytes:
             await self._reject(
-                scope, receive, send, 413, "payload_too_large",
+                scope,
+                receive,
+                send,
+                413,
+                "payload_too_large",
                 "Request body exceeds the advertised limit.",
             )
             return
@@ -80,7 +85,11 @@ class McpAbuseGuardMiddleware:
         allowed, retry_after = await self.rate_limiter.acquire(_client_id(scope))
         if not allowed:
             await self._reject(
-                scope, receive, send, 429, "rate_limited",
+                scope,
+                receive,
+                send,
+                429,
+                "rate_limited",
                 "Too many requests from this client.",
                 headers={"Retry-After": str(max(1, int(retry_after + 0.999)))},
             )
@@ -88,15 +97,54 @@ class McpAbuseGuardMiddleware:
 
         if not await self.concurrency_limiter.acquire():
             await self._reject(
-                scope, receive, send, 503, "server_busy",
+                scope,
+                receive,
+                send,
+                503,
+                "server_busy",
                 "Too many concurrent requests.",
                 headers={"Retry-After": "1"},
             )
             return
         try:
-            await self.app(scope, receive, send)
+            await self.app(scope, self._bounded_receive(scope, receive, send), send)
+        except _BodyLimitExceeded:
+            pass
         finally:
             await self.concurrency_limiter.release()
+
+    def _bounded_receive(self, scope: Scope, receive: Receive, send: Send) -> Receive:
+        """Count streamed body bytes; a chunked body has no Content-Length.
+
+        Once the cap is crossed a 413 is sent (if the response has not started)
+        and the request is aborted instead of handing more bytes inward.
+        """
+        received = 0
+        limit = self.max_body_bytes
+
+        async def wrapped() -> Message:
+            nonlocal received
+            message = await receive()
+            if message["type"] == "http.request":
+                received += len(message.get("body", b""))
+                if received > limit:
+                    response = JSONResponse(
+                        {
+                            "ok": False,
+                            "error_code": "payload_too_large",
+                            "summary": "Request body exceeds the advertised limit.",
+                        },
+                        status_code=413,
+                        headers={"Cache-Control": "no-store"},
+                    )
+                    try:
+                        await response(scope, receive, send)
+                    except Exception:  # noqa: BLE001 - response may have started
+                        pass
+                    raise _BodyLimitExceeded
+            return message
+
+        return wrapped
 
     async def _reject(
         self,

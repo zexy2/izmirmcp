@@ -5,6 +5,7 @@ caller *how* to fix it (``error.repair``) instead of only that it failed. The
 repair hints are derived from our own schema knowledge; source text is never
 copied into them.
 """
+
 from __future__ import annotations
 
 from typing import Any
@@ -15,68 +16,69 @@ from app.core.validation import InputValidationError
 # Field-specific guidance. Kept deliberately small and factual: each entry must
 # describe a constraint the tool actually enforces.
 FIELD_HINTS: dict[str, tuple[str, str]] = {
-    "lat": ("Supply a WGS84 latitude between -90 and 90.", "lat must be a WGS84 latitude"),
-    "lon": ("Supply a WGS84 longitude between -180 and 180.", "lon must be a WGS84 longitude"),
-    "radius_m": ("Use a positive radius no larger than max_radius_m.", "radius_m must be positive"),
-    "limit": ("Use a positive limit no larger than max_limit.", "limit must be positive"),
+    "lat": ("-90 ile 90 arasında bir WGS84 enlemi verin.", "lat bir WGS84 enlemi olmalıdır"),
+    "lon": ("-180 ile 180 arasında bir WGS84 boylamı verin.", "lon bir WGS84 boylamı olmalıdır"),
+    "radius_m": ("max_radius_m sınırını aşmayan pozitif bir yarıçap kullanın.", "radius_m pozitif olmalıdır"),
+    "limit": ("max_limit sınırını aşmayan pozitif bir limit kullanın.", "limit pozitif olmalıdır"),
     "bbox": (
-        "Order the rectangle as min_lon, min_lat, max_lon, max_lat with "
-        "min < max on both axes.",
-        "bbox must be an ordered rectangle",
+        "Dikdörtgeni min_lon, min_lat, max_lon, max_lat sırasıyla ve her eksende min < max olacak şekilde verin.",
+        "bbox sıralı bir dikdörtgen olmalıdır",
     ),
-    "types": ("Use only the advertised type names.", "types must come from the advertised list"),
-    "kinds": ("Use only the advertised kind names.", "kinds must come from the advertised list"),
+    "types": ("Yalnızca duyurulan tür adlarını kullanın.", "types duyurulan listeden olmalıdır"),
+    "kinds": ("Yalnızca duyurulan tür adlarını kullanın.", "kinds duyurulan listeden olmalıdır"),
     "place": (
-        "Use a published district or neighborhood name, or supply lat/lon.",
-        "place must resolve to a published reference point",
+        "Yayımlanmış bir ilçe veya mahalle adı kullanın ya da lat/lon verin.",
+        "place yayımlanmış bir referans noktasına çözümlenmelidir",
     ),
     "place_district": (
-        "Add place_district only together with place to disambiguate same-named "
-        "neighborhoods.",
-        "place_district requires place",
+        "place_district yalnızca aynı adlı mahalleleri ayırmak için place ile birlikte verilir.",
+        "place_district için place gerekir",
     ),
-    "district": ("Use an İzmir district name.", "district must be a published İzmir district"),
+    "district": ("Bir İzmir ilçe adı kullanın.", "district yayımlanmış bir İzmir ilçesi olmalıdır"),
     "stop_id": (
-        "Look the id up with izmir_bus_stops first; ids come from the published "
-        "stop list.",
-        "stop_id must exist in the published EStop stop list",
+        "Id'yi önce izmir_bus_stops ile arayın; id'ler yayımlanmış durak listesinden gelir.",
+        "stop_id yayımlanmış EShot durak listesinde bulunmalıdır",
     ),
     "resource_id": (
-        "Use a DataStore-active resource id from izmir_get_dataset.",
-        "resource_id must be an existing DataStore resource",
+        "izmir_get_dataset ile dönen DataStore etkin bir kaynak id'si kullanın.",
+        "resource_id var olan bir DataStore kaynağı olmalıdır",
     ),
     "filters": (
-        "Use column names from izmir_get_resource_schema.",
-        "filters must use advertised columns",
+        "izmir_get_resource_schema ile duyurulan sütun adlarını kullanın.",
+        "filters duyurulan sütunları kullanmalıdır",
+    ),
+    "sql": (
+        "records üzerinde tek bir SELECT kullanın; join, alt sorgu, CTE, union, "
+        "window veya gelişigüzel fonksiyon kullanılamaz.",
+        "sql records üzerinde sınırlı bir SELECT olmalıdır",
     ),
     "sort": (
-        "Use 'COLUMN' or 'COLUMN asc|desc' with a column from the resource schema.",
-        "sort must name an advertised column",
+        "Kaynak şemasındaki bir sütunla 'COLUMN' veya 'COLUMN asc|desc' kullanın.",
+        "sort duyurulan bir sütunu adlandırmalıdır",
     ),
-    "search": ("Keep search text under the advertised length.", "search too long"),
+    "search": ("Arama metnini duyurulan uzunluğun altında tutun.", "search çok uzun"),
     "day": (
-        "Use a Turkish weekday name (pazartesi..pazar), 'bugun' or 'yarin'.",
-        "day must be a weekday name",
+        "Bir Türkçe hafta günü (pazartesi..pazar), 'bugun' veya 'yarin' kullanın.",
+        "day bir hafta günü olmalıdır",
     ),
     "operator": (
-        "Use eshot, metro, izdeniz or izban.",
-        "operator must be an advertised operator",
+        "eshot, metro, izdeniz veya izban kullanın.",
+        "operator duyurulan operatörlerden biri olmalıdır",
     ),
-    "query": ("Use a route code or name that exists in the published table.", "query not found"),
-    "line": ("Use a published bus line number.", "line not found"),
+    "query": ("Yayımlanmış tabloda var olan bir hat kodu veya adı kullanın.", "query bulunamadı"),
+    "line": ("Yayımlanmış bir otobüs hat numarası kullanın.", "line bulunamadı"),
     "neighborhood": (
-        "Use a neighborhood from the published muhtarlık inventory, optionally "
-        "with district.",
-        "neighborhood must be published",
+        "Yayımlanmış muhtarlık envanterinden bir mahalle, isteğe bağlı olarak district ile birlikte kullanın.",
+        "neighborhood yayımlanmış olmalıdır",
     ),
-    "kinds|empty": ("Select at least one kind.", "kinds must not be empty"),
+    "kinds|empty": ("En az bir tür seçin.", "kinds boş olamaz"),
 }
 
 
 def _hint(field: str | None, message: str) -> tuple[str, str] | None:
     if not field:
         return None
-    if "non-empty" in message or "empty" in message:
+    if "non-empty" in message or "empty" in message or "boş" in message:
         return FIELD_HINTS.get(f"{field}|empty") or FIELD_HINTS.get(field)
     return FIELD_HINTS.get(field)
 
@@ -101,7 +103,7 @@ def validation_error_envelope(
             constraint=constraint,
         )
     return error_envelope(
-        summary="Invalid request input.",
+        summary="Geçersiz istek girdisi.",
         warning=message,
         code="validation_error",
         field=exc.field,

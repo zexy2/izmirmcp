@@ -4,8 +4,10 @@ These tests read repository files only; no network, no live source. Each
 assertion pins a fact that also exists in code, so a behaviour change that
 forgets the docs turns the suite red instead of shipping a stale contract.
 """
+
 from __future__ import annotations
 
+import json
 import re
 from pathlib import Path
 
@@ -27,11 +29,24 @@ MONITORING = DOCS / "monitoring.md"
 README = ROOT / "README.md"
 
 ALL_DOCS = (
-    CONTRACT, TOOL_REF, DEPLOYMENT, SOURCES_DOC, MONITORING,
-    DOCS / "mcp-interface.md", DOCS / "privacy.md", DOCS / "registry.md",
-    DOCS / "place-resolution.md", DOCS / "gtfs-schedule.md",
-    DOCS / "source-reachability-analysis.md", DOCS / "api-access.md",
+    CONTRACT,
+    TOOL_REF,
+    DEPLOYMENT,
+    SOURCES_DOC,
+    MONITORING,
+    DOCS / "mcp-interface.md",
+    DOCS / "privacy.md",
+    DOCS / "registry.md",
+    DOCS / "place-resolution.md",
+    DOCS / "gtfs-schedule.md",
+    DOCS / "source-reachability-analysis.md",
+    DOCS / "api-access.md",
     DOCS / "browser-cors.md",
+    DOCS / "datastore-sql.md",
+    DOCS / "configuration.md",
+    DOCS / "development.md",
+    DOCS / "security.md",
+    DOCS / "tool-migration.md",
 )
 
 
@@ -71,10 +86,7 @@ def test_response_contract_lists_every_envelope_field():
 
 def test_response_contract_documents_every_error_code_in_code():
     contract = _text(CONTRACT)
-    app_text = "\n".join(
-        path.read_text(encoding="utf-8")
-        for path in (ROOT / "app").rglob("*.py")
-    )
+    app_text = "\n".join(path.read_text(encoding="utf-8") for path in (ROOT / "app").rglob("*.py"))
     codes = sorted(set(re.findall(r'code="([a-z_]+)"', app_text)))
     assert "validation_error" in codes
     for code in codes:
@@ -89,9 +101,7 @@ def test_response_contract_documents_freshness_statuses():
 
 def test_response_contract_documents_result_scopes_in_code():
     contract = _text(CONTRACT)
-    app_text = "\n".join(
-        path.read_text(encoding="utf-8") for path in (ROOT / "app" / "services").glob("*.py")
-    )
+    app_text = "\n".join(path.read_text(encoding="utf-8") for path in (ROOT / "app" / "services").glob("*.py"))
     # Only result_info scopes, not Source(scope=...) declarations.
     scopes = sorted(set(re.findall(r'scope="([a-z_]+)"', app_text)))
     source_scopes = set(re.findall(r'^\s+scope="([a-z_]+)"', app_text, flags=re.MULTILINE))
@@ -147,8 +157,7 @@ def test_deployment_documents_http_status_codes_from_guards():
     text = _text(DEPLOYMENT)
     for code in ("413", "429", "401", "403", "503"):
         assert code in text, f"HTTP {code} guard response is undocumented"
-    for error_code in ("payload_too_large", "rate_limited", "unauthorized",
-                        "origin_not_allowed", "server_busy"):
+    for error_code in ("payload_too_large", "rate_limited", "unauthorized", "origin_not_allowed", "server_busy"):
         assert error_code in text
 
 
@@ -161,9 +170,7 @@ def test_deployment_lists_the_console_scripts_and_transports():
 def test_sources_doc_lists_every_declared_source_publisher():
     text = _text(SOURCES_DOC)
     publisher_names = {
-        value.name
-        for value in vars(extra_sources).values()
-        if hasattr(value, "publisher") and hasattr(value, "scope")
+        value.name for value in vars(extra_sources).values() if hasattr(value, "publisher") and hasattr(value, "scope")
     }
     assert publisher_names
     for name in publisher_names:
@@ -203,3 +210,22 @@ def test_monitoring_documents_log_fields_from_code():
     for field in re.findall(r'^\s+"([a-z_]+)"\s*:', log_source, flags=re.MULTILINE):
         assert f"`{field}`" in text, f"access log field {field} is undocumented"
     assert "izmir_mcp.access" in text
+
+
+def test_readme_carries_the_mcp_registry_name_marker():
+    """The MCP registry verifies PyPI ownership through this README marker."""
+    name = json.loads((ROOT / "server.json").read_text(encoding="utf-8"))["name"]
+    assert f"<!-- mcp-name: {name} -->" in _text(README)
+
+
+def test_readme_has_an_english_section():
+    assert re.search(r"^## English\b", _text(README), re.M)
+
+
+def test_docs_list_every_workflow_prompt():
+    from app.mcp.prompts import WORKFLOW_PROMPTS
+
+    for doc in (TOOL_REF, DOCS / "mcp-interface.md"):
+        text = _text(doc)
+        for prompt in WORKFLOW_PROMPTS:
+            assert f"`{prompt.__name__}`" in text, f"{doc.name} misses prompt {prompt.__name__}"

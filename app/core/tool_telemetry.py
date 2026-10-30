@@ -5,6 +5,7 @@ stored: the point is to answer "which tool is slow or failing", not "what did
 the caller search for". The buffer is bounded so a long-running server cannot
 grow without limit.
 """
+
 from __future__ import annotations
 
 import threading
@@ -114,7 +115,9 @@ class ToolTelemetry:
         before the block ends.
         """
         outcome: dict[str, Any] = {
-            "error_code": None, "truncated": False, "stale": False,
+            "error_code": None,
+            "truncated": False,
+            "stale": False,
         }
         started = time.perf_counter()
         try:

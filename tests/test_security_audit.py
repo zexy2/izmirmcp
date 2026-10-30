@@ -4,6 +4,7 @@ Each test reproduces one concrete attack from the audit report and asserts the
 hardened behaviour. Tests are written against the security requirement, never
 adjusted to match the current implementation.
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -26,9 +27,7 @@ def _app(settings: Settings):
 
 
 def _client(app) -> httpx.AsyncClient:
-    return httpx.AsyncClient(
-        transport=httpx.ASGITransport(app=app), base_url="http://127.0.0.1:8000"
-    )
+    return httpx.AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://127.0.0.1:8000")
 
 
 HEADERS = {"accept": "application/json, text/event-stream"}
@@ -49,7 +48,8 @@ async def test_deeply_nested_json_is_rejected_not_a_500():
             transport=httpx.ASGITransport(app=app), base_url="http://127.0.0.1:8000"
         ) as client:
             response = await client.post(
-                "/mcp/", content=body,
+                "/mcp/",
+                content=body,
                 headers={"content-type": "application/json", **HEADERS},
             )
     assert response.status_code == 400, response.status_code
@@ -75,7 +75,8 @@ async def test_excessively_nested_arrays_are_bounded_before_parsing():
             transport=httpx.ASGITransport(app=app), base_url="http://127.0.0.1:8000"
         ) as client:
             response = await client.post(
-                "/mcp/", content=body,
+                "/mcp/",
+                content=body,
                 headers={"content-type": "application/json", **HEADERS},
             )
     assert response.status_code == 400
@@ -132,9 +133,7 @@ async def test_redirect_to_another_host_is_not_followed():
 
     def handler(request: httpx.Request) -> httpx.Response:
         calls.append(str(request.url))
-        return httpx.Response(
-            302, headers={"location": "http://169.254.169.254/latest/meta-data/"}
-        )
+        return httpx.Response(302, headers={"location": "http://169.254.169.254/latest/meta-data/"})
 
     transport = httpx.MockTransport(handler)
     original = httpx.AsyncClient
@@ -190,7 +189,8 @@ async def test_oversized_body_is_refused_before_parsing():
             transport=httpx.ASGITransport(app=app), base_url="http://127.0.0.1:8000"
         ) as client:
             response = await client.post(
-                "/mcp/", content=b"{" + b" " * 4096 + b"}",
+                "/mcp/",
+                content=b"{" + b" " * 4096 + b"}",
                 headers={"content-type": "application/json", **HEADERS},
             )
     assert response.status_code == 413
@@ -203,7 +203,7 @@ async def test_error_responses_never_contain_a_traceback():
     server = create_mcp_server(get_settings())
     result = await server.call_tool("izmir_get_dataset", {"dataset_id": "../../etc/passwd"})
     text = result.content[0].text
-    for marker in ("Traceback", "File \"", "/Users/", "site-packages"):
+    for marker in ("Traceback", 'File "', "/Users/", "site-packages"):
         assert marker not in text, f"error leaks {marker!r}"
 
 
@@ -254,9 +254,7 @@ async def test_outside_izmir_query_warns_that_empty_is_not_proof():
     from app.mcp.registry import create_mcp_server
 
     server = create_mcp_server(get_settings())
-    result = await server.call_tool(
-        "izmir_nearby", {"lat": 1.0, "lon": 27.1, "types": ["parking"], "radius_m": 1000}
-    )
+    result = await server.call_tool("izmir_nearby", {"lat": 1.0, "lon": 27.1, "types": ["parking"], "radius_m": 1000})
     payload = json.loads(result.content[0].text)
     assert payload["ok"] is True
     assert payload["data"] == []

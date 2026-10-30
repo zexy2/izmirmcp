@@ -5,6 +5,7 @@ budget because a restart resets it. This store keeps the counter in SQLite so a
 crashed or redeployed server neither forgets the usage nor lets a caller reset
 it by reconnecting.
 """
+
 from __future__ import annotations
 
 import sqlite3
@@ -88,9 +89,7 @@ class QuotaStore:
                 used = int(row["used"]) if row else 0
                 if used >= limit:
                     connection.rollback()
-                    return QuotaDecision(
-                        False, used, limit, 0, _seconds_until_tomorrow(moment)
-                    )
+                    return QuotaDecision(False, used, limit, 0, _seconds_until_tomorrow(moment))
                 connection.execute(
                     "INSERT INTO request_quota (subject, day, used, updated_at)"
                     " VALUES (?, ?, 1, ?)"

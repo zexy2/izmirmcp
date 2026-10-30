@@ -6,7 +6,7 @@ from typing import Any
 from app.connectors.city_layers import CityLayerConnector
 from app.core.envelope import Freshness, Source, error_envelope, success_envelope
 from app.core.envelope import result_info
-from app.core.geo import has_name_token, haversine_m, in_bbox, normalize_name
+from app.core.geo import has_name_token, haversine_m, in_bbox, maps_url, normalize_name
 from app.core.settings import Settings
 from app.core.validation import (
     InputValidationError,
@@ -47,10 +47,6 @@ DISTRICT_TEXT_FIELDS = {
 }
 
 
-def _maps_url(lat: float, lon: float) -> str:
-    return f"https://www.google.com/maps?q={lat:.6f},{lon:.6f}"
-
-
 class CityServicesService:
     def __init__(self, *, settings: Settings, api: CityLayerConnector | None = None):
         self.settings = settings
@@ -67,12 +63,12 @@ class CityServicesService:
     def _selected(kinds: list[str]) -> list[str]:
         if not kinds:
             raise InputValidationError(
-                f"kinds must be a non-empty subset of: {', '.join(KINDS)}", field="kinds"
+                f"kinds boş olamaz; şunlardan bir alt küme olmalıdır: {', '.join(KINDS)}", field="kinds"
             )
         unknown = [kind for kind in kinds if kind not in KINDS]
         if unknown:
             raise InputValidationError(
-                f"unknown kinds: {', '.join(unknown)}; allowed: {', '.join(KINDS)}",
+                f"bilinmeyen türler: {', '.join(unknown)}; izin verilenler: {', '.join(KINDS)}",
                 field="kinds",
             )
         return [kind for kind in KINDS if kind in set(kinds)]
@@ -80,10 +76,7 @@ class CityServicesService:
     @staticmethod
     def _kind_warning(kind: str) -> str:
         if kind == "library":
-            return (
-                "Kütüphane katmanı koordinat yayımlamaz; kayıtlar ilçe ve adresle listelenir, "
-                "mesafe hesaplanamaz."
-            )
+            return "Kütüphane katmanı koordinat yayımlamaz; kayıtlar ilçe ve adresle listelenir, mesafe hesaplanamaz."
         if kind == "izmirim_card":
             return "İzmirim Kart dolum noktaları 2023 tarihli statik yayımdır; nokta kapanmış olabilir."
         return "WizmirNET noktaları statik listedir; güncel hizmet durumu doğrulanmadı."
@@ -99,9 +92,7 @@ class CityServicesService:
     ]:
         """Load each selected layer once, preserving partial failures."""
         loaders = self._loaders()
-        outcomes = await asyncio.gather(
-            *(loaders[kind][0]() for kind in selected), return_exceptions=True
-        )
+        outcomes = await asyncio.gather(*(loaders[kind][0]() for kind in selected), return_exceptions=True)
         by_kind: dict[str, tuple[Source, list[dict[str, Any]]]] = {}
         used: list[Source] = []
         warnings: list[str] = []
@@ -110,9 +101,7 @@ class CityServicesService:
         for kind, outcome in zip(selected, outcomes):
             _loader, source = loaders[kind]
             if isinstance(outcome, BaseException):
-                warnings.append(
-                    f"{kind} katmanı okunamadı ({type(outcome).__name__}); sonuç kısmi."
-                )
+                warnings.append(f"{kind} katmanı okunamadı ({type(outcome).__name__}); sonuç kısmi.")
                 continue
             items, info = outcome
             by_kind[kind] = (source, items)
@@ -153,8 +142,12 @@ class CityServicesService:
         collapsed = 0
         for row in rows:
             key = (
-                row["kind"], row.get("name"), row.get("address"),
-                row.get("district"), row.get("lat"), row.get("lon"),
+                row["kind"],
+                row.get("name"),
+                row.get("address"),
+                row.get("district"),
+                row.get("lat"),
+                row.get("lon"),
             )
             if key in deduped:
                 collapsed += 1
@@ -208,7 +201,7 @@ class CityServicesService:
                     if distance > safe_radius:
                         continue
                     row["distance_m"] = distance
-                    row["maps_url"] = _maps_url(item["lat"], item["lon"])
+                    row["maps_url"] = maps_url(item["lat"], item["lon"])
                 elif kind != "library":
                     continue
                 rows.append(row)
@@ -237,9 +230,7 @@ class CityServicesService:
             result=result_info(returned=len(data), matched=len(rows), scope="radius"),
         )
 
-    async def bbox(
-        self, *, bbox: list[float] | tuple[float, ...], kinds: list[str], limit: int
-    ) -> dict[str, Any]:
+    async def bbox(self, *, bbox: list[float] | tuple[float, ...], kinds: list[str], limit: int) -> dict[str, Any]:
         min_lon, min_lat, max_lon, max_lat = validate_bbox(bbox)
         selected = self._selected(kinds)
         safe_limit = resolve_limit(limit, self.settings.default_limit, self.settings.max_limit)
@@ -263,12 +254,16 @@ class CityServicesService:
                 if item_lat is None or item_lon is None:
                     continue
                 if not in_bbox(
-                    item_lat, item_lon,
-                    min_lon=min_lon, min_lat=min_lat, max_lon=max_lon, max_lat=max_lat,
+                    item_lat,
+                    item_lon,
+                    min_lon=min_lon,
+                    min_lat=min_lat,
+                    max_lon=max_lon,
+                    max_lat=max_lat,
                 ):
                     continue
                 row = self._row(kind, item, source)
-                row["maps_url"] = _maps_url(item_lat, item_lon)
+                row["maps_url"] = maps_url(item_lat, item_lon)
                 rows.append(row)
 
         rows = self._dedupe(rows, warnings)
@@ -289,13 +284,10 @@ class CityServicesService:
                 "dikdörtgen sonucuna hiçbir zaman girmez; district veya place/radius kullanın."
             )
         if not data:
-            warnings.append(
-                "Bu bbox içinde seçilen türlerde kayıt bulunamadı; bu 'hiç yok' kanıtı değildir."
-            )
+            warnings.append("Bu bbox içinde seçilen türlerde kayıt bulunamadı; bu 'hiç yok' kanıtı değildir.")
         rectangle = f"{min_lon},{min_lat},{max_lon},{max_lat}"
-        summary = (
-            f"{len(data)} şehir hizmeti noktası bbox içinde bulundu; toplam {matched} eşleşme."
-            + (" İlk sonuçlar gösteriliyor." if truncated else "")
+        summary = f"{len(data)} şehir hizmeti noktası bbox içinde bulundu; toplam {matched} eşleşme." + (
+            " İlk sonuçlar gösteriliyor." if truncated else ""
         )
         return success_envelope(
             summary=summary,
@@ -312,14 +304,10 @@ class CityServicesService:
             next_queries=[
                 "Yakınlık için lat/lon ve radius_m, ilçe geneli için district kullanın.",
             ],
-            result=result_info(
-                returned=len(data), matched=matched, truncated=truncated, scope="bbox"
-            ),
+            result=result_info(returned=len(data), matched=matched, truncated=truncated, scope="bbox"),
         )
 
-    async def district(
-        self, *, district: str, kinds: list[str], limit: int
-    ) -> dict[str, Any]:
+    async def district(self, *, district: str, kinds: list[str], limit: int) -> dict[str, Any]:
         place = PlaceResolver().resolve_district(district)
         selected = self._selected(kinds)
         safe_limit = resolve_limit(limit, self.settings.default_limit, self.settings.max_limit)
@@ -343,7 +331,7 @@ class CityServicesService:
                 row = self._row(kind, item, source)
                 row["district_match"] = "published_district_field"
                 if item.get("lat") is not None and item.get("lon") is not None:
-                    row["maps_url"] = _maps_url(item["lat"], item["lon"])
+                    row["maps_url"] = maps_url(item["lat"], item["lon"])
                 rows.append(row)
 
         rows = self._dedupe(rows, warnings)
@@ -357,10 +345,7 @@ class CityServicesService:
         matched = len(rows)
         data = rows[:safe_limit]
         truncated = matched > len(data)
-        warnings = [
-            w for w in warnings
-            if "mesafe hesaplanamaz" not in w
-        ]
+        warnings = [w for w in warnings if "mesafe hesaplanamaz" not in w]
         warnings.extend(
             [
                 f"İlçe eşleşmesi {place.name} için kaynağın kendi ilçe alanı/adres metnine dayanır; "
@@ -374,9 +359,8 @@ class CityServicesService:
                 f"{place.name} için kaynak metninde eşleşen kayıt bulunamadı; "
                 "bu ilçede hizmet olmadığının kanıtı değildir."
             )
-        summary = (
-            f"{place.name} ilçesiyle {len(data)} şehir hizmeti noktası eşleşti; toplam {matched} kayıt."
-            + (" İlk sonuçlar gösteriliyor." if truncated else "")
+        summary = f"{place.name} ilçesiyle {len(data)} şehir hizmeti noktası eşleşti; toplam {matched} kayıt." + (
+            " İlk sonuçlar gösteriliyor." if truncated else ""
         )
         return success_envelope(
             summary=summary,
@@ -394,7 +378,5 @@ class CityServicesService:
                 "Mesafe veya harita sıralaması için place veya lat/lon + radius_m kullanın.",
                 "Dikdörtgen sorgu için bbox kullanın.",
             ],
-            result=result_info(
-                returned=len(data), matched=matched, truncated=truncated, scope="district"
-            ),
+            result=result_info(returned=len(data), matched=matched, truncated=truncated, scope="district"),
         )

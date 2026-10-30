@@ -4,6 +4,7 @@ A container image must not carry the ~141 MB local timetable store, so the store
 has to be rebuildable from the published archive at run time. These tests use a
 tiny synthetic archive and a stubbed HTTP fetch; nothing reaches the network.
 """
+
 from __future__ import annotations
 
 import io
@@ -16,17 +17,14 @@ from app.storage import gtfs_schedule
 from app.storage.gtfs_schedule import GtfsScheduleError, GtfsScheduleStore
 
 FILES = {
-    "stops.txt": "stop_id,stop_name,stop_code,stop_lat,stop_lon\n"
-                 "S1,Konak,101,38.4187,27.1282\n",
-    "routes.txt": "route_id,route_short_name,route_long_name,route_type\n"
-                  "R1,304,Bornova-Fahrettin Altay,3\n",
-    "trips.txt": "route_id,service_id,trip_id,trip_headsign,direction_id\n"
-                 "R1,WK,T1,Fahrettin Altay,0\n",
+    "stops.txt": "stop_id,stop_name,stop_code,stop_lat,stop_lon\nS1,Konak,101,38.4187,27.1282\n",
+    "routes.txt": "route_id,route_short_name,route_long_name,route_type\nR1,304,Bornova-Fahrettin Altay,3\n",
+    "trips.txt": "route_id,service_id,trip_id,trip_headsign,direction_id\nR1,WK,T1,Fahrettin Altay,0\n",
     "stop_times.txt": "trip_id,arrival_time,departure_time,stop_id,stop_sequence,pickup_type\n"
-                      "T1,08:00:00,08:00:00,S1,1,0\n",
+    "T1,08:00:00,08:00:00,S1,1,0\n",
     "calendar.txt": "service_id,monday,tuesday,wednesday,thursday,friday,saturday,"
-                    "sunday,start_date,end_date\n"
-                    "WK,1,1,1,1,1,0,0,20260101,20261231\n",
+    "sunday,start_date,end_date\n"
+    "WK,1,1,1,1,1,0,0,20260101,20261231\n",
 }
 
 
@@ -42,9 +40,7 @@ def test_main_builds_the_store_from_the_published_archive(tmp_path, monkeypatch,
     target = tmp_path / "store" / "izmir_mcp.sqlite3"
     monkeypatch.setattr(gtfs_schedule, "_fetch", lambda url, **_: _archive())
 
-    exit_code = gtfs_schedule.main(
-        ["--database", str(target), "--url", "https://example.test/gtfs.zip"]
-    )
+    exit_code = gtfs_schedule.main(["--database", str(target), "--url", "https://example.test/gtfs.zip"])
 
     assert exit_code == 0
     metadata = GtfsScheduleStore(target).metadata()
@@ -93,7 +89,7 @@ def test_main_does_not_fake_an_archive_when_source_returns_html(tmp_path, monkey
 
 
 def test_main_reads_url_and_database_from_settings_by_default(monkeypatch, tmp_path):
-    monkeypatch.setenv("IZMIR_MCP_DATABASE_PATH", str(tmp_path / "from-env.sqlite3"))
+    monkeypatch.setenv("IZMIR_MCP_GTFS_DATABASE_PATH", str(tmp_path / "from-env.sqlite3"))
     monkeypatch.setenv("IZMIR_MCP_ESHOT_GTFS_URL", "https://example.test/env.zip")
     from app.core import settings as settings_module
 
@@ -102,7 +98,7 @@ def test_main_reads_url_and_database_from_settings_by_default(monkeypatch, tmp_p
         assert gtfs_schedule._default_database() == tmp_path / "from-env.sqlite3"
         assert gtfs_schedule._default_url() == "https://example.test/env.zip"
     finally:
-        monkeypatch.delenv("IZMIR_MCP_DATABASE_PATH", raising=False)
+        monkeypatch.delenv("IZMIR_MCP_GTFS_DATABASE_PATH", raising=False)
         monkeypatch.delenv("IZMIR_MCP_ESHOT_GTFS_URL", raising=False)
         settings_module.get_settings.cache_clear()
 
@@ -119,9 +115,7 @@ def test_fetch_sends_wildcard_accept_for_eshot(monkeypatch):
         def raise_for_status(self):
             return None
 
-    monkeypatch.setattr(
-        gtfs_schedule.httpx, "get", lambda url, **kwargs: Response(**kwargs)
-    )
+    monkeypatch.setattr(gtfs_schedule.httpx, "get", lambda url, **kwargs: Response(**kwargs))
 
     gtfs_schedule._fetch("https://www.eshot.gov.tr/gtfs/bus-eshot-gtfs.zip")
 

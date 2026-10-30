@@ -4,6 +4,7 @@ These tests pin the advertised MCP surface: JSON Schema validity of every tool
 input/output, unique names, and resources/prompts that always answer with the
 documented shape and never leak secrets or upstream URLs.
 """
+
 from __future__ import annotations
 
 import json
@@ -171,9 +172,7 @@ async def test_source_resource_only_lists_public_human_urls():
     assert ids == [entry[0] for entry in SOURCE_CATALOG]
     for row in payload["data"]:
         url = row["url"]
-        assert url is None or (
-            url.startswith("https://") and not url.endswith((".csv", ".json", ".zip", ".xlsx"))
-        )
+        assert url is None or (url.startswith("https://") and not url.endswith((".csv", ".json", ".zip", ".xlsx")))
 
 
 @pytest.mark.asyncio
@@ -195,8 +194,10 @@ async def test_catalog_schema_resource_embeds_the_live_envelope_schema():
     assert entry["envelope_schema"] == ResponseEnvelope.model_json_schema()
     names = [tool["name"] for tool in entry["tools"]]
     assert names == [
-        "izmir_search_datasets", "izmir_get_dataset",
-        "izmir_get_resource_schema", "izmir_query_resource",
+        "izmir_search_datasets",
+        "izmir_get_dataset",
+        "izmir_get_resource_schema",
+        "izmir_query_resource",
     ]
     for tool in entry["tools"]:
         assert tool["input_schema"].get("type") == "object"
@@ -212,10 +213,7 @@ async def test_prompts_are_discoverable_with_declared_arguments():
         assert prompt.arguments, prompt.name
         names = [argument.name for argument in prompt.arguments]
         assert len(names) == len(set(names))
-    required = {
-        prompt.name: [arg.name for arg in prompt.arguments if arg.required]
-        for prompt in prompts
-    }
+    required = {prompt.name: [arg.name for arg in prompt.arguments if arg.required] for prompt in prompts}
     assert required["veri_kesfi"] == ["query"]
     assert required["gunun_ozeti"] == []
 
@@ -230,13 +228,12 @@ async def test_every_prompt_renders_with_its_required_arguments():
         "otobus": {"durak": "Konak"},
         "pazar_ve_duyurular": {"ilce": "Konak"},
         "sehir_hizmetleri": {"yer": "Alsancak"},
+        "nobetci_eczane": {"ilce": "Karşıyaka"},
     }
     for prompt in WORKFLOW_PROMPTS:
         result = await server.get_prompt(prompt.__name__, samples[prompt.__name__])
         assert result.messages
-        text = "\n".join(
-            message.content.text for message in result.messages if message.content.type == "text"
-        )
+        text = "\n".join(message.content.text for message in result.messages if message.content.type == "text")
         assert text.strip()
         assert "izmir://" in text or "izmir_" in text
 
