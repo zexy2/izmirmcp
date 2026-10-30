@@ -737,6 +737,48 @@
     "title": "izmir_eventsArguments",
     "type": "object"
   },
+  "izmir_fare": {
+    "properties": {
+      "from_station": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "string"
+          }
+        ],
+        "title": "From Station"
+      },
+      "htt": {
+        "default": false,
+        "title": "Htt",
+        "type": "boolean"
+      },
+      "to_station": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "string"
+          }
+        ],
+        "title": "To Station"
+      },
+      "transfer": {
+        "default": false,
+        "title": "Transfer",
+        "type": "boolean"
+      }
+    },
+    "required": [
+      "from_station",
+      "to_station"
+    ],
+    "title": "izmir_fareArguments",
+    "type": "object"
+  },
   "izmir_get_dataset": {
     "properties": {
       "dataset_id": {
@@ -1152,6 +1194,36 @@
     "title": "izmir_neighborhood_profileArguments",
     "type": "object"
   },
+  "izmir_parking_fees": {
+    "properties": {
+      "limit": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Limit"
+      },
+      "query": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Query"
+      }
+    },
+    "title": "izmir_parking_feesArguments",
+    "type": "object"
+  },
   "izmir_pharmacies_all": {
     "properties": {
       "area": {
@@ -1330,6 +1402,72 @@
       "query"
     ],
     "title": "izmir_search_datasetsArguments",
+    "type": "object"
+  },
+  "izmir_traffic_cameras": {
+    "properties": {
+      "lat": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Lat"
+      },
+      "limit": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Limit"
+      },
+      "lon": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Lon"
+      },
+      "query": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Query"
+      },
+      "radius_m": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Radius M"
+      }
+    },
+    "title": "izmir_traffic_camerasArguments",
     "type": "object"
   },
   "izmir_traffic_history": {
@@ -1544,6 +1682,36 @@
       }
     },
     "title": "izmir_transport_disruptionsArguments",
+    "type": "object"
+  },
+  "izmir_water_production": {
+    "properties": {
+      "limit": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Limit"
+      },
+      "name": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Name"
+      }
+    },
+    "title": "izmir_water_productionArguments",
     "type": "object"
   },
   "izmir_water_status": {

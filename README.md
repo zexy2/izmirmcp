@@ -62,6 +62,10 @@ Aşağıdaki araçlar geliştirme dalında eklenmektedir; mevcut 22 aracın adı
 | `izmir_cbs_layer` | İBB CBS katmanları (izinli liste). | İBB GIS layers (allowlisted). |
 | `izmir_events` | Kültür-sanat etkinlikleri. | Culture and arts events. |
 | `izmir_market_prices` | Hal (sebze-meyve/balık) fiyatları. | Wholesale market prices. |
+| `izmir_fare` | İZBAN iki istasyon arası ücret. | İZBAN fare between two stations. |
+| `izmir_parking_fees` | İZELMAN otopark ücret tarifesi. | İZELMAN parking tariffs. |
+| `izmir_traffic_cameras` | Trafik kamerası konumları (yayın yok). | Traffic camera locations (no stream). |
+| `izmir_water_production` | İZSU su üretimi (son anlık görüntü, tarihsiz). | İZSU water production (latest undated snapshot). |
 
 ### Karşılaştırma / Comparison
 
@@ -511,11 +515,12 @@ anlamına gelmez. İlçe/mahalle referans noktaları OpenStreetMap katkıcılar�
 ## English
 
 İzmir MCP is a read-only [Model Context Protocol](https://modelcontextprotocol.io)
-server for İzmir open city data. It exposes 31 tools (open-data catalog and
+server for İzmir open city data. It exposes 35 tools (open-data catalog and
 DataStore queries, nearby parking/on-duty pharmacies/stations, İZSU dam levels,
 air quality, metro/İZBAN/İZDENİZ timetables, ESHOT bus stops, arrivals and GTFS
 departures, district markets, transport notices, city services, neighbourhood
-profiles and road traffic history), plus discovery resources and workflow
+profiles, road traffic history, İZBAN fares, parking tariffs, traffic camera
+locations and İZSU water production), plus discovery resources and workflow
 prompts. Every response uses one envelope with freshness, limits and warnings;
 an unavailable source is reported as a typed error, never as empty data.
 

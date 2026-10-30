@@ -52,6 +52,10 @@ DEFAULT_TOOL_NAMES = (
     "izmir_cbs_layer",
     "izmir_events",
     "izmir_market_prices",
+    "izmir_fare",
+    "izmir_parking_fees",
+    "izmir_traffic_cameras",
+    "izmir_water_production",
 )
 
 TOOL_TITLES = {
@@ -86,6 +90,10 @@ TOOL_TITLES = {
     "izmir_cbs_layer": "İzmir CBS katmanı",
     "izmir_events": "İzmir kültür sanat etkinlikleri",
     "izmir_market_prices": "İzmir hal fiyatları",
+    "izmir_fare": "İZBAN ücret hesaplama",
+    "izmir_parking_fees": "İZELMAN otopark ücretleri",
+    "izmir_traffic_cameras": "İzmir trafik kamerası konumları",
+    "izmir_water_production": "İZSU su üretimi (son anlık görüntü)",
 }
 
 

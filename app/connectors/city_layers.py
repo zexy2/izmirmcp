@@ -36,6 +36,35 @@ TRAFFIC_RESOURCE_ID = "a3bd880f-dfc6-4f65-bbfd-5fcc998268c3"
 # Accessible EV charging stations (48 rows, coordinates published).
 CHARGING_RESOURCE_ID = "028f2692-d930-481f-ab27-17a321bd1283"
 
+# Verified live on 2026-10-31: 39 tariff rows, 92 camera points, 10 IZSU rows.
+PARKING_FEE_RESOURCE_ID = "8dca3fb5-b7fe-4f16-91af-d8248da59f87"
+TRAFFIC_CAMERA_RESOURCE_ID = "b91cb15d-05c6-45b7-8a75-48e030aad368"
+WATER_PRODUCTION_RESOURCE_ID = "0eca9087-41de-4beb-93a2-d7129faede40"
+
+# Published tariff columns (TL) → our keys. Several columns are typed text
+# upstream and arrive as ''; those become None like nulls.
+PARKING_FEE_COLUMNS = (
+    ("0-1 Saat", "h0_1"),
+    ("0-2 saat", "h0_2"),
+    ("0-3 saat", "h0_3"),
+    ("2-4 saat", "h2_4"),
+    ("3-6 saat", "h3_6"),
+    ("4-6 saat", "h4_6"),
+    ("0-6 saat", "h0_6"),
+    ("6-12 saat", "h6_12"),
+    ("0-12 saat", "h0_12"),
+    ("12-24 saat", "h12_24"),
+    ("0-24 saat", "h0_24"),
+    ("17:00-09:00 Arası (16 Saat)", "night_17_09"),
+    ("19:00-09:00 Arası (14 Saat)", "night_19_09"),
+    ("Kayıp Bilet", "lost_ticket"),
+    ("Aylık Abone Ücreti", "monthly_subscription"),
+    ("0-12 Saat(Motosiklet )", "motorcycle_h0_12"),
+    ("0-24 Saat(Motosiklet )", "motorcycle_h0_24"),
+    ("Motosiklet Aylık Abone Ücreti", "motorcycle_monthly_subscription"),
+    ("0-24 Saat(Engelli Aracı )", "accessible_h0_24"),
+)
+
 BUILDING_RESOURCE_ID = "54af6862-2d36-48d0-838f-a42133e8b943"
 POPULATION_RESOURCE_ID = "7ef10678-8a84-4e43-9122-3ac15c818b51"
 
@@ -176,13 +205,50 @@ class CityLayerConnector:
 
         def mapper(item: dict[str, Any]) -> dict[str, Any]:
             return {
-                "district": (bounded_text(item.get("ILCE_ADI") or "") or "").strip() or None,
-                "name": (bounded_text(item.get("MAHALLE_ADI") or "") or "").strip() or None,
+                "district": bounded_text(item.get("ILCE_ADI")),
+                "name": bounded_text(item.get("MAHALLE_ADI")),
                 "male": finite_number(item.get("NUFUS_ERKEK_TOPLAM")),
                 "female": finite_number(item.get("NUFUS_KADIN_TOPLAM")),
             }
 
         return await self._layer("neighborhood_population", POPULATION_RESOURCE_ID, mapper)
+
+    async def parking_fee_rows(self) -> tuple[list[dict[str, Any]], CacheInfo]:
+        """Published İZELMAN parking tariffs in TL; ``''`` and null become None."""
+
+        def mapper(item: dict[str, Any]) -> dict[str, Any]:
+            return {
+                "id": bounded_id(item.get("_id")),
+                "name": bounded_text(item.get("Otopark / Fiyat")),
+                "fees_try": {key: finite_number(item.get(column)) for column, key in PARKING_FEE_COLUMNS},
+            }
+
+        return await self._layer("parking_fees", PARKING_FEE_RESOURCE_ID, mapper)
+
+    async def traffic_camera_rows(self) -> tuple[list[dict[str, Any]], CacheInfo]:
+        """Traffic camera locations only; the source publishes no stream URL."""
+
+        def mapper(item: dict[str, Any]) -> dict[str, Any]:
+            return {
+                "id": bounded_id(item.get("_id")),
+                "name": bounded_text(item.get("ADI")),
+                **_lat_lon(item.get("ENLEM"), item.get("BOYLAM")),
+            }
+
+        return await self._layer("traffic_cameras", TRAFFIC_CAMERA_RESOURCE_ID, mapper)
+
+    async def water_production_rows(self) -> tuple[list[dict[str, Any]], CacheInfo]:
+        """IZSU production per dam/well group; the resource carries no date."""
+
+        def mapper(item: dict[str, Any]) -> dict[str, Any]:
+            return {
+                "id": bounded_id(item.get("BARAJ_KUYU_ID")),
+                "name": bounded_text(item.get("BARAJ_KUYU_ADI")),
+                "kind": bounded_text(item.get("TUR_ADI"), 64),
+                "production": finite_number(item.get("URETIM_MIKTARI")),
+            }
+
+        return await self._layer("water_production", WATER_PRODUCTION_RESOURCE_ID, mapper)
 
     async def taxi_stands(self) -> tuple[list[dict[str, Any]], CacheInfo]:
         """Published taxi stand locations (district/mahalle/street labels)."""

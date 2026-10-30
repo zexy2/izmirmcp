@@ -19,6 +19,7 @@ from app.services.cbs import CbsService
 from app.services.catalog import CatalogService
 from app.services.datastore_sql import DatastoreSqlService
 from app.services.city_services import KINDS as CITY_SERVICE_KINDS
+from app.services.city_info import CityInfoService
 from app.services.city_services import CityServicesService
 from app.services.disruptions import DisruptionService
 from app.services.markets import MarketService
@@ -815,3 +816,72 @@ async def izmir_market_prices(
         return await CbsService(settings=get_settings()).market_prices(kind=kind, day=day, query=query, limit=limit)
     except InputValidationError as exc:
         return _validation(exc, tool="izmir_market_prices")
+
+
+async def izmir_fare(
+    from_station: int | str,
+    to_station: int | str,
+    transfer: bool = False,
+    htt: bool = False,
+) -> dict:
+    """Return the published İZBAN fare between two stations (TL, by rider type).
+
+    `from_station`/`to_station` take an İZBAN station id or name (Turkish
+    letters and case are ignored; an ambiguous name is rejected with the
+    candidates). `transfer` is the source's aktarma flag; `htt` is the source's
+    own tariff flag whose meaning the API does not document. Not a live price.
+    """
+    try:
+        _reject_boolean_number(from_station, "from_station")
+        _reject_boolean_number(to_station, "to_station")
+        return await CityInfoService(settings=get_settings()).izban_fare(
+            from_station=from_station, to_station=to_station, transfer=transfer, htt=htt
+        )
+    except InputValidationError as exc:
+        return _validation(exc, tool="izmir_fare")
+
+
+async def izmir_parking_fees(query: str | None = None, limit: _OptInt = None) -> dict:
+    """Return İZELMAN's published parking tariffs (TL per duration band).
+
+    `query` is a plain name fragment (e.g. "Konak"). For live free spaces use
+    `izmir_nearby(types=["parking"])`; this tool has tariffs only.
+    """
+    try:
+        return await CityInfoService(settings=get_settings()).parking_fees(query=query, limit=limit)
+    except InputValidationError as exc:
+        return _validation(exc, tool="izmir_parking_fees")
+
+
+async def izmir_traffic_cameras(
+    query: str | None = None,
+    lat: _OptNum = None,
+    lon: _OptNum = None,
+    radius_m: _OptInt = None,
+    limit: _OptInt = None,
+) -> dict:
+    """Return İzmir traffic camera locations, optionally near a point.
+
+    Locations only: the source publishes no image or stream URL. `lat`+`lon`
+    with optional `radius_m` (default 2000, max 50000) ranks by distance.
+    """
+    try:
+        _reject_boolean_number(lat, "lat")
+        _reject_boolean_number(lon, "lon")
+        return await CityInfoService(settings=get_settings()).traffic_cameras(
+            query=query, lat=lat, lon=lon, radius_m=radius_m, limit=limit
+        )
+    except InputValidationError as exc:
+        return _validation(exc, tool="izmir_traffic_cameras")
+
+
+async def izmir_water_production(name: str | None = None, limit: _OptInt = None) -> dict:
+    """Return IZSU water production per dam or well group (latest published snapshot).
+
+    The resource has no date column, so this is not "today's" production and
+    the unit is not stated by the source. For dam fill levels use `izmir_dam_status`.
+    """
+    try:
+        return await CityInfoService(settings=get_settings()).water_production(name=name, limit=limit)
+    except InputValidationError as exc:
+        return _validation(exc, tool="izmir_water_production")

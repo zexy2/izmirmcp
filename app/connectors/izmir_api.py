@@ -4,13 +4,37 @@ from datetime import date
 from typing import Any
 
 from app.connectors.http import get_json
-from app.connectors.schema import expect_type
+from app.connectors.schema import SchemaDriftError, expect_type
 from app.core.envelope import bounded_id, bounded_text, finite_number
 from app.core.geo import valid_lat_lon
 from app.core.settings import Settings
 from app.core.source_cache import CacheInfo, cached_source_data
 
 WEEKDAYS = ("monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday")
+
+# İZBAN tutarhesaplama fields, verified live on 2026-10-31. Keys are ours; the
+# source names are kept next to them so a rename upstream is easy to spot.
+FARE_FIELDS = (
+    ("full", "TamUcret"),
+    ("student", "OgrenciUcret"),
+    ("teacher", "OgretmenUcret"),
+    ("age_60", "Yas60Ucret"),
+    ("free_pass", "SerbestUcret"),
+)
+REFUND_FIELDS = (
+    ("full", "IadeTam"),
+    ("student", "IadeOgrenci"),
+    ("teacher", "IadeOgretmen"),
+    ("age_60", "Iade60Yas"),
+    ("free_pass", "IadeSerbest"),
+)
+MIN_BALANCE_FIELDS = (
+    ("full", "MinBakiyeTam"),
+    ("student", "MinBakiyeOgrenci"),
+    ("teacher", "MinBakiyeOgretmen"),
+    ("age_60", "MinBakiye60Yas"),
+    ("free_pass", "MinBakiyeSerbest"),
+)
 
 
 def _as_float(value: Any) -> float | None:
@@ -165,6 +189,33 @@ class IzmirOpenApi:
     async def izban_stations(self) -> tuple[list[dict[str, Any]], CacheInfo]:
         payload, info = await self._cached("izban/istasyonlar", "openapi.izban.stations")
         return _station_rows(payload, order_key="IstasyonSirasi"), info
+
+    async def izban_fare(
+        self, from_id: int, to_id: int, *, transfer: bool, htt: bool
+    ) -> tuple[dict[str, Any], CacheInfo]:
+        """Fare between two İZBAN stations.
+
+        Callers pass validated positive ints and real bools only; the path is
+        built from those, never from caller text. The fourth segment must be the
+        literal ``true``/``false`` (``0``/``1`` is a 400), the third is ``0``/``1``.
+        """
+        transfer_part = "1" if transfer else "0"
+        htt_part = "true" if htt else "false"
+        payload, info = await self._cached(
+            f"izban/tutarhesaplama/{from_id}/{to_id}/{transfer_part}/{htt_part}",
+            f"openapi.izban.fare.{from_id}.{to_id}.{transfer_part}.{htt_part}",
+        )
+        payload = expect_type(payload, dict, what="openapi izban fare")
+        if not isinstance(finite_number(payload.get("TamUcret")), float):
+            raise SchemaDriftError("openapi izban fare: TamUcret missing")
+        return {
+            "from_station": bounded_text(payload.get("BinisIstasyonu"), 128),
+            "to_station": bounded_text(payload.get("InisIstasyonu"), 128),
+            "distance_km": _as_float(payload.get("ToplamKm")),
+            "fares": {key: _as_float(payload.get(source)) for key, source in FARE_FIELDS},
+            "refunds": {key: _as_float(payload.get(source)) for key, source in REFUND_FIELDS},
+            "min_balance": {key: _as_float(payload.get(source)) for key, source in MIN_BALANCE_FIELDS},
+        }, info
 
     async def ferry_piers(self) -> tuple[list[dict[str, Any]], CacheInfo]:
         payload, info = await self._cached("izdeniz/iskeleler", "openapi.izdeniz.piers")

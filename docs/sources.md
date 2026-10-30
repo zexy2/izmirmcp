@@ -47,6 +47,10 @@ Atıf bu adlarla yapılır:
 | İzmir taksi durakları | İzmir Büyükşehir Belediyesi | `static_service_locations` |
 | İzmir ana arter hız ve süre verileri | İzmir Büyükşehir Belediyesi | `historical_segment_speed` |
 | İzmir engelli şarj istasyonları | İzmir Büyükşehir Belediyesi | `static_service_locations` |
+| İZBAN ücret hesaplama servisi | İZBAN A.Ş. | `published_fare_table` |
+| İZELMAN otopark ücretleri | İZELMAN A.Ş. | `published_parking_tariff` |
+| İzmir trafik kameraları konumları | İzmir Büyükşehir Belediyesi Ulaşım Dairesi Başkanlığı | `static_camera_locations` |
+| İZSU günlük su üretimi | İzmir Su ve Kanalizasyon İdaresi (İZSU) | `published_water_production_snapshot` |
 
 ## Katalog ve DataStore
 
@@ -68,6 +72,7 @@ bilinçli olarak yoktur. Katalog CTL 21600 sn, resource TTL 300 sn önbellekleni
 | İzmir Metro sefer sıklığı | `openapi.izmir.bel.tr/api/metro/sefersaatleri` | Saat aralığı tablosu |
 | İZBAN istasyonları | `openapi.izmir.bel.tr/api/izban/istasyonlar` | İstasyon + koordinat |
 | İZBAN sefer saatleri | `openapi.izmir.bel.tr/api/izban/sefersaatleri/{from}/{to}` | Yayımlanmış tarife |
+| İZBAN ücret hesaplama | `openapi.izmir.bel.tr/api/izban/tutarhesaplama/{binis}/{inis}/{0\|1}/{true\|false}` | Çalışıyor; 4. parametre `0`/`1` ile HTTP 400 |
 | İZDENİZ iskeleleri | `openapi.izmir.bel.tr/api/izdeniz/iskeleler` | İskele + koordinat |
 | İZDENİZ seferleri | openapi İZDENİZ kalkış/hat uçları | Yayımlanmış tarife |
 
@@ -114,6 +119,9 @@ sıralanır ve "gecikebilir" uyarısı eklenir. Arıza ucu düzelmeden arıza ve
 | WizmirNET WiFi noktaları | `kablosuz-internet-baglanti-noktalari` (`60ca8451-…`) | 857 nokta (yinelenen satırlar tekilleştirilir) |
 | İzmirim Kart dolum noktaları | `izmirim-kart-dolum-noktalari` (`7a3efbec-…`) | 1.120 nokta; **2023-08-21 tarihli** |
 | İBB kütüphaneleri | `izmir-buyuksehir-belediyesi-kutuphaneleri-bilgileri` (`0c1b15b9-…`) | 10 kütüphane; **koordinat yok** |
+| İZELMAN otopark ücretleri | `otopark-ucretleri` (`8dca3fb5-…`) | 39 tarife satırı; kaynak son güncelleme 2024-09-02 |
+| İzmir trafik kameraları | `trafik-kameralari` (`b91cb15d-…`) | 92 konum; **yayın/görüntü bağlantısı yok** |
+| İZSU günlük su üretimi | `gunluk-su-uretimi` (`0eca9087-…`) | 10 baraj/kuyu satırı; **tarih ve birim kolonu yok** |
 
 Bu katmanların CTL 86400 sn / 604800 sn stale önbelleği vardır. Hepsi statik
 snapshot'tır; açık/kapalı durum yayımlanmaz. Kütüphanedeki koordinat eksikliği

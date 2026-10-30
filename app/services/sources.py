@@ -263,6 +263,36 @@ HAL_PRICES = Source(
     url="https://acikveri.bizizmir.com/dataset/sebze-ve-meyve-hal-fiyatlari",
     scope="wholesale_price_bulletin",
 )
+IZBAN_FARE = Source(
+    name="İZBAN ücret hesaplama servisi",
+    publisher="İZBAN A.Ş.",
+    url="https://openapi.izmir.bel.tr",
+    scope="published_fare_table",
+)
+PARKING_FEES = Source(
+    name="İZELMAN otopark ücretleri",
+    publisher="İZELMAN A.Ş.",
+    url="https://acikveri.bizizmir.com/dataset/otopark-ucretleri",
+    scope="published_parking_tariff",
+    dataset_id="otopark-ucretleri",
+    resource_id="8dca3fb5-b7fe-4f16-91af-d8248da59f87",
+)
+TRAFFIC_CAMERAS = Source(
+    name="İzmir trafik kameraları konumları",
+    publisher="İzmir Büyükşehir Belediyesi Ulaşım Dairesi Başkanlığı",
+    url="https://acikveri.bizizmir.com/dataset/trafik-kameralari",
+    scope="static_camera_locations",
+    dataset_id="trafik-kameralari",
+    resource_id="b91cb15d-05c6-45b7-8a75-48e030aad368",
+)
+WATER_PRODUCTION = Source(
+    name="İZSU günlük su üretimi",
+    publisher="İzmir Su ve Kanalizasyon İdaresi (İZSU)",
+    url="https://acikveri.bizizmir.com/dataset/gunluk-su-uretimi",
+    scope="published_water_production_snapshot",
+    dataset_id="gunluk-su-uretimi",
+    resource_id="0eca9087-41de-4beb-93a2-d7129faede40",
+)
 PHARMACY_ALL = Source(
     name="İzmir eczane listesi",
     publisher="İzmir Büyükşehir Belediyesi",

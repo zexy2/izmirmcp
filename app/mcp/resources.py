@@ -115,6 +115,34 @@ SOURCE_CATALOG = (
         "published_line_notices",
     ),
     (
+        "izban_fare",
+        "İZBAN ücret hesaplama servisi",
+        "İZBAN A.Ş.",
+        "https://openapi.izmir.bel.tr",
+        "published_fare_table",
+    ),
+    (
+        "parking_fees",
+        "İZELMAN otopark ücretleri",
+        "İZELMAN A.Ş.",
+        "https://acikveri.bizizmir.com/dataset/otopark-ucretleri",
+        "published_parking_tariff",
+    ),
+    (
+        "traffic_cameras",
+        "İzmir trafik kameraları konumları",
+        "İzmir Büyükşehir Belediyesi",
+        "https://acikveri.bizizmir.com/dataset/trafik-kameralari",
+        "static_camera_locations",
+    ),
+    (
+        "water_production",
+        "İZSU günlük su üretimi",
+        "İZSU",
+        "https://acikveri.bizizmir.com/dataset/gunluk-su-uretimi",
+        "published_water_production_snapshot",
+    ),
+    (
         "osm",
         "OpenStreetMap Nominatim",
         "OpenStreetMap contributors",
@@ -297,6 +325,35 @@ def _coverage(settings: Settings, actual_tools: set[str]) -> list[dict[str, Any]
             ["hal"],
             "published_wholesale_prices",
             "Wholesale hal prices; an empty day falls back to the latest published day.",
+        ),
+        (
+            "izban_fare",
+            ["izmir_fare"],
+            ["izban_fare", "izban"],
+            "published_fare_table",
+            "Fare computed by the İZBAN service for a validated station pair; not a "
+            "ticket-machine guarantee. The htt flag is undocumented upstream.",
+        ),
+        (
+            "parking_fees",
+            ["izmir_parking_fees"],
+            ["parking_fees"],
+            "published_parking_tariff",
+            "Published İZELMAN tariff table; may lag behind current prices. Live occupancy is izmir_nearby.",
+        ),
+        (
+            "traffic_cameras",
+            ["izmir_traffic_cameras"],
+            ["traffic_cameras"],
+            "static_camera_locations",
+            "Camera locations only; no image or stream URL and no proof a camera works.",
+        ),
+        (
+            "water_production",
+            ["izmir_water_production"],
+            ["water_production"],
+            "published_water_production_snapshot",
+            "Latest published IZSU snapshot; the resource has no date column and no unit.",
         ),
     ]
     data = []

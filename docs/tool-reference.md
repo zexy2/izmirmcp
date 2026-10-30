@@ -1,6 +1,6 @@
 # Araç Referansı
 
-Bu belge 31 salt okunur MCP aracının girdi/çıktı sözleşmesini gerçek koddan
+Bu belge 35 salt okunur MCP aracının girdi/çıktı sözleşmesini gerçek koddan
 (`app/mcp/server.py` ve `app/services/*`) türetir. Zarf alanları
 [response-contract.md](response-contract.md) içindedir. Tüm araçlar `read_only`,
 `idempotent`, `open_world` işaretlidir ve `structured_output` taşır.
@@ -461,6 +461,53 @@ Hal (sebze-meyve/balık) fiyatları.
 
 Kaynak bir gün için içerik döndürmezse (204) önceki günlere bakılır ve gerçek bülten tarihi bildirilir.
 Semt pazarı günleri için `izmir_market_schedule`.
+
+### `izmir_fare`
+İZBAN iki istasyon arası ücret (TL; tam, öğrenci, öğretmen, 60 yaş, serbest).
+
+| Girdi | Tip | Zorunlu | Açıklama |
+|---|---|---|---|
+| `from_station` | int \| string | evet | İZBAN istasyon kimliği veya adı (Türkçe harf/büyük-küçük duyarsız). |
+| `to_station` | int \| string | evet | `from_station` ile aynı olamaz. |
+| `transfer` | bool | hayır | Kaynağın aktarma bayrağı (`0`/`1` olarak gönderilir). |
+| `htt` | bool | hayır | Kaynağın tarife bayrağı (`true`/`false`); anlamı API'de belgelenmemiştir. |
+
+Kimlikler yayımlanmış `izban/istasyonlar` listesine karşı doğrulanır; belirsiz
+ad adaylarla birlikte `validation_error` döner. Yanıt `fares`, `refunds`,
+`min_balance` ve `distance_km` içerir.
+
+### `izmir_parking_fees`
+İZELMAN otopark ücret tarifesi (39 otopark).
+
+| Girdi | Tip | Zorunlu | Açıklama |
+|---|---|---|---|
+| `query` | string \| null | hayır | Otopark adı parçası (düz alt dize). |
+| `limit` | int \| null | hayır | |
+
+`fees_try` süre dilimlerini TL olarak verir; boş veya null kolonlar `null`.
+Canlı doluluk için `izmir_nearby(types=["parking"])`.
+
+### `izmir_traffic_cameras`
+Trafik kamerası konumları (92 nokta). Görüntü/yayın bağlantısı yayımlanmaz.
+
+| Girdi | Tip | Zorunlu | Açıklama |
+|---|---|---|---|
+| `query` | string \| null | hayır | Kavşak adı parçası. |
+| `lat` | number \| null | hayır | `lon` ile birlikte. |
+| `lon` | number \| null | hayır | `lat` ile birlikte. |
+| `radius_m` | int \| null | hayır | Yalnız `lat`+`lon` ile; varsayılan 2000, en fazla 50000. |
+| `limit` | int \| null | hayır | |
+
+### `izmir_water_production`
+İZSU baraj/kuyu bazında su üretimi — son yayımlanan anlık görüntü.
+
+| Girdi | Tip | Zorunlu | Açıklama |
+|---|---|---|---|
+| `name` | string \| null | hayır | Baraj/kuyu adı parçası. |
+| `limit` | int \| null | hayır | |
+
+Kaynakta tarih kolonu ve birim yoktur; "bugünkü üretim" olarak sunulmaz. Baraj
+doluluğu için `izmir_dam_status`.
 
 ### `izmir_health`
 Yerel hazırlık ve yayımlanan limitler. Girdi yoktur. Kaynak sağlığı ölçmez;
