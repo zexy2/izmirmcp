@@ -6,6 +6,9 @@
 [![MCP Registry](https://img.shields.io/badge/MCP%20Registry-io.github.zexy2%2Fizmir--mcp-blue)](https://registry.modelcontextprotocol.io/)
 [![CI](https://github.com/zexy2/izmirmcp/actions/workflows/ci.yml/badge.svg)](https://github.com/zexy2/izmirmcp/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![GHCR](https://img.shields.io/badge/ghcr.io-zexy2%2Fizmir--mcp-blue)](https://github.com/zexy2/izmirmcp/pkgs/container/izmir-mcp)
+
+Kurulum / Install: [Türkçe](docs/install.tr.md) · [English](docs/install.en.md)
 
 İzmir'e dair açık şehir verilerini MCP destekleyen ajanlara ve geliştirici
 araçlarına tek bir sunucu üzerinden açan, salt okunur bir Model Context Protocol
@@ -153,6 +156,23 @@ karşı kilitlenir:
 - [Geliştirme](docs/development.md) — kurulum, testler, lint, CI işleri.
 - [Güvenlik](docs/security.md) — tehdit modeli: SSRF, gövde/kaynak sınırları, auth varsayılanları.
 - [Araç geçişi](docs/tool-migration.md) — araç adı/şema uyumluluk sözü ve kırıcı değişiklik süreci.
+- [Güvenlik raporu](docs/security-report.md) — trivy/syft/gitleaks yerel tarama sonuçları.
+- [Kurulum (TR)](docs/install.tr.md) / [Install (EN)](docs/install.en.md) — uvx, Docker/GHCR, Claude Desktop ve Cursor ayarları.
+- [Duyuru taslakları](docs/launch.md) — X, LinkedIn, Reddit ve Smithery/Glama metinleri (gönderilmedi).
+
+## Örnek senaryolar / Example scenarios
+
+MCP istemcinize şunları sorun; ajan mevcut araçları birleştirir:
+
+1. **Rota karşılaştırma:** "Konak'tan Karşıyaka'ya vapur mu, metro+İZBAN mı,
+   otobüs mü daha hızlı ve ucuz?" (İZDENİZ/metro/İZBAN tarifeleri, İZBAN ücreti, ESHOT kalkışları)
+2. **Bugün ne yapsam:** "Bornova'da bugün pazar, hava kalitesi ve ulaşım duyuruları?"
+3. **Su durumu:** "Buca'da su kesintisi var mı, barajlar ne kadar dolu?" (İZSU arıza
+   API'si zaman zaman 500 döner; ajan bunu tipli hata olarak görür)
+4. **Eczane + ulaşım:** "Karşıyaka'da nöbetçi eczane ve oraya en yakın durağa gelen otobüsler?"
+5. **Şehir şimdi:** "İzmir'de şu an ulaşım, hava ve su açısından durum ne?"
+
+Terminal demosu kaydetmek için: `scripts/record_demo.sh` (asciinema; GIF için `agg`).
 
 ## Kurulum
 
