@@ -210,7 +210,7 @@ class EshotConnector:
             await _throttle()
             payload = await get_json(
                 f"{self.iztek_base_url}/duragayaklasanotobusler/{stop_id}",
-                timeout=self.settings.request_timeout_seconds,
+                timeout=getattr(self.settings, "live_vehicle_timeout_seconds", self.settings.request_timeout_seconds),
                 attempts=self.settings.request_attempts,
                 max_bytes=self.settings.response_max_bytes,
                 strict=True,
@@ -244,6 +244,7 @@ class EshotConnector:
         return await cached_source_data(
             key,
             ttl_seconds=self.settings.iztek_cache_ttl_seconds,
+            stale_if_error_seconds=int(getattr(self.settings, "iztek_stale_if_error_seconds", 0)),
             loader=loader,
         )
 
@@ -259,7 +260,7 @@ class EshotConnector:
             await _throttle()
             payload = await get_json(
                 f"{self.iztek_base_url}/hatotobuskonumlari/{line}",
-                timeout=self.settings.request_timeout_seconds,
+                timeout=getattr(self.settings, "live_vehicle_timeout_seconds", self.settings.request_timeout_seconds),
                 attempts=self.settings.request_attempts,
                 max_bytes=self.settings.response_max_bytes,
                 strict=True,
@@ -286,11 +287,16 @@ class EshotConnector:
                 )
             return rows
 
-        return await cached_source_data(
+        rows, info = await cached_source_data(
             key,
             ttl_seconds=min(15, int(getattr(self.settings, "iztek_positions_cache_ttl_seconds", 15))),
+            stale_if_error_seconds=min(120, int(getattr(self.settings, "iztek_positions_stale_if_error_seconds", 0))),
             loader=loader,
         )
+        if info.status == "stale":
+            # Positions this old must not read as live; flag each row (additive).
+            rows = [{**row, "is_stale": True} for row in rows]
+        return rows, info
 
     async def gtfs_archive(self) -> bytes:
         """Download the full GTFS ZIP once for the local timetable build."""

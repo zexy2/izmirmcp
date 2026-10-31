@@ -83,7 +83,7 @@ class IzmirOpenApi:
         async def loader() -> Any:
             payload = await get_json(
                 f"{self.base_url}/{path.lstrip('/')}",
-                timeout=self.settings.request_timeout_seconds,
+                timeout=getattr(self.settings, "openapi_timeout_seconds", self.settings.request_timeout_seconds),
                 attempts=self.settings.request_attempts,
                 max_bytes=self.settings.response_max_bytes,
                 strict=True,
