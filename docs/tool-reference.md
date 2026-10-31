@@ -9,9 +9,11 @@ Ortak varsayılanlar: `default_limit=10`, `max_limit=50`, `max_radius_m=5000`.
 Limit verilmezse `default_limit` uygulanır; aşarsa `validation_error` (`limit`).
 
 Keşif kaynakları (salt okunur, ağ çağrısı yapmaz): `izmir://coverage`,
-`izmir://sources`, `izmir://schema/catalog`. İstemci iş akışları (prompt'lar):
+`izmir://sources`, `izmir://schema/catalog`, `izmir://reference/fares`,
+`izmir://reference/lines`. İstemci iş akışları (prompt'lar):
 `gunun_ozeti`, `veri_kesfi`, `toplu_ulasim`, `otobus`, `pazar_ve_duyurular`,
-`sehir_hizmetleri`, `nobetci_eczane`.
+`sehir_hizmetleri`, `nobetci_eczane`, `rota_karsilastir`,
+`bugun_ne_yapsam`, `su_durumu_raporu`, `eczane_ve_ulasim`, `sehir_simdi`.
 
 ## Katalog (CKAN)
 

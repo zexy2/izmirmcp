@@ -1,0 +1,12 @@
+# Smithery config (stdio, container build). Draft: not yet submitted.
+runtime: container
+build:
+  dockerfile: Dockerfile
+  dockerBuildPath: .
+startCommand:
+  type: stdio
+  configSchema:
+    type: object
+    properties: {}
+  commandFunction: |-
+    (config) => ({ command: "python", args: ["-m", "app.stdio"], env: {} })

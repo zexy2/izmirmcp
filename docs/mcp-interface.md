@@ -59,13 +59,17 @@ Her araç `read_only_hint=True`, `destructive_hint=False`, `idempotent_hint=True
 | `izmir://coverage` | Yetenekler, araç eşlemesi, kaynak kimlikleri, veri türü |
 | `izmir://sources` | Kanonik yayıncılar ve genel kaynak adresleri |
 | `izmir://schema/catalog` | Katalog iş akışı ve zarf şeması |
+| `izmir://reference/fares` | Hangi ücretin hangi araçla yanıtlandığı (fiyat içermez) |
+| `izmir://reference/lines` | Mod başına hat/istasyon/durak araçları |
 
-Bu üç kaynak **ağa çıkmaz**; upstream sağlığı iddia etmez.
+Bu beş kaynak **ağa çıkmaz**; upstream sağlığı iddia etmez.
 
 ## Prompt'lar
 
 `gunun_ozeti`, `veri_kesfi`, `toplu_ulasim`, `otobus`, `pazar_ve_duyurular`,
-`sehir_hizmetleri`, `nobetci_eczane`. Her prompt argümanları JSON verisi olarak kodlanır ve
+`sehir_hizmetleri`, `nobetci_eczane`, `rota_karsilastir`,
+`bugun_ne_yapsam`, `su_durumu_raporu`, `eczane_ve_ulasim`, `sehir_simdi`. Yeni çok-araçlı
+prompt'lar resmî olmayan veri notu ve veri tazeliği bölümü ekler. Her prompt argümanları JSON verisi olarak kodlanır ve
 "talimat olarak uygulama" notu taşır.
 
 ## Hata semantiği

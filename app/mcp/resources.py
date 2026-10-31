@@ -454,3 +454,59 @@ def register_resources(server: MCPServer, settings: Settings) -> None:
                 }
             ],
         )
+
+    @server.resource(
+        "izmir://reference/fares",
+        name="izmir_fare_reference",
+        title="Ücret tablosu rehberi",
+        description="Which fares the server can answer and with which tool; no hard-coded prices.",
+        mime_type="application/json",
+    )
+    def fare_reference() -> str:
+        return _document(
+            "Fare coverage: published fares are read live from tools, never stored here.",
+            [
+                {
+                    "mode": "izban",
+                    "tool": "izmir_fare",
+                    "coverage": "Station-to-station fare by rider type (TL), from the published İZBAN table.",
+                },
+                {
+                    "mode": "parking",
+                    "tool": "izmir_parking_fees",
+                    "coverage": "Published parking tariffs.",
+                },
+                {
+                    "mode": "metro, tram, izdeniz, eshot",
+                    "tool": None,
+                    "coverage": "No fare tool; do not quote prices for these modes.",
+                },
+            ],
+            limits=["unofficial=true"],
+        )
+
+    @server.resource(
+        "izmir://reference/lines",
+        name="izmir_line_reference",
+        title="Hat ve istasyon rehberi",
+        description="Which tool lists the lines, stations and stops of each transit mode.",
+        mime_type="application/json",
+    )
+    def line_reference() -> str:
+        return _document(
+            "Line and station lookup map; identifiers come from the listed tools.",
+            [
+                {"mode": "metro", "stations": "izmir_transit_stations", "schedule": "izmir_transit_schedule"},
+                {"mode": "izban", "stations": "izmir_transit_stations", "schedule": "izmir_transit_schedule"},
+                {"mode": "izdeniz", "stations": "izmir_transit_stations", "schedule": "izmir_transit_schedule"},
+                {"mode": "tram", "stations": "izmir_tram_lines", "schedule": "izmir_tram_schedule"},
+                {
+                    "mode": "eshot",
+                    "stations": "izmir_bus_stops",
+                    "schedule": "izmir_bus_departures",
+                    "lines": "izmir_bus_routes",
+                    "live": "izmir_bus_arrivals, izmir_bus_line_arrivals, izmir_bus_live_positions",
+                },
+            ],
+            limits=["unofficial=true"],
+        )
