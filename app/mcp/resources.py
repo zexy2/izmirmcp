@@ -355,6 +355,14 @@ def _coverage(settings: Settings, actual_tools: set[str]) -> list[dict[str, Any]
             "published_water_production_snapshot",
             "Latest published IZSU snapshot; the resource has no date column and no unit.",
         ),
+        (
+            "trip_planning",
+            ["izmir_plan_trip"],
+            ["openapi", "osm", "izban_fare"],
+            "approximate_composite_estimate",
+            "Straight-line speed estimates over nearby stops; not a timetable-checked "
+            "itinerary. Confirm with izmir_transit_schedule before travelling.",
+        ),
     ]
     data = []
     for capability, names, source_ids, kind, warning in entries:

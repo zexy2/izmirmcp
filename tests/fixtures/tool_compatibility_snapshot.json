@@ -1740,5 +1740,40 @@
     },
     "title": "izmir_water_statusArguments",
     "type": "object"
+  },
+  "izmir_plan_trip": {
+    "properties": {
+      "origin": {
+        "title": "Origin",
+        "type": "string"
+      },
+      "destination": {
+        "title": "Destination",
+        "type": "string"
+      },
+      "depart_at": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Depart At"
+      },
+      "max_options": {
+        "default": 3,
+        "title": "Max Options",
+        "type": "integer"
+      }
+    },
+    "required": [
+      "origin",
+      "destination"
+    ],
+    "title": "izmir_plan_tripArguments",
+    "type": "object"
   }
 }

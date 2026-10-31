@@ -28,6 +28,7 @@ from app.services.neighborhood import NeighborhoodService
 from app.services.places import PlaceResolver
 from app.services.traffic import TrafficService
 from app.services.transit import TransitService
+from app.services.trip import TripPlanner
 from app.services.water import WaterService
 
 settings = get_settings()
@@ -885,3 +886,27 @@ async def izmir_water_production(name: str | None = None, limit: _OptInt = None)
         return await CityInfoService(settings=get_settings()).water_production(name=name, limit=limit)
     except InputValidationError as exc:
         return _validation(exc, tool="izmir_water_production")
+
+
+async def izmir_plan_trip(
+    origin: str,
+    destination: str,
+    depart_at: str | None = None,
+    max_options: int = 3,
+) -> dict:
+    """Compare direct public-transport options between two İzmir places.
+
+    `origin`/`destination` are district or neighbourhood names (max 80 chars).
+    Returns up to `max_options` (1-5) single-mode options (metro, İZBAN,
+    İZDENİZ ferry, ESHOT bus) ranked by approximate duration, with walk/ride
+    legs, the İZBAN fare when known and active disruption titles. Durations are
+    straight-line estimates, not a timetable or live ETA. `depart_at` is an
+    ISO-8601 time kept for information only. Partial results are returned when
+    an upstream fails; use `izmir_transit_schedule` for actual departures.
+    """
+    try:
+        return await TripPlanner(settings=get_settings()).plan(
+            origin=origin, destination=destination, depart_at=depart_at, max_options=max_options
+        )
+    except InputValidationError as exc:
+        return _validation(exc, tool="izmir_plan_trip")

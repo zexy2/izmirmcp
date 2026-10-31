@@ -136,8 +136,10 @@ def rota_karsilastir(nereden: str, nereye: str) -> str:
     """İki nokta arasında vapur, İZBAN, metro ve otobüs seçeneklerini ücret ve süre açısından karşılaştır."""
     return (
         """Kullanıcının verdiği iki nokta arasında toplu ulaşım seçeneklerini karşılaştır.
-Önce izmir://coverage ve izmir://reference/lines kaynaklarını oku. Her iki nokta için
-izmir_mobility_nearby(place=...) ile yakın istasyon, iskele ve durakları bul.
+Önce izmir://coverage ve izmir://reference/lines kaynaklarını oku. İlk adımda
+izmir_plan_trip(origin=..., destination=...) ile sıralı doğrudan seçenekleri al;
+bu araç yaklaşık süre verir. Ayrıntı veya eksik uç için izmir_mobility_nearby(place=...)
+ile yakın istasyon, iskele ve durakları bul.
 izmir_transit_stations ve izmir_transit_schedule ile İZDENİZ, metro ve İZBAN
 tarifelerini; izmir_bus_stops ve izmir_bus_departures ile ESHOT kalkışlarını al.
 İZBAN ücreti için izmir_fare(from_station=..., to_station=...) kullan; diğer modlar

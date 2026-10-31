@@ -69,6 +69,7 @@ Aşağıdaki araçlar geliştirme dalında eklenmektedir; mevcut 22 aracın adı
 | `izmir_parking_fees` | İZELMAN otopark ücret tarifesi. | İZELMAN parking tariffs. |
 | `izmir_traffic_cameras` | Trafik kamerası konumları (yayın yok). | Traffic camera locations (no stream). |
 | `izmir_water_production` | İZSU su üretimi (son anlık görüntü, tarihsiz). | İZSU water production (latest undated snapshot). |
+| `izmir_plan_trip` | İki yer arası doğrudan toplu ulaşım seçenekleri (yaklaşık süre, İZBAN ücreti, duyurular). | Direct public-transport options between two places (approximate duration, İZBAN fare, disruptions). |
 
 ### Karşılaştırma / Comparison
 
@@ -547,7 +548,7 @@ anlamına gelmez. İlçe/mahalle referans noktaları OpenStreetMap katkıcılar�
 ## English
 
 İzmir MCP is a read-only [Model Context Protocol](https://modelcontextprotocol.io)
-server for İzmir open city data. It exposes 35 tools (open-data catalog and
+server for İzmir open city data. It exposes 36 tools (open-data catalog and
 DataStore queries, nearby parking/on-duty pharmacies/stations, İZSU dam levels,
 air quality, metro/İZBAN/İZDENİZ timetables, ESHOT bus stops, arrivals and GTFS
 departures, district markets, transport notices, city services, neighbourhood

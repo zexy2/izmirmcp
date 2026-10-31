@@ -1,6 +1,6 @@
 # Araç Referansı
 
-Bu belge 35 salt okunur MCP aracının girdi/çıktı sözleşmesini gerçek koddan
+Bu belge 36 salt okunur MCP aracının girdi/çıktı sözleşmesini gerçek koddan
 (`app/mcp/server.py` ve `app/services/*`) türetir. Zarf alanları
 [response-contract.md](response-contract.md) içindedir. Tüm araçlar `read_only`,
 `idempotent`, `open_world` işaretlidir ve `structured_output` taşır.
@@ -510,6 +510,22 @@ Trafik kamerası konumları (92 nokta). Görüntü/yayın bağlantısı yayımla
 
 Kaynakta tarih kolonu ve birim yoktur; "bugünkü üretim" olarak sunulmaz. Baraj
 doluluğu için `izmir_dam_status`.
+
+### `izmir_plan_trip`
+İki yer arasında doğrudan (tek modlu) metro, İZBAN, İZDENİZ ve ESHOT seçenekleri;
+yaklaşık süreye göre sıralı, yürüme/biniş bacakları, İZBAN ücreti (biliniyorsa) ve
+aktif duyurularla.
+
+| Girdi | Tip | Zorunlu | Açıklama |
+|---|---|---|---|
+| `origin` | string | evet | İlçe/mahalle adı, en fazla 80 karakter. |
+| `destination` | string | evet | İlçe/mahalle adı, en fazla 80 karakter. |
+| `depart_at` | string \| null | hayır | ISO-8601; yalnızca bilgi, tarife eşleştirmesi yapılmaz. |
+| `max_options` | int | hayır | 1–5, varsayılan 3. |
+
+Süreler kuş uçuşu mesafe ve sabit hızdan türetilir; tarife veya canlı ETA değildir.
+Bir kaynak hata verirse kısmi sonuç ve uyarı döner. Gerçek kalkışlar için
+`izmir_transit_schedule`.
 
 ### `izmir_health`
 Yerel hazırlık ve yayımlanan limitler. Girdi yoktur. Kaynak sağlığı ölçmez;
