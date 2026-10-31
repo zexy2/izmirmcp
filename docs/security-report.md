@@ -42,6 +42,12 @@ The 44 remaining HIGH findings are Debian packages in the digest-pinned
 `python:3.11-slim` base with no fixed version published. They do not block the
 release; re-run the script after bumping the base digest to pick up fixes.
 
+Re-checked on 2026-10-31: `docker buildx imagetools inspect python:3.11-slim`
+still resolves to the pinned digest `sha256:673719e0…bedf60`, so there was no
+base bump. Trivy 0.65.0 on the rebuilt image: 44 HIGH, 0 CRITICAL, 0 with a
+fixed version. `.github/workflows/security-scan.yml` now rescans the image weekly
+so upstream fixes show up without waiting for a release.
+
 ## gitleaks false positives
 
 The first scan reported 38 `generic-api-key` hits, all in
