@@ -12,3 +12,7 @@ dist/
 
 # Conformance harness (installed with npm ci)
 tests/conformance/node_modules/
+
+# Local release check artifacts
+sbom.json
+out/
