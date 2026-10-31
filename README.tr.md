@@ -183,7 +183,7 @@ yayıncı kurumdan teyit edin. Açık erişim, veri lisansı izni anlamına gelm
 ## Güvenlik
 
 Güvenlik açıklarını gizli bildirin: [SECURITY.md](SECURITY.md). Tehdit modeli: [docs/security.md](docs/security.md);
-tarama sonuçları: [docs/security-report.md](docs/security-report.md).
+tarama sonuçları: [docs/development/reports/security-report.md](docs/development/reports/security-report.md).
 
 ## Katkı
 
@@ -192,7 +192,7 @@ tarama sonuçları: [docs/security-report.md](docs/security-report.md).
 
 ## Dokümantasyon
 
-[Yanıt sözleşmesi](docs/response-contract.md) · [Araç referansı](docs/tool-reference.md) · [MCP arayüzü](docs/mcp-interface.md) · [Dağıtım](docs/deployment.md) · [Yapılandırma](docs/configuration.md) · [Veri kaynakları](docs/sources.md) · [Kaynak erişilebilirliği](docs/source-reachability-analysis.md) · [İzleme](docs/monitoring.md) · [Gizlilik](docs/privacy.md) · [Güvenlik / tehdit modeli](docs/security.md) · [Güvenlik raporu](docs/security-report.md) · [API erişimi](docs/api-access.md) · [Tarayıcı ve CORS](docs/browser-cors.md) · [Yerel SQL](docs/datastore-sql.md) · [Yer çözümleme](docs/place-resolution.md) · [GTFS tarifesi](docs/gtfs-schedule.md) · [Registry](docs/registry.md) · [Araç geçiş politikası](docs/tool-migration.md) · [Geliştirme](docs/development.md) · [Sınırlar](docs/limits.md) · [Kurulum (EN)](docs/install.en.md) · [Kurulum (TR)](docs/install.tr.md) · [Duyuru taslakları](docs/launch.md)
+[Yanıt sözleşmesi](docs/response-contract.md) · [Araç referansı](docs/tool-reference.md) · [MCP arayüzü](docs/mcp-interface.md) · [Dağıtım](docs/deployment.md) · [Yapılandırma](docs/configuration.md) · [Veri kaynakları](docs/sources.md) · [Kaynak erişilebilirliği](docs/source-reachability-analysis.md) · [İzleme](docs/monitoring.md) · [Gizlilik](docs/privacy.md) · [Güvenlik / tehdit modeli](docs/security.md) · [Güvenlik raporu](docs/development/reports/security-report.md) · [API erişimi](docs/api-access.md) · [Tarayıcı ve CORS](docs/browser-cors.md) · [Yerel SQL](docs/datastore-sql.md) · [Yer çözümleme](docs/place-resolution.md) · [GTFS tarifesi](docs/gtfs-schedule.md) · [Registry](docs/registry.md) · [Araç geçiş politikası](docs/tool-migration.md) · [Geliştirme](docs/development.md) · [Sınırlar](docs/limits.md) · [Kurulum (EN)](docs/install.en.md) · [Kurulum (TR)](docs/install.tr.md) · [Duyuru taslakları](docs/launch.md)
 
 ## Lisans ve teşekkür
 

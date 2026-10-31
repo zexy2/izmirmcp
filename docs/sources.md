@@ -1,19 +1,22 @@
-# Kaynaklar
+# Sources
 
-Bu belge İzmir MCP'nin bağlı olduğu dış kaynakları, kullanım biçimlerini ve
-kanıtlı sınırlarını `app/services/sources.py`, `app/core/settings.py` ve
-`docs/development/reports/` altındaki doğrulamalardan türetir. Kaynak sağlığı bu belgenin
-değil, araç yanıtlarının `freshness`/`warnings` alanlarının konusudur.
+This document derives İzmir MCP's external sources, how they are used and their
+proven limits from `app/services/sources.py`, `app/core/settings.py` and the
+verifications under `docs/development/reports/`. Source health is not the
+subject of this document but of the `freshness`/`warnings` fields in tool
+responses. Live/down status per endpoint is recorded in
+[source-reachability-analysis.md](source-reachability-analysis.md).
 
-Hiçbir kaynak uydurulmaz. Erişilemeyen uçlar `source_unavailable` döner; veri
-üretilmez.
+No source is invented. Unreachable endpoints return `source_unavailable`; no
+data is produced.
 
-## Kanonik kaynak adları (`Source.name`)
+## Canonical source names (`Source.name`)
 
-Zarf `sources[].name` değerleri `app/services/sources.py` içindeki sabitlerdir.
-Atıf bu adlarla yapılır:
+The envelope's `sources[].name` values are constants in
+`app/services/sources.py`. They are published Turkish names and are kept
+verbatim; attribution uses these names:
 
-| `Source.name` | Yayıncı | `scope` |
+| `Source.name` | Publisher | `scope` |
 |---|---|---|
 | İZELMAN / İZUM otopark doluluk servisi | İzmir Büyükşehir Belediyesi | `parking_occupancy` |
 | İzmir nöbetçi eczane listesi | İzmir Büyükşehir Belediyesi | `on_duty_roster` |
@@ -52,130 +55,138 @@ Atıf bu adlarla yapılır:
 | İzmir trafik kameraları konumları | İzmir Büyükşehir Belediyesi Ulaşım Dairesi Başkanlığı | `static_camera_locations` |
 | İZSU günlük su üretimi | İzmir Su ve Kanalizasyon İdaresi (İZSU) | `published_water_production_snapshot` |
 
-## Katalog ve DataStore
+## Catalog and DataStore
 
-| Kaynak | Uç / veri seti | Kullanım | Durum |
+| Source | Endpoint / dataset | Use | Status |
 |---|---|---|---|
-| İzmir Açık Veri Portalı (CKAN) | `https://acikveri.bizizmir.com/api/3/action` | `package_search`, `package_show`, `datastore_search` | Çalışıyor (2026-10-28) |
+| İzmir Open Data Portal (CKAN) | `https://acikveri.bizizmir.com/api/3/action` | `package_search`, `package_show`, `datastore_search` | Working (2026-10-28) |
 
-Yalnızca `datastore_search` kullanılır; serbest SQL (`datastore_search_sql`)
-bilinçli olarak yoktur. Katalog CTL 21600 sn, resource TTL 300 sn önbelleklenir.
+Only `datastore_search` is called on the portal; free SQL
+(`datastore_search_sql`) is deliberately absent (see
+[datastore-sql.md](datastore-sql.md) for the local alternative). The catalog is
+cached with a TTL of 21600 s, resources with 300 s.
 
-## İzmir Büyükşehir Belediyesi açık API
+## İzmir Metropolitan Municipality open API
 
-| Kaynak | Uç | Kullanım |
+| Source | Endpoint | Use |
 |---|---|---|
-| İZELMAN / İZUM otopark doluluk servisi | `openapi.izmir.bel.tr/api/ibb/izum/otoparklar` | Anlık boş yer snapshot'ı |
-| İzmir nöbetçi eczane listesi | `openapi.izmir.bel.tr/api/ibb/nobetcieczaneler` | Günlük nöbet listesi |
-| İzmir hava kalitesi ölçüm değerleri | `openapi.izmir.bel.tr/api/ibb/cevre/havadegerleri/{tarih}` | İstasyon + kirletici değerleri |
-| İzmir Metro istasyonları | `openapi.izmir.bel.tr/api/metro/istasyonlar` | İstasyon + koordinat |
-| İzmir Metro sefer sıklığı | `openapi.izmir.bel.tr/api/metro/sefersaatleri` | Saat aralığı tablosu |
-| İZBAN istasyonları | `openapi.izmir.bel.tr/api/izban/istasyonlar` | İstasyon + koordinat |
-| İZBAN sefer saatleri | `openapi.izmir.bel.tr/api/izban/sefersaatleri/{from}/{to}` | Yayımlanmış tarife |
-| İZBAN ücret hesaplama | `openapi.izmir.bel.tr/api/izban/tutarhesaplama/{binis}/{inis}/{0\|1}/{true\|false}` | Çalışıyor; 4. parametre `0`/`1` ile HTTP 400 |
-| İZDENİZ iskeleleri | `openapi.izmir.bel.tr/api/izdeniz/iskeleler` | İskele + koordinat |
-| İZDENİZ seferleri | openapi İZDENİZ kalkış/hat uçları | Yayımlanmış tarife |
+| İZELMAN / İZUM otopark doluluk servisi | `openapi.izmir.bel.tr/api/ibb/izum/otoparklar` | Live free-space snapshot |
+| İzmir nöbetçi eczane listesi | `openapi.izmir.bel.tr/api/ibb/nobetcieczaneler` | Daily on-duty roster |
+| İzmir hava kalitesi ölçüm değerleri | `openapi.izmir.bel.tr/api/ibb/cevre/havadegerleri/{date}` | Station + pollutant values |
+| İzmir Metro istasyonları | `openapi.izmir.bel.tr/api/metro/istasyonlar` | Stations + coordinates |
+| İzmir Metro sefer sıklığı | `openapi.izmir.bel.tr/api/metro/sefersaatleri` | Hour-range table |
+| İZBAN istasyonları | `openapi.izmir.bel.tr/api/izban/istasyonlar` | Stations + coordinates |
+| İZBAN sefer saatleri | `openapi.izmir.bel.tr/api/izban/sefersaatleri/{from}/{to}` | Published timetable |
+| İZBAN ücret hesaplama | `openapi.izmir.bel.tr/api/izban/tutarhesaplama/{from}/{to}/{0\|1}/{true\|false}` | Working; HTTP 400 when the 4th parameter is `0`/`1` |
+| İZDENİZ iskeleleri | `openapi.izmir.bel.tr/api/izdeniz/iskeleler` | Piers + coordinates |
+| İZDENİZ seferleri | openapi İZDENİZ departure/line endpoints | Published timetable |
 
-OpenAPI TTL 120 sn, hata halinde 900 sn stale kullanımı. Hava kalitesinde
-koordinat ve birim yayımlanmaz (`unit=null`); AQI hesaplanmaz.
+OpenAPI TTL is 120 s, with 900 s of stale use on errors. Air quality publishes
+no coordinates or units (`unit=null`); no AQI is computed.
 
-## Su
+## Water
 
-| Kaynak | Uç | Durum |
+| Source | Endpoint | Status |
 |---|---|---|
-| İZSU baraj doluluk oranları | `openfiles.izmir.bel.tr/309436/docs/izsu-baraj-doluluk-oranlari.csv` | Çalışıyor; TTL 3600 sn, 86400 sn stale |
-| İZSU baraj JSON | `openapi.izmir.bel.tr/api/izsu/barajdurum` | **HTTP 500** — kullanılmıyor |
-| İZSU arıza/su kesintisi | `openapi.izmir.bel.tr/api/izsu/arizakaynaklisukesintileri` | **HTTP 500** — `kind=faults` açık `source_unavailable` |
+| İZSU baraj doluluk oranları | `openfiles.izmir.bel.tr/309436/docs/izsu-baraj-doluluk-oranlari.csv` | Working; TTL 3600 s, 86400 s stale |
+| İZSU dam JSON | `openapi.izmir.bel.tr/api/izsu/barajdurum` | **HTTP 500** — not used |
+| İZSU fault/outage feed (`arıza`) | `openapi.izmir.bel.tr/api/izsu/arizakaynaklisukesintileri` | **HTTP 500** — `kind=faults` returns an explicit `source_unavailable` |
 
-Baraj CSV okunurken doluluk yüzdesi olmayan satırlar elenir; doluluk azalan
-sıralanır ve "gecikebilir" uyarısı eklenir. Arıza ucu düzelmeden arıza verisi
-üretilmez (kanıt: `docs/development/reports/izmir-sehir-katmanlari.md`).
+When the dam CSV is read, rows without a fill percentage are dropped; fill is
+sorted descending and a "may be delayed" warning is added. No fault (`arıza`)
+data is produced until the endpoint is fixed (evidence:
+`docs/development/reports/izmir-sehir-katmanlari.md`).
 
-## ESHOT / İZTEK ulaşım
+## ESHOT / İZTEK transport
 
-| Kaynak | Uç / veri seti | Kullanım |
+| Source | Endpoint / dataset | Use |
 |---|---|---|
-| ESHOT otobüs durakları | CKAN `eshot-otobus-duraklari` (`0c791266-…`) | 11.965 durak, DataStore |
-| ESHOT durağa yaklaşan otobüsler | `openapi.izmir.bel.tr/api/iztek/duragayaklasanotobusler/{durakId}` | Anlık konum + kalan durak (**ETA yok**) |
-| ESHOT GTFS | `www.eshot.gov.tr/gtfs/bus-eshot-gtfs.zip` | Hat/sefer + `stop_times.txt` → yerel SQLite |
-| ESHOT hat duyuruları | `openfiles.izmir.bel.tr/211488/docs/eshot-otobus-hat-duyurulari.csv` | 124 planlı duyuru |
+| ESHOT bus stops | CKAN `eshot-otobus-duraklari` (`0c791266-…`) | 11,965 stops, DataStore |
+| ESHOT buses approaching a stop | `openapi.izmir.bel.tr/api/iztek/duragayaklasanotobusler/{stopId}` | Live position + remaining stops (**no ETA**) |
+| ESHOT GTFS | `www.eshot.gov.tr/gtfs/bus-eshot-gtfs.zip` | Lines/trips + `stop_times.txt` → local SQLite |
+| ESHOT line notices | `openfiles.izmir.bel.tr/211488/docs/eshot-otobus-hat-duyurulari.csv` | 124 planned notices |
 
-- Durak listesi TTL 86400 sn / 604800 sn stale; İZTEK TTL 20 sn ve ardışık
-  isteklerde `0.5` sn aralık (kaynak 429 verdiği için).
-- ESHOT GTFS ZIP açık `Accept: application/zip` başlığına `406` döner;
-  `*/*` ile indirilir (2026-10-28). `stop_times.txt` ~2,1M satır / ~85 MB,
-  depo ~141 MB.
-- **GTFS servis takvimi 2026-10-09'da bitti** (doğrulama 2026-10-28). Her
-  yanıt `calendar_end` + eskime uyarısı taşır; takvim dışı tarihte kalkış
-  üretilmez.
-- Varış ucu geçersiz durakta da `200` + boş dizi döner; boş yanıt "sefer yok"
-  kanıtı sayılmaz.
+- Stop list TTL 86400 s / 604800 s stale; İZTEK TTL 20 s with a `0.5` s gap
+  between consecutive requests (because the source returns 429).
+- The ESHOT GTFS ZIP answers an explicit `Accept: application/zip` header with
+  `406`; it is downloaded with `*/*` (2026-10-28). `stop_times.txt` is ~2.1M
+  rows / ~85 MB; the store is ~141 MB. See [gtfs-schedule.md](gtfs-schedule.md).
+- **The GTFS service calendar ended on 2026-10-09** (verified 2026-10-28). Every
+  response carries `calendar_end` + a staleness warning; no departures are
+  produced for dates outside the calendar.
+- The arrivals endpoint also returns `200` + an empty array for an invalid
+  stop; an empty response does not count as proof of "no service".
 
-## Şehir katmanları (CKAN)
+## City layers (CKAN)
 
-| Kaynak | Veri seti | Kullanım |
+| Source | Dataset | Use |
 |---|---|---|
-| İzmir semt pazar yerleri | `semt-pazar-yerleri` (`3e63e16e-…`) | 186 pazar yeri; gün serbest metinden |
-| WizmirNET WiFi noktaları | `kablosuz-internet-baglanti-noktalari` (`60ca8451-…`) | 857 nokta (yinelenen satırlar tekilleştirilir) |
-| İzmirim Kart dolum noktaları | `izmirim-kart-dolum-noktalari` (`7a3efbec-…`) | 1.120 nokta; **2023-08-21 tarihli** |
-| İBB kütüphaneleri | `izmir-buyuksehir-belediyesi-kutuphaneleri-bilgileri` (`0c1b15b9-…`) | 10 kütüphane; **koordinat yok** |
-| İZELMAN otopark ücretleri | `otopark-ucretleri` (`8dca3fb5-…`) | 39 tarife satırı; kaynak son güncelleme 2024-09-02 |
-| İzmir trafik kameraları | `trafik-kameralari` (`b91cb15d-…`) | 92 konum; **yayın/görüntü bağlantısı yok** |
-| İZSU günlük su üretimi | `gunluk-su-uretimi` (`0eca9087-…`) | 10 baraj/kuyu satırı; **tarih ve birim kolonu yok** |
+| İzmir semt pazar yerleri | `semt-pazar-yerleri` (`3e63e16e-…`) | 186 markets; day from free text |
+| WizmirNET WiFi points | `kablosuz-internet-baglanti-noktalari` (`60ca8451-…`) | 857 points (duplicate rows deduplicated) |
+| İzmirim Kart dolum noktaları | `izmirim-kart-dolum-noktalari` (`7a3efbec-…`) | 1,120 points; **dated 2023-08-21** |
+| İBB libraries | `izmir-buyuksehir-belediyesi-kutuphaneleri-bilgileri` (`0c1b15b9-…`) | 10 libraries; **no coordinates** |
+| İZELMAN otopark ücretleri | `otopark-ucretleri` (`8dca3fb5-…`) | 39 tariff rows; source last updated 2024-09-02 |
+| İzmir traffic cameras | `trafik-kameralari` (`b91cb15d-…`) | 92 locations; **no stream/image link** |
+| İZSU günlük su üretimi | `gunluk-su-uretimi` (`0eca9087-…`) | 10 dam/well rows; **no date or unit column** |
 
-Bu katmanların CTL 86400 sn / 604800 sn stale önbelleği vardır. Hepsi statik
-snapshot'tır; açık/kapalı durum yayımlanmaz. Kütüphanedeki koordinat eksikliği
-yarıçap ve `bbox` modlarında dışlanmasına yol açar.
+These layers have a TTL of 86400 s / 604800 s stale. All are static snapshots;
+no open/closed status is published. Missing library coordinates exclude
+libraries from radius and `bbox` modes.
 
-## Operatör duyuruları
+## Operator announcements
 
-| Kaynak | Uç | Durum |
+| Source | Endpoint | Status |
 |---|---|---|
-| İzmir Metro duyuruları | `metrotramapi.iztek.tr/api/v1/announcements` | Çalışıyor (doğrulamada boş liste) |
-| İZDENİZ duyuruları | `coreapi.izdeniz.com.tr/api/v1/announcements` | Çalışıyor (gerçek duyurular) |
+| İzmir Metro duyuruları | `metrotramapi.iztek.tr/api/v1/announcements` | Working (empty list at verification) |
+| İZDENİZ duyuruları | `coreapi.izdeniz.com.tr/api/v1/announcements` | Working (real announcements) |
 | İZBAN duyuruları | `izban.com.tr` RSS / `Sayfalar/Single.aspx` | **302 → FileNotFound**; `unavailable` |
 
-İZBAN için erişilebilir makine-okunur akış yok; `metrotramapi`'de İZBAN yolu
-`404`. `operator="izban"` her zaman `source_unavailable` döner (kanıt:
-`docs/development/reports/operator-duyuru-kaynaklari.md`). Yalnızca ESHOT makine-okunur geçerlilik
-penceresi yayımlar; `active` bu yüzden yalnızca ESHOT'ta hesaplanır.
+There is no reachable machine-readable feed for İZBAN; the İZBAN path on
+`metrotramapi` is `404`. `operator="izban"` always returns
+`source_unavailable` (evidence:
+`docs/development/reports/operator-duyuru-kaynaklari.md`). Only ESHOT publishes
+a machine-readable validity window, so `active` is only computed for ESHOT.
 
-## Referans noktaları
+## Reference points
 
-| Kaynak | Kullanım | Lisans |
+| Source | Use | Licence |
 |---|---|---|
-| OpenStreetMap Nominatim | 30 ilçe + 24 seçili simge yer (`app/data/places.json`) | ODbL 1.0 (© OpenStreetMap contributors) |
-| CKAN `muhtarliklar` (`7d0b7f55-…`) | 1.219 mahalle referans noktası (`app/data/neighborhoods.json`) | Izmir Metropolitan Municipality Open Data License |
-| CKAN `cinsiyete-gore-mahalle-nufus-bilgileri` (`7ef10678-…`) | 1.297 mahalle nüfusu (kadın/erkek) | Izmir Metropolitan Municipality Open Data License |
-| CKAN `ilcelere-ait-mahalle-bazli-bina-sayilari` (`54af6862-…`) | 1.295 mahalle bina sayısı | Izmir Metropolitan Municipality Open Data License |
+| OpenStreetMap Nominatim | 30 districts + 24 selected landmarks (`app/data/places.json`) | ODbL 1.0 (© OpenStreetMap contributors) |
+| CKAN `muhtarliklar` (`7d0b7f55-…`) | 1,219 neighbourhood reference points (`app/data/neighborhoods.json`) | Izmir Metropolitan Municipality Open Data License |
+| CKAN `cinsiyete-gore-mahalle-nufus-bilgileri` (`7ef10678-…`) | 1,297 neighbourhood populations (female/male) | Izmir Metropolitan Municipality Open Data License |
+| CKAN `ilcelere-ait-mahalle-bazli-bina-sayilari` (`54af6862-…`) | 1,295 neighbourhood building counts | Izmir Metropolitan Municipality Open Data License |
 
-Retrieved 2026-10-28. Bunlar yaklaşık alan merkezleridir, **adres geocoding
-değildir**; araçlar `place` modunda bunu uyarı olarak bildirir.
+Retrieved 2026-10-28. These are approximate area centres, **not address
+geocoding**; tools report this as a warning in `place` mode. See
+[place-resolution.md](place-resolution.md).
 
-## Kullanılmayan / reddedilen kaynaklar
+## Unused / rejected sources
 
-- İZDENİZ GTFS ZIP (`www.izdeniz.com.tr/gtfs/...`) `text/html` döndürüyor;
-  vapur GTFS kapsamı yok, openapi sefer uçları kullanılıyor.
-- İZBAN GTFS 2023 feed'i; takvim 2025-01-01'de bitti, güncel değil.
-- Metro/tramvay GTFS indirilip doğrulandı ama bağlanmadı.
-- `openapi.izmir.bel.tr/api/ibb/trafikyogunluk` → `404`; şehir geneli canlı
-  trafik indeksi yok. Yalnızca geçmiş XLSX ve 2023 kamera listesi var.
-- `metro/ekipmanlar`, `metro/arizalar` → `404`; ekipman/erişilebilirlik yok.
-- Tahmini `/api/eshot/...`, `/api/iztek/hatlar` yolları `404`.
-  `ibb/cbs/noktayayakinduraklar` projeksiyonu doğrulanamadı.
-- "Sosyal tesis" adıyla yayımlanmış veri seti yok.
+- The İZDENİZ GTFS ZIP (`www.izdeniz.com.tr/gtfs/...`) returns `text/html`;
+  there is no ferry GTFS coverage, the openapi trip endpoints are used instead.
+- The İZBAN GTFS is a 2023 feed whose calendar ended on 2025-01-01; it is not
+  current.
+- The metro/tram GTFS archives were downloaded and verified but not wired.
+- `openapi.izmir.bel.tr/api/ibb/trafikyogunluk` → `404`; there is no city-wide
+  live traffic index. Only a historical XLSX and a 2023 camera list exist.
+- `metro/ekipmanlar`, `metro/arizalar` → `404`; no equipment/accessibility
+  data.
+- Guessed `/api/eshot/...`, `/api/iztek/hatlar` paths return `404`. The
+  `ibb/cbs/noktayayakinduraklar` projection could not be verified.
+- No dataset is published under the name "sosyal tesis" (social facilities).
 
-## Lisans durumu
+## Licence status
 
-- Şehir verilerinin lisansları yayıncı kurumlara aittir; **açık erişim lisans
-  izni değildir**. `Source.license` bu yüzden çoğu kaynakta `null`'dur.
-- OpenStreetMap referans noktaları ODbL 1.0 altındadır; atıf zorunludur.
-- Bu depoda `LICENSE` dosyası yoktur; upstream'de de yok. Yayımlamadan önce
-  lisans kararı verilmelidir (README "Kaynak ve lisans").
+- Licences of the city data belong to the publishing institutions; **public
+  access is not a licence grant** (Turkish: "açık erişim lisans
+  izni değildir"). That is why `Source.license` is `null` for most sources.
+- OpenStreetMap reference points are under ODbL 1.0; attribution is required.
+- This repository's own code is MIT-licensed (`LICENSE`); that licence does not
+  cover the upstream city data.
 
-## Kanıt raporları
+## Evidence reports
 
-- [EShot/ulaşım kaynak araştırması](development/reports/eshot-ulasim-kaynak-arastirmasi.md)
-- [Şehir katmanları ve İZSU arızası](development/reports/izmir-sehir-katmanlari.md)
-- [Operatör duyuruları](development/reports/operator-duyuru-kaynaklari.md)
-- [REA açık veri portalı incelemesi](development/reports/rea-open-data-portal.md)
+- [ESHOT/transport source research](development/reports/eshot-ulasim-kaynak-arastirmasi.md)
+- [City layers and the İZSU fault feed](development/reports/izmir-sehir-katmanlari.md)
+- [Operator announcements](development/reports/operator-duyuru-kaynaklari.md)
+- [REA open data portal review](development/reports/rea-open-data-portal.md)

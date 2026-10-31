@@ -1,6 +1,6 @@
 # Default gitleaks rules plus one narrow allowlist. docs/development/reports/*-evidence.json
 # identify captured scripts by content hash ("scr_" + sha256 hex); those are not
-# credentials but match generic-api-key. See docs/security-report.md.
+# credentials but match generic-api-key. See docs/development/reports/security-report.md.
 [extend]
 useDefault = true
 

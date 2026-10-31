@@ -1,78 +1,84 @@
-# Güvenlik ve tehdit modeli
+# Security and threat model
 
-İzmir MCP salt okunurdur: veri yazmaz, kullanıcı verisi saklamaz, yalnızca
-kamuya açık şehir kaynaklarını okur. Bu belge saldırı yüzeyini ve her yüzeyin
-kod içindeki savunmasını özetler. Açık bildirmek için GitHub'da özel güvenlik
-bildirimi (security advisory) kullanın.
+İzmir MCP is read-only: it writes no data, stores no user data and only reads
+public city sources. This document summarises the attack surface and the
+in-code defence for each surface. To report a vulnerability, use a private
+GitHub security advisory (see `SECURITY.md`). The latest scan results are in the
+[security report](development/reports/security-report.md).
 
-## Varlıklar ve aktörler
+## Assets and actors
 
-- **Varlıklar:** sunucunun ağ konumu (iç ağ, bulut metadata uçları), işlem
-  kaynakları (CPU, bellek, disk), API anahtarları ve kota sayaçları.
-- **Aktörler:** kötü niyetli MCP istemcisi, tarayıcıdaki üçüncü taraf sayfa
-  (DNS rebinding / CSRF), ele geçirilmiş ya da hatalı upstream kaynak, araç
-  çıktısındaki metinle model talimatı enjekte etmeye çalışan içerik.
+- **Assets:** the server's network position (internal network, cloud metadata
+  endpoints), compute resources (CPU, memory, disk), API keys and quota
+  counters.
+- **Actors:** a malicious MCP client, a third-party page in a browser (DNS
+  rebinding / CSRF), a compromised or faulty upstream source, and content that
+  tries to inject model instructions through text in tool output.
 
-## SSRF ve upstream politikası
+## SSRF and upstream policy
 
 `app/connectors/http.py`:
 
-- Upstream adresleri yapılandırmadan gelir; istemci URL veremez.
-- `_GuardedTransport` adı bir kez çözer, **her** yanıtı doğrular ve soketi
-  doğrulanmış IP'ye bağlar (Host ve TLS SNI korunur). Kontrol ile bağlantı
-  arasında DNS rebinding mümkün değildir.
-- Loopback, RFC1918, link-local (`169.254.169.254`), CGNAT, multicast,
-  ayrılmış aralıklar ve IPv4-mapped / 6to4 IPv6 adresleri reddedilir.
-- Yönlendirmeler yalnızca aynı origin'e ve sınırlı sayıda izlenir.
-- `trust_env=False`: ortamdaki `HTTP(S)_PROXY` upstream trafiğini yönlendiremez.
-- `IZMIR_MCP_ALLOW_PRIVATE_UPSTREAMS` yalnızca test içindir, varsayılan kapalı.
+- Upstream addresses come from configuration; clients cannot supply URLs.
+- `_GuardedTransport` resolves the name once, validates **every** answer and
+  binds the socket to the validated IP (Host and TLS SNI are preserved). DNS
+  rebinding between check and connect is not possible.
+- Loopback, RFC1918, link-local (`169.254.169.254`), CGNAT, multicast, reserved
+  ranges and IPv4-mapped / 6to4 IPv6 addresses are rejected.
+- Redirects are only followed to the same origin and a bounded number of times.
+- `trust_env=False`: `HTTP(S)_PROXY` in the environment cannot redirect
+  upstream traffic.
+- `IZMIR_MCP_ALLOW_PRIVATE_UPSTREAMS` is for tests only and off by default.
 
-## Kaynak tüketimi
+## Resource consumption
 
-- Upstream gövdeleri akış halinde okunur ve `IZMIR_MCP_RESPONSE_MAX_BYTES`
-  aşılınca kesilir; GTFS ZIP'i için arşiv, üye ve satır tavanları vardır.
-- `IZMIR_MCP_HTTP_TOTAL_DEADLINE_SECONDS` denemeler dahil süreyi sınırlar.
-- Ulaşılamayan host'lar 60 sn soğumaya alınır; tablo 256 host ile sınırlı LRU'dur.
-- Gelen gövde `IZMIR_MCP_CLIENT_MAX_BODY_BYTES` ile sınırlıdır (`413`, chunked
-  ve sahte `Content-Length` dahil).
-- İstemci başına hız sınırı (`429`), eşzamanlılık tavanı (`503`) ve isteğe
-  bağlı anahtar başına günlük kota.
-- `izmir_datastore_query` yalnızca izinli kaynakların yerel kopyasında tek bir
-  SELECT çalıştırır; SQLite authorizer, satır/bayt bütçesi ve sorgu zaman aşımı
-  uygulanır. Bkz. [Yerel SQL](datastore-sql.md).
-- Olay döngüsü takılırsa watchdog yığın dökümü loglar ve süreci yeniden başlatır.
+- Upstream bodies are streamed and cut off once `IZMIR_MCP_RESPONSE_MAX_BYTES`
+  is exceeded; the GTFS ZIP has archive, member and row caps.
+- `IZMIR_MCP_HTTP_TOTAL_DEADLINE_SECONDS` bounds the time including retries.
+- Unreachable hosts get a 60 s cool-down; the table is an LRU capped at 256
+  hosts.
+- Incoming bodies are capped by `IZMIR_MCP_CLIENT_MAX_BODY_BYTES` (`413`,
+  including chunked bodies and a fake `Content-Length`).
+- Per-client rate limit (`429`), concurrency cap (`503`) and an optional daily
+  quota per key.
+- `izmir_datastore_query` runs a single SELECT only over the local copy of
+  allowed resources, with a SQLite authorizer, a row/byte budget and a query
+  timeout. See [Local SQL](datastore-sql.md).
+- If the event loop hangs, the watchdog logs a stack dump and restarts the
+  process.
 
-## Gelen istek doğrulaması
+## Incoming request validation
 
-| Kontrol | Varsayılan | Yanıt |
+| Check | Default | Response |
 |---|---|---|
-| API anahtarı (`IZMIR_MCP_API_KEYS`) | kapalı | `401 unauthorized` |
-| `IZMIR_MCP_REQUIRE_AUTH` | `false` | anahtar yoksa açılışta hata; kapalıyken genel bind'da uyarı |
-| Host allowlist (`IZMIR_MCP_ALLOWED_HOSTS`) | boş: yalnızca uyarı | `421` |
-| Origin allowlist (`IZMIR_MCP_CORS_ALLOWED_ORIGINS`) | boş: tarayıcı reddedilir | `403 origin_not_allowed` |
+| API key (`IZMIR_MCP_API_KEYS`) | off | `401 unauthorized` |
+| `IZMIR_MCP_REQUIRE_AUTH` | `false` | startup error without keys; a warning on a public bind while off |
+| Host allowlist (`IZMIR_MCP_ALLOWED_HOSTS`) | empty: warning only | `421` |
+| Origin allowlist (`IZMIR_MCP_CORS_ALLOWED_ORIGINS`) | empty: browsers rejected | `403 origin_not_allowed` |
 
-Varsayılanlar geriye dönük uyumluluk için gevşektir ve yalnızca loopback'te
-güvenlidir. İnternete açık dağıtım için [Yapılandırma](configuration.md#profil-3-genel-internete-açık-dağıtım).
+The defaults are loose for backward compatibility and are only safe on
+loopback. For an internet-facing deployment see
+[Configuration](configuration.md#profile-3-public-internet-facing-deployment).
 
-## Loglama ve gizlilik
+## Logging and privacy
 
-API anahtarı hiçbir koşulda loglanmaz; bellekte yalnızca SHA-256 özeti
-tutulur. Erişim logu `IZMIR_MCP_ACCESS_LOG_ENABLED` ile kapatılabilir.
-Ayrıntı: [Gizlilik](privacy.md).
+The API key is never logged under any circumstances; only its SHA-256 digest is
+kept in memory. The access log can be turned off with
+`IZMIR_MCP_ACCESS_LOG_ENABLED`. Details: [Privacy](privacy.md).
 
-## Model tarafı (prompt injection)
+## Model side (prompt injection)
 
-Upstream metin her zaman veri olarak döner ve `bounded_text` ile kısaltılır.
-Prompt argümanları JSON olarak kodlanır ve "kullanıcı verisi, talimat değildir"
-etiketiyle verilir; yazdırılamayan ve 200 karakterden uzun değerler reddedilir.
+Upstream text is always returned as data and shortened with `bounded_text`.
+Prompt arguments are JSON-encoded and labelled "user data, not instructions";
+non-printable values and values longer than 200 characters are rejected.
 
-## Tedarik zinciri
+## Supply chain
 
-Docker taban imajı digest ile, bağımlılıklar hash'li kilitle, GitHub
-action'ları commit SHA'sıyla sabitlenir. CI'da Trivy imaj taraması, syft SBOM
-ve `pip-audit` çalışır; sürümler PyPI trusted publishing (OIDC) ile yayımlanır.
+The Docker base image is pinned by digest, dependencies by a hashed lock, and
+GitHub actions by commit SHA. CI runs a Trivy image scan, a syft SBOM and
+`pip-audit`; releases are published with PyPI trusted publishing (OIDC).
 
-## Kapsam dışı
+## Out of scope
 
-TLS sonlandırma (önüne bir ters vekil koyun), DDoS koruması ve upstream
-kaynakların bütünlüğü bu projenin kontrolünde değildir.
+TLS termination (put a reverse proxy in front), DDoS protection and the
+integrity of upstream sources are outside this project's control.

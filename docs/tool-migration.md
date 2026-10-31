@@ -1,43 +1,51 @@
-# Araç geçiş politikası
+# Tool migration policy
 
-Bu belge MCP araç yüzeyinin nasıl değiştiğini ve istemcilerin neye
-güvenebileceğini anlatır.
+This document explains how the MCP tool surface changes and what clients can
+rely on.
 
-## Uyumluluk sözü
+## Compatibility promise
 
-- Yayımlanmış bir aracın **adı** değişmez ve araç kaldırılmaz.
-- Yayımlanmış bir aracın **girdi şeması** değişmez: parametre kaldırılmaz,
-  yeniden adlandırılmaz, tipi daraltılmaz, isteğe bağlı parametre zorunlu olmaz.
-- Yeni araçlar, yeni prompt'lar ve yeni kaynaklar eklenebilir.
-- Yanıt zarfına yeni alan eklenebilir; mevcut alanlar kaldırılmaz. Bkz.
-  [Yanıt sözleşmesi](response-contract.md).
+- A published tool's **name** does not change and the tool is not removed.
+- A published tool's **input schema** does not change: no parameter is removed,
+  renamed or narrowed in type, and no optional parameter becomes required.
+- New tools, prompts and resources may be added.
+- New fields may be added to the response envelope; existing fields are not
+  removed. See the [Response contract](response-contract.md).
 
-Bu söz `tests/test_tool_compatibility.py` ile uygulanır: mevcut araçların adları
-ve girdi şemaları `tests/fixtures/tool_compatibility_snapshot.json` ile birebir
-karşılaştırılır. Anlık görüntü yalnızca kasıtlı ve CHANGELOG'da belgelenmiş bir
-kırıcı değişiklikte (yeni ana sürüm) yeniden üretilir.
+This promise is enforced by `tests/test_tool_compatibility.py`: the names and
+input schemas of existing tools are compared one-to-one with
+`tests/fixtures/tool_compatibility_snapshot.json`. The snapshot is only
+regenerated for a deliberate breaking change documented in the CHANGELOG (a new
+major version). Adding descriptions to existing parameters is not a breaking
+change.
 
-## Kırıcı değişiklik süreci
+## Breaking change process
 
-1. Yeni davranışı yeni bir araç adıyla ekleyin; eski aracı koruyun.
-2. Eski aracın açıklamasına kullanımdan kaldırma notu ve yeni aracın adını yazın.
-3. CHANGELOG'un "Kullanımdan kaldırıldı" bölümüne ekleyin.
-4. Eski araç en erken bir sonraki **ana** sürümde kaldırılabilir; o sürümde
-   anlık görüntü yeniden üretilir.
+1. Add the new behaviour under a new tool name; keep the old tool.
+2. Add a deprecation note and the new tool's name to the old tool's
+   description.
+3. Add it to the "Deprecated" section of the CHANGELOG.
+4. The old tool may be removed at the earliest in the next **major** version;
+   the snapshot is regenerated in that version.
 
-## Değişiklik geçmişi
+## Change history
 
-| Sürüm | Değişiklik | İstemci etkisi |
+| Version | Change | Client impact |
 |---|---|---|
-| 0.1.0 | 22 araç ve 7 prompt; `nobetci_eczane` prompt'u ilk sürüme eklendi (mevcut `izmir_nearby` aracını kullanır). | Yok; araç yüzeyi değişmedi. |
+| 0.1.0 | 22 tools and 7 prompts; the `nobetci_eczane` prompt was added to the first release (it uses the existing `izmir_nearby` tool). | None; the tool surface did not change. |
 
-## Bilinçli olarak eklenmeyenler
+Later additive changes (the current surface is 36 tools and 12 prompts) are
+listed in `CHANGELOG.md`.
 
-Açık ve güvenilir bir kaynağı olmayan yetenekler araç olarak eklenmez. Örnek:
-metro asansör durumu. İzmir OpenAPI'de (`metro/asansor*`) uç yok, açık veri
-kataloğunda ilgili veri seti yok. Ayrıntı: [Kaynaklar](sources.md).
+## Deliberately not added
 
-## Konsol komutları ve paket
+Capabilities without an open and reliable source are not added as tools.
+Example: metro elevator status. The İzmir OpenAPI has no such endpoint
+(`metro/asansor*`) and the open data catalog has no matching dataset. Details:
+[Sources](sources.md).
 
-`izmir-mcp` ve `izmir-mcp-stdio` komutları ile `server.json` paket tanımları da
-aynı uyumluluk sözü altındadır; `tests/test_packaging.py` ile kilitlidir.
+## Console commands and package
+
+The `izmir-mcp` and `izmir-mcp-stdio` commands and the `server.json` package
+definitions fall under the same compatibility promise; they are locked by
+`tests/test_packaging.py`.

@@ -1,9 +1,12 @@
-# Duyuru taslakları / Launch drafts
+# Launch drafts
 
-> **TASLAK / DRAFT.** Bu metinler hiçbir yere gönderilmedi. Smithery ve Glama
-> başvuruları dahil hepsi, sürüm (v0.1.0 etiketi, GHCR, MCP registry) yayımlanıp
-> repo herkese açıldıktan sonra elle gönderilecek. Nothing here has been
-> submitted. Placeholders like `<link>` must be filled in by hand.
+> **DRAFT.** None of these texts have been submitted anywhere. All of them,
+> including the Smithery and Glama submissions, will be sent by hand once the
+> release (v0.1.0 tag, GHCR, MCP registry) is published and the repo is public.
+> Placeholders like `<link>` must be filled in by hand.
+>
+> The Turkish posts below are copy for Turkish-speaking audiences and are kept
+> in Turkish on purpose; each has an English counterpart.
 
 ## X / Twitter (TR)
 
@@ -40,11 +43,11 @@ Read-only server, stdio + Streamable HTTP, Docker image, MIT. Data comes only
 from verified İzmir sources. Unofficial project, not affiliated with the
 municipality. Repo and install guide: <link>
 
-## Smithery başvurusu (taslak)
+## Smithery submission (draft)
 
 - Repo: `https://github.com/zexy2/izmirmcp`, config: `smithery.yaml` (stdio).
-- Kısa açıklama: "Read-only İzmir open city data: transit, pharmacies, water, air."
+- Short description: "Read-only İzmir open city data: transit, pharmacies, water, air."
 
-## Glama başvurusu (taslak)
+## Glama submission (draft)
 
-- `glama.json` maintainers: `zexy2`. Kategori: city / open data / transport.
+- `glama.json` maintainers: `zexy2`. Category: city / open data / transport.

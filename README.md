@@ -189,7 +189,7 @@ This is an unofficial project. Data may be stale or incomplete; verify critical 
 ## Security
 
 Report vulnerabilities privately: [SECURITY.md](SECURITY.md). Threat model: [docs/security.md](docs/security.md);
-scan results: [docs/security-report.md](docs/security-report.md).
+scan results: [docs/development/reports/security-report.md](docs/development/reports/security-report.md).
 
 ## Contributing
 
@@ -198,7 +198,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) and the [Code of Conduct](CODE_OF_CONDUCT
 
 ## Documentation
 
-[Response contract](docs/response-contract.md) · [Tool reference](docs/tool-reference.md) · [MCP interface](docs/mcp-interface.md) · [Deployment](docs/deployment.md) · [Configuration](docs/configuration.md) · [Data sources](docs/sources.md) · [Source reachability](docs/source-reachability-analysis.md) · [Monitoring](docs/monitoring.md) · [Privacy](docs/privacy.md) · [Security / threat model](docs/security.md) · [Security report](docs/security-report.md) · [API access](docs/api-access.md) · [Browser and CORS](docs/browser-cors.md) · [Local SQL](docs/datastore-sql.md) · [Place resolution](docs/place-resolution.md) · [GTFS schedule](docs/gtfs-schedule.md) · [Registry](docs/registry.md) · [Tool migration policy](docs/tool-migration.md) · [Development](docs/development.md) · [Limits](docs/limits.md) · [Install (EN)](docs/install.en.md) · [Install (TR)](docs/install.tr.md) · [Launch drafts](docs/launch.md)
+[Response contract](docs/response-contract.md) · [Tool reference](docs/tool-reference.md) · [MCP interface](docs/mcp-interface.md) · [Deployment](docs/deployment.md) · [Configuration](docs/configuration.md) · [Data sources](docs/sources.md) · [Source reachability](docs/source-reachability-analysis.md) · [Monitoring](docs/monitoring.md) · [Privacy](docs/privacy.md) · [Security / threat model](docs/security.md) · [Security report](docs/development/reports/security-report.md) · [API access](docs/api-access.md) · [Browser and CORS](docs/browser-cors.md) · [Local SQL](docs/datastore-sql.md) · [Place resolution](docs/place-resolution.md) · [GTFS schedule](docs/gtfs-schedule.md) · [Registry](docs/registry.md) · [Tool migration policy](docs/tool-migration.md) · [Development](docs/development.md) · [Limits](docs/limits.md) · [Install (EN)](docs/install.en.md) · [Install (TR)](docs/install.tr.md) · [Launch drafts](docs/launch.md)
 
 ## License and acknowledgements
 

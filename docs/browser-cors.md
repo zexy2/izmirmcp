@@ -1,36 +1,36 @@
-# Tarayıcı erişimi ve CORS
+# Browser access and CORS
 
-Bu sunucu **tarayıcı uygulamalarından** çağrılabilir, ancak varsayılan olarak
-yalnızca `Origin` göndermeyen istemcilere (CLI, masaüstü MCP istemcileri,
-sunucu-sunucu) açıktır. Tarayıcı isteği geldiğinde origin **açıkça** izinli
-olmalıdır.
+This server can be called from **browser applications**, but by default it is
+only open to clients that send no `Origin` (CLI, desktop MCP clients,
+server-to-server). When a browser request arrives, its origin must be
+**explicitly** allowed.
 
-## Varsayılan davranış
+## Default behaviour
 
-| `IZMIR_MCP_CORS_ALLOWED_ORIGINS` | Origin gönderen tarayıcı | Origin göndermeyen istemci |
+| `IZMIR_MCP_CORS_ALLOWED_ORIGINS` | Browser sending an Origin | Client without an Origin |
 |---|---|---|
-| boş (varsayılan) | **403 `origin_not_allowed`** | ✅ çalışır |
+| empty (default) | **403 `origin_not_allowed`** | works |
 
-Bu "fail closed" yaklaşımıdır: yanlış yapılandırılmış bir dağıtım her siteye
-açılmak yerine hiçbir tarayıcıya açılmaz.
+This is a "fail closed" approach: a misconfigured deployment is open to no
+browser at all instead of to every site.
 
-## İzin listesi
+## Allowlist
 
 ```bash
 export IZMIR_MCP_CORS_ALLOWED_ORIGINS="https://app.example.com,https://admin.example.com"
 ```
 
-Kurallar (başlangıçta doğrulanır, ihlal `ValueError` ile süreci durdurur):
+Rules (validated at startup; a violation stops the process with `ValueError`):
 
-- En fazla **32** benzersiz origin.
-- `https://` zorunlu; `http://` yalnızca `localhost`, `127.0.0.1`, `[::1]` için.
-- Şema + host + (varsa) port dışında hiçbir şey yok: yol, sorgu, fragment yok.
-- Joker (`*`), yüzde kodlama, kimlik bilgisi (`user:pass@`) yok.
-- Host küçük harf olmalı.
+- At most **32** unique origins.
+- `https://` is required; `http://` only for `localhost`, `127.0.0.1`, `[::1]`.
+- Nothing beyond scheme + host + (optional) port: no path, query or fragment.
+- No wildcard (`*`), percent-encoding or credentials (`user:pass@`).
+- The host must be lowercase.
 
-## Yanıt başlıkları
+## Response headers
 
-İzinli origin'de:
+For an allowed origin:
 
 ```http
 Access-Control-Allow-Origin: https://app.example.com
@@ -40,27 +40,28 @@ Access-Control-Expose-Headers: Mcp-Session-Id, Mcp-Protocol-Version, WWW-Authent
 Access-Control-Max-Age: 600
 ```
 
-`Access-Control-Allow-Credentials` **gönderilmez**: kimlik Bearer başlığıyla
-taşınır, çerezle değil.
+`Access-Control-Allow-Credentials` is **not sent**: identity travels in the
+Bearer header, not in cookies.
 
 ## Preflight
 
-`OPTIONS /mcp/` kimlik doğrulaması ve hız sınırı tüketmeden `204` döner; gerçek
-istekler tüm koruma katmanlarından geçer.
+`OPTIONS /mcp/` returns `204` without consuming authentication or rate limit;
+real requests pass through every protection layer.
 
-## Yaygın hatalar
+## Common errors
 
-| Belirti | Neden |
+| Symptom | Cause |
 |---|---|
-| Tarayıcıda `403 origin_not_allowed` | Origin listede değil |
-| Preflight 200 ama asıl istek 401 | Bearer anahtarı eksik (CORS ile auth ayrı katman) |
-| `Access-Control-Allow-Origin` hiç yok | Origin başlığı gönderilmiyor veya izin listesi boş |
-| Sunucu açılmıyor, `ValueError` | Origin biçimi geçersiz (yol/joker/http) |
+| `403 origin_not_allowed` in the browser | The origin is not in the list |
+| Preflight 200 but the actual request 401 | Missing Bearer key (CORS and auth are separate layers) |
+| No `Access-Control-Allow-Origin` at all | No Origin header is sent, or the allowlist is empty |
+| Server does not start, `ValueError` | Invalid origin format (path/wildcard/http) |
 
-## Sınırlar
+## Limits
 
-- Origin kontrolü **tarayıcı** içindir; CLI istemciler bu kontrolü atlar ve
-  güvenlikleri Bearer anahtarına dayanır.
-- DNS rebinding koruması SDK'nın kendi taşıma güvenliğine bırakılmıştır.
-- Yalnızca `localhost`/`127.0.0.1` bağlanmada Host başlığı politikası SDK
-  varsayılanıdır; genel bir adrese bağlanırken reverse proxy kullanın.
+- The origin check is for **browsers**; CLI clients skip it and rely on the
+  Bearer key for security.
+- DNS rebinding protection for public hosts is configured with
+  `IZMIR_MCP_ALLOWED_HOSTS` (see [configuration.md](configuration.md)).
+- When binding only to `localhost`/`127.0.0.1`, the Host header policy is the
+  SDK default; put a reverse proxy in front when binding to a public address.

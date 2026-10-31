@@ -1,65 +1,68 @@
-# Gizlilik ve veri işleme
+# Privacy and data handling
 
-Bu sunucu **salt okunurdur** ve kullanıcı hesabı tutmaz. Yine de hangi verinin
-işlendiğini açıkça yazmak gerekir; aşağıdaki tablo koddan türetilmiştir
-(`app/core/http_logging.py`, `app/core/api_auth.py`, `app/core/rate_limit.py`).
+This server is **read-only** and keeps no user accounts. It is still worth
+stating plainly which data is processed; the table below is derived from the
+code (`app/core/http_logging.py`, `app/core/api_auth.py`,
+`app/core/rate_limit.py`).
 
-## Ne saklanır
+## What is stored
 
-| Veri | Nerede | Süre |
+| Data | Where | Retention |
 |---|---|---|
-| İstemci başına hız sınırı sayacı | Süreç belleği (`ClientRateLimiter`) | Süreç ömrü |
-| Eşzamanlılık sayacı | Süreç belleği | Süreç ömrü |
-| API anahtarı **özeti** (SHA-256) | Süreç belleği | Süreç ömrü |
-| GTFS tarife deposu | `IZMIR_MCP_DATABASE_PATH` (SQLite) | Sen silene kadar |
-| Kaynak yanıt önbelleği | Süreç belleği | TTL (kaynak başına) |
+| Per-client rate limit counter | Process memory (`ClientRateLimiter`) | Process lifetime |
+| Concurrency counter | Process memory | Process lifetime |
+| API key **digest** (SHA-256) | Process memory | Process lifetime |
+| GTFS timetable store | `IZMIR_MCP_DATABASE_PATH` (SQLite) | Until you delete it |
+| Daily quota counters (only when a quota is set) | SQLite | Per key digest, per day |
+| Source response cache | Process memory | TTL (per source) |
 
-Sunucu **hiçbir yere yazmaz**: veritabanı yok, kullanıcı tablosu yok, çerez yok,
-oturum saklama yok.
+No user data is written: no user table, no cookies, no session storage.
 
-## Ne saklanmaz
+## What is not stored
 
-Erişim logu yalnızca şu alanları yazar:
+The access log only writes these fields:
 
 ```json
 {"event": "http_request", "method": "POST", "path": "/mcp/",
  "status": 200, "duration_ms": 2.9}
 ```
 
-- **Sorgu dizesi yazılmaz.** `?resource_id=...` gibi değerler loglanmaz.
-- **Gövde yazılmaz.** Araç girdileri, koordinatlar ve adres aramaları loglanmaz.
-- **Başlık yazılmaz.** `Authorization`, `Cookie`, `Mcp-Session-Id` görünmez.
-- **API anahtarı hiçbir koşulda yazılmaz**; yalnızca SHA-256 özeti bellekte
-  karşılaştırılır.
+- **No query string.** Values such as `?resource_id=...` are not logged.
+- **No body.** Tool inputs, coordinates and address searches are not logged.
+- **No headers.** `Authorization`, `Cookie` and `Mcp-Session-Id` never appear.
+- **The API key is never written under any circumstances**; only its SHA-256
+  digest is compared in memory.
 
-Logu tamamen kapatmak için: `IZMIR_MCP_ACCESS_LOG_ENABLED=false`.
+To turn the log off entirely: `IZMIR_MCP_ACCESS_LOG_ENABLED=false`. The full
+field list is in [monitoring.md](monitoring.md).
 
-## Üçüncü taraflara giden veri
+## Data sent to third parties
 
-Sunucu, yalnızca kullanıcının aradığı şehir verisini almak için yayıncı
-kurumların uçlarına istek yapar. Bu isteklerde:
+The server only calls the publishing institutions' endpoints to fetch the city
+data the user asked for. In these requests:
 
-- kullanıcı kimliği, anahtarı veya oturumu **gönderilmez**;
-- yalnızca arama parametreleri (koordinat, durak kimliği, tarih) gider;
-- `User-Agent` sabittir: `izmir-mcp/0.1 (+https://github.com/; read-only city data client)`.
+- no user identity, key or session is **sent**;
+- only search parameters (coordinates, stop id, date) are sent;
+- the `User-Agent` is fixed: `izmir-mcp/0.1 (+https://github.com/; read-only city data client)`.
 
-Yani yayıncı kurum, hangi IP'den hangi durağın sorulduğunu görebilir. Bu, her
-açık veri istemcisinde kaçınılmazdır ve bu proje bir proxy/anonimleştirici
-değildir.
+So the publishing institution can see which IP asked about which stop. This is
+unavoidable for any open data client, and this project is not a proxy or
+anonymiser.
 
-## İstemci kimliği
+## Client identity
 
-Hız sınırı için istemci kimliği:
+The client identity used for rate limiting is:
 
-- Sunucu loopback'e bağlıysa **tek** `X-Forwarded-For` değeri (yerel reverse
-  proxy beklenir);
-- aksi halde doğrudan TCP bağlantı adresi.
+- a **single** `X-Forwarded-For` value when the server is bound to loopback (a
+  local reverse proxy is expected);
+- otherwise the direct TCP peer address.
 
-`X-Real-IP`, `Forwarded`, `CF-Connecting-IP` **dikkate alınmaz**; virgüllü liste
-ve yinelenen başlık reddedilir (spoofing testleri: `tests/test_http_security.py`).
+`X-Real-IP`, `Forwarded` and `CF-Connecting-IP` are **ignored**; comma-separated
+lists and repeated headers are rejected (spoofing tests:
+`tests/test_http_security.py`).
 
-## Veri kaynaklarının kendi politikaları
+## Data sources' own policies
 
-Bu belge yalnızca bu sunucunun davranışını tanımlar. Şehir verisinin tabi olduğu
-lisans ve kullanım koşulları yayıncı kurumlara aittir; bkz.
+This document only describes this server's behaviour. The licences and terms
+of use that apply to the city data belong to the publishing institutions; see
 [sources.md](sources.md).

@@ -14,4 +14,4 @@ Include steps to reproduce, affected version, and impact. We aim to acknowledge 
 ## More Information
 
 - Threat model and hardening: [docs/security.md](docs/security.md)
-- Latest security review: [docs/security-report.md](docs/security-report.md)
+- Latest security review: [docs/development/reports/security-report.md](docs/development/reports/security-report.md)
