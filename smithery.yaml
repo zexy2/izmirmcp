@@ -1,4 +1,5 @@
 # Smithery config (stdio, container build). Draft: not yet submitted.
+# Read-only MCP server for İzmir open city data: transit, buses, ferries, water, air, pharmacies.
 runtime: container
 build:
   dockerfile: Dockerfile

@@ -1,7 +1,7 @@
 """EShot bus sources: documented stops, live arrivals and the published GTFS feed.
 
 Every endpoint here was verified live on 2026-10-28 (see
-``reports/eshot-ulasim-kaynak-arastirmasi.md``). Undocumented guesses such as
+``docs/development/reports/eshot-ulasim-kaynak-arastirmasi.md``). Undocumented guesses such as
 ``/api/eshot/...`` returned 404 and are deliberately absent.
 """
 

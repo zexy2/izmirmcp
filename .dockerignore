@@ -26,9 +26,9 @@ dist/
 # Not needed at run time (the wheel carries app/data/places.json, not tests).
 # requirements.lock, pyproject.toml, README.md and LICENSE are build inputs.
 tests/
-reports/
 scripts/
 docs/
+reports/
 *.md
 !README.md
 docker-compose.yml

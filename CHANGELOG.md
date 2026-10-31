@@ -4,7 +4,16 @@ Bu proje [Semantic Versioning](https://semver.org/lang/tr/) izler.
 
 ## Yayımlanmamış (0.1.0 sonrası)
 
+### Değişti
+
+- `PROGRESS.md` ve `reports/` geliştirici belgeleri `docs/development/` altına
+  taşındı; tüm bağlantılar güncellendi.
+
 ### Eklendi
+
+- Paket metadata: anahtar kelimeler, sınıflandırıcılar (Beta, Typing :: Typed,
+  `app/py.typed`), Documentation/Changelog/Issues URL'leri; `server.json` ve
+  `smithery.yaml` açıklamaları README ile hizalandı.
 
 - `NOTICE`: Apache-2.0 kaynakları (halilcengel/IzmirMCP,
   AtaCanYmc/izmir-open-data-py) için atıf.

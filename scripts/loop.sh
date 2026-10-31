@@ -7,7 +7,7 @@
 #   ./scripts/loop.sh --pass P2    # sadece belirtilen pass
 #   ./scripts/loop.sh --dry-run    # ne yapacağını yaz, çalıştırma
 #
-# Durum PROGRESS.md ve git log'da yaşar; her tur bunları okuyarak başlar.
+# Durum docs/development/PROGRESS.md ve git log'da yaşar; her tur bunları okuyarak başlar.
 set -u
 
 cd "${0:A:h}/.." || exit 1
@@ -28,7 +28,7 @@ while [ $# -gt 0 ]; do
 done
 
 PASSES=(
-  "P1|Çok operatörlü ulaşım aksaklıkları: Metro, İZBAN ve İZDENİZ için makine-okunur duyuru/aksaklık uçlarını canlı doğrula. Erişilebilen her operatör izmir_transport_disruptions içine ayrı sources[] kaydıyla eklensin; erişilemeyen operatör unavailable dönsün ve 'sorun yok' sayılmasın. Uç yoksa kanıtla PROGRESS.md bilinçli boşluklara yaz."
+  "P1|Çok operatörlü ulaşım aksaklıkları: Metro, İZBAN ve İZDENİZ için makine-okunur duyuru/aksaklık uçlarını canlı doğrula. Erişilebilen her operatör izmir_transport_disruptions içine ayrı sources[] kaydıyla eklensin; erişilemeyen operatör unavailable dönsün ve 'sorun yok' sayılmasın. Uç yoksa kanıtla docs/development/PROGRESS.md bilinçli boşluklara yaz."
   "P2|Paketleme: Dockerfile + .dockerignore, server.json (MCP registry manifesti), .github/workflows/ci.yml (pytest + smoke + import), CHANGELOG.md. Image'da .data/ ve .venv/ olmamalı; GTFS deposu çalışma anında yeniden kurulabilmeli."
   "P3|Dokümantasyon: docs/response-contract.md, docs/tool-reference.md, docs/deployment.md, docs/sources.md, docs/monitoring.md. Her doküman gerçek koddan türetilsin; uydurma davranış yazılmasın."
   "P4|Sözleşme ve güvenlik testleri: tüm araçlar için zarf alanı conformance testi, keşif yüzeyi (tools/resources/prompts) şema testi, auth bypass / origin bypass / büyük gövde / XFF spoofing güvenlik testleri."
@@ -54,7 +54,7 @@ BU TUR TEK İŞ: $label — $task
 
 Başlamadan önce:
 1. AGENTS.md oku (değişmez kurallar, doğrulama komutları, mimari sınırlar).
-2. PROGRESS.md oku — nerede kaldığımızı ve bilinçli boşlukları gör.
+2. docs/development/PROGRESS.md oku — nerede kaldığımızı ve bilinçli boşlukları gör.
 3. git log -3 ile son commit'leri gör.
 
 Kurallar:
@@ -62,8 +62,8 @@ Kurallar:
 - Zarf sözleşmesini ve hata taksonomisini koru.
 - Bitirmeden önce çalıştır: .venv/bin/python -m pytest -q
   ve .venv/bin/python scripts/smoke_live.py
-- README (araç tablosu + Sınırlar) ve PROGRESS.md'yi gerçeğe göre güncelle.
-- Yeni dış uç bağladıysan canlı doğrula ve reports/ altına kanıt yaz.
+- README (araç tablosu + Sınırlar) ve docs/development/PROGRESS.md'yi gerçeğe göre güncelle.
+- Yeni dış uç bağladıysan canlı doğrula ve docs/development/reports/ altına kanıt yaz.
 - Bitince tek odaklı git commit at (push yok).
 - Bu pass dışındaki işlere girme.
 
@@ -91,4 +91,4 @@ if [ "$started" -eq 0 ]; then
 fi
 
 echo
-echo "Bitti: $started pass. PROGRESS.md güncel mi kontrol edin."
+echo "Bitti: $started pass. docs/development/PROGRESS.md güncel mi kontrol edin."

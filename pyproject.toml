@@ -5,13 +5,20 @@ build-backend = "hatchling.build"
 [project]
 name = "izmir-mcp"
 dynamic = ["version"]
-description = "Read-only MCP server for İzmir open city data: catalog, transit, buses, water, air."
+description = "Read-only MCP server for İzmir open city data: transit, buses, ferries, water, air, pharmacies."
+keywords = ["mcp", "model-context-protocol", "izmir", "turkey", "open-data", "transit", "smart-city", "llm"]
 readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE"]
 authors = [{ name = "zexy2" }]
 requires-python = ">=3.11"
 classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "Operating System :: OS Independent",
+  "Topic :: Scientific/Engineering :: GIS",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+  "Typing :: Typed",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
@@ -40,6 +47,9 @@ dev = [
 
 [project.urls]
 Homepage = "https://github.com/zexy2/izmirmcp"
+Documentation = "https://github.com/zexy2/izmirmcp#readme"
+Changelog = "https://github.com/zexy2/izmirmcp/blob/main/CHANGELOG.md"
+Issues = "https://github.com/zexy2/izmirmcp/issues"
 Source = "https://github.com/zexy2/izmirmcp"
 
 [tool.hatch.version]

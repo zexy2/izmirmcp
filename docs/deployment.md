@@ -205,7 +205,7 @@ root olmayan `izmir` kullanıcısı (uid 10001) ve `/data` hacmi kullanır.
 `IZMIR_MCP_DATABASE_PATH=/data/izmir_mcp.sqlite3` derleme anında sabitlenir.
 `HEALTHCHECK` `/healthz`'i yoklar (kaynak sağlığı ölçmez).
 
-`.data/`, `.venv/`, `tests/`, `reports/`, `scripts/`, `docs/` imaja girmez
+`.data/`, `.venv/`, `tests/`, `scripts/`, `docs/` imaja girmez
 (`.dockerignore`); `app/data/places.json` girer.
 
 `docker/entrypoint.sh` açılışta GTFS deposunu önceden kurar

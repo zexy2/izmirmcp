@@ -1,8 +1,8 @@
 """Static İzmir city layers published as CKAN DataStore resources.
 
 Every layer here was verified live on 2026-10-28 with the exact column names
-below (see ``reports/eshot-ulasim-kaynak-arastirmasi.md`` and
-``reports/izmir-sehir-katmanlari.md``). Coordinate parsing tolerates the
+below (see ``docs/development/reports/eshot-ulasim-kaynak-arastirmasi.md`` and
+``docs/development/reports/izmir-sehir-katmanlari.md``). Coordinate parsing tolerates the
 source's Turkish decimal comma without rescaling arbitrary values.
 """
 

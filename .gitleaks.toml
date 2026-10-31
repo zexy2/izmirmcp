@@ -1,4 +1,4 @@
-# Default gitleaks rules plus one narrow allowlist. reports/*-evidence.json
+# Default gitleaks rules plus one narrow allowlist. docs/development/reports/*-evidence.json
 # identify captured scripts by content hash ("scr_" + sha256 hex); those are not
 # credentials but match generic-api-key. See docs/security-report.md.
 [extend]
@@ -6,7 +6,7 @@ useDefault = true
 
 [allowlist]
 description = "content-hash script ids in evidence reports"
-paths = ['''reports/.*-evidence\.json''']
+paths = ['''docs/development/reports/.*-evidence\.json''']
 regexes = ['''scr_[0-9a-f]{64}''']
 regexTarget = "match"
 condition = "AND"

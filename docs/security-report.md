@@ -51,11 +51,11 @@ so upstream fixes show up without waiting for a release.
 ## gitleaks false positives
 
 The first scan reported 38 `generic-api-key` hits, all in
-`reports/rea-open-data-portal-evidence.json`, commit `8a4efeda`. The matched
+`docs/development/reports/rea-open-data-portal-evidence.json`, commit `8a4efeda`. The matched
 fields (`script_key`, `from_script_key`, `key`) hold `scr_` + 64-hex content
 hashes that identify captured portal scripts, not credentials.
 `.gitleaks.toml` keeps the default rules and allowlists only that exact pattern
-in `reports/*-evidence.json`. No secret values are recorded in this report.
+in `docs/development/reports/*-evidence.json`. No secret values are recorded in this report.
 
 ## Re-running
 

@@ -2,7 +2,7 @@
 
 Bu belge İzmir MCP'nin bağlı olduğu dış kaynakları, kullanım biçimlerini ve
 kanıtlı sınırlarını `app/services/sources.py`, `app/core/settings.py` ve
-`reports/` altındaki doğrulamalardan türetir. Kaynak sağlığı bu belgenin
+`docs/development/reports/` altındaki doğrulamalardan türetir. Kaynak sağlığı bu belgenin
 değil, araç yanıtlarının `freshness`/`warnings` alanlarının konusudur.
 
 Hiçbir kaynak uydurulmaz. Erişilemeyen uçlar `source_unavailable` döner; veri
@@ -89,7 +89,7 @@ koordinat ve birim yayımlanmaz (`unit=null`); AQI hesaplanmaz.
 
 Baraj CSV okunurken doluluk yüzdesi olmayan satırlar elenir; doluluk azalan
 sıralanır ve "gecikebilir" uyarısı eklenir. Arıza ucu düzelmeden arıza verisi
-üretilmez (kanıt: `reports/izmir-sehir-katmanlari.md`).
+üretilmez (kanıt: `docs/development/reports/izmir-sehir-katmanlari.md`).
 
 ## ESHOT / İZTEK ulaşım
 
@@ -137,7 +137,7 @@ yarıçap ve `bbox` modlarında dışlanmasına yol açar.
 
 İZBAN için erişilebilir makine-okunur akış yok; `metrotramapi`'de İZBAN yolu
 `404`. `operator="izban"` her zaman `source_unavailable` döner (kanıt:
-`reports/operator-duyuru-kaynaklari.md`). Yalnızca ESHOT makine-okunur geçerlilik
+`docs/development/reports/operator-duyuru-kaynaklari.md`). Yalnızca ESHOT makine-okunur geçerlilik
 penceresi yayımlar; `active` bu yüzden yalnızca ESHOT'ta hesaplanır.
 
 ## Referans noktaları
@@ -175,7 +175,7 @@ değildir**; araçlar `place` modunda bunu uyarı olarak bildirir.
 
 ## Kanıt raporları
 
-- [EShot/ulaşım kaynak araştırması](../reports/eshot-ulasim-kaynak-arastirmasi.md)
-- [Şehir katmanları ve İZSU arızası](../reports/izmir-sehir-katmanlari.md)
-- [Operatör duyuruları](../reports/operator-duyuru-kaynaklari.md)
-- [REA açık veri portalı incelemesi](../reports/rea-open-data-portal.md)
+- [EShot/ulaşım kaynak araştırması](development/reports/eshot-ulasim-kaynak-arastirmasi.md)
+- [Şehir katmanları ve İZSU arızası](development/reports/izmir-sehir-katmanlari.md)
+- [Operatör duyuruları](development/reports/operator-duyuru-kaynaklari.md)
+- [REA açık veri portalı incelemesi](development/reports/rea-open-data-portal.md)
