@@ -228,7 +228,7 @@ Başarı `0`, herhangi bir hata `2` döner; geçersiz arşivde hiçbir şey yaz�
 `permissions: contents: read`):
 
 - `lint` — `ruff check` (bloklayıcı) ve `mypy` (şimdilik yalnızca rapor).
-- `test` — Python 3.11/3.12/3.13 matrisi: `pytest` (22 araç yüzeyi
+- `test` — Python 3.11/3.12/3.13 matrisi: `pytest` (36 araç yüzeyi
   `tests/test_tool_compatibility.py` ile kilitli), çevrimdışı protokol smoke'u
   (`scripts/smoke_mcp.py`), sunucuyu başlatıp `/healthz`+`/readyz`+`/status` probe'u.
 - `conformance` — resmî MCP conformance alt kümesi; raporlar artifact olarak yüklenir.
