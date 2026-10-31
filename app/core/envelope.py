@@ -123,6 +123,13 @@ def result_info(
     return ResultInfo(returned=returned, matched=matched, truncated=truncated, scope=scope, next_step=note)
 
 
+DATA_DISCLAIMER = (
+    "Resmî olmayan yanıt: veriler İzmir Büyükşehir Belediyesi açık verisinden alınır; "
+    "gecikmeli veya hatalı olabilir. / Unofficial: data comes from İzmir Metropolitan "
+    "Municipality open data and may be delayed or incorrect."
+)
+
+
 class ResponseEnvelope(BaseModel):
     ok: bool = True
     summary: str
@@ -134,6 +141,7 @@ class ResponseEnvelope(BaseModel):
     next_queries: list[str] = Field(default_factory=list)
     error: ErrorInfo | None = None
     result_info: ResultInfo | None = None
+    disclaimer: str | None = DATA_DISCLAIMER
 
 
 def success_envelope(

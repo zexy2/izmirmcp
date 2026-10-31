@@ -516,6 +516,18 @@ Ayrıntı ve sınırlar raporda.
   hata taksonomisini doğrular, canlı kaynağın bugün aynı şemayı döndürdüğünü
   değil. Canlı doğrulama `scripts/smoke_live.py`'nin işidir.
 
+## Veri kaynağı ve sorumluluk reddi / Data disclaimer
+
+Bu sunucu resmî bir İzmir Büyükşehir Belediyesi hizmeti değildir. Veriler
+belediyenin açık veri kaynaklarından alınır ve gecikmeli, eksik veya hatalı
+olabilir; kritik kararlar için resmî kaynağı doğrulayın. Her yanıt zarfı bu
+uyarıyı `disclaimer` alanında taşır.
+
+This server is not an official İzmir Metropolitan Municipality service. Data
+comes from the municipality's open data and may be delayed, incomplete or
+incorrect; verify with the official source before relying on it. Every response
+envelope carries this notice in the `disclaimer` field.
+
 ## Kaynak ve lisans
 
 Bu proje, [istanbulmcp](https://github.com/Batu1-1an/istanbulmcp) deposunun

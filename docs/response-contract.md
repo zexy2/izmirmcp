@@ -24,6 +24,7 @@ mevcuttur:
 | `next_queries` | list[string] | Önerilen sonraki araç çağrıları. |
 | `error` | object \| null | Hata taksonomisi (aşağıda). Başarılı yanıtta `null`. |
 | `result_info` | object | Dönen/eşleşen/kesilme bilgisi (aşağıda). |
+| `disclaimer` | string \| null | Sabit iki dilli uyarı: veri resmî değildir, İBB açık verisinden gelir, gecikmeli/hatalı olabilir. |
 
 ### `freshness`
 
