@@ -56,7 +56,7 @@ jobs:
         run: python -c "import app.mcp.registry, app.main, app.stdio"
       - name: Unit tests (offline)
         # Tool-surface stability is enforced by tests/test_tool_compatibility.py.
-        run: python -m pytest -q
+        run: python -m pytest -q --cov=app --cov-report=term-missing
       - name: Protocol smoke (offline)
         run: python scripts/smoke_mcp.py --verbose
       - name: Start HTTP server and probe readiness
