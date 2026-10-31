@@ -34,6 +34,10 @@ Bu bir "her şeyi zorla kopyala" görevi değildir:
    birlikte güncellenir.
 7. **Commit:** her pass tek odaklı bir commit. Commit mesajı Türkçe, gövdesinde
    ne/neden yazılı. Kullanıcı istemeden push edilmez.
+8. **Dil politikası (hibrit):** araç/parametre/prompt/kaynak açıklamaları, kod
+   yorumları ve `docs/` İngilizce; kullanıcıya dönen çalışma zamanı hata, uyarı
+   ve ipucu mesajları ile araç başlıkları (`TOOL_TITLES`) Türkçe. README.md EN,
+   README.tr.md TR. Ayrıntı: `CONTRIBUTING.md` "Language policy".
 
 ## Doğrulama komutları
 

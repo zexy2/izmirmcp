@@ -2,6 +2,7 @@
   "izmir_air_quality": {
     "properties": {
       "date": {
+        "description": "Date as `YYYY-MM-DD`; omitted uses today.",
         "anyOf": [
           {
             "type": "string"
@@ -14,6 +15,7 @@
         "title": "Date"
       },
       "limit": {
+        "description": "Maximum number of rows to return; omitted uses the server default and values are capped by the server maximum.",
         "anyOf": [
           {
             "type": "integer"
@@ -26,6 +28,7 @@
         "title": "Limit"
       },
       "station": {
+        "description": "Optional station name fragment to filter readings.",
         "anyOf": [
           {
             "type": "string"
@@ -44,6 +47,7 @@
   "izmir_bus_arrivals": {
     "properties": {
       "limit": {
+        "description": "Maximum number of rows to return; omitted uses the server default and values are capped by the server maximum.",
         "anyOf": [
           {
             "type": "integer"
@@ -56,6 +60,7 @@
         "title": "Limit"
       },
       "stop_id": {
+        "description": "EShot stop id from the published stop list (`izmir_bus_stops`).",
         "title": "Stop Id",
         "type": "string"
       }
@@ -69,6 +74,7 @@
   "izmir_bus_departures": {
     "properties": {
       "at": {
+        "description": "`HH:MM` (Europe/Istanbul) or ISO-8601 date/time; defaults to now.",
         "anyOf": [
           {
             "type": "string"
@@ -81,6 +87,7 @@
         "title": "At"
       },
       "lat": {
+        "description": "Latitude in WGS84 decimal degrees; send together with `lon`.",
         "anyOf": [
           {
             "type": "number"
@@ -93,6 +100,7 @@
         "title": "Lat"
       },
       "limit": {
+        "description": "Maximum number of rows to return; omitted uses the server default and values are capped by the server maximum.",
         "anyOf": [
           {
             "type": "integer"
@@ -105,6 +113,7 @@
         "title": "Limit"
       },
       "line": {
+        "description": "Optional published route short name to filter departures.",
         "anyOf": [
           {
             "type": "string"
@@ -117,6 +126,7 @@
         "title": "Line"
       },
       "lon": {
+        "description": "Longitude in WGS84 decimal degrees; send together with `lat`.",
         "anyOf": [
           {
             "type": "number"
@@ -129,6 +139,7 @@
         "title": "Lon"
       },
       "radius_m": {
+        "description": "Radius in metres around `lat`+`lon` (default 500).",
         "anyOf": [
           {
             "type": "integer"
@@ -141,6 +152,7 @@
         "title": "Radius M"
       },
       "stop_id": {
+        "description": "One published EShot stop id.",
         "anyOf": [
           {
             "type": "string"
@@ -153,6 +165,7 @@
         "title": "Stop Id"
       },
       "stop_query": {
+        "description": "Stop name to resolve into candidate stop ids; returns candidates, not departures.",
         "anyOf": [
           {
             "type": "string"
@@ -171,6 +184,7 @@
   "izmir_bus_line_arrivals": {
     "properties": {
       "limit": {
+        "description": "Maximum number of rows to return; omitted uses the server default and values are capped by the server maximum.",
         "anyOf": [
           {
             "type": "integer"
@@ -183,10 +197,12 @@
         "title": "Limit"
       },
       "line": {
+        "description": "EShot line code (published route short name), e.g. `30`.",
         "title": "Line",
         "type": "string"
       },
       "stop_id": {
+        "description": "Optional stop id; without it the line's live bus positions are returned.",
         "anyOf": [
           {
             "type": "string"
@@ -208,6 +224,7 @@
   "izmir_bus_live_positions": {
     "properties": {
       "limit": {
+        "description": "Maximum number of rows to return; omitted uses the server default and values are capped by the server maximum.",
         "anyOf": [
           {
             "type": "integer"
@@ -220,6 +237,7 @@
         "title": "Limit"
       },
       "line": {
+        "description": "EShot line code (published route short name), e.g. `30`.",
         "title": "Line",
         "type": "string"
       }
@@ -233,11 +251,13 @@
   "izmir_bus_routes": {
     "properties": {
       "detail": {
+        "description": "Return the ordered stop patterns of one line instead of a route list.",
         "default": false,
         "title": "Detail",
         "type": "boolean"
       },
       "direction": {
+        "description": "`0` or `1` to keep one direction; only valid with `detail=true`.",
         "anyOf": [
           {
             "type": "string"
@@ -250,6 +270,7 @@
         "title": "Direction"
       },
       "limit": {
+        "description": "Maximum number of rows to return; omitted uses the server default and values are capped by the server maximum.",
         "anyOf": [
           {
             "type": "integer"
@@ -262,6 +283,7 @@
         "title": "Limit"
       },
       "query": {
+        "description": "Line code or route id; must be exact when `detail` is true.",
         "anyOf": [
           {
             "type": "string"
@@ -280,6 +302,7 @@
   "izmir_bus_stops": {
     "properties": {
       "lat": {
+        "description": "Latitude in WGS84 decimal degrees; send together with `lon`.",
         "anyOf": [
           {
             "type": "number"
@@ -292,6 +315,7 @@
         "title": "Lat"
       },
       "limit": {
+        "description": "Maximum number of rows to return; omitted uses the server default and values are capped by the server maximum.",
         "anyOf": [
           {
             "type": "integer"
@@ -304,6 +328,7 @@
         "title": "Limit"
       },
       "lon": {
+        "description": "Longitude in WGS84 decimal degrees; send together with `lat`.",
         "anyOf": [
           {
             "type": "number"
@@ -316,6 +341,7 @@
         "title": "Lon"
       },
       "query": {
+        "description": "Stop name or stop id; matched case- and accent-insensitively.",
         "anyOf": [
           {
             "type": "string"
@@ -328,6 +354,7 @@
         "title": "Query"
       },
       "radius_m": {
+        "description": "Search radius in metres around the reference point.",
         "anyOf": [
           {
             "type": "integer"
@@ -346,6 +373,7 @@
   "izmir_cbs_layer": {
     "properties": {
       "district": {
+        "description": "İzmir district name (e.g. Karşıyaka); matched case- and Turkish-letter-insensitively.",
         "anyOf": [
           {
             "type": "string"
@@ -358,6 +386,7 @@
         "title": "District"
       },
       "lat": {
+        "description": "Latitude in WGS84 decimal degrees; send together with `lon`.",
         "anyOf": [
           {
             "type": "number"
@@ -370,6 +399,7 @@
         "title": "Lat"
       },
       "layer": {
+        "description": "Allowlisted CBS layer name, e.g. `muzeler`, `hastaneler`, `plajlar`.",
         "enum": [
           "acilyardimistasyonu",
           "adayarimada",
@@ -463,6 +493,7 @@
         "type": "string"
       },
       "limit": {
+        "description": "Maximum number of rows to return; omitted uses the server default and values are capped by the server maximum.",
         "anyOf": [
           {
             "type": "integer"
@@ -475,6 +506,7 @@
         "title": "Limit"
       },
       "lon": {
+        "description": "Longitude in WGS84 decimal degrees; send together with `lat`.",
         "anyOf": [
           {
             "type": "number"
@@ -487,6 +519,7 @@
         "title": "Lon"
       },
       "radius_m": {
+        "description": "Search radius in metres around the reference point.",
         "anyOf": [
           {
             "type": "integer"
@@ -508,6 +541,7 @@
   "izmir_city_services_nearby": {
     "properties": {
       "bbox": {
+        "description": "Rectangle as `[min_lon, min_lat, max_lon, max_lat]` in WGS84; all edges are inclusive.",
         "anyOf": [
           {
             "items": {
@@ -523,6 +557,7 @@
         "title": "Bbox"
       },
       "district": {
+        "description": "District for a district-wide list; matched on the source's district field or address text.",
         "anyOf": [
           {
             "type": "string"
@@ -535,6 +570,7 @@
         "title": "District"
       },
       "kinds": {
+        "description": "Service kinds to include; defaults to all three.",
         "anyOf": [
           {
             "items": {
@@ -555,6 +591,7 @@
         "title": "Kinds"
       },
       "lat": {
+        "description": "Latitude in WGS84 decimal degrees; send together with `lon`.",
         "anyOf": [
           {
             "type": "number"
@@ -567,6 +604,7 @@
         "title": "Lat"
       },
       "limit": {
+        "description": "Maximum number of rows to return; omitted uses the server default and values are capped by the server maximum.",
         "anyOf": [
           {
             "type": "integer"
@@ -579,6 +617,7 @@
         "title": "Limit"
       },
       "lon": {
+        "description": "Longitude in WGS84 decimal degrees; send together with `lat`.",
         "anyOf": [
           {
             "type": "number"
@@ -591,6 +630,7 @@
         "title": "Lon"
       },
       "place": {
+        "description": "Published İzmir district or neighbourhood reference point (e.g. Konak, Alsancak); never a street address.",
         "anyOf": [
           {
             "type": "string"
@@ -603,6 +643,7 @@
         "title": "Place"
       },
       "place_district": {
+        "description": "Optional district hint that disambiguates `place` when the name exists in several districts.",
         "anyOf": [
           {
             "type": "string"
@@ -615,6 +656,7 @@
         "title": "Place District"
       },
       "radius_m": {
+        "description": "Search radius in metres around the reference point.",
         "anyOf": [
           {
             "type": "integer"
@@ -633,6 +675,7 @@
   "izmir_dam_status": {
     "properties": {
       "dam_name": {
+        "description": "Dam name, e.g. `Tahtalı`; matched case- and Turkish-letter-insensitively.",
         "anyOf": [
           {
             "type": "string"
@@ -645,6 +688,7 @@
         "title": "Dam Name"
       },
       "date": {
+        "description": "Date as `YYYY-MM-DD`; defaults to today and must not be in the future.",
         "anyOf": [
           {
             "type": "string"
@@ -657,6 +701,7 @@
         "title": "Date"
       },
       "limit": {
+        "description": "Maximum number of rows to return; omitted uses the server default and values are capped by the server maximum.",
         "anyOf": [
           {
             "type": "integer"
@@ -675,6 +720,7 @@
   "izmir_datastore_query": {
     "properties": {
       "limit": {
+        "description": "Maximum number of rows to return; omitted uses the server default and values are capped by the server maximum.",
         "anyOf": [
           {
             "type": "integer"
@@ -687,10 +733,12 @@
         "title": "Limit"
       },
       "resource_id": {
+        "description": "Allowlisted CKAN resource id (see `IZMIR_MCP_CKAN_SQL_ALLOWED_RESOURCE_IDS`).",
         "title": "Resource Id",
         "type": "string"
       },
       "sql": {
+        "description": "A single SELECT over the table `records`; no joins, subqueries, CTEs, unions, windows or writes.",
         "title": "Sql",
         "type": "string"
       }
@@ -705,11 +753,13 @@
   "izmir_events": {
     "properties": {
       "free_only": {
+        "description": "Keep only free events.",
         "default": false,
         "title": "Free Only",
         "type": "boolean"
       },
       "limit": {
+        "description": "Maximum number of rows to return; omitted uses the server default and values are capped by the server maximum.",
         "anyOf": [
           {
             "type": "integer"
@@ -722,6 +772,7 @@
         "title": "Limit"
       },
       "query": {
+        "description": "Text matched against event title and venue.",
         "anyOf": [
           {
             "type": "string"
@@ -740,6 +791,7 @@
   "izmir_fare": {
     "properties": {
       "from_station": {
+        "description": "Origin İZBAN station id or name.",
         "anyOf": [
           {
             "type": "integer"
@@ -751,11 +803,13 @@
         "title": "From Station"
       },
       "htt": {
+        "description": "The source's own tariff flag; its meaning is not documented by the API.",
         "default": false,
         "title": "Htt",
         "type": "boolean"
       },
       "to_station": {
+        "description": "Destination İZBAN station id or name.",
         "anyOf": [
           {
             "type": "integer"
@@ -767,6 +821,7 @@
         "title": "To Station"
       },
       "transfer": {
+        "description": "The source's aktarma (transfer) flag.",
         "default": false,
         "title": "Transfer",
         "type": "boolean"
@@ -782,6 +837,7 @@
   "izmir_get_dataset": {
     "properties": {
       "dataset_id": {
+        "description": "CKAN dataset id or slug as returned by `izmir_search_datasets`.",
         "title": "Dataset Id",
         "type": "string"
       }
@@ -795,6 +851,7 @@
   "izmir_get_resource_schema": {
     "properties": {
       "resource_id": {
+        "description": "CKAN resource id (UUID) as returned by `izmir_get_dataset`.",
         "title": "Resource Id",
         "type": "string"
       }
@@ -818,6 +875,7 @@
   "izmir_market_prices": {
     "properties": {
       "day": {
+        "description": "Date as `YYYY-MM-DD`; defaults to today, earlier days are tried when empty.",
         "anyOf": [
           {
             "type": "string"
@@ -830,6 +888,7 @@
         "title": "Day"
       },
       "kind": {
+        "description": "Wholesale market kind: produce (`sebzemeyve`) or fish (`balik`).",
         "default": "sebzemeyve",
         "enum": [
           "sebzemeyve",
@@ -839,6 +898,7 @@
         "type": "string"
       },
       "limit": {
+        "description": "Maximum number of rows to return; omitted uses the server default and values are capped by the server maximum.",
         "anyOf": [
           {
             "type": "integer"
@@ -851,6 +911,7 @@
         "title": "Limit"
       },
       "query": {
+        "description": "Product name fragment.",
         "anyOf": [
           {
             "type": "string"
@@ -869,6 +930,7 @@
   "izmir_market_schedule": {
     "properties": {
       "day": {
+        "description": "Turkish weekday (pazartesi..pazar), `bugun` or `yarin`.",
         "anyOf": [
           {
             "type": "string"
@@ -881,6 +943,7 @@
         "title": "Day"
       },
       "district": {
+        "description": "İzmir district name (e.g. Karşıyaka); matched case- and Turkish-letter-insensitively.",
         "anyOf": [
           {
             "type": "string"
@@ -893,6 +956,7 @@
         "title": "District"
       },
       "lat": {
+        "description": "Latitude in WGS84 decimal degrees; send together with `lon`.",
         "anyOf": [
           {
             "type": "number"
@@ -905,6 +969,7 @@
         "title": "Lat"
       },
       "limit": {
+        "description": "Maximum number of rows to return; omitted uses the server default and values are capped by the server maximum.",
         "anyOf": [
           {
             "type": "integer"
@@ -917,6 +982,7 @@
         "title": "Limit"
       },
       "lon": {
+        "description": "Longitude in WGS84 decimal degrees; send together with `lat`.",
         "anyOf": [
           {
             "type": "number"
@@ -929,6 +995,7 @@
         "title": "Lon"
       },
       "radius_m": {
+        "description": "Search radius in metres around the reference point.",
         "anyOf": [
           {
             "type": "integer"
@@ -947,6 +1014,7 @@
   "izmir_mobility_nearby": {
     "properties": {
       "lat": {
+        "description": "Latitude in WGS84 decimal degrees; send together with `lon`.",
         "anyOf": [
           {
             "type": "number"
@@ -959,6 +1027,7 @@
         "title": "Lat"
       },
       "limit": {
+        "description": "Maximum number of rows to return; omitted uses the server default and values are capped by the server maximum.",
         "anyOf": [
           {
             "type": "integer"
@@ -971,6 +1040,7 @@
         "title": "Limit"
       },
       "lon": {
+        "description": "Longitude in WGS84 decimal degrees; send together with `lat`.",
         "anyOf": [
           {
             "type": "number"
@@ -983,6 +1053,7 @@
         "title": "Lon"
       },
       "place": {
+        "description": "Published İzmir district or neighbourhood reference point (e.g. Konak, Alsancak); never a street address.",
         "anyOf": [
           {
             "type": "string"
@@ -995,6 +1066,7 @@
         "title": "Place"
       },
       "place_district": {
+        "description": "Optional district hint that disambiguates `place` when the name exists in several districts.",
         "anyOf": [
           {
             "type": "string"
@@ -1007,6 +1079,7 @@
         "title": "Place District"
       },
       "radius_m": {
+        "description": "Search radius in metres around the reference point.",
         "anyOf": [
           {
             "type": "integer"
@@ -1025,6 +1098,7 @@
   "izmir_nearby": {
     "properties": {
       "bbox": {
+        "description": "Rectangle as `[min_lon, min_lat, max_lon, max_lat]` in WGS84; all edges are inclusive.",
         "anyOf": [
           {
             "items": {
@@ -1040,6 +1114,7 @@
         "title": "Bbox"
       },
       "district": {
+        "description": "District for a district-wide list without distances; only pharmacy publishes a usable district label.",
         "anyOf": [
           {
             "type": "string"
@@ -1052,6 +1127,7 @@
         "title": "District"
       },
       "lat": {
+        "description": "Latitude in WGS84 decimal degrees; send together with `lon`.",
         "anyOf": [
           {
             "type": "number"
@@ -1064,6 +1140,7 @@
         "title": "Lat"
       },
       "limit": {
+        "description": "Maximum number of rows to return; omitted uses the server default and values are capped by the server maximum.",
         "anyOf": [
           {
             "type": "integer"
@@ -1076,6 +1153,7 @@
         "title": "Limit"
       },
       "lon": {
+        "description": "Longitude in WGS84 decimal degrees; send together with `lat`.",
         "anyOf": [
           {
             "type": "number"
@@ -1088,6 +1166,7 @@
         "title": "Lon"
       },
       "place": {
+        "description": "Published İzmir district or neighbourhood reference point (e.g. Konak, Alsancak); never a street address.",
         "anyOf": [
           {
             "type": "string"
@@ -1100,6 +1179,7 @@
         "title": "Place"
       },
       "place_district": {
+        "description": "Optional district hint that disambiguates `place` when the name exists in several districts.",
         "anyOf": [
           {
             "type": "string"
@@ -1112,6 +1192,7 @@
         "title": "Place District"
       },
       "radius_m": {
+        "description": "Search radius in metres around the reference point.",
         "anyOf": [
           {
             "type": "integer"
@@ -1124,6 +1205,7 @@
         "title": "Radius M"
       },
       "types": {
+        "description": "Service layers to include; omitted includes every supported layer.",
         "anyOf": [
           {
             "items": {
@@ -1155,6 +1237,7 @@
   "izmir_neighborhood_profile": {
     "properties": {
       "district": {
+        "description": "District hint for `neighborhood`, or alone to list that district's neighbourhoods.",
         "anyOf": [
           {
             "type": "string"
@@ -1167,6 +1250,7 @@
         "title": "District"
       },
       "limit": {
+        "description": "Maximum number of rows to return; omitted uses the server default and values are capped by the server maximum.",
         "anyOf": [
           {
             "type": "integer"
@@ -1179,6 +1263,7 @@
         "title": "Limit"
       },
       "neighborhood": {
+        "description": "Neighbourhood (mahalle) name for a single profile.",
         "anyOf": [
           {
             "type": "string"
@@ -1197,6 +1282,7 @@
   "izmir_parking_fees": {
     "properties": {
       "limit": {
+        "description": "Maximum number of rows to return; omitted uses the server default and values are capped by the server maximum.",
         "anyOf": [
           {
             "type": "integer"
@@ -1209,6 +1295,7 @@
         "title": "Limit"
       },
       "query": {
+        "description": "Car park name fragment, e.g. `Konak`.",
         "anyOf": [
           {
             "type": "string"
@@ -1227,6 +1314,7 @@
   "izmir_pharmacies_all": {
     "properties": {
       "area": {
+        "description": "Published region label to filter by.",
         "anyOf": [
           {
             "type": "string"
@@ -1239,6 +1327,7 @@
         "title": "Area"
       },
       "lat": {
+        "description": "Latitude in WGS84 decimal degrees; send together with `lon`.",
         "anyOf": [
           {
             "type": "number"
@@ -1251,6 +1340,7 @@
         "title": "Lat"
       },
       "limit": {
+        "description": "Maximum number of rows to return; omitted uses the server default and values are capped by the server maximum.",
         "anyOf": [
           {
             "type": "integer"
@@ -1263,6 +1353,7 @@
         "title": "Limit"
       },
       "lon": {
+        "description": "Longitude in WGS84 decimal degrees; send together with `lat`.",
         "anyOf": [
           {
             "type": "number"
@@ -1275,6 +1366,7 @@
         "title": "Lon"
       },
       "query": {
+        "description": "Pharmacy name fragment.",
         "anyOf": [
           {
             "type": "string"
@@ -1287,6 +1379,7 @@
         "title": "Query"
       },
       "radius_m": {
+        "description": "Search radius in metres around the reference point.",
         "anyOf": [
           {
             "type": "integer"
@@ -1305,6 +1398,7 @@
   "izmir_query_resource": {
     "properties": {
       "filters": {
+        "description": "Exact-match object of `{field: value}`; field names must exist in the resource schema.",
         "anyOf": [
           {
             "additionalProperties": true,
@@ -1318,6 +1412,7 @@
         "title": "Filters"
       },
       "limit": {
+        "description": "Maximum number of rows to return; omitted uses the server default and values are capped by the server maximum.",
         "anyOf": [
           {
             "type": "integer"
@@ -1330,10 +1425,12 @@
         "title": "Limit"
       },
       "resource_id": {
+        "description": "CKAN resource id (UUID) as returned by `izmir_get_dataset`.",
         "title": "Resource Id",
         "type": "string"
       },
       "search": {
+        "description": "Free-text server-side match (CKAN `q`); not SQL.",
         "anyOf": [
           {
             "type": "string"
@@ -1346,6 +1443,7 @@
         "title": "Search"
       },
       "sort": {
+        "description": "`COLUMN` or `COLUMN asc|desc`; the column must exist in the resource schema.",
         "anyOf": [
           {
             "type": "string"
@@ -1367,6 +1465,7 @@
   "izmir_search_datasets": {
     "properties": {
       "formats": {
+        "description": "Optional resource formats to keep, e.g. `[\"CSV\", \"JSON\"]`.",
         "anyOf": [
           {
             "items": {
@@ -1382,6 +1481,7 @@
         "title": "Formats"
       },
       "limit": {
+        "description": "Maximum number of rows to return; omitted uses the server default and values are capped by the server maximum.",
         "anyOf": [
           {
             "type": "integer"
@@ -1394,6 +1494,7 @@
         "title": "Limit"
       },
       "query": {
+        "description": "Topic or keyword to search the catalog for (Turkish or English).",
         "title": "Query",
         "type": "string"
       }
@@ -1407,6 +1508,7 @@
   "izmir_traffic_cameras": {
     "properties": {
       "lat": {
+        "description": "Latitude in WGS84 decimal degrees; send together with `lon`.",
         "anyOf": [
           {
             "type": "number"
@@ -1419,6 +1521,7 @@
         "title": "Lat"
       },
       "limit": {
+        "description": "Maximum number of rows to return; omitted uses the server default and values are capped by the server maximum.",
         "anyOf": [
           {
             "type": "integer"
@@ -1431,6 +1534,7 @@
         "title": "Limit"
       },
       "lon": {
+        "description": "Longitude in WGS84 decimal degrees; send together with `lat`.",
         "anyOf": [
           {
             "type": "number"
@@ -1443,6 +1547,7 @@
         "title": "Lon"
       },
       "query": {
+        "description": "Free-text name fragment; matched case- and Turkish-letter-insensitively.",
         "anyOf": [
           {
             "type": "string"
@@ -1455,6 +1560,7 @@
         "title": "Query"
       },
       "radius_m": {
+        "description": "Radius in metres around `lat`+`lon` (default 2000, max 50000).",
         "anyOf": [
           {
             "type": "integer"
@@ -1473,6 +1579,7 @@
   "izmir_traffic_history": {
     "properties": {
       "limit": {
+        "description": "Maximum number of rows to return; omitted uses the server default and values are capped by the server maximum.",
         "anyOf": [
           {
             "type": "integer"
@@ -1485,6 +1592,7 @@
         "title": "Limit"
       },
       "segment": {
+        "description": "Name fragment matching either endpoint of a published segment.",
         "anyOf": [
           {
             "type": "string"
@@ -1497,6 +1605,7 @@
         "title": "Segment"
       },
       "since": {
+        "description": "Start date as `YYYY-MM-DD` (inclusive).",
         "anyOf": [
           {
             "type": "string"
@@ -1509,6 +1618,7 @@
         "title": "Since"
       },
       "until": {
+        "description": "End date as `YYYY-MM-DD` (inclusive).",
         "anyOf": [
           {
             "type": "string"
@@ -1532,6 +1642,7 @@
   "izmir_tram_schedule": {
     "properties": {
       "line_id": {
+        "description": "Tram line id from `izmir_tram_lines`.",
         "title": "Line Id",
         "type": "integer"
       }
@@ -1545,11 +1656,13 @@
   "izmir_transit_schedule": {
     "properties": {
       "day": {
+        "description": "The source's own day id; not a verified weekday.",
         "default": 1,
         "title": "Day",
         "type": "integer"
       },
       "from_id": {
+        "description": "Origin station id from `izmir_transit_stations` (required for İZBAN).",
         "anyOf": [
           {
             "type": "integer"
@@ -1562,6 +1675,7 @@
         "title": "From Id"
       },
       "mode": {
+        "description": "Transit network: `metro`, `izban` or `izdeniz`.",
         "enum": [
           "metro",
           "izban",
@@ -1571,6 +1685,7 @@
         "type": "string"
       },
       "pier_id": {
+        "description": "İZDENİZ pier id from `izmir_transit_stations`.",
         "anyOf": [
           {
             "type": "integer"
@@ -1583,6 +1698,7 @@
         "title": "Pier Id"
       },
       "to_id": {
+        "description": "Destination station id from `izmir_transit_stations` (required for İZBAN).",
         "anyOf": [
           {
             "type": "integer"
@@ -1604,6 +1720,7 @@
   "izmir_transit_stations": {
     "properties": {
       "limit": {
+        "description": "Maximum number of rows to return; omitted uses the server default and values are capped by the server maximum.",
         "anyOf": [
           {
             "type": "integer"
@@ -1616,6 +1733,7 @@
         "title": "Limit"
       },
       "mode": {
+        "description": "Transit network: `metro`, `izban` or `izdeniz`.",
         "enum": [
           "metro",
           "izban",
@@ -1634,11 +1752,13 @@
   "izmir_transport_disruptions": {
     "properties": {
       "active_only": {
+        "description": "Keep only notices whose published validity window includes now (ESHOT only).",
         "default": false,
         "title": "Active Only",
         "type": "boolean"
       },
       "limit": {
+        "description": "Maximum number of rows to return; omitted uses the server default and values are capped by the server maximum.",
         "anyOf": [
           {
             "type": "integer"
@@ -1651,6 +1771,7 @@
         "title": "Limit"
       },
       "line": {
+        "description": "Optional line filter for ESHOT notices.",
         "anyOf": [
           {
             "type": "string"
@@ -1663,6 +1784,7 @@
         "title": "Line"
       },
       "operator": {
+        "description": "`eshot`, `metro`, `izdeniz` or `izban`; omitted merges all available operators.",
         "anyOf": [
           {
             "enum": [
@@ -1687,6 +1809,7 @@
   "izmir_water_production": {
     "properties": {
       "limit": {
+        "description": "Maximum number of rows to return; omitted uses the server default and values are capped by the server maximum.",
         "anyOf": [
           {
             "type": "integer"
@@ -1699,6 +1822,7 @@
         "title": "Limit"
       },
       "name": {
+        "description": "Dam or well-group name fragment.",
         "anyOf": [
           {
             "type": "string"
@@ -1717,6 +1841,7 @@
   "izmir_water_status": {
     "properties": {
       "kind": {
+        "description": "`dams` for dam occupancy, or `faults` for the outage feed (currently reported as source-unavailable).",
         "default": "dams",
         "enum": [
           "dams",
@@ -1726,6 +1851,7 @@
         "type": "string"
       },
       "limit": {
+        "description": "Maximum number of rows to return; omitted uses the server default and values are capped by the server maximum.",
         "anyOf": [
           {
             "type": "integer"
@@ -1744,14 +1870,17 @@
   "izmir_plan_trip": {
     "properties": {
       "origin": {
+        "description": "Origin district or neighbourhood name (max 80 chars).",
         "title": "Origin",
         "type": "string"
       },
       "destination": {
+        "description": "Destination district or neighbourhood name (max 80 chars).",
         "title": "Destination",
         "type": "string"
       },
       "depart_at": {
+        "description": "ISO-8601 departure time; informational only.",
         "anyOf": [
           {
             "type": "string"
@@ -1764,6 +1893,7 @@
         "title": "Depart At"
       },
       "max_options": {
+        "description": "Number of options to return (1-5).",
         "default": 3,
         "title": "Max Options",
         "type": "integer"

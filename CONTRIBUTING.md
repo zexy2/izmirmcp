@@ -28,6 +28,23 @@ All three must pass before you open a pull request.
 3. Update the tool-surface snapshot. Snapshot changes must be **additive**: never rename or
    remove an existing tool without a migration note in `docs/tool-migration.md`.
 4. Document the tool in `docs/tool-reference.md` and the README catalog.
+5. Give every parameter an English description with
+   `Annotated[<type>, Field(description="...")]`; `tests/test_registry_metadata.py` enforces it.
+
+## Language policy
+
+The project is deliberately bilingual:
+
+| Surface | Language |
+| --- | --- |
+| Tool descriptions (docstrings), parameter descriptions, prompt and resource descriptions | English |
+| Code comments, `docs/`, `README.md`, `CONTRIBUTING.md` | English |
+| Runtime error, warning and hint messages returned to the user | Turkish |
+| Tool titles (`TOOL_TITLES` in `app/mcp/registry.py`), prompt and resource titles | Turkish |
+| `README.tr.md`, `docs/install.tr.md` | Turkish (paired with the English file) |
+
+Operator-facing startup/configuration errors (invalid environment variables) and internal
+programming-error guards stay in English; they never reach an MCP client.
 
 ## Commit convention
 

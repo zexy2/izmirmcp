@@ -15,7 +15,7 @@ from pydantic import BeforeValidator
 
 def _no_bool(value: object) -> object:
     if isinstance(value, bool):
-        raise ValueError("boolean is not a number; send a numeric value")
+        raise ValueError("mantıksal değer (boolean) sayı değildir; sayısal bir değer gönderin")
     return value
 
 

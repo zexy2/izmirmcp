@@ -6,6 +6,15 @@ Bu proje [Semantic Versioning](https://semver.org/lang/tr/) izler.
 
 ### Değişti
 
+- Hibrit dil politikası (`CONTRIBUTING.md` "Language policy", `AGENTS.md` kural 8):
+  araç/parametre/prompt/kaynak açıklamaları İngilizce; çalışma zamanı hata/uyarı
+  mesajları ve araç başlıkları Türkçe. Boolean reddi ve prompt argüman hatası
+  Türkçeleştirildi.
+- 36 aracın tüm parametrelerine (`Annotated[..., Field(description=...)]`)
+  İngilizce açıklama eklendi. `tests/fixtures/tool_compatibility_snapshot.json`
+  bilinçli olarak yenilendi: fark yalnızca 130 eklenen `description` anahtarıdır
+  (silinen satır yok; tip, varsayılan, zorunluluk ve araç adları değişmedi).
+
 - `PROGRESS.md` ve `reports/` geliştirici belgeleri `docs/development/` altına
   taşındı; tüm bağlantılar güncellendi.
 
