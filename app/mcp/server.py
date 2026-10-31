@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Annotated, Literal
 
 from pydantic import Field
 
-from app.core.envelope import Freshness, Source, error_envelope, success_envelope
+from app.core.envelope import Freshness, Source, success_envelope
 from app.core.settings import get_settings
 from app.core.types import OptionalCount as _OptInt, OptionalNumber as _OptNum
 from app.core.validation import (

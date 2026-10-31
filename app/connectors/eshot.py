@@ -7,7 +7,6 @@ Every endpoint here was verified live on 2026-10-28 (see
 
 from __future__ import annotations
 
-import asyncio
 import csv
 import io
 from datetime import date

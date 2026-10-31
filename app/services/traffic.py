@@ -5,7 +5,7 @@ from typing import Any, Callable, Literal
 from zoneinfo import ZoneInfo
 
 from app.connectors.city_layers import CityLayerConnector
-from app.core.envelope import Freshness, error_envelope, result_info, success_envelope
+from app.core.envelope import Freshness, result_info, success_envelope
 from app.core.geo import normalize_name
 from app.core.settings import Settings
 from app.core.validation import InputValidationError, resolve_limit

@@ -16,3 +16,11 @@ tests/conformance/node_modules/
 # Local release check artifacts
 sbom.json
 out/
+
+# Coverage / type-check artifacts
+.coverage
+.mypy_cache/
+htmlcov/
+
+# Local agent loop script (kept on disk, not tracked)
+scripts/loop.sh

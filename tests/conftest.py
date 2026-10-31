@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import pytest
 
-from app.core.settings import get_settings
 from app.core.source_cache import CacheInfo, clear_cache
 
 

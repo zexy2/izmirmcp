@@ -13,7 +13,6 @@ from pathlib import Path
 
 import pytest
 
-from app.core import settings as settings_module
 from app.core.envelope import ResponseEnvelope
 from app.core.settings import Settings
 from app.mcp.registry import DEFAULT_TOOL_NAMES, create_mcp_server

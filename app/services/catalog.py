@@ -4,7 +4,7 @@ import json
 from typing import Any
 
 from app.connectors.ckan import CkanClient, CkanNotFoundError
-from app.core.envelope import Freshness, Source, error_envelope, result_info, success_envelope
+from app.core.envelope import Freshness, Source, error_envelope, success_envelope
 from app.core.settings import Settings
 from app.core.source_cache import cached_source_data
 from app.core.validation import (

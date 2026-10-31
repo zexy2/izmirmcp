@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import pytest
 
 from app.core.mcp_transport import INVALID_REQUEST, PARSE_ERROR, validate_message
 

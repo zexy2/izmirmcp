@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import pytest
 
 from app.core.error_responses import validation_error_envelope
 from app.core.validation import InputValidationError

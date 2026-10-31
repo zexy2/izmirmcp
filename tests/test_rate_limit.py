@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import httpx
 import pytest
 
 from app.core.rate_limit import ClientRateLimiter, ConcurrencyLimiter

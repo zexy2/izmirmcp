@@ -511,7 +511,7 @@ class BusService:
                 source_updated_at=calendar_end,
             ),
             limits=[
-                f"detail=true",
+                "detail=true",
                 f"route_id={payload['route_id']}",
                 f"direction={wanted_direction or 'all'}",
                 f"calendar_start={calendar_start or 'bilinmiyor'}",

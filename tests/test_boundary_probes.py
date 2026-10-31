@@ -261,7 +261,7 @@ def test_client_id_ignores_a_comma_list_even_on_loopback():
 def test_duplicate_origin_headers_are_rejected():
     from app.core.cors import McpCorsMiddleware
 
-    middleware = McpCorsMiddleware(lambda *_: None, allowed_origins=("https://ok.example",))
+    McpCorsMiddleware(lambda *_: None, allowed_origins=("https://ok.example",))
     scope = {
         "type": "http",
         "path": "/mcp/",

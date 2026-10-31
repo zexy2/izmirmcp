@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Any
 
 from app.connectors.city_layers import CityLayerConnector, parse_market_days
-from app.core.envelope import Freshness, error_envelope, success_envelope
+from app.core.envelope import Freshness, success_envelope
 from app.core.geo import haversine_m, maps_url, normalize_name
 from app.core.settings import Settings
 from app.core.validation import InputValidationError, resolve_limit, validate_lat_lon, validate_radius

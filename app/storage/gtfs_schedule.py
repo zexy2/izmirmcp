@@ -838,9 +838,9 @@ def main(argv: list[str] | None = None) -> int:
         archive = _fetch(url, max_bytes=args.max_bytes)
         metadata = GtfsScheduleStore(database).rebuild(archive, source_url=url)
     except (GtfsScheduleError, OSError, httpx.HTTPError, ValueError) as exc:
-        print(f"gtfs store build failed: {type(exc).__name__}: {exc}", file=sys.stderr)
+        print(f"gtfs store build failed: {type(exc).__name__}: {exc}", file=sys.stderr)  # noqa: T201
         return 2
-    print(
+    print(  # noqa: T201
         "gtfs store built: "
         f"{database} stop_times_rows={metadata.get('stop_times_rows')} "
         f"calendar_start={metadata.get('calendar_start') or 'unknown'} "

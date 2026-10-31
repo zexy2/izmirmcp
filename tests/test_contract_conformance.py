@@ -318,7 +318,7 @@ async def _capture(recorder, tool_name: str) -> tuple[dict[str, Any], Recorder]:
     recording = recorder()
     recording.record_only = True
     recording.fallback = _ok_json([])
-    first = _envelope_from_result(await server.call_tool(tool_name, SUCCESS_CALLS[tool_name]))
+    _envelope_from_result(await server.call_tool(tool_name, SUCCESS_CALLS[tool_name]))
     if tool_name not in LOCAL_ONLY_TOOLS:
         assert recording.requests, f"{tool_name} made no upstream call to capture"
     from app.core.source_cache import clear_cache
