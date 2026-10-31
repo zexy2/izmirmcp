@@ -18,6 +18,14 @@ Bu proje [Semantic Versioning](https://semver.org/lang/tr/) izler.
 - `izmir_bus_departures`: `stop_id` artık opsiyonel; durak `lat`/`lon`/`radius_m`
   veya `stop_query` ile de bulunabilir (geriye uyumlu genişleme).
 
+### Yayın
+
+- `server.json` artık yalnızca OCI (`ghcr.io/zexy2/izmir-mcp:0.1.0`, stdio)
+  paketini listeler; PyPI girdisi trusted publisher hazır olunca geri eklenecek.
+- `release.yml`: PyPI işi `vars.PUBLISH_PYPI` ile opsiyonel, `mcp-publisher`
+  v1.8.7 sha256 doğrulamalı, yayından önce `scripts/check_release_metadata.py`
+  sürüm kontrolü, ön sürümlerde `latest` etiketi yok, push öncesi Trivy taraması.
+
 ### Düzeltildi
 
 - `izmir_dam_status`: İZSU JSON servisi TLS/sertifika veya bağlantı hatası
