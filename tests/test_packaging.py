@@ -118,15 +118,50 @@ def test_server_json_matches_registry_schema_and_package_version():
     assert manifest["description"] == _pyproject()["project"]["description"]
 
 
-def test_server_json_describes_stdio_package_and_container_image():
+def test_server_json_is_oci_only_with_stdio_transport():
+    """Until PyPI trusted publishing exists the registry entry is the GHCR image only."""
     manifest = json.loads(SERVER_JSON.read_text(encoding="utf-8"))
     packages = manifest["packages"]
     assert isinstance(packages, list) and packages
-    transports = {package["transport"]["type"] for package in packages}
-    assert "stdio" in transports, "an npm/pypi stdio package entry is expected"
-    assert "oci" in {package["registryType"] for package in packages}, (
-        "an oci entry is required to describe the Dockerfile image"
+    assert {package["registryType"] for package in packages} == {"oci"}
+    oci = packages[0]
+    assert oci["transport"]["type"] == "stdio"
+    assert [arg["value"] for arg in oci["packageArguments"]] == ["izmir-mcp", "stdio"]
+    env = {item["name"]: item.get("default") for item in oci.get("environmentVariables", [])}
+    assert env.get("IZMIR_MCP_SKIP_GTFS_BUILD") == "1"
+    assert oci["identifier"].rpartition(":")[2] == _version(), "oci tag must equal the package version"
+
+
+def test_release_metadata_script_agrees():
+    import subprocess
+    import sys
+
+    result = subprocess.run(
+        [sys.executable, str(ROOT / "scripts/check_release_metadata.py"), "--tag", f"v{_version()}"],
+        capture_output=True,
+        text=True,
+        check=False,
     )
+    assert result.returncode == 0, result.stderr
+    bad = subprocess.run(
+        [sys.executable, str(ROOT / "scripts/check_release_metadata.py"), "--tag", "v0.0.0-nope"],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert bad.returncode == 1
+
+
+def test_release_workflow_pins_publisher_and_gates_pypi():
+    text = (ROOT / ".github/workflows/release.yml").read_text(encoding="utf-8")
+    assert "releases/latest" not in text
+    assert "sha256sum -c" in text
+    assert "vars.PUBLISH_PYPI == 'true'" in text
+    assert "needs: [ghcr]" in text
+    assert "latest=auto" in text
+    assert "type=raw,value=latest" not in text
+    assert "aquasecurity/trivy-action@" in text and "ignore-unfixed: true" in text
+    assert "check_release_metadata.py" in text
 
 
 def test_server_json_oci_image_is_the_one_the_dockerfile_builds():
@@ -170,8 +205,12 @@ def test_changelog_opens_with_current_version_and_packaging_entry():
     assert CHANGELOG.is_file()
     text = CHANGELOG.read_text(encoding="utf-8")
     version = _version()
-    first_heading = next(line for line in text.splitlines() if line.startswith("## "))
-    assert version in first_heading, first_heading
+    headings = [line for line in text.splitlines() if line.startswith("## ")]
+    # Keep a Changelog: an [Unreleased] section first, then the newest release.
+    assert headings[0] == "## [Unreleased]", headings[0]
+    first_release = next(line for line in headings if line != "## [Unreleased]")
+    assert version in first_release, first_release
+    assert f"[{version}]: " in text, "missing link reference for the current version"
     assert "Docker" in text
     assert "server.json" in text
 
@@ -231,6 +270,14 @@ def test_dockerfile_keeps_uid_healthcheck_and_mcp_label():
     assert f"ARG VERSION={_version()}" in text
 
 
+def test_dockerfile_carries_oci_metadata_labels():
+    text = DOCKERFILE.read_text(encoding="utf-8")
+    for key in ("title", "description", "version", "url", "documentation", "source", "authors", "vendor", "licenses"):
+        assert f"org.opencontainers.image.{key}=" in text, f"missing OCI label {key}"
+    description = _pyproject()["project"]["description"]
+    assert f'org.opencontainers.image.description="{description}"' in text
+
+
 def test_lockfiles_pin_every_runtime_dependency_with_hashes():
     lock = (ROOT / "requirements.lock").read_text(encoding="utf-8")
     assert (ROOT / "uv.lock").is_file()
@@ -275,10 +322,12 @@ def test_izmir_mcp_script_accepts_a_stdio_mode(monkeypatch):
 def test_server_json_packages_use_valid_runtime_hints():
     manifest = json.loads(SERVER_JSON.read_text(encoding="utf-8"))
     by_type = {package["registryType"]: package for package in manifest["packages"]}
-    pypi, oci = by_type["pypi"], by_type["oci"]
-    assert pypi["identifier"] == _pyproject()["project"]["name"]
-    assert pypi["runtimeHint"] == "uvx"
-    assert [arg["value"] for arg in pypi["packageArguments"]] == ["stdio"]
+    oci = by_type["oci"]
+    pypi = by_type.get("pypi")
+    if pypi is not None:  # re-added once PyPI trusted publishing is live
+        assert pypi["identifier"] == _pyproject()["project"]["name"]
+        assert pypi["runtimeHint"] == "uvx"
+        assert [arg["value"] for arg in pypi["packageArguments"]] == ["stdio"]
     assert oci["identifier"] == f"ghcr.io/zexy2/izmir-mcp:{_version()}"
     assert oci["runtimeHint"] == "docker"
     for package in manifest["packages"]:

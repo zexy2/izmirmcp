@@ -1,0 +1,20 @@
+name: Data source
+description: Propose or report an issue with an Izmir open data source
+labels: [data-source]
+body:
+  - type: input
+    id: url
+    attributes:
+      label: Source URL
+    validations:
+      required: true
+  - type: input
+    id: license
+    attributes:
+      label: License / terms of use
+  - type: textarea
+    id: details
+    attributes:
+      label: What data and how should it be exposed?
+    validations:
+      required: true

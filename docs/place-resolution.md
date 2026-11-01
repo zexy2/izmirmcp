@@ -1,55 +1,58 @@
-# Yer, mahalle ve ilçe çözümleme
+# Place, neighbourhood and district resolution
 
-`place` ve `place_district` parametrelerinin nasıl çözüldüğünü ve neden
-serbest metin adres geçmediğini açıklar. Kod: `app/services/places.py`,
-veri: `app/data/places.json` ve `app/data/neighborhoods.json`.
+This document explains how the `place` and `place_district` parameters are
+resolved and why free-text addresses are not accepted. Code:
+`app/services/places.py`; data: `app/data/places.json` and
+`app/data/neighborhoods.json`.
 
-## İki katmanlı kaynak
+## Two-layer source
 
-| Katman | Kaynak | Kayıt | Kullanım |
+| Layer | Source | Records | Use |
 |---|---|---|---|
-| Mahalle envanteri | CKAN `muhtarliklar` (`7d0b7f55-…`) | 1.292 muhtarlık → **1.219** benzersiz mahalle, 30 ilçe | `place` ile en çok eşleşen |
-| Elle seçilmiş | OpenStreetMap Nominatim | 30 ilçe + 24 simge yer | İlçe adları ve `Kemeraltı`, `Kültürpark` gibi mahalle olmayan yerler |
+| Neighbourhood inventory | CKAN `muhtarliklar` (`7d0b7f55-…`) | 1,292 mukhtar offices → **1,219** unique neighbourhoods, 30 districts | Most `place` matches |
+| Hand-picked | OpenStreetMap Nominatim | 30 districts + 24 landmarks | District names and non-neighbourhood places such as `Kemeraltı`, `Kültürpark` |
 
-Her iki katman da **gömülü dosyadır**; çözümleme ağa çıkmaz.
+Both layers are **bundled files**; resolution makes no network call.
 
-## Çözümleme sırası
+## Resolution order
 
-1. Ad Türkçe'ye duyarlı normalize edilir (`İ`/`I`, `ş`/`s`, büyük/küçük).
-2. `", izmir"` / `" izmir"` soneki kırpılır.
-3. **İlçe etiketi mahalleye üstündür.** İzmir'de Konak ilçesi içinde "Konak"
-   mahallesi, Torbalı içinde "Karşiyaka" mahallesi var; ilçe yorumu kazanır.
-4. Eşleşme tek ise o döner.
-5. Birden çok mahalle eşleşirse **hata**: adaylar listelenir ve
-   `place_district` istenir. Sessizce ilk eşleşme **seçilmez**.
+1. The name is normalised in a Turkish-aware way (`İ`/`I`, `ş`/`s`, case).
+2. A `", izmir"` / `" izmir"` suffix is stripped.
+3. **A district label wins over a neighbourhood.** İzmir has a "Konak"
+   neighbourhood inside Konak district and a "Karşiyaka" neighbourhood inside
+   Torbalı; the district reading wins.
+4. A single match is returned as is.
+5. Several neighbourhood matches are an **error**: candidates are listed and
+   `place_district` is requested. The first match is **never** picked
+   silently.
 
 ```text
-place="Konak"                      -> Konak ilçesi
-place="Abdi İpekçi"                -> Abdi İpekçi mahallesi (Karabağlar)
-place="Atatürk"                    -> validation_error: 17 ilçede geçiyor
-place="Atatürk", place_district="Bornova" -> Atatürk mahallesi (Bornova)
+place="Konak"                      -> Konak district
+place="Abdi İpekçi"                -> Abdi İpekçi neighbourhood (Karabağlar)
+place="Atatürk"                    -> validation_error: occurs in 17 districts
+place="Atatürk", place_district="Bornova" -> Atatürk neighbourhood (Bornova)
 ```
 
-## Neden serbest metin adres yok
+## Why there are no free-text addresses
 
-- İzmir'de resmî makine-okunur geocoding ucu **yok**
-  (`openapi .../ibb/cbs/adres*` → 404; doğrulama 2026-10-28).
-- Nominatim'i birincil geocoder yapmak kullanım politikası, önbellek ve hız
-  sınırı yükü getirir; oysa yayımlanmış envanter İzmir sorgularının çoğunu
-  karşılıyor.
-- Bir sokak adresini mahalle noktasına indirgemek, olmayan bir kesinlik iddia
-  eder. Bunun yerine açık hata döner.
+- İzmir has **no** official machine-readable geocoding endpoint
+  (`openapi .../ibb/cbs/adres*` → 404; verified 2026-10-28).
+- Making Nominatim the primary geocoder brings usage-policy, caching and
+  rate-limit burdens, while the published inventory already covers most İzmir
+  queries.
+- Reducing a street address to a neighbourhood point would claim a precision
+  that does not exist. An explicit error is returned instead.
 
-## Hassasiyet
+## Precision
 
-Mahalle noktası, o mahalledeki **muhtarlık noktalarının ortalamasıdır**. Mahalle
-sınırı, poligon veya kapı koordinatı **değildir**. Yarıçap sorgularında bu
-yaklaşıklık `warnings` içinde belirtilir.
+A neighbourhood point is the **average of the mukhtar office points** in that
+neighbourhood. It is **not** a neighbourhood boundary, polygon or door
+coordinate. Radius queries state this approximation in `warnings`.
 
-## Ad normalizasyonu
+## Name normalisation
 
-Yayımlanan adlar BÜYÜK harftir. `str.title()` Türkçe `i`'yi birleşik noktalı
-(`U+0307`) yaptığı için özel bir `turkish_title` kullanılır:
+Published names are UPPERCASE. `str.title()` turns the Turkish `i` into a
+combining dot (`U+0307`), so a dedicated `turkish_title` is used:
 
 ```text
 AŞAĞIŞAKRAN   -> Aşağışakran

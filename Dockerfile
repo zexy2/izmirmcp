@@ -26,7 +26,10 @@ RUN pip install --require-hashes --no-deps -r requirements.lock
 
 COPY pyproject.toml README.md LICENSE ./
 COPY app ./app
-RUN pip install --no-deps .
+# setuptools is only the build backend; its vendored jaraco.context/wheel carry
+# HIGH CVEs (trivy) and nothing imports it at run time.
+RUN pip install --no-deps . \
+    && pip uninstall -y setuptools
 
 # --- runtime: venv + container tooling only, non-root ------------------------
 FROM python:3.11-slim@sha256:673719e071ecf27434fd2635bbd8d00f49f4fdd81f243143438a42ced8bedf60
@@ -34,8 +37,13 @@ FROM python:3.11-slim@sha256:673719e071ecf27434fd2635bbd8d00f49f4fdd81f243143438
 ARG VERSION=0.1.0
 LABEL io.modelcontextprotocol.server.name="io.github.zexy2/izmir-mcp" \
       org.opencontainers.image.title="izmir-mcp" \
+      org.opencontainers.image.description="Read-only MCP server for İzmir open city data: transit, buses, ferries, water, air, pharmacies." \
       org.opencontainers.image.version="${VERSION}" \
+      org.opencontainers.image.url="https://github.com/zexy2/izmirmcp" \
+      org.opencontainers.image.documentation="https://github.com/zexy2/izmirmcp#readme" \
       org.opencontainers.image.source="https://github.com/zexy2/izmirmcp" \
+      org.opencontainers.image.authors="zexy2" \
+      org.opencontainers.image.vendor="zexy2" \
       org.opencontainers.image.licenses="MIT"
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -53,7 +61,9 @@ WORKDIR /app
 # python:slim, no extra package needed.
 COPY docker ./docker
 
-RUN useradd --create-home --uid 10001 --shell /usr/sbin/nologin izmir \
+# Same for the base image's system interpreter: the app runs from /opt/venv.
+RUN /usr/local/bin/python -m pip uninstall -y --no-cache-dir setuptools wheel \
+    && useradd --create-home --uid 10001 --shell /usr/sbin/nologin izmir \
     && mkdir -p /data \
     && chown izmir:izmir /data
 USER izmir

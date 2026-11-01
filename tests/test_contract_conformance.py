@@ -1,7 +1,7 @@
 """P4 contract conformance: every advertised behaviour keeps the envelope contract.
 
 These tests never touch the network. Every upstream call is replaced at the HTTP
-connector boundary with a fixed fixture, so the suite can drive all 35 tools
+connector boundary with a fixed fixture, so the suite can drive all 36 tools
 through success *and* failure paths and assert the same envelope shape each time.
 """
 
@@ -318,7 +318,7 @@ async def _capture(recorder, tool_name: str) -> tuple[dict[str, Any], Recorder]:
     recording = recorder()
     recording.record_only = True
     recording.fallback = _ok_json([])
-    first = _envelope_from_result(await server.call_tool(tool_name, SUCCESS_CALLS[tool_name]))
+    _envelope_from_result(await server.call_tool(tool_name, SUCCESS_CALLS[tool_name]))
     if tool_name not in LOCAL_ONLY_TOOLS:
         assert recording.requests, f"{tool_name} made no upstream call to capture"
     from app.core.source_cache import clear_cache
@@ -479,7 +479,7 @@ def test_public_page_url_drops_machine_endpoints():
 
 def test_tool_titles_and_names_stay_in_sync():
     assert set(TOOL_TITLES) == set(DEFAULT_TOOL_NAMES)
-    assert len(DEFAULT_TOOL_NAMES) == len(set(DEFAULT_TOOL_NAMES)) == 35
+    assert len(DEFAULT_TOOL_NAMES) == len(set(DEFAULT_TOOL_NAMES)) == 36
 
 
 @pytest.mark.asyncio

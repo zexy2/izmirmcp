@@ -70,7 +70,11 @@ class Settings:
 
     openapi_base_url: str = "https://openapi.izmir.bel.tr/api"
     openapi_cache_ttl_seconds: int = 120
-    openapi_stale_if_error_seconds: int = 900
+    openapi_stale_if_error_seconds: int = 3_600
+    # Per-source request timeouts. Live İZTEK vehicle data is worthless after a
+    # few seconds; the openapi catalogue is slower but still interactive.
+    openapi_timeout_seconds: float = 10.0
+    live_vehicle_timeout_seconds: float = 5.0
 
     izsu_dams_csv_url: str = "https://openfiles.izmir.bel.tr/309436/docs/izsu-baraj-doluluk-oranlari.csv"
     izsu_cache_ttl_seconds: int = 3_600
@@ -97,6 +101,10 @@ class Settings:
 
     iztek_base_url: str = "https://openapi.izmir.bel.tr/api/iztek"
     iztek_cache_ttl_seconds: int = 20
+    # Short stale windows for live data: a 2-minute-old arrival list beats an
+    # error, a 10-minute-old one misleads.
+    iztek_stale_if_error_seconds: int = 120
+    iztek_positions_stale_if_error_seconds: int = 90
     iztek_min_request_interval_seconds: float = 0.5
 
     eshot_gtfs_url: str = "https://www.eshot.gov.tr/gtfs/bus-eshot-gtfs.zip"
@@ -141,7 +149,7 @@ class Settings:
 
     # Resilience knobs consumed by the HTTP connector, source cache and the
     # event-loop watchdog. 0 disables the watchdog.
-    http_total_deadline_seconds: float = 0.0  # 0 => 2 × request_timeout_seconds
+    http_total_deadline_seconds: float = 0.0  # 0 => attempts × timeout + max backoff (capped)
     source_cache_max_entries: int = 512
     event_loop_watchdog_seconds: float = 0.0
     source_rate_capacity: int = 10
@@ -189,6 +197,11 @@ def get_settings() -> Settings:
         eshot_stale_if_error_seconds=_env_int("IZMIR_MCP_ESHOT_STALE_IF_ERROR_SECONDS", 604_800),
         iztek_base_url=os.getenv("IZMIR_MCP_IZTEK_BASE_URL", "https://openapi.izmir.bel.tr/api/iztek"),
         iztek_cache_ttl_seconds=_env_int("IZMIR_MCP_IZTEK_CACHE_TTL_SECONDS", 20),
+        iztek_stale_if_error_seconds=_env_int("IZMIR_MCP_IZTEK_STALE_IF_ERROR_SECONDS", 120),
+        iztek_positions_stale_if_error_seconds=_env_int("IZMIR_MCP_IZTEK_POSITIONS_STALE_IF_ERROR_SECONDS", 90),
+        openapi_stale_if_error_seconds=_env_int("IZMIR_MCP_OPENAPI_STALE_IF_ERROR_SECONDS", 3_600),
+        openapi_timeout_seconds=_env_float("IZMIR_MCP_OPENAPI_TIMEOUT_SECONDS", 10.0),
+        live_vehicle_timeout_seconds=_env_float("IZMIR_MCP_LIVE_VEHICLE_TIMEOUT_SECONDS", 5.0),
         iztek_min_request_interval_seconds=_env_float("IZMIR_MCP_IZTEK_MIN_REQUEST_INTERVAL_SECONDS", 0.5),
         eshot_gtfs_url=os.getenv(
             "IZMIR_MCP_ESHOT_GTFS_URL",

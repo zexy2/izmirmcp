@@ -61,3 +61,12 @@ def test_source_serialization_strips_endpoint_urls():
         sources=[Source(name="API", url="https://openapi.izmir.bel.tr/api/x")],
     )
     assert payload["sources"][0]["url"] is None
+
+
+def test_envelopes_carry_bilingual_disclaimer() -> None:
+    from app.core.envelope import DATA_DISCLAIMER, error_envelope, success_envelope
+
+    ok = success_envelope(summary="x")
+    err = error_envelope(summary="x", warning="w")
+    assert ok["disclaimer"] == DATA_DISCLAIMER == err["disclaimer"]
+    assert "Resmî olmayan" in DATA_DISCLAIMER and "Unofficial" in DATA_DISCLAIMER

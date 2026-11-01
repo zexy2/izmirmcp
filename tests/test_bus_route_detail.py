@@ -11,7 +11,6 @@ from app.core.settings import Settings
 from app.core.validation import InputValidationError
 from app.services.bus import BusService
 from app.storage.gtfs_schedule import GtfsScheduleStore
-from tests.conftest import fresh
 
 FUTURE_CALENDAR = (
     "service_id,monday,tuesday,wednesday,thursday,friday,saturday,sunday,"

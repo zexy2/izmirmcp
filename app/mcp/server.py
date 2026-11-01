@@ -1,8 +1,10 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING, Annotated, Literal
 
-from app.core.envelope import Freshness, Source, error_envelope, success_envelope
+from pydantic import Field
+
+from app.core.envelope import Freshness, Source, success_envelope
 from app.core.settings import get_settings
 from app.core.types import OptionalCount as _OptInt, OptionalNumber as _OptNum
 from app.core.validation import (
@@ -28,6 +30,7 @@ from app.services.neighborhood import NeighborhoodService
 from app.services.places import PlaceResolver
 from app.services.traffic import TrafficService
 from app.services.transit import TransitService
+from app.services.trip import TripPlanner
 from app.services.water import WaterService
 
 settings = get_settings()
@@ -89,30 +92,51 @@ async def izmir_health() -> dict:
 
 
 async def izmir_search_datasets(
-    query: str,
-    formats: list[str] | None = None,
-    limit: _OptInt = None,
+    query: Annotated[str, Field(description="Topic or keyword to search the catalog for (Turkish or English).")],
+    formats: Annotated[
+        list[str] | None, Field(description='Optional resource formats to keep, e.g. `["CSV", "JSON"]`.')
+    ] = None,
+    limit: Annotated[
+        _OptInt,
+        Field(
+            description="Maximum number of rows to return; omitted uses the server default and values are capped by the server maximum."
+        ),
+    ] = None,
 ) -> dict:
     """Search the İzmir open data catalog by topic."""
     return await CatalogService(settings=get_settings()).search_datasets(query=query, formats=formats, limit=limit)
 
 
-async def izmir_get_dataset(dataset_id: str) -> dict:
+async def izmir_get_dataset(
+    dataset_id: Annotated[str, Field(description="CKAN dataset id or slug as returned by `izmir_search_datasets`.")],
+) -> dict:
     """Return metadata and resources for one İzmir dataset."""
     return await CatalogService(settings=get_settings()).get_dataset(dataset_id)
 
 
-async def izmir_get_resource_schema(resource_id: str) -> dict:
+async def izmir_get_resource_schema(
+    resource_id: Annotated[str, Field(description="CKAN resource id (UUID) as returned by `izmir_get_dataset`.")],
+) -> dict:
     """Return the DataStore field schema for one resource."""
     return await CatalogService(settings=get_settings()).get_resource_schema(resource_id)
 
 
 async def izmir_query_resource(
-    resource_id: str,
-    filters: dict | None = None,
-    search: str | None = None,
-    sort: str | None = None,
-    limit: _OptInt = None,
+    resource_id: Annotated[str, Field(description="CKAN resource id (UUID) as returned by `izmir_get_dataset`.")],
+    filters: Annotated[
+        dict | None,
+        Field(description="Exact-match object of `{field: value}`; field names must exist in the resource schema."),
+    ] = None,
+    search: Annotated[str | None, Field(description="Free-text server-side match (CKAN `q`); not SQL.")] = None,
+    sort: Annotated[
+        str | None, Field(description="`COLUMN` or `COLUMN asc|desc`; the column must exist in the resource schema.")
+    ] = None,
+    limit: Annotated[
+        _OptInt,
+        Field(
+            description="Maximum number of rows to return; omitted uses the server default and values are capped by the server maximum."
+        ),
+    ] = None,
 ) -> dict:
     """Query İzmir CKAN DataStore records with guarded filters, search and sort.
 
@@ -128,9 +152,21 @@ async def izmir_query_resource(
 
 
 async def izmir_datastore_query(
-    resource_id: str,
-    sql: str,
-    limit: int | None = None,
+    resource_id: Annotated[
+        str, Field(description="Allowlisted CKAN resource id (see `IZMIR_MCP_CKAN_SQL_ALLOWED_RESOURCE_IDS`).")
+    ],
+    sql: Annotated[
+        str,
+        Field(
+            description="A single SELECT over the table `records`; no joins, subqueries, CTEs, unions, windows or writes."
+        ),
+    ],
+    limit: Annotated[
+        int | None,
+        Field(
+            description="Maximum number of rows to return; omitted uses the server default and values are capped by the server maximum."
+        ),
+    ] = None,
 ) -> dict:
     """Run one bounded SELECT over a complete local snapshot of an allowlisted resource.
 
@@ -147,15 +183,40 @@ async def izmir_datastore_query(
 
 
 async def izmir_nearby(
-    lat: _OptNum = None,
-    lon: _OptNum = None,
-    place: str | None = None,
-    place_district: str | None = None,
-    bbox: list[float] | None = None,
-    district: str | None = None,
-    types: list[NearbyType] | None = None,
-    radius_m: _OptInt = None,
-    limit: _OptInt = None,
+    lat: Annotated[_OptNum, Field(description="Latitude in WGS84 decimal degrees; send together with `lon`.")] = None,
+    lon: Annotated[_OptNum, Field(description="Longitude in WGS84 decimal degrees; send together with `lat`.")] = None,
+    place: Annotated[
+        str | None,
+        Field(
+            description="Published İzmir district or neighbourhood reference point (e.g. Konak, Alsancak); never a street address."
+        ),
+    ] = None,
+    place_district: Annotated[
+        str | None,
+        Field(
+            description="Optional district hint that disambiguates `place` when the name exists in several districts."
+        ),
+    ] = None,
+    bbox: Annotated[
+        list[float] | None,
+        Field(description="Rectangle as `[min_lon, min_lat, max_lon, max_lat]` in WGS84; all edges are inclusive."),
+    ] = None,
+    district: Annotated[
+        str | None,
+        Field(
+            description="District for a district-wide list without distances; only pharmacy publishes a usable district label."
+        ),
+    ] = None,
+    types: Annotated[
+        list[NearbyType] | None, Field(description="Service layers to include; omitted includes every supported layer.")
+    ] = None,
+    radius_m: Annotated[_OptInt, Field(description="Search radius in metres around the reference point.")] = None,
+    limit: Annotated[
+        _OptInt,
+        Field(
+            description="Maximum number of rows to return; omitted uses the server default and values are capped by the server maximum."
+        ),
+    ] = None,
 ) -> dict:
     """Find İzmir services by radius, rectangle or district-wide list.
 
@@ -241,12 +302,27 @@ async def izmir_nearby(
 
 
 async def izmir_mobility_nearby(
-    lat: _OptNum = None,
-    lon: _OptNum = None,
-    place: str | None = None,
-    place_district: str | None = None,
-    radius_m: _OptInt = None,
-    limit: _OptInt = None,
+    lat: Annotated[_OptNum, Field(description="Latitude in WGS84 decimal degrees; send together with `lon`.")] = None,
+    lon: Annotated[_OptNum, Field(description="Longitude in WGS84 decimal degrees; send together with `lat`.")] = None,
+    place: Annotated[
+        str | None,
+        Field(
+            description="Published İzmir district or neighbourhood reference point (e.g. Konak, Alsancak); never a street address."
+        ),
+    ] = None,
+    place_district: Annotated[
+        str | None,
+        Field(
+            description="Optional district hint that disambiguates `place` when the name exists in several districts."
+        ),
+    ] = None,
+    radius_m: Annotated[_OptInt, Field(description="Search radius in metres around the reference point.")] = None,
+    limit: Annotated[
+        _OptInt,
+        Field(
+            description="Maximum number of rows to return; omitted uses the server default and values are capped by the server maximum."
+        ),
+    ] = None,
 ) -> dict:
     """Answer "what transport is near me" in one envelope.
 
@@ -288,8 +364,18 @@ async def izmir_mobility_nearby(
 
 
 async def izmir_water_status(
-    kind: Literal["dams", "faults"] = "dams",
-    limit: _OptInt = None,
+    kind: Annotated[
+        Literal["dams", "faults"],
+        Field(
+            description="`dams` for dam occupancy, or `faults` for the outage feed (currently reported as source-unavailable)."
+        ),
+    ] = "dams",
+    limit: Annotated[
+        _OptInt,
+        Field(
+            description="Maximum number of rows to return; omitted uses the server default and values are capped by the server maximum."
+        ),
+    ] = None,
 ) -> dict:
     """Return İZSU dam occupancy, or report the unavailable outage feed.
 
@@ -304,9 +390,14 @@ async def izmir_water_status(
 
 
 async def izmir_air_quality(
-    date: str | None = None,
-    station: str | None = None,
-    limit: _OptInt = None,
+    date: Annotated[str | None, Field(description="Date as `YYYY-MM-DD`; omitted uses today.")] = None,
+    station: Annotated[str | None, Field(description="Optional station name fragment to filter readings.")] = None,
+    limit: Annotated[
+        _OptInt,
+        Field(
+            description="Maximum number of rows to return; omitted uses the server default and values are capped by the server maximum."
+        ),
+    ] = None,
 ) -> dict:
     """Return İzmir air-quality station readings for one date.
 
@@ -321,8 +412,13 @@ async def izmir_air_quality(
 
 
 async def izmir_transit_stations(
-    mode: TransitMode,
-    limit: _OptInt = None,
+    mode: Annotated[TransitMode, Field(description="Transit network: `metro`, `izban` or `izdeniz`.")],
+    limit: Annotated[
+        _OptInt,
+        Field(
+            description="Maximum number of rows to return; omitted uses the server default and values are capped by the server maximum."
+        ),
+    ] = None,
 ) -> dict:
     """List metro stations, İZBAN stations or İZDENİZ ferry piers with coordinates."""
     try:
@@ -332,11 +428,15 @@ async def izmir_transit_stations(
 
 
 async def izmir_transit_schedule(
-    mode: TransitMode,
-    from_id: int | None = None,
-    to_id: int | None = None,
-    pier_id: int | None = None,
-    day: int = 1,
+    mode: Annotated[TransitMode, Field(description="Transit network: `metro`, `izban` or `izdeniz`.")],
+    from_id: Annotated[
+        int | None, Field(description="Origin station id from `izmir_transit_stations` (required for İZBAN).")
+    ] = None,
+    to_id: Annotated[
+        int | None, Field(description="Destination station id from `izmir_transit_stations` (required for İZBAN).")
+    ] = None,
+    pier_id: Annotated[int | None, Field(description="İZDENİZ pier id from `izmir_transit_stations`.")] = None,
+    day: Annotated[int, Field(description="The source's own day id; not a verified weekday.")] = 1,
 ) -> dict:
     """Return a published timetable: metro frequency windows, İZBAN or İZDENİZ trips.
 
@@ -353,9 +453,17 @@ async def izmir_transit_schedule(
 
 
 async def izmir_neighborhood_profile(
-    neighborhood: str | None = None,
-    district: str | None = None,
-    limit: _OptInt = None,
+    neighborhood: Annotated[str | None, Field(description="Neighbourhood (mahalle) name for a single profile.")] = None,
+    district: Annotated[
+        str | None,
+        Field(description="District hint for `neighborhood`, or alone to list that district's neighbourhoods."),
+    ] = None,
+    limit: Annotated[
+        _OptInt,
+        Field(
+            description="Maximum number of rows to return; omitted uses the server default and values are capped by the server maximum."
+        ),
+    ] = None,
 ) -> dict:
     """Return published population and building counts for İzmir neighborhoods.
 
@@ -374,10 +482,17 @@ async def izmir_neighborhood_profile(
 
 
 async def izmir_traffic_history(
-    segment: str | None = None,
-    since: str | None = None,
-    until: str | None = None,
-    limit: int | None = None,
+    segment: Annotated[
+        str | None, Field(description="Name fragment matching either endpoint of a published segment.")
+    ] = None,
+    since: Annotated[str | None, Field(description="Start date as `YYYY-MM-DD` (inclusive).")] = None,
+    until: Annotated[str | None, Field(description="End date as `YYYY-MM-DD` (inclusive).")] = None,
+    limit: Annotated[
+        int | None,
+        Field(
+            description="Maximum number of rows to return; omitted uses the server default and values are capped by the server maximum."
+        ),
+    ] = None,
 ) -> dict:
     """Return İzmir arterial speed/duration **history**, not live traffic.
 
@@ -406,11 +521,18 @@ async def izmir_gtfs_status() -> dict:
 
 
 async def izmir_bus_stops(
-    query: str | None = None,
-    lat: _OptNum = None,
-    lon: _OptNum = None,
-    radius_m: _OptInt = None,
-    limit: _OptInt = None,
+    query: Annotated[
+        str | None, Field(description="Stop name or stop id; matched case- and accent-insensitively.")
+    ] = None,
+    lat: Annotated[_OptNum, Field(description="Latitude in WGS84 decimal degrees; send together with `lon`.")] = None,
+    lon: Annotated[_OptNum, Field(description="Longitude in WGS84 decimal degrees; send together with `lat`.")] = None,
+    radius_m: Annotated[_OptInt, Field(description="Search radius in metres around the reference point.")] = None,
+    limit: Annotated[
+        _OptInt,
+        Field(
+            description="Maximum number of rows to return; omitted uses the server default and values are capped by the server maximum."
+        ),
+    ] = None,
 ) -> dict:
     """Find EShot bus stops by name, or list stops within a radius of a coordinate.
 
@@ -426,7 +548,15 @@ async def izmir_bus_stops(
         return _validation(exc, tool="izmir_bus_stops")
 
 
-async def izmir_bus_arrivals(stop_id: str, limit: int | None = None) -> dict:
+async def izmir_bus_arrivals(
+    stop_id: Annotated[str, Field(description="EShot stop id from the published stop list (`izmir_bus_stops`).")],
+    limit: Annotated[
+        int | None,
+        Field(
+            description="Maximum number of rows to return; omitted uses the server default and values are capped by the server maximum."
+        ),
+    ] = None,
+) -> dict:
     """Return EShot buses currently approaching one stop (live vehicle positions).
 
     `stop_id` must come from the published stop list (`izmir_bus_stops`). The
@@ -440,14 +570,24 @@ async def izmir_bus_arrivals(stop_id: str, limit: int | None = None) -> dict:
 
 
 async def izmir_bus_departures(
-    stop_id: str | None = None,
-    stop_query: str | None = None,
-    lat: _OptNum = None,
-    lon: _OptNum = None,
-    radius_m: _OptInt = None,
-    at: str | None = None,
-    line: str | None = None,
-    limit: _OptInt = None,
+    stop_id: Annotated[str | None, Field(description="One published EShot stop id.")] = None,
+    stop_query: Annotated[
+        str | None,
+        Field(description="Stop name to resolve into candidate stop ids; returns candidates, not departures."),
+    ] = None,
+    lat: Annotated[_OptNum, Field(description="Latitude in WGS84 decimal degrees; send together with `lon`.")] = None,
+    lon: Annotated[_OptNum, Field(description="Longitude in WGS84 decimal degrees; send together with `lat`.")] = None,
+    radius_m: Annotated[_OptInt, Field(description="Radius in metres around `lat`+`lon` (default 500).")] = None,
+    at: Annotated[
+        str | None, Field(description="`HH:MM` (Europe/Istanbul) or ISO-8601 date/time; defaults to now.")
+    ] = None,
+    line: Annotated[str | None, Field(description="Optional published route short name to filter departures.")] = None,
+    limit: Annotated[
+        _OptInt,
+        Field(
+            description="Maximum number of rows to return; omitted uses the server default and values are capped by the server maximum."
+        ),
+    ] = None,
 ) -> dict:
     """Return scheduled GTFS departures for one stop, or for stops near a point.
 
@@ -484,10 +624,21 @@ async def izmir_bus_departures(
 
 
 async def izmir_bus_routes(
-    query: str | None = None,
-    detail: bool = False,
-    direction: str | None = None,
-    limit: _OptInt = None,
+    query: Annotated[
+        str | None, Field(description="Line code or route id; must be exact when `detail` is true.")
+    ] = None,
+    detail: Annotated[
+        bool, Field(description="Return the ordered stop patterns of one line instead of a route list.")
+    ] = False,
+    direction: Annotated[
+        str | None, Field(description="`0` or `1` to keep one direction; only valid with `detail=true`.")
+    ] = None,
+    limit: Annotated[
+        _OptInt,
+        Field(
+            description="Maximum number of rows to return; omitted uses the server default and values are capped by the server maximum."
+        ),
+    ] = None,
 ) -> dict:
     """List EShot routes, or return one line's ordered stops per direction.
 
@@ -536,12 +687,20 @@ def _require_point(
 
 
 async def izmir_market_schedule(
-    day: str | None = None,
-    district: str | None = None,
-    lat: _OptNum = None,
-    lon: _OptNum = None,
-    radius_m: _OptInt = None,
-    limit: _OptInt = None,
+    day: Annotated[str | None, Field(description="Turkish weekday (pazartesi..pazar), `bugun` or `yarin`.")] = None,
+    district: Annotated[
+        str | None,
+        Field(description="İzmir district name (e.g. Karşıyaka); matched case- and Turkish-letter-insensitively."),
+    ] = None,
+    lat: Annotated[_OptNum, Field(description="Latitude in WGS84 decimal degrees; send together with `lon`.")] = None,
+    lon: Annotated[_OptNum, Field(description="Longitude in WGS84 decimal degrees; send together with `lat`.")] = None,
+    radius_m: Annotated[_OptInt, Field(description="Search radius in metres around the reference point.")] = None,
+    limit: Annotated[
+        _OptInt,
+        Field(
+            description="Maximum number of rows to return; omitted uses the server default and values are capped by the server maximum."
+        ),
+    ] = None,
 ) -> dict:
     """List İzmir neighborhood market places, optionally filtered by weekday, district or proximity.
 
@@ -563,10 +722,20 @@ async def izmir_market_schedule(
 
 
 async def izmir_transport_disruptions(
-    operator: DisruptionOperator | None = None,
-    line: str | None = None,
-    active_only: bool = False,
-    limit: _OptInt = None,
+    operator: Annotated[
+        DisruptionOperator | None,
+        Field(description="`eshot`, `metro`, `izdeniz` or `izban`; omitted merges all available operators."),
+    ] = None,
+    line: Annotated[str | None, Field(description="Optional line filter for ESHOT notices.")] = None,
+    active_only: Annotated[
+        bool, Field(description="Keep only notices whose published validity window includes now (ESHOT only).")
+    ] = False,
+    limit: Annotated[
+        _OptInt,
+        Field(
+            description="Maximum number of rows to return; omitted uses the server default and values are capped by the server maximum."
+        ),
+    ] = None,
 ) -> dict:
     """List published transport announcements for İzmir operators.
 
@@ -590,15 +759,38 @@ async def izmir_transport_disruptions(
 
 
 async def izmir_city_services_nearby(
-    kinds: list[CityServiceKind] | None = None,
-    lat: _OptNum = None,
-    lon: _OptNum = None,
-    place: str | None = None,
-    place_district: str | None = None,
-    bbox: list[float] | None = None,
-    district: str | None = None,
-    radius_m: _OptInt = None,
-    limit: _OptInt = None,
+    kinds: Annotated[
+        list[CityServiceKind] | None, Field(description="Service kinds to include; defaults to all three.")
+    ] = None,
+    lat: Annotated[_OptNum, Field(description="Latitude in WGS84 decimal degrees; send together with `lon`.")] = None,
+    lon: Annotated[_OptNum, Field(description="Longitude in WGS84 decimal degrees; send together with `lat`.")] = None,
+    place: Annotated[
+        str | None,
+        Field(
+            description="Published İzmir district or neighbourhood reference point (e.g. Konak, Alsancak); never a street address."
+        ),
+    ] = None,
+    place_district: Annotated[
+        str | None,
+        Field(
+            description="Optional district hint that disambiguates `place` when the name exists in several districts."
+        ),
+    ] = None,
+    bbox: Annotated[
+        list[float] | None,
+        Field(description="Rectangle as `[min_lon, min_lat, max_lon, max_lat]` in WGS84; all edges are inclusive."),
+    ] = None,
+    district: Annotated[
+        str | None,
+        Field(description="District for a district-wide list; matched on the source's district field or address text."),
+    ] = None,
+    radius_m: Annotated[_OptInt, Field(description="Search radius in metres around the reference point.")] = None,
+    limit: Annotated[
+        _OptInt,
+        Field(
+            description="Maximum number of rows to return; omitted uses the server default and values are capped by the server maximum."
+        ),
+    ] = None,
 ) -> dict:
     """Find WizmirNET WiFi points, İzmirim Kart top-up points and libraries.
 
@@ -682,7 +874,9 @@ async def izmir_tram_lines() -> dict:
     return await TransitService(settings=get_settings()).tram_lines()
 
 
-async def izmir_tram_schedule(line_id: int) -> dict:
+async def izmir_tram_schedule(
+    line_id: Annotated[int, Field(description="Tram line id from `izmir_tram_lines`.")],
+) -> dict:
     """Return stations and published headways for one tram line.
 
     `line_id` must come from `izmir_tram_lines`. Headways are a published
@@ -694,7 +888,18 @@ async def izmir_tram_schedule(line_id: int) -> dict:
         return _validation(exc, tool="izmir_tram_schedule")
 
 
-async def izmir_bus_line_arrivals(line: str, stop_id: str | None = None, limit: _OptInt = None) -> dict:
+async def izmir_bus_line_arrivals(
+    line: Annotated[str, Field(description="EShot line code (published route short name), e.g. `30`.")],
+    stop_id: Annotated[
+        str | None, Field(description="Optional stop id; without it the line's live bus positions are returned.")
+    ] = None,
+    limit: Annotated[
+        _OptInt,
+        Field(
+            description="Maximum number of rows to return; omitted uses the server default and values are capped by the server maximum."
+        ),
+    ] = None,
+) -> dict:
     """Return buses of one EShot line approaching a stop.
 
     With `stop_id` (from `izmir_bus_stops`) the stop's live arrivals are filtered
@@ -707,7 +912,15 @@ async def izmir_bus_line_arrivals(line: str, stop_id: str | None = None, limit: 
         return _validation(exc, tool="izmir_bus_line_arrivals")
 
 
-async def izmir_bus_live_positions(line: str, limit: _OptInt = None) -> dict:
+async def izmir_bus_live_positions(
+    line: Annotated[str, Field(description="EShot line code (published route short name), e.g. `30`.")],
+    limit: Annotated[
+        _OptInt,
+        Field(
+            description="Maximum number of rows to return; omitted uses the server default and values are capped by the server maximum."
+        ),
+    ] = None,
+) -> dict:
     """Return live vehicle positions of buses on one EShot line.
 
     Positions are cached for at most 15 seconds and are a snapshot; an empty
@@ -719,7 +932,20 @@ async def izmir_bus_live_positions(line: str, limit: _OptInt = None) -> dict:
         return _validation(exc, tool="izmir_bus_live_positions")
 
 
-async def izmir_dam_status(date: str | None = None, dam_name: str | None = None, limit: _OptInt = None) -> dict:
+async def izmir_dam_status(
+    date: Annotated[
+        str | None, Field(description="Date as `YYYY-MM-DD`; defaults to today and must not be in the future.")
+    ] = None,
+    dam_name: Annotated[
+        str | None, Field(description="Dam name, e.g. `Tahtalı`; matched case- and Turkish-letter-insensitively.")
+    ] = None,
+    limit: Annotated[
+        _OptInt,
+        Field(
+            description="Maximum number of rows to return; omitted uses the server default and values are capped by the server maximum."
+        ),
+    ] = None,
+) -> dict:
     """Return İZSU dam levels for one day, optionally a single dam.
 
     `date` is `YYYY-MM-DD` (default today, never in the future). `dam_name`
@@ -732,12 +958,17 @@ async def izmir_dam_status(date: str | None = None, dam_name: str | None = None,
 
 
 async def izmir_pharmacies_all(
-    area: str | None = None,
-    query: str | None = None,
-    lat: _OptNum = None,
-    lon: _OptNum = None,
-    radius_m: _OptInt = None,
-    limit: _OptInt = None,
+    area: Annotated[str | None, Field(description="Published region label to filter by.")] = None,
+    query: Annotated[str | None, Field(description="Pharmacy name fragment.")] = None,
+    lat: Annotated[_OptNum, Field(description="Latitude in WGS84 decimal degrees; send together with `lon`.")] = None,
+    lon: Annotated[_OptNum, Field(description="Longitude in WGS84 decimal degrees; send together with `lat`.")] = None,
+    radius_m: Annotated[_OptInt, Field(description="Search radius in metres around the reference point.")] = None,
+    limit: Annotated[
+        _OptInt,
+        Field(
+            description="Maximum number of rows to return; omitted uses the server default and values are capped by the server maximum."
+        ),
+    ] = None,
 ) -> dict:
     """List all İzmir pharmacies (not only on-duty ones).
 
@@ -761,12 +992,22 @@ async def izmir_pharmacies_all(
 
 
 async def izmir_cbs_layer(
-    layer: CbsLayer,
-    lat: _OptNum = None,
-    lon: _OptNum = None,
-    radius_m: _OptInt = None,
-    district: str | None = None,
-    limit: _OptInt = None,
+    layer: Annotated[
+        CbsLayer, Field(description="Allowlisted CBS layer name, e.g. `muzeler`, `hastaneler`, `plajlar`.")
+    ],
+    lat: Annotated[_OptNum, Field(description="Latitude in WGS84 decimal degrees; send together with `lon`.")] = None,
+    lon: Annotated[_OptNum, Field(description="Longitude in WGS84 decimal degrees; send together with `lat`.")] = None,
+    radius_m: Annotated[_OptInt, Field(description="Search radius in metres around the reference point.")] = None,
+    district: Annotated[
+        str | None,
+        Field(description="İzmir district name (e.g. Karşıyaka); matched case- and Turkish-letter-insensitively."),
+    ] = None,
+    limit: Annotated[
+        _OptInt,
+        Field(
+            description="Maximum number of rows to return; omitted uses the server default and values are capped by the server maximum."
+        ),
+    ] = None,
 ) -> dict:
     """Return places from one allowlisted İzmir Büyükşehir GIS (CBS) layer.
 
@@ -788,7 +1029,16 @@ async def izmir_cbs_layer(
         return _validation(exc, tool="izmir_cbs_layer")
 
 
-async def izmir_events(query: str | None = None, free_only: bool = False, limit: _OptInt = None) -> dict:
+async def izmir_events(
+    query: Annotated[str | None, Field(description="Text matched against event title and venue.")] = None,
+    free_only: Annotated[bool, Field(description="Keep only free events.")] = False,
+    limit: Annotated[
+        _OptInt,
+        Field(
+            description="Maximum number of rows to return; omitted uses the server default and values are capped by the server maximum."
+        ),
+    ] = None,
+) -> dict:
     """Return İzmir Büyükşehir culture and arts events.
 
     `query` matches title/venue text; `free_only` keeps free events. Confirm
@@ -801,12 +1051,21 @@ async def izmir_events(query: str | None = None, free_only: bool = False, limit:
 
 
 async def izmir_market_prices(
-    kind: HalKind = "sebzemeyve",
-    day: str | None = None,
-    query: str | None = None,
-    limit: _OptInt = None,
+    kind: Annotated[
+        HalKind, Field(description="Wholesale market kind: produce (`sebzemeyve`) or fish (`balik`).")
+    ] = "sebzemeyve",
+    day: Annotated[
+        str | None, Field(description="Date as `YYYY-MM-DD`; defaults to today, earlier days are tried when empty.")
+    ] = None,
+    query: Annotated[str | None, Field(description="Product name fragment.")] = None,
+    limit: Annotated[
+        _OptInt,
+        Field(
+            description="Maximum number of rows to return; omitted uses the server default and values are capped by the server maximum."
+        ),
+    ] = None,
 ) -> dict:
-    """Return İzmir wholesale market (hal) prices for produce or fish.
+    """Return İzmir wholesale market (hal) prices for produce or fish (`balik`).
 
     `day` is `YYYY-MM-DD` (default today). If the source has no prices for
     that day, earlier days are tried and the actual day is reported. For
@@ -819,10 +1078,12 @@ async def izmir_market_prices(
 
 
 async def izmir_fare(
-    from_station: int | str,
-    to_station: int | str,
-    transfer: bool = False,
-    htt: bool = False,
+    from_station: Annotated[int | str, Field(description="Origin İZBAN station id or name.")],
+    to_station: Annotated[int | str, Field(description="Destination İZBAN station id or name.")],
+    transfer: Annotated[bool, Field(description="The source's aktarma (transfer) flag.")] = False,
+    htt: Annotated[
+        bool, Field(description="The source's own tariff flag; its meaning is not documented by the API.")
+    ] = False,
 ) -> dict:
     """Return the published İZBAN fare between two stations (TL, by rider type).
 
@@ -841,7 +1102,15 @@ async def izmir_fare(
         return _validation(exc, tool="izmir_fare")
 
 
-async def izmir_parking_fees(query: str | None = None, limit: _OptInt = None) -> dict:
+async def izmir_parking_fees(
+    query: Annotated[str | None, Field(description="Car park name fragment, e.g. `Konak`.")] = None,
+    limit: Annotated[
+        _OptInt,
+        Field(
+            description="Maximum number of rows to return; omitted uses the server default and values are capped by the server maximum."
+        ),
+    ] = None,
+) -> dict:
     """Return İZELMAN's published parking tariffs (TL per duration band).
 
     `query` is a plain name fragment (e.g. "Konak"). For live free spaces use
@@ -854,11 +1123,20 @@ async def izmir_parking_fees(query: str | None = None, limit: _OptInt = None) ->
 
 
 async def izmir_traffic_cameras(
-    query: str | None = None,
-    lat: _OptNum = None,
-    lon: _OptNum = None,
-    radius_m: _OptInt = None,
-    limit: _OptInt = None,
+    query: Annotated[
+        str | None, Field(description="Free-text name fragment; matched case- and Turkish-letter-insensitively.")
+    ] = None,
+    lat: Annotated[_OptNum, Field(description="Latitude in WGS84 decimal degrees; send together with `lon`.")] = None,
+    lon: Annotated[_OptNum, Field(description="Longitude in WGS84 decimal degrees; send together with `lat`.")] = None,
+    radius_m: Annotated[
+        _OptInt, Field(description="Radius in metres around `lat`+`lon` (default 2000, max 50000).")
+    ] = None,
+    limit: Annotated[
+        _OptInt,
+        Field(
+            description="Maximum number of rows to return; omitted uses the server default and values are capped by the server maximum."
+        ),
+    ] = None,
 ) -> dict:
     """Return İzmir traffic camera locations, optionally near a point.
 
@@ -875,7 +1153,15 @@ async def izmir_traffic_cameras(
         return _validation(exc, tool="izmir_traffic_cameras")
 
 
-async def izmir_water_production(name: str | None = None, limit: _OptInt = None) -> dict:
+async def izmir_water_production(
+    name: Annotated[str | None, Field(description="Dam or well-group name fragment.")] = None,
+    limit: Annotated[
+        _OptInt,
+        Field(
+            description="Maximum number of rows to return; omitted uses the server default and values are capped by the server maximum."
+        ),
+    ] = None,
+) -> dict:
     """Return IZSU water production per dam or well group (latest published snapshot).
 
     The resource has no date column, so this is not "today's" production and
@@ -885,3 +1171,27 @@ async def izmir_water_production(name: str | None = None, limit: _OptInt = None)
         return await CityInfoService(settings=get_settings()).water_production(name=name, limit=limit)
     except InputValidationError as exc:
         return _validation(exc, tool="izmir_water_production")
+
+
+async def izmir_plan_trip(
+    origin: Annotated[str, Field(description="Origin district or neighbourhood name (max 80 chars).")],
+    destination: Annotated[str, Field(description="Destination district or neighbourhood name (max 80 chars).")],
+    depart_at: Annotated[str | None, Field(description="ISO-8601 departure time; informational only.")] = None,
+    max_options: Annotated[int, Field(description="Number of options to return (1-5).")] = 3,
+) -> dict:
+    """Compare direct public-transport options between two İzmir places.
+
+    `origin`/`destination` are district or neighbourhood names (max 80 chars).
+    Returns up to `max_options` (1-5) single-mode options (metro, İZBAN,
+    İZDENİZ ferry, ESHOT bus) ranked by approximate duration, with walk/ride
+    legs, the İZBAN fare when known and active disruption titles. Durations are
+    straight-line estimates, not a timetable or live ETA. `depart_at` is an
+    ISO-8601 time kept for information only. Partial results are returned when
+    an upstream fails; use `izmir_transit_schedule` for actual departures.
+    """
+    try:
+        return await TripPlanner(settings=get_settings()).plan(
+            origin=origin, destination=destination, depart_at=depart_at, max_options=max_options
+        )
+    except InputValidationError as exc:
+        return _validation(exc, tool="izmir_plan_trip")

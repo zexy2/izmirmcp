@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Any
 
 from app.connectors.city_layers import CityLayerConnector, parse_market_days
-from app.core.envelope import Freshness, error_envelope, success_envelope
+from app.core.envelope import Freshness, success_envelope
 from app.core.geo import haversine_m, maps_url, normalize_name
 from app.core.settings import Settings
 from app.core.validation import InputValidationError, resolve_limit, validate_lat_lon, validate_radius
@@ -74,6 +74,9 @@ class MarketService:
         if lat is not None and lon is not None:
             validate_lat_lon(lat, lon)
         safe_limit = resolve_limit(limit, self.settings.default_limit, self.settings.max_limit)
+        safe_radius = None
+        if lat is not None and lon is not None:
+            safe_radius = validate_radius(1_500 if radius_m is None else radius_m, self.settings.max_radius_m)
 
         try:
             rows, info = await self.api.market_rows()
@@ -119,8 +122,7 @@ class MarketService:
             selected = [row for row in selected if needle in normalize_name(row.get("district") or "")]
             limits.append(f"district={district.strip()[:60]}")
 
-        if lat is not None and lon is not None:
-            safe_radius = validate_radius(1_500 if radius_m is None else radius_m, self.settings.max_radius_m)
+        if lat is not None and lon is not None and safe_radius is not None:
             with_distance = []
             for row in selected:
                 if row.get("lat") is None or row.get("lon") is None:

@@ -1,0 +1,10 @@
+# <type>(<scope>): <imperative subject, English, <= 72 chars>
+#
+# Types:  feat fix docs test refactor ci chore perf build
+# Scopes: connectors mcp docs ci (optional)
+# Example: fix(connectors): retry ESHOT stop lookup on HTTP 503
+#
+# Body: explain WHY, wrap at 72 columns.
+# Footer: "BREAKING CHANGE: ...", "Refs #123".
+# AI assistance: add "Co-authored-by:" only for substantive generated code;
+# the human author stays responsible. See docs/development/commit-convention.md

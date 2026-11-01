@@ -132,6 +132,8 @@ async def test_resources_are_discoverable_and_schema_valid():
         "izmir://coverage",
         "izmir://sources",
         "izmir://schema/catalog",
+        "izmir://reference/fares",
+        "izmir://reference/lines",
     ]
     for resource in resources:
         assert resource.name, resource.uri
@@ -141,7 +143,16 @@ async def test_resources_are_discoverable_and_schema_valid():
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("uri", ["izmir://coverage", "izmir://sources", "izmir://schema/catalog"])
+@pytest.mark.parametrize(
+    "uri",
+    [
+        "izmir://coverage",
+        "izmir://sources",
+        "izmir://schema/catalog",
+        "izmir://reference/fares",
+        "izmir://reference/lines",
+    ],
+)
 async def test_every_resource_returns_a_pathless_envelope(uri):
     contents = await _server().read_resource(uri)
     assert len(contents) == 1
@@ -229,6 +240,11 @@ async def test_every_prompt_renders_with_its_required_arguments():
         "pazar_ve_duyurular": {"ilce": "Konak"},
         "sehir_hizmetleri": {"yer": "Alsancak"},
         "nobetci_eczane": {"ilce": "Karşıyaka"},
+        "rota_karsilastir": {"nereden": "Konak", "nereye": "Karşıyaka"},
+        "bugun_ne_yapsam": {"ilce": "Bornova"},
+        "su_durumu_raporu": {"ilce": "Buca"},
+        "eczane_ve_ulasim": {"ilce": "Karşıyaka"},
+        "sehir_simdi": {},
     }
     for prompt in WORKFLOW_PROMPTS:
         result = await server.get_prompt(prompt.__name__, samples[prompt.__name__])

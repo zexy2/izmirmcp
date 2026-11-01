@@ -5,6 +5,7 @@ import io
 import ipaddress
 import json
 import os
+import random
 import socket
 import time
 import zipfile
@@ -76,7 +77,11 @@ def _retry_after_seconds(response: httpx.Response) -> float:
 ALLOW_PRIVATE_ENV = "IZMIR_MCP_ALLOW_PRIVATE_UPSTREAMS"
 DEFAULT_CONNECT_TIMEOUT = 5.0
 HOST_COOLDOWN_SECONDS = 60.0
+HOST_COOLDOWN_THRESHOLD = 3
 MAX_COOLDOWN_HOSTS = 256
+BACKOFF_BASE_SECONDS = 0.35
+BACKOFF_CAP_SECONDS = 2.0
+MAX_TOTAL_DEADLINE_SECONDS = 35.0
 _NAT64_PREFIX = ipaddress.IPv6Network("64:ff9b::/96")
 
 
@@ -164,10 +169,12 @@ class _GuardedTransport(httpx.AsyncBaseTransport):
 
 
 # Per-host "recently unreachable" memory. A dead host otherwise costs every
-# caller the full connect timeout × attempts; after a connect failure the host
-# is skipped for ``HOST_COOLDOWN_SECONDS``. Bounded LRU so hostile hostnames
-# cannot grow it without limit.
+# caller the full connect timeout × attempts; after ``HOST_COOLDOWN_THRESHOLD``
+# consecutive connect failures the host is skipped for ``HOST_COOLDOWN_SECONDS``.
+# A single blip no longer parks a healthy host. Bounded LRU so hostile hostnames
+# cannot grow either map without limit.
 _host_cooldowns: OrderedDict[str, float] = OrderedDict()
+_connect_failures: OrderedDict[str, int] = OrderedDict()
 
 
 def _cooldown_active(host: str) -> bool:
@@ -187,8 +194,40 @@ def _mark_unreachable(host: str) -> None:
         _host_cooldowns.popitem(last=False)
 
 
+def _record_connect_failure(host: str) -> None:
+    count = _connect_failures.get(host, 0) + 1
+    _connect_failures[host] = count
+    _connect_failures.move_to_end(host)
+    while len(_connect_failures) > MAX_COOLDOWN_HOSTS:
+        _connect_failures.popitem(last=False)
+    if count >= HOST_COOLDOWN_THRESHOLD:
+        _connect_failures.pop(host, None)
+        _mark_unreachable(host)
+
+
+def _record_success(host: str) -> None:
+    _connect_failures.pop(host, None)
+
+
 def clear_host_cooldowns() -> None:
     _host_cooldowns.clear()
+    _connect_failures.clear()
+
+
+def backoff_delay(attempt: int) -> float:
+    """Full-jitter exponential backoff: uniform in [0, min(cap, base·2^attempt)]."""
+    return random.uniform(0.0, min(BACKOFF_CAP_SECONDS, BACKOFF_BASE_SECONDS * (2**attempt)))
+
+
+def default_total_deadline(timeout: float, attempts: int) -> float:
+    """Room for every attempt at full timeout plus the worst-case backoff.
+
+    The old ``timeout × 2`` cut the second attempt off mid-request. Capped so a
+    caller is never parked longer than ``MAX_TOTAL_DEADLINE_SECONDS``.
+    """
+    n = max(1, attempts)
+    max_backoff = sum(min(BACKOFF_CAP_SECONDS, BACKOFF_BASE_SECONDS * (2**i)) for i in range(n - 1))
+    return min(MAX_TOTAL_DEADLINE_SECONDS, n * timeout + max_backoff)
 
 
 async def _get_same_origin(client: httpx.AsyncClient, url: str) -> tuple[httpx.Response, str]:
@@ -243,7 +282,7 @@ async def _get_bytes(
     host = (urlsplit(url).hostname or "").lower()
     if _cooldown_active(host):
         raise SourceError("source host is temporarily unreachable")
-    deadline = total_deadline if total_deadline is not None else timeout * 2
+    deadline = total_deadline if total_deadline else default_total_deadline(timeout, attempts)
     try:
         async with asyncio.timeout(deadline):
             return await _get_bytes_inner(url, timeout=timeout, attempts=attempts, max_bytes=max_bytes, accept=accept)
@@ -283,7 +322,9 @@ async def _get_bytes_inner(
                             retry_after_seconds=_retry_after_seconds(response),
                         )
                     response.raise_for_status()
-                    return await _read_bounded(response, max_bytes)
+                    body = await _read_bounded(response, max_bytes)
+                    _record_success(host)
+                    return body
                 finally:
                     await response.aclose()
             except (httpx.HTTPError, SourceError) as exc:
@@ -297,10 +338,11 @@ async def _get_bytes_inner(
                     # only repeats the download.
                     break
                 if isinstance(exc, httpx.ConnectError):
-                    _mark_unreachable(host)
+                    _record_connect_failure(host)
                     break
                 if attempt + 1 < max(1, attempts):
-                    await asyncio.sleep(0.35 * (attempt + 1))
+                    # Inside the total deadline: the sleep is budgeted, not free.
+                    await asyncio.sleep(backoff_delay(attempt))
     if isinstance(last_error, httpx.TimeoutException):
         raise SourceTimeoutError("source request timed out") from last_error
     if isinstance(last_error, (SourceRateLimitedError, SourceError)):

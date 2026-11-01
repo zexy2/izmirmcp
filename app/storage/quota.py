@@ -13,7 +13,7 @@ from dataclasses import dataclass
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
-from app.storage.db import connect, init_database
+from app.storage.db import connect
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS request_quota (

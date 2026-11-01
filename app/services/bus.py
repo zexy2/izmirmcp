@@ -149,6 +149,16 @@ class BusService:
         if lat is not None and lon is not None:
             validate_lat_lon(lat, lon)
         safe_limit = resolve_limit(limit, self.settings.default_limit, self.settings.max_limit)
+        # Pure input checks run before the upstream fetch so bad input fails
+        # fast even when ESHOT is slow or unreachable.
+        needle = None
+        safe_radius = None
+        if query is not None:
+            needle = normalize_name(query)
+            if not needle:
+                raise InputValidationError("query bir ad içermelidir", field="query")
+        else:
+            safe_radius = validate_radius(1_000 if radius_m is None else radius_m, self.settings.max_radius_m)
 
         try:
             rows, info = await self.api.stops()
@@ -156,10 +166,8 @@ class BusService:
             return _source_error("EShot durak listesi kullanılamıyor.", exc, [sources.ESHOT_STOPS])
         limits = [f"limit={safe_limit}"]
 
-        if query is not None:
-            needle = normalize_name(query)
-            if not needle:
-                raise InputValidationError("query bir ad içermelidir", field="query")
+        if needle is not None:
+            assert query is not None
             # A single-letter typo ("Konakk") must not return nothing; fuzzy
             # suggestions are labelled so an exact hit is distinguishable.
             matched = _match_stop_query(rows, needle)
@@ -169,8 +177,7 @@ class BusService:
             summary = f"{len(matched)} durak '{query.strip()[:40]}' ile eşleşti; ilk {min(len(matched), safe_limit)} gösteriliyor."
         else:
             # Both are set here: the guards above reject a lone lat or lon.
-            assert lat is not None and lon is not None
-            safe_radius = validate_radius(1_000 if radius_m is None else radius_m, self.settings.max_radius_m)
+            assert lat is not None and lon is not None and safe_radius is not None
             matched = []
             for row in rows:
                 distance = haversine_m(lat, lon, row["lat"], row["lon"])
@@ -511,7 +518,7 @@ class BusService:
                 source_updated_at=calendar_end,
             ),
             limits=[
-                f"detail=true",
+                "detail=true",
                 f"route_id={payload['route_id']}",
                 f"direction={wanted_direction or 'all'}",
                 f"calendar_start={calendar_start or 'bilinmiyor'}",
@@ -722,6 +729,12 @@ class BusService:
             return await self._departure_stop_candidates(needle, safe_limit)
 
         when = _parse_departure_at(at)
+        if sid is None and lat is not None and lon is not None:
+            validate_lat_lon(lat, lon)
+            validate_radius(
+                DEPARTURE_RADIUS_DEFAULT_M if radius_m is None else radius_m,
+                self.settings.max_radius_m,
+            )
 
         try:
             stop_rows, stop_info = await self.api.stops()

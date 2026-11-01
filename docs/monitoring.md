@@ -1,22 +1,24 @@
-# İzleme
+# Monitoring
 
-Bu belge HTTP yüzeyinin gözlemlenebilirlik sözleşmesini koddan türetir:
-`app/main.py` (uçlar), `app/core/http_logging.py` (log), `app/core/rate_limit.py`
-(telemetri) ve `app/core/abuse_guard.py` (reddetme kodları).
+This document derives the observability contract of the HTTP surface from the
+code: `app/main.py` (endpoints), `app/core/http_logging.py` (logs),
+`app/core/rate_limit.py` (telemetry) and `app/core/abuse_guard.py` (rejection
+codes).
 
-Temel ilke: **hiçbir sağlık ucu üçüncü taraf kaynakları yoklamaz.** Kaynak
-sağlığı yalnızca araç yanıtlarının `freshness`/`warnings` alanlarından okunur.
-Bu, probe fırtınasının İZTEK/CKAN gibi kaynakları hız sınırına takmasını önler.
+Core principle: **no health endpoint probes third-party sources.** Source
+health is only read from the `freshness`/`warnings` fields of tool responses.
+This keeps a probe storm from tripping the rate limits of sources such as
+İZTEK/CKAN.
 
-## Uçlar
+## Endpoints
 
-| Uç | Yöntem | Amaç | Auth | Durum kodu |
+| Endpoint | Method | Purpose | Auth | Status code |
 |---|---|---|---|---|
-| `/healthz` | GET | Süreç ayakta mı? | Kapalı | Her zaman `200` |
-| `/readyz` | GET | Yerel hazırlık (araç yüzeyi kuruldu mu?) | Kapalı | Hazır `200`, değil `503` |
-| `/status` | GET | Araç listesi, limitler, hız/eşzamanlılık telemetrisi | `API_KEYS` doluysa açık | `200` / `401` |
-| `/mcp` | GET/POST/… | `308` yönlendirme → `/mcp/` | `API_KEYS` doluysa açık | `308` |
-| `/mcp/` | POST | Streamable HTTP MCP | `API_KEYS` doluysa açık | `200` / guard kodları |
+| `/healthz` | GET | Is the process up? | None | Always `200` |
+| `/readyz` | GET | Local readiness (is the tool surface built?) | None | Ready `200`, not ready `503` |
+| `/status` | GET | Tool list, limits, rate/concurrency telemetry | Required when `API_KEYS` is set | `200` / `401` |
+| `/mcp` | GET/POST/… | `308` redirect → `/mcp/` | Required when `API_KEYS` is set | `308` |
+| `/mcp/` | POST | Streamable HTTP MCP | Required when `API_KEYS` is set | `200` / guard codes |
 
 ### `/healthz`
 
@@ -24,7 +26,7 @@ Bu, probe fırtınasının İZTEK/CKAN gibi kaynakları hız sınırına takmas�
 {"ok": true, "service": "izmir-mcp"}
 ```
 
-Yalnızca süreç canlılığıdır. Docker `HEALTHCHECK` bunu yoklar.
+Process liveness only. The Docker `HEALTHCHECK` probes this.
 
 ### `/readyz`
 
@@ -34,14 +36,14 @@ Yalnızca süreç canlılığıdır. Docker `HEALTHCHECK` bunu yoklar.
   "service": "izmir-mcp",
   "ready": true,
   "upstream_health": "not_checked",
-  "checks": {"tool_surface": "ok", "tool_count": 22}
+  "checks": {"tool_surface": "ok", "tool_count": 36}
 }
 ```
 
-`upstream_health` **her zaman** `"not_checked"`'tır. Araç yüzeyi kurulamazsa
-`checks.tool_surface="error:<Tip>"` veya `"empty"`, `ready=false`, HTTP `503`.
-Lifespan sırasında MCP oturum yöneticisi çalışmalıdır; aksi halde probe yanıt
-vermez.
+`upstream_health` is **always** `"not_checked"`. If the tool surface cannot be
+built, `checks.tool_surface="error:<Type>"` or `"empty"`, `ready=false`, HTTP
+`503`. The MCP session manager must be running during the lifespan; otherwise
+the probe does not answer.
 
 ### `/status`
 
@@ -49,7 +51,7 @@ vermez.
 {
   "service": "izmir-mcp",
   "tools": ["izmir_health", "…"],
-  "tool_count": 22,
+  "tool_count": 36,
   "limits": {"default_limit": 10, "max_limit": 50, "max_radius_m": 5000, "max_body_bytes": 1000000},
   "rate_limit": {"tracked_clients": 0, "capacity": 60, "refill_per_second": 1.0, "max_clients": 10000, "allowed": 0, "rejected": 0},
   "concurrency": {"current": 0, "max_concurrent": 32, "rejected": 0},
@@ -58,77 +60,80 @@ vermez.
 }
 ```
 
-`auth` `"enabled"`/`"disabled"` değeri `IZMIR_MCP_API_KEYS` durumunu yansıtır.
+The `auth` value `"enabled"`/`"disabled"` reflects whether
+`IZMIR_MCP_API_KEYS` is set.
 
-## Guard reddetmeleri
+## Guard rejections
 
-`/mcp` yolundaki guard katmanları HTTP kodu + minimal gövde döner. Yapısal
-olarak:
+The guard layers on `/mcp` return an HTTP code + a minimal body. Structurally:
 
 ```json
 {"ok": false, "error_code": "rate_limited", "summary": "Too many requests from this client."}
 ```
 
-| `error_code` | HTTP | Başlık |
+| `error_code` | HTTP | Header |
 |---|---|---|
 | `payload_too_large` | 413 | — |
-| `rate_limited` | 429 | `Retry-After: <sn>` |
+| `rate_limited` | 429 | `Retry-After: <s>` |
 | `server_busy` | 503 | `Retry-After: 1` |
 | `unauthorized` | 401 | `WWW-Authenticate: Bearer realm="izmir-mcp"` |
 | `origin_not_allowed` | 403 | `Vary: Origin` |
 
-Bu reddetmeler zarf taşımaz (bkz. [response-contract.md](response-contract.md)).
-Uyarı eşikleri: `rate_limit.rejected` ve `concurrency.rejected` artıyorsa önüne
-reverse proxy veya daha yüksek kapasite gerekir. Sayaçlar süreç içidir; çok
-işçili dağıtımda işçi başına okunur.
+These rejections carry no envelope (see
+[response-contract.md](response-contract.md)). Alert thresholds: if
+`rate_limit.rejected` and `concurrency.rejected` keep growing, add a reverse
+proxy or more capacity. Counters are per process; in a multi-worker
+deployment read them per worker.
 
-## Erişim logu
+## Access log
 
-`izmir_mcp.access` logger'ı, `IZMIR_MCP_ACCESS_LOG_ENABLED=true` iken her HTTP
-isteği için **tek satır JSON** yazar:
+The `izmir_mcp.access` logger writes **one line of JSON** per HTTP request while
+`IZMIR_MCP_ACCESS_LOG_ENABLED=true`:
 
 ```json
 {"event": "http_request", "method": "POST", "path": "/mcp/", "status": 200, "duration_ms": 42.7}
 ```
 
-Alanlar:
+Fields:
 
-| Alan | Anlamı |
+| Field | Meaning |
 |---|---|
-| `event` | Sabit `http_request`. |
-| `method` | HTTP yöntemi. |
-| `path` | Yol (sorgu dizesi hariç). |
-| `status` | Yanıt durum kodu (yanıt yoksa `500`). |
-| `duration_ms` | Süre, milisaniye (1 ondalık). |
+| `event` | Always `http_request`. |
+| `method` | HTTP method. |
+| `path` | Path (without the query string). |
+| `status` | Response status code (`500` when there is no response). |
+| `duration_ms` | Duration in milliseconds (1 decimal). |
 
-**Loglanmayanlar:** sorgu dizesi, gövde, başlıklar ve API anahtarı. Bu, paylaşılan
-logların çağıran içeriğini veya kimlik bilgisini sızdırmasını engeller.
-`IZMIR_MCP_ACCESS_LOG_ENABLED=false` ile tamamen kapatılabilir.
+**Not logged:** query string, body, headers and API key. This keeps shared logs
+from leaking caller content or credentials. Turn it off entirely with
+`IZMIR_MCP_ACCESS_LOG_ENABLED=false`. See [privacy.md](privacy.md).
 
-## Probe önerileri
+## Probe recommendations
 
-- Liveness: `GET /healthz` her 15–30 sn.
-- Readiness: `GET /readyz` başlangıçta ve dağıtım sonrası; `503` trafiği
-  yönlendirmeyi durdurur.
-- Uyarı: `/status` içinde `rate_limit.rejected`, `concurrency.rejected` ve
-  `tool_count != 22` (beklenmedik yüzey değişimi).
-- Kaynak sağlığını probe ile değil, örnek araç çağrılarının
-  `freshness.status` ve `warnings` çıktısıyla izleyin. Canlı duman testi:
-  `python scripts/smoke_live.py` (ağa çıkar, CI'da bloklamaz).
+- Liveness: `GET /healthz` every 15–30 s.
+- Readiness: `GET /readyz` at startup and after deployments; `503` stops traffic
+  routing.
+- Alerts: `rate_limit.rejected`, `concurrency.rejected` and an unexpected
+  `tool_count` in `/status` (an unexpected surface change).
+- Track source health not through probes but through `freshness.status` and
+  `warnings` of sample tool calls. Live smoke test:
+  `python scripts/smoke_live.py` (uses the network, non-blocking in CI).
+- Public endpoint uptime: `scripts/uptime_check.py`, run by `uptime.yml` (see
+  [development.md](development.md#scripts)).
 
-## Log/routing notları
+## Log/routing notes
 
-- `X-Forwarded-For` yalnızca sunucu loopback'e bağlıyken dikkate alınır; aksi
-  halde yoksayılır, bu yüzden dışarıdan sahte XFF istemci kimliğini değiştirmez.
-- uvicorn `proxy_headers=True`, `forwarded_allow_ips="127.0.0.1"` ile başlar;
-  reverse proxy localhost üzerinden bağlanmalıdır.
-- Hız/eşzamanlılık sayaçları uçucudur; yeniden başlatmada sıfırlanır. Kalıcı
-  metrik backendi yoktur.
+- `X-Forwarded-For` is only honoured while the server is bound to loopback;
+  otherwise it is ignored, so a spoofed XFF from outside cannot change the
+  client identity.
+- uvicorn starts with `proxy_headers=True`, `forwarded_allow_ips="127.0.0.1"`;
+  the reverse proxy must connect over localhost.
+- Rate/concurrency counters are volatile and reset on restart. There is no
+  persistent metrics backend.
 
+## Tool telemetry
 
-## Araç telemetrisi
-
-`/status` içinde `tools_telemetry` alanı araç başına şunları yayımlar:
+The `tools_telemetry` field in `/status` publishes the following per tool:
 
 ```json
 {"izmir_nearby": {"calls": 12, "errors": 1,
@@ -137,42 +142,45 @@ logların çağıran içeriğini veya kimlik bilgisini sızdırmasını engeller
   "mean_ms": 18.4, "p50_ms": 12.0, "p95_ms": 61.2, "max_ms": 88.0}}
 ```
 
-Kurallar:
+Rules:
 
-- **Girdi ve yanıt metni asla saklanmaz.** Yalnızca sayı, kod ve süre.
-- Gecikme örnekleri araç başına **256** ile sınırlıdır; sayaçlar sınırsız artar.
-- Kayıtlar hatalı çağrılarda da oluşur (blok istisna atsa bile).
-- Süreç içidir: yeniden başlatmada sıfırlanır.
-- En fazla 64 araç izlenir; aşılırsa en az çağrılan düşürülür.
+- **Input and response text are never stored.** Only counts, codes and
+  durations.
+- Latency samples are capped at **256** per tool; counters grow without bound.
+- Records are also created for failed calls (even when the block raises).
+- Per process: reset on restart.
+- At most 64 tools are tracked; beyond that the least-called one is dropped.
 
-`p95`, son 256 örneğe dayanır; düşük trafikte tek örnekle aynı olabilir.
+`p95` is based on the last 256 samples; under low traffic it may equal a single
+sample.
 
-## Readiness ayrıntısı
+## Readiness details
 
-`/readyz` üç yerel kontrol yapar ve **detay metnini gizler** (uç kimlik
-doğrulaması istemez):
+`/readyz` runs three local checks and **hides the detail text** (the endpoint
+requires no authentication):
 
-| Kontrol | Anlam | `ready`'yi etkiler |
+| Check | Meaning | Affects `ready` |
 |---|---|---|
-| `tool_surface` | Araç yüzeyi boş değil | ✅ |
-| `timetable_store` | GTFS deposu okunabilir | `broken` ise ❌; `absent` normaldir |
-| `database_directory` | SQLite dizini yazılabilir | ✅ |
+| `tool_surface` | The tool surface is not empty | Yes |
+| `timetable_store` | The GTFS store is readable | Only when `broken`; `absent` is normal |
+| `database_directory` | The SQLite directory is writable | Yes |
 
-`timetable_store=absent` **hazır sayılır**: depo ilk kalkış sorgusunda kurulur.
-`broken` (bozuk dosya) hazır değildir, çünkü tembel kurulum bunu düzeltmez.
+`timetable_store=absent` **counts as ready**: the store is built on the first
+departures query. `broken` (a corrupt file) is not ready, because the lazy build
+does not fix it.
 
-`/status` aynı bilgiyi `detail` ile ve yollar olmadan verir (kimlik doğrulaması
-gerektirir).
+`/status` gives the same information with `detail` and without paths (it
+requires authentication).
 
-## JSON-RPC kapısı
+## JSON-RPC gate
 
-Bozuk zarf SDK'ya ulaşmadan reddedilir:
+A malformed envelope is rejected before it reaches the SDK:
 
-| Durum | Kod | HTTP |
+| Case | Code | HTTP |
 |---|---|---|
-| Ayrıştırılamayan gövde | `-32700` | 400 |
+| Unparseable body | `-32700` | 400 |
 | `jsonrpc` ≠ `"2.0"` | `-32600` | 400 |
-| `method` yok/geçersiz | `-32600` | 400 |
-| Boş batch | `-32600` | 400 |
+| Missing/invalid `method` | `-32600` | 400 |
+| Empty batch | `-32600` | 400 |
 
-Yanıt her zaman `Cache-Control: no-store`.
+Responses always carry `Cache-Control: no-store`.

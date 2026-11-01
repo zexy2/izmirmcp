@@ -13,7 +13,6 @@ from pathlib import Path
 
 import pytest
 
-from app.core import settings as settings_module
 from app.core.envelope import ResponseEnvelope
 from app.core.settings import Settings
 from app.mcp.registry import DEFAULT_TOOL_NAMES, create_mcp_server
@@ -229,3 +228,18 @@ def test_docs_list_every_workflow_prompt():
         text = _text(doc)
         for prompt in WORKFLOW_PROMPTS:
             assert f"`{prompt.__name__}`" in text, f"{doc.name} misses prompt {prompt.__name__}"
+
+
+@pytest.mark.parametrize("readme", ["README.md", "README.tr.md"])
+def test_readme_tools_badge_matches_the_tool_count(readme):
+    """The tools badge is static; it must be bumped together with the surface."""
+    text = _text(ROOT / readme)
+    match = re.search(r"img\.shields\.io/badge/tools-(\d+)-", text)
+    assert match, f"{readme} has no tools badge"
+    assert int(match.group(1)) == len(DEFAULT_TOOL_NAMES)
+
+
+@pytest.mark.parametrize("readme", ["README.md", "README.tr.md"])
+def test_readme_registry_badge_links_this_server(readme):
+    name = json.loads((ROOT / "server.json").read_text(encoding="utf-8"))["name"]
+    assert f"https://registry.modelcontextprotocol.io/?q={name}" in _text(ROOT / readme)

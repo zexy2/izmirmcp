@@ -1,0 +1,46 @@
+name: Commitlint
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  pr-title:
+    name: PR title (Conventional Commits)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check PR title follows Conventional Commits
+        env:
+          TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          pattern='^(feat|fix|docs|test|refactor|ci|chore|perf|build)(\([a-z0-9-]+\))?!?: .+'
+          if [[ ! "$TITLE" =~ $pattern ]]; then
+            echo "::error::PR title must match '<type>(<scope>): <subject>' (see docs/development/commit-convention.md)"
+            exit 1
+          fi
+          if (( ${#TITLE} > 72 )); then
+            echo "::error::PR title is ${#TITLE} chars; max 72"
+            exit 1
+          fi
+
+  commits:
+    name: Commit messages (Conventional Commits)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+      - name: Report non-conventional commit headers (advisory)
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          pattern='^(feat|fix|docs|test|refactor|ci|chore|perf|build)(\([a-z0-9-]+\))?!?: .+'
+          git log --format=%s "$BASE..$HEAD" | while IFS= read -r subject; do
+            if [[ ! "$subject" =~ $pattern ]]; then
+              echo "::warning::Non-conventional commit: $subject"
+            fi
+          done

@@ -1,0 +1,32 @@
+name: Bug report
+description: Something is broken
+labels: [bug]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      placeholder: e.g. 0.x.y
+    validations:
+      required: true
+  - type: input
+    id: tool
+    attributes:
+      label: Affected tool
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected vs actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs (redact secrets)
+      render: text

@@ -145,11 +145,12 @@ async def test_connect_failure_puts_host_in_bounded_cooldown(monkeypatch):
         raise httpx.ConnectError("refused", request=request)
 
     _patch_transport(monkeypatch, handler)
-    with pytest.raises(SourceError):
-        await mod.get_text("https://down.test/a", timeout=2, attempts=3, max_bytes=1_000)
+    for _ in range(mod.HOST_COOLDOWN_THRESHOLD):
+        with pytest.raises(SourceError):
+            await mod.get_text("https://down.test/a", timeout=2, attempts=3, max_bytes=1_000)
     with pytest.raises(SourceError, match="temporarily unreachable"):
         await mod.get_text("https://down.test/b", timeout=2, attempts=3, max_bytes=1_000)
-    assert len(calls) == 1
+    assert len(calls) == mod.HOST_COOLDOWN_THRESHOLD
     for index in range(mod.MAX_COOLDOWN_HOSTS + 50):
         mod._mark_unreachable(f"h{index}.test")
     assert len(mod._host_cooldowns) == mod.MAX_COOLDOWN_HOSTS

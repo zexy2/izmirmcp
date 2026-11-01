@@ -1,254 +1,60 @@
-# İzmir MCP
+# izmirmcp
 
 <!-- mcp-name: io.github.zexy2/izmir-mcp -->
 
-[![PyPI](https://img.shields.io/pypi/v/izmir-mcp.svg)](https://pypi.org/project/izmir-mcp/)
-[![MCP Registry](https://img.shields.io/badge/MCP%20Registry-io.github.zexy2%2Fizmir--mcp-blue)](https://registry.modelcontextprotocol.io/)
+**A read-only Model Context Protocol server that gives AI agents trustworthy access to İzmir's open city data.**
+
 [![CI](https://github.com/zexy2/izmirmcp/actions/workflows/ci.yml/badge.svg)](https://github.com/zexy2/izmirmcp/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](pyproject.toml)
+[![MCP](https://img.shields.io/badge/MCP-io.github.zexy2%2Fizmir--mcp-blue)](https://registry.modelcontextprotocol.io/?q=io.github.zexy2/izmir-mcp)
+[![Tools](https://img.shields.io/badge/tools-36-orange.svg)](docs/tool-reference.md)
 
-İzmir'e dair açık şehir verilerini MCP destekleyen ajanlara ve geliştirici
-araçlarına tek bir sunucu üzerinden açan, salt okunur bir Model Context Protocol
-sunucusu.
+**Language:** English · [Türkçe](README.tr.md)
 
-Bu proje [istanbulmcp](https://github.com/Batu1-1an/istanbulmcp) mimarisi ve
-yanıt sözleşmesi örnek alınarak İzmir için yeniden kurulmuştur. İstanbul'a özgü
-İBB/İETT/İSKİ/İSPARK konnektörleri yerine yalnızca doğrulanmış İzmir kaynakları
-kullanılır; İzmir'de karşılığı olmayan yetenekler (şehir geneli trafik indeksi,
-İBB mahalle profili, İstanbulkart) bilinçli olarak yoktur.
+## Contents
 
-## Kapsam
+- [Why izmirmcp](#why-izmirmcp) · [Quick start](#quick-start) · [Tools](#tools) · [Prompts and resources](#prompts-and-resources)
+- [Examples](#example-conversations) · [Architecture](#architecture) · [Configuration](#configuration)
+- [Data sources](#data-sources-and-disclaimer) · [Security](#security) · [Contributing](#contributing) · [License](#license-and-acknowledgements)
 
-Varsayılan yüzey **22 salt okunur araçtır**:
+## English
 
-| Araç | İşlev |
-|---|---|
-| `izmir_health` | Yerel hazırlık ve yayımlanan limitler. Kaynak sağlığı ölçmez. |
-| `izmir_search_datasets` | İzmir Açık Veri (CKAN) kataloğunda arama. |
-| `izmir_get_dataset` | Veri seti metadata'sı ve kaynak listesi. |
-| `izmir_get_resource_schema` | DataStore resource kolonları. |
-| `izmir_query_resource` | DataStore kayıtlarını filtre, serbest arama (`search`) ve sıralamayla getirir; SQL yok. |
-| `izmir_datastore_query` | İzin verilen kaynağın tam yerel kopyası üzerinde tek, güvenli SELECT; kısmi toplam üretmez. |
-| `izmir_nearby` | Otopark, nöbetçi eczane, metro/İZBAN istasyonu, vapur iskelesi, ESHOT durağı, taksi durağı ve şarj istasyonu; yarıçap, `bbox` veya ilçe geneli. |
-| `izmir_mobility_nearby` | Tek zarfta "yakınımdaki ulaşım": metro/İZBAN/vapur/otobüs/taksi/şarj/otopark, mesafeye göre sıralı ve tür başına sayımlı. Hava kalitesi (koordinatsız) ve canlı trafik (404) kapsam dışıdır. |
-| `izmir_water_status` | İZSU baraj dolulukları; arıza akışı için açık `source_unavailable`. |
-| `izmir_air_quality` | Tarih ve istasyon filtreli hava kalitesi ölçümleri. |
-| `izmir_transit_stations` | Metro, İZBAN ve İZDENİZ istasyon/iskele listesi. |
-| `izmir_transit_schedule` | Yayımlanmış tarife: metro sıklığı, İZBAN ve İZDENİZ seferleri. |
-| `izmir_bus_stops` | ESHOT duraklarını ada göre ara; koordinat + yarıçap ile yakındaki durakları listele. |
-| `izmir_bus_arrivals` | Bir durağa yaklaşan otobüslerin anlık konumu ve kalan durak sayısı. |
-| `izmir_bus_departures` | Bir durağın ya da bir nokta çevresindeki durakların yayımlanmış GTFS planlı kalkışları; `stop_query` ile durak keşfi. Canlı ETA değildir. |
-| `izmir_bus_routes` | ESHOT GTFS hat özeti; `detail=true` ile hattın yönleri, sıralı durakları ve durak varyantları. |
-| `izmir_market_schedule` | Semt pazarı takvimi: gün, ilçe veya koordinat + yarıçap filtresi. |
-| `izmir_transport_disruptions` | ESHOT, Metro ve İZDENİZ duyuruları; operatör filtresi. |
-| `izmir_city_services_nearby` | WizmirNET WiFi, İzmirim Kart dolum noktası ve kütüphaneler; yarıçap, `bbox` veya ilçe geneli. |
-| `izmir_gtfs_status` | Yerel GTFS deposunun durumu, satır sayıları ve takvim penceresi; ağa çıkmaz. |
-| `izmir_neighborhood_profile` | Yayımlanmış mahalle nüfusu ve bina sayısı; eksik katman null. |
-| `izmir_traffic_history` | Ana arter hız/süre **geçmişi**; canlı trafik indeksi değildir. Tazelik en yeni yayımlanmış ölçümden türetilir. |
+This README is the primary English document; a full Turkish version is in [README.tr.md](README.tr.md).
 
-### Sıradaki sürüm: yeni araçlar / Next release: new tools
+## Why izmirmcp
 
-Aşağıdaki araçlar geliştirme dalında eklenmektedir; mevcut 22 aracın adı ve
-şeması değişmez (yalnızca ekleme). / Additive only; existing tools unchanged.
+- **36 tools** across transit, city services, water, environment and the open-data catalog.
+- **One envelope for every answer:** `ok`, `summary`, `data`, `freshness`, `sources`, `limits`,
+  `warnings`, `next_queries`, `error`, `result_info` ([contract](docs/response-contract.md)).
+- **Honest failures:** an unavailable upstream is a typed error (`source_unavailable`,
+  `source_timeout`, `source_rate_limited`), never silently empty data.
+- **Hardened HTTP surface:** body caps, rate limits, API keys, Origin allowlist, structured logs.
+- **Stable contract:** tool names and schemas only change additively ([policy](docs/tool-migration.md)).
 
-| Araç / Tool | TR | EN |
-|---|---|---|
-| `izmir_tram_lines` | Tramvay hatları. | Tram lines. |
-| `izmir_tram_schedule` | Tramvay hattının istasyon ve sefer sıklığı. | Tram stations and headways for a line. |
-| `izmir_bus_line_arrivals` | Bir hattın durağa yaklaşan otobüsleri. | Approaching buses of one line at a stop. |
-| `izmir_bus_live_positions` | Hattaki otobüslerin canlı konumu (≤15 sn önbellek). | Live bus positions on a line (≤15 s cache). |
-| `izmir_dam_status` | İZSU baraj durumu; tarih ve baraj adı filtresi. | İZSU dam status by date and dam name. |
-| `izmir_pharmacies_all` | Tüm eczaneler (yalnız nöbetçi değil). | All pharmacies, not only on-duty. |
-| `izmir_cbs_layer` | İBB CBS katmanları (izinli liste). | İBB GIS layers (allowlisted). |
-| `izmir_events` | Kültür-sanat etkinlikleri. | Culture and arts events. |
-| `izmir_market_prices` | Hal (sebze-meyve/balık) fiyatları. | Wholesale market prices. |
-| `izmir_fare` | İZBAN iki istasyon arası ücret. | İZBAN fare between two stations. |
-| `izmir_parking_fees` | İZELMAN otopark ücret tarifesi. | İZELMAN parking tariffs. |
-| `izmir_traffic_cameras` | Trafik kamerası konumları (yayın yok). | Traffic camera locations (no stream). |
-| `izmir_water_production` | İZSU su üretimi (son anlık görüntü, tarihsiz). | İZSU water production (latest undated snapshot). |
+## Quick start
 
-### Karşılaştırma / Comparison
-
-| Yetenek / Capability | izmir-mcp | halilcengel/IzmirMCP | izmir-open-data-py | IzmirDamMcp |
-|---|---|---|---|---|
-| Ortak zarf, tazelik, tipli hata / envelope, freshness, typed errors | ✓ | – | – | – |
-| CKAN katalog + güvenli SQL / catalog + safe SQL | ✓ | – | kısmi | – |
-| Metro/İZBAN/İZDENİZ tarifeleri | ✓ | ✓ | ✓ | – |
-| Tramvay / tram | ✓ | ✓ | ✓ | – |
-| ESHOT GTFS planlı kalkış / scheduled departures | ✓ | – | – | – |
-| Canlı otobüs / live bus | ✓ | ✓ | ✓ | – |
-| Baraj doluluğu / dam levels | ✓ | – | ✓ | ✓ |
-| CBS katmanları / GIS layers | ✓ | – | ✓ | – |
-| Yakınımdaki (yarıçap/bbox) / nearby search | ✓ | – | – | – |
-| Hava kalitesi, trafik geçmişi / air, traffic history | ✓ | – | kısmi | – |
-| HTTP sertleştirme, Docker, MCP registry | ✓ | – | – | – |
-
-Karşılaştırma 2026-10 itibarıyla ilgili depoların kaynak koduna dayanır. /
-Based on the competitors' source code as of 2026-10.
-
-Her sonuç ortak zarfı taşır: `ok`, `summary`, `data`, `freshness`, `sources`,
-`limits`, `warnings`, `next_queries`, `error`, `result_info`.
-
-## Veri kaynakları
-
-| Kaynak | Kullanım | Durum |
-|---|---|---|
-| `acikveri.bizizmir.com` (CKAN) | Katalog, metadata, DataStore | Çalışıyor (2026-10-28) |
-| `openapi.izmir.bel.tr/api/ibb/izum/otoparklar` | İZELMAN/İZUM otopark doluluğu | Çalışıyor |
-| `openapi.izmir.bel.tr/api/ibb/nobetcieczaneler` | Nöbetçi eczane listesi | Çalışıyor |
-| `openapi.izmir.bel.tr/api/ibb/cevre/havadegerleri/{tarih}` | Hava kalitesi | Çalışıyor |
-| `openapi.izmir.bel.tr/api/metro/istasyonlar` + `/metro/sefersaatleri` | Metro | Çalışıyor |
-| `openapi.izmir.bel.tr/api/izban/istasyonlar` + `/izban/sefersaatleri/{from}/{to}` | İZBAN | Çalışıyor |
-| `openapi.izmir.bel.tr/api/izdeniz/iskeleler` + sefer uçları | İZDENİZ | Çalışıyor |
-| `openfiles.izmir.bel.tr/.../izsu-baraj-doluluk-oranlari.csv` | Baraj doluluğu | Çalışıyor |
-| `openapi.izmir.bel.tr/api/izsu/barajdurum` | Baraj JSON | **HTTP 500** — kullanılmıyor |
-| `openapi.izmir.bel.tr/api/izsu/arizakaynaklisukesintileri` | Su kesintisi | **HTTP 500** — açıkça `unavailable` |
-| CKAN `eshot-otobus-duraklari` (`0c791266-…`, DataStore) | 11.965 ESHOT durağı | Çalışıyor |
-| `openapi.izmir.bel.tr/api/iztek/duragayaklasanotobusler/{durakId}` | Canlı yaklaşan otobüs | Çalışıyor (ETA yok, hız sınırlı) |
-| `www.eshot.gov.tr/gtfs/bus-eshot-gtfs.zip` | ESHOT GTFS (hat/sefer + planlı durak kalkışları) | Çalışıyor — **takvim 2026-10-09'da bitiyor**; `stop_times` yerel SQLite'a alınır |
-| `www.izdeniz.com.tr/gtfs/ship-izdeniz-gtfs.zip` | İZDENİZ GTFS | **HTML dönüyor** — kullanılmıyor |
-| CKAN `semt-pazar-yerleri` (`3e63e16e-…`) | 186 pazar yeri, koordinat + serbest metin gün notu | Çalışıyor |
-| `openfiles.izmir.bel.tr/211488/docs/eshot-otobus-hat-duyurulari.csv` | 124 ESHOT hat duyurusu | Çalışıyor |
-| CKAN `kablosuz-internet-baglanti-noktalari` (`60ca8451-…`) | 857 WizmirNET noktası | Çalışıyor (yinelenen satırlar var) |
-| CKAN `izmirim-kart-dolum-noktalari` (`7a3efbec-…`) | 1.120 dolum noktası | Çalışıyor (**2023 tarihli**) |
-| CKAN `izmir-buyuksehir-belediyesi-kutuphaneleri-bilgileri` (`0c1b15b9-…`) | 10 kütüphane | Çalışıyor (**koordinat yok**) |
-| `metrotramapi.iztek.tr/api/v1/announcements` | İzmir Metro duyuruları | Çalışıyor (doğrulamada boş liste) |
-| `coreapi.izdeniz.com.tr/api/v1/announcements` | İZDENİZ duyuruları | Çalışıyor (gerçek duyurular) |
-| `izban.com.tr` duyuru sayfaları / RSS | İZBAN duyuruları | **302 → FileNotFound** — `unavailable` |
-| OpenStreetMap Nominatim | İlçe/mahalle referans noktaları | 2026-10-28'de alındı, ODbL |
-
-| CKAN `taksi-durak-bilgileri` (`64a72577-…`) | Taksi durakları (koordinatlı) | Çalışıyor |
-| CKAN `ana-arterler-gunluk-hiz-ve-sure-verileri` | 18.731 segment ölçümü (2020→2026) | Çalışıyor (**geçmiş veri**) |
-| CKAN `engelli-sarj-istasyonlari-konum-verisi` | 48 şarj istasyonu | Çalışıyor |
-| CKAN `muhtarliklar` (`7d0b7f55-…`) | 1.292 muhtarlık → 1.219 mahalle referansı | Çalışıyor (2026-10-28) |
-| OpenStreetMap Nominatim | 30 ilçe + 24 simge yer | 2026-10-28'de alındı, ODbL |
-
-İlçe ve mahalle konumları yaklaşık referans noktalarıdır; adres çözümleme değildir.
-Eczane listesi günlüktür ve telefonla teyit gerektirir. Otopark boş yer sayıları
-anlık bildirimdir. İstasyon ve durak konumları statiktir; canlı sefer durumu değildir.
-ESHot kaynak araştırmasının tam kanıtı:
-[reports/eshot-ulasim-kaynak-arastirmasi.md](reports/eshot-ulasim-kaynak-arastirmasi.md).
-
-## Dokümantasyon
-
-Aşağıdaki belgeler doğrudan koddan türetilir ve `tests/test_docs.py` ile koda
-karşı kilitlenir:
-
-- [Yanıt sözleşmesi](docs/response-contract.md) — zarf alanları, hata
-  taksonomisi, `result_info`.
-- [Araç referansı](docs/tool-reference.md) — 22 aracın girdi/çıktı sözleşmesi.
-- [MCP arayüzü](docs/mcp-interface.md) — taşımalar, yüzey, hata semantiği.
-- [Dağıtım](docs/deployment.md) — ortam değişkenleri, auth, CORS, Docker.
-- [Kaynaklar](docs/sources.md) — kaynak envanteri, durum ve lisans.
-- [İzleme](docs/monitoring.md) — `/healthz`, `/readyz`, `/status`, log formatı.
-- [Gizlilik](docs/privacy.md) — ne loglanır, ne loglanmaz, istemci kimliği.
-- [Registry](docs/registry.md) — `server.json` ve sürüm yayın adımları.
-- [Yer çözümleme](docs/place-resolution.md) — mahalle/ilçe kuralları.
-- [GTFS tarifesi](docs/gtfs-schedule.md) — yerel depo ve takvim gerçeği.
-- [Yerel SQL](docs/datastore-sql.md) — izin listesi, kopya bütçesi ve SELECT sınırları.
-- [Kaynak erişilebilirliği](docs/source-reachability-analysis.md) — çalışan/kapalı uçlar ve kanıt.
-- [API erişimi](docs/api-access.md) — anahtar üretimi, kota, rotasyon.
-- [Tarayıcı ve CORS](docs/browser-cors.md) — origin izin listesi, preflight.
-- [Yapılandırma](docs/configuration.md) — yerel, konteyner ve genel dağıtım profilleri.
-- [Geliştirme](docs/development.md) — kurulum, testler, lint, CI işleri.
-- [Güvenlik](docs/security.md) — tehdit modeli: SSRF, gövde/kaynak sınırları, auth varsayılanları.
-- [Araç geçişi](docs/tool-migration.md) — araç adı/şema uyumluluk sözü ve kırıcı değişiklik süreci.
-
-## Kurulum
+`uvx` (the PyPI release is pending; until then install from source):
 
 ```bash
-python3.11 -m venv .venv
-source .venv/bin/activate
-pip install -e ".[dev]"
-python -m app.main
+uvx izmir-mcp stdio
 ```
 
-Yerel uçlar:
-
-- `GET /healthz` — süreç ayakta mı (kimlik doğrulaması istemez).
-- `GET /readyz` — yerel hazırlık: araç yüzeyi kuruldu mu. **Kaynak sağlığı
-  ölçmez**; `upstream_health: "not_checked"` döner ve yalnızca yerel durumu
-  bildirir. Hazır değilse `503`.
-- `GET /status` — araç listesi, limitler, hız sınırı/sayaç telemetrisi.
-  API anahtarı yapılandırıldıysa korumalıdır.
-- `POST /mcp/` (Streamable HTTP MCP)
-
-### HTTP yüzeyi sertleştirmesi
-
-| Koruma | Varsayılan | Ayar |
-|---|---|---|
-| Gövde tavanı | 1 MB | `IZMIR_MCP_CLIENT_MAX_BODY_BYTES` |
-| İstemci başına hız sınırı | 60 istek, 1/sn dolum | `IZMIR_MCP_CLIENT_RATE_LIMIT_CAPACITY`, `..._REFILL_PER_SECOND` |
-| Eşzamanlılık sınırı | 32 | `IZMIR_MCP_CLIENT_MAX_CONCURRENT_REQUESTS` |
-| Bearer API anahtarı | kapalı | `IZMIR_MCP_API_KEYS` |
-| Tarayıcı Origin allowlist | boş (Origin gönderen reddedilir) | `IZMIR_MCP_CORS_ALLOWED_ORIGINS` |
-| Yapısal erişim logu | açık | `IZMIR_MCP_ACCESS_LOG_ENABLED` |
-
-Aşım durumları zarfla değil, HTTP durum koduyla döner: `413 payload_too_large`,
-`429 rate_limited` (+`Retry-After`), `503 server_busy`, `403 origin_not_allowed`,
-`401 unauthorized` (+`WWW-Authenticate`).
-
-Sınırlar ve dürüst notlar:
-
-- Hız sınırı ve sayaçlar **süreç içi** ve uçucudur. Çok işçili (multi-worker)
-  dağıtımda her işçi kendi bütçesini uygular; toplam sınırı için önüne bir
-  reverse proxy koyun.
-- `X-Forwarded-For` yalnızca sunucu loopback'e bağlıyken, tek başlık ve tek
-  bare değer taşıdığında dikkate alınır. Virgüllü liste, yinelenen başlık veya
-  boşluk içeren değer güvenilmez; o durumda istemci kimliği soket eşidir. Böylece
-  tek bağlantıdan istek başına sahte kimlik üretip hız sınırı atlatılamaz.
-- Erişim logu yöntem, yol, durum ve süre yazar; sorgu dizesi, gövde, başlık ve
-  API anahtarı **hiçbir zaman** loglanmaz.
-- Origin allowlist boşken tarayıcı istekleri reddedilir; CLI/stdio MCP
-  istemcileri (Origin başlığı göndermeyenler) etkilenmez.
-- Bu katman bir yetkilendirme sunucusu değildir; statik anahtar karşılaştırması
-  yapar, OAuth/döner anahtar yoktur.
-
-Yerel GTFS tarife deposu varsayılan olarak `.data/izmir_mcp.sqlite3` altında
-tutulur; `IZMIR_MCP_DATABASE_PATH` ile değiştirilebilir ve git dışındadır.
-
-## Docker
+Docker / GHCR:
 
 ```bash
-docker build -t izmir-mcp .
-docker run -p 8000:8000 -v izmir-data:/data izmir-mcp
-curl -s http://127.0.0.1:8000/readyz
+docker run --rm -i ghcr.io/zexy2/izmir-mcp python -m app.stdio      # stdio
+docker run -p 8000:8000 -v izmir-data:/data ghcr.io/zexy2/izmir-mcp  # HTTP on /mcp/
 ```
 
-İmaj `python:3.11-slim` (digest pinli), root olmayan `izmir` kullanıcısı ve
-`/data` hacmi kullanır. 2026-10-28'de derlenip çalıştırıldı: konteyner
-`healthy`, 22 araç, GTFS deposu açılışta kuruldu, stdio ve HTTP transportları
-aynı imajda çalışıyor. `.data/` ve `.venv/` imaja **girmez**; GTFS deposu
-konteyner ilk açılışta `docker/entrypoint.sh` ile yayımlanmış arşivden yeniden
-kurulur. Kurulum başarısız olursa konteyner durmaz: tarife araçları dürüst
-`source_unavailable` döner, diğer araçlar çalışmaya devam eder. Kurulumu
-atlamak için `IZMIR_MCP_SKIP_GTFS_BUILD=1`.
+From source:
 
-stdio için aynı imaj: `docker run --rm -i izmir-mcp python -m app.stdio`.
-
-### CI ve registry
-
-- `.github/workflows/ci.yml`: pytest, canlı smoke (bloklamaz), import ve araç
-  yüzeyi kontrolü, sunucuyu başlatıp `/healthz`+`/readyz` probe'u, ardından
-  imaj derleme ve konteyner içinde healthz kontrolü.
-- `server.json`: MCP registry manifesti (pypi stdio paketi + OCI imaj).
-- `CHANGELOG.md`: sürüm geçmişi.
-
-## MCP istemcisine ekleme
-
-En kolay yol `uvx` (PyPI'dan kurulum gerektirmez). / Easiest: `uvx`.
-
-Claude Desktop (`claude_desktop_config.json`):
-
-```json
-{
-  "mcpServers": {
-    "izmir": { "command": "uvx", "args": ["izmir-mcp", "stdio"] }
-  }
-}
+```bash
+python3.11 -m venv .venv && .venv/bin/pip install -e ".[dev]"
+.venv/bin/python -m app.stdio   # or: python -m app.main (Streamable HTTP, http://127.0.0.1:8000/mcp/)
 ```
 
-Cursor (`~/.cursor/mcp.json` veya proje `.cursor/mcp.json`):
+Claude Desktop (`claude_desktop_config.json`) and Cursor (`~/.cursor/mcp.json`):
 
 ```json
 {
@@ -268,274 +74,135 @@ VS Code (`.vscode/mcp.json`):
 }
 ```
 
-Uzak HTTP sunucusu için (kendi barındırmanız) / remote HTTP (self-hosted):
+More options: [install guide](docs/install.en.md).
 
-```json
-{
-  "servers": {
-    "izmir": { "type": "http", "url": "https://<sunucunuz>/mcp/" }
-  }
-}
+## Tools
+
+Full input/output contracts: [tool reference](docs/tool-reference.md).
+
+### Transit
+
+| Tool | Purpose |
+|---|---|
+| `izmir_transit_stations` | Metro, İZBAN, İZDENİZ stations and piers |
+| `izmir_transit_schedule` | Published metro/İZBAN/İZDENİZ timetables |
+| `izmir_tram_lines` | Tram lines |
+| `izmir_tram_schedule` | Tram stations and headways for a line |
+| `izmir_bus_stops` | Search ESHOT stops by name or location |
+| `izmir_bus_arrivals` | Buses approaching a stop (live) |
+| `izmir_bus_line_arrivals` | Approaching buses of one line at a stop |
+| `izmir_bus_live_positions` | Live bus positions on a line |
+| `izmir_bus_departures` | Scheduled GTFS departures (not live ETA) |
+| `izmir_bus_routes` | ESHOT route summary and stop sequences |
+| `izmir_gtfs_status` | Local GTFS store status and calendar window |
+| `izmir_transport_disruptions` | ESHOT, Metro and İZDENİZ notices |
+| `izmir_fare` | İZBAN fare between two stations |
+| `izmir_plan_trip` | Direct public-transport options between two places |
+| `izmir_mobility_nearby` | All transport options near a point |
+| `izmir_traffic_history` | Arterial speed/duration history (not live) |
+| `izmir_traffic_cameras` | Traffic camera locations (no stream) |
+| `izmir_parking_fees` | İZELMAN parking tariffs |
+
+### City services
+
+| Tool | Purpose |
+|---|---|
+| `izmir_nearby` | Parking, on-duty pharmacies, stations, stops, taxis, chargers nearby |
+| `izmir_city_services_nearby` | WiFi, İzmirim Kart top-up points, libraries |
+| `izmir_pharmacies_all` | All pharmacies, not only on-duty |
+| `izmir_market_schedule` | District market calendar |
+| `izmir_market_prices` | Wholesale market prices |
+| `izmir_events` | Culture and arts events |
+| `izmir_neighborhood_profile` | Neighbourhood population and buildings |
+| `izmir_cbs_layer` | Allowlisted İBB GIS layers |
+
+### Water
+
+| Tool | Purpose |
+|---|---|
+| `izmir_water_status` | İZSU dam levels and outage feed status |
+| `izmir_dam_status` | Dam status by date and dam name |
+| `izmir_water_production` | İZSU water production snapshot |
+
+### Environment
+
+| Tool | Purpose |
+|---|---|
+| `izmir_air_quality` | Air-quality measurements by date and station |
+
+### Data & server
+
+| Tool | Purpose |
+|---|---|
+| `izmir_health` | Local readiness and published limits |
+| `izmir_search_datasets` | Search the İzmir Open Data (CKAN) catalog |
+| `izmir_get_dataset` | Dataset metadata and resources |
+| `izmir_get_resource_schema` | DataStore resource columns |
+| `izmir_query_resource` | Filtered DataStore records (no SQL) |
+| `izmir_datastore_query` | One safe SELECT over a local copy |
+
+## Prompts and resources
+
+- **Workflow prompts:** `gunun_ozeti`, `veri_kesfi`, `toplu_ulasim`, `otobus`, `pazar_ve_duyurular`, `sehir_hizmetleri`, `nobetci_eczane`, `rota_karsilastir`, `bugun_ne_yapsam`, `su_durumu_raporu`, `eczane_ve_ulasim`, `sehir_simdi`.
+- **Resources:** `izmir://coverage`, `izmir://sources`, `izmir://schema/catalog`, `izmir://reference/fares`, `izmir://reference/lines`.
+
+See [MCP interface](docs/mcp-interface.md).
+
+## Example conversations
+
+1. "Konak to Karşıyaka: ferry, metro + İZBAN or bus — which is faster and cheaper?"
+2. "Is there a market in Bornova today, and how are air quality and transport notices?"
+3. "Any water outage in Buca, and how full are the dams?" (the İZSU outage API sometimes returns 500; the agent sees a typed error)
+4. "On-duty pharmacy in Karşıyaka and buses arriving at the nearest stop?"
+5. "What is the state of İzmir right now for transport, air and water?"
+
+## Architecture
+
+```mermaid
+flowchart LR
+  C[MCP client] -->|stdio / Streamable HTTP| S[izmirmcp server]
+  S --> G[HTTP guards: auth, rate limit, Origin]
+  S --> T[36 tools + resources + prompts]
+  T --> V[services: envelope, freshness, typed errors]
+  V --> K[connectors + cache]
+  V --> L[(local SQLite: GTFS, DataStore copies)]
+  K --> U[İzmir open data: CKAN, openapi.izmir.bel.tr, ESHOT, İZSU, İZDENİZ]
 ```
 
-Barındırma: Docker imajı herhangi bir konteyner platformunda (Fly.io, Render,
-Cloud Run) çalışır; `PORT 8000`, `/healthz` sağlık kontrolü ve `/data` hacmi
-yeterlidir. Herkese açmadan önce `IZMIR_MCP_API_KEYS`, `IZMIR_MCP_REQUIRE_AUTH`
-ve `IZMIR_MCP_ALLOWED_HOSTS` ayarlayın. Henüz herkese açık bir demo uç noktası
-yoktur; oluşturulduğunda `server.json` içine `remotes` girdisi eklenecektir.
+## Configuration
 
-Yerel geliştirme kaydı (Freebuff/Codex/Claude Code benzeri istemciler):
+All settings are `IZMIR_MCP_*` environment variables. Before exposing HTTP publicly, set
+`IZMIR_MCP_API_KEYS`, `IZMIR_MCP_REQUIRE_AUTH=true` and `IZMIR_MCP_ALLOWED_HOSTS`.
+See [configuration](docs/configuration.md) and [deployment](docs/deployment.md).
+Health endpoints: `/healthz`, `/readyz` (never checks upstream), `/status` ([monitoring](docs/monitoring.md)).
 
-```json
-{
-  "mcpServers": {
-    "izmir": {
-      "command": "/mutlak/yol/izmirmcp/.venv/bin/python",
-      "args": ["-m", "app.stdio"]
-    }
-  }
-}
-```
+## Data sources and disclaimer
 
-`app.stdio` masaüstü istemciler için stdio taşıması açar; `app.main` ise
-Streamable HTTP sunucusunu çalıştırır:
+Data comes from İzmir Büyükşehir Belediyesi open data (CKAN and `openapi.izmir.bel.tr`), ESHOT,
+İZSU, İZBAN, İZDENİZ and İzmir Metro; reference points are © OpenStreetMap contributors (ODbL 1.0).
+Status per source: [sources](docs/sources.md), [reachability](docs/source-reachability-analysis.md).
+Known gaps (no live traffic index, no İZBAN notice feed, GTFS calendar expiry): [limits](docs/limits.md).
 
-```text
-http://127.0.0.1:8000/mcp/
-```
+This is an unofficial project. Data may be stale or incomplete; verify critical information
+(e.g. pharmacies by phone) with the publishing institution. Public access does not imply a data licence.
 
-## Testler
+## Security
 
-```bash
-.venv/bin/python -m pytest -q
-```
+Report vulnerabilities privately: [SECURITY.md](SECURITY.md). Threat model: [docs/security.md](docs/security.md);
+scan results: [docs/development/reports/security-report.md](docs/development/reports/security-report.md).
 
-Testler dış kaynağa bağlanmaz; konnektörler sahte istemcilerle değiştirilir.
-Canlı kaynak doğrulaması isteğe bağlıdır:
+## Contributing
 
-```bash
-.venv/bin/python scripts/smoke_live.py
-```
+See [CONTRIBUTING.md](CONTRIBUTING.md) and the [Code of Conduct](CODE_OF_CONDUCT.md). Tests run offline:
+`.venv/bin/python -m pytest -q` ([development](docs/development.md)).
 
-Sözleşme ve güvenlik kapsamı (`571 passed`):
+## Documentation
 
-- `tests/test_contract_conformance.py` — 17 aracın her biri için zarf alan
-  kümesi, tip ve `result_info.returned` tutarlılığı; geçersiz girdinin ağa hiç
-  çıkmadan `validation_error` + `error.field` dönmesi; kaydedilmiş gerçek yanıtın
-  503/500 olarak yeniden oynatılmasıyla tipli kaynak hatası. Konnektör çağrıları
-  yol bazında kaydedilir, ağ yoktur.
-- `tests/test_discovery_surface.py` — tools/resources/prompts şema geçerliliği,
-  çıktı şemasının `ResponseEnvelope` ile eşleşmesi, kaynakların gizli bilgi ve
-  API ucu sızdırmaması, prompt argümanlarının kullanıcı verisi olarak JSON
-  kodlanması ve güvensiz değerlerin reddi.
-- `tests/test_http_security.py` — kimlik doğrulama bypass varyantları (şema,
-  uzunluk, çift başlık, yol kodlaması), origin bypass (şema, port, alt alan adı,
-  çift başlık, `null`, `*`), gövde tavanı (Content-Length, chunked, sahte
-  uzunluk), `X-Forwarded-For` spoofing ve log hijyeni.
-- `tests/test_service_source_errors.py` — servis katmanının konnektör hatasını
-  yutmadan tipli zarfa çevirmesi; programlama hatasının kaynak arızası gibi
-  gösterilmemesi.
+[Response contract](docs/response-contract.md) · [Tool reference](docs/tool-reference.md) · [MCP interface](docs/mcp-interface.md) · [Deployment](docs/deployment.md) · [Configuration](docs/configuration.md) · [Data sources](docs/sources.md) · [Source reachability](docs/source-reachability-analysis.md) · [Monitoring](docs/monitoring.md) · [Privacy](docs/privacy.md) · [Security / threat model](docs/security.md) · [Security report](docs/development/reports/security-report.md) · [API access](docs/api-access.md) · [Browser and CORS](docs/browser-cors.md) · [Local SQL](docs/datastore-sql.md) · [Place resolution](docs/place-resolution.md) · [GTFS schedule](docs/gtfs-schedule.md) · [Registry](docs/registry.md) · [Tool migration policy](docs/tool-migration.md) · [Development](docs/development.md) · [Limits](docs/limits.md) · [Install (EN)](docs/install.en.md) · [Install (TR)](docs/install.tr.md) · [Launch drafts](docs/launch.md)
 
-Tüm servisler kaynak arızalarını ortak `source_failure_envelope` yardımcısıyla
-tipli zarfa çevirir: HTTP 429 `source_rate_limited`, zaman aşımı
-`source_timeout`, diğerleri `source_unavailable`. Üçü de `temporary: true`
-taşır. Bu, katalog, yakınlık, semt pazarı, şehir hizmetleri ve duyuru
-servislerinde `tests/test_contract_conformance.py` ile kilitlidir.
+## License and acknowledgements
 
-## REA ile doğrulama
-
-Katalog katmanı kurulmadan önce portal, REA 6.8.0 ile CDP üzerinden statik
-olarak incelendi. Kanıt dosyası ve bulgular:
-
-- [REA inceleme raporu](reports/rea-open-data-portal.md)
-- [REA kanıt paketi](reports/rea-open-data-portal-evidence.json)
-
-REA portalın 11 script'ini ve 239.183 AST düğümünü analiz etti; statik pakette
-sabit CKAN yolu bulunmadı. Bu nedenle uçlar ayrıca doğrudan HTTP ile doğrulandı.
-Ayrıntı ve sınırlar raporda.
-
-## Sınırlar
-
-- `izmir_nearby` üç konum modu kabul eder: `lat/lon` veya `place` + `radius_m`,
-  `bbox=[min_lon, min_lat, max_lon, max_lat]` ve `district`. Modlar birbirini
-  dışlar; `bbox`/`district` ile `radius_m` birlikte kullanılamaz. Üç modun
-  hepsi `result_info.returned/matched/truncated` döndürür; sonuç `limit` ile
-  kesilirse `matched` tüm eşleşmeyi bildirir ve özet "İlk sonuçlar
-  gösteriliyor." der. `izmir_mobility_nearby` aynı sözleşmeyi devralır.
-- `bbox` modu dört kenarı da **dahil** eder ve koordinatı yayımlanan altı türün
-  tümünde çalışır. Referans nokta olmadığı için `distance_m` **null** döner ve
-  sonuçlar mesafeye göre sıralanmaz. Kaynakta koordinatı olmayan satırlar
-  dikdörtgene alınamaz; eşleşme sayısı ve kesilme `result_info` içinde bildirilir.
-- `district` modu **yalnızca eczanede** anlamlıdır. Kaynak `Bolge` alanı idari
-  ilçe değil nöbet bölgesidir (`KARŞIYAKA 4`, `BORNOVA 3` gibi); eşleşme bu
-  bölge/bölge açıklaması metnine dayanır, sınır doğrulaması değildir ve mesafe
-  gösterilmez. Yalnızca bölge metninde ilçe adı geçen satırlar eşleşir; bu tam
-  ilçe envanteri değildir. Otopark kaynağı ilçe **ve adres yayımlamaz** (doğrulamada 7
-  kaydın tamamı `null`), metro/İZBAN/iskele/durak katmanlarında da ilçe alanı
-  yoktur; bu türler ilçe modunda atlanır ve uyarı döner. Eşleşme yoksa bu "ilçede
-  eczane yok" kanıtı sayılmaz.
-- `izmir_city_services_nearby` da `izmir_nearby` ile aynı üç konum modunu kabul
-  eder: `lat/lon` veya `place` + `radius_m`, `bbox`, `district`. Modlar birbirini
-  dışlar; `bbox`/`district` ile `radius_m` birlikte kullanılamaz. Bu araçta
-  modlar arasında **kapsam farkı vardır**:
-  - `bbox` dört kenarı da dahil eder ve yalnızca koordinat yayımlayan WiFi ve
-    İzmirim Kart katmanlarında çalışır. **Kütüphane katmanı koordinat
-    yayımlamadığı için dikdörtgen sorgusuna hiçbir zaman girmez**; `distance_m`
-    null döner.
-  - `district` ilçe geneli listeler ve mesafe göstermez. Eşleşme kaynağın kendi
-    ilçe alanı ya da adres metniyle yapılır (`published_district_field`), idari
-    sınır doğrulaması değildir. WizmirNET ve İzmirim Kart kayıtları adres/ilçe
-    metninden, kütüphaneler ilçe alanından eşleşir. Eşleşme yoksa bu "o ilçede
-    hizmet yok" kanıtı değildir.
-  Eşleşme sayısı ve kesilme `result_info` içinde bildirilir.
-- `izmir_transport_disruptions` dört operatör tanır: `eshot`, `metro`,
-  `izdeniz`, `izban`. `operator` verilmezse ilk üçü birleştirilir. Bunlar
-  **duyurudur**; canlı gecikme, araç konumu veya arıza telemetrisi değildir.
-- Yalnızca ESHOT makine-okunur geçerlilik penceresi (başlangıç/bitiş) yayımlar;
-  bu yüzden `active` **yalnızca ESHOT satırlarında** hesaplanır. Metro ve
-  İZDENİZ'de `active` **null** döner — "etkin değil" değil, "bilinmiyor".
-- **İZBAN için erişilebilir duyuru akışı yoktur.** `Rss.aspx` ve
-  `Sayfalar/Single.aspx` sayfaları HTTP 302 ile `FileNotFound.htm`'e
-  yönlendiriyor, `metrotramapi`'de İZBAN duyuru yolu 404. Bu yüzden
-  `operator="izban"` her zaman `source_unavailable` döner; duyuru yok sayılmaz.
-- Erişilemeyen veya boş dönen operatör sonuçtan düşer ve `warnings` içinde açıkça
-  bildirilir; "o operatörde aksaklık yok" sonucu çıkarılmaz. Toplam eşleşme ve
-  kesilme `result_info` ile raporlanır.
-- Mahalle çözümlemesi İzmir Büyükşehir Belediyesi'nin muhtarlık envanterine
-  dayanır (1.292 kayıt → 1.219 benzersiz mahalle, 30 ilçe). Nokta, muhtarlık
-  konumunun **mahalle başına ortalamasıdır**; mahalle sınırı veya kapı adresi
-  değildir.
-- Aynı mahalle adı birden çok ilçede geçebilir (`Atatürk` 17 ilçede). Bu
-  durumda `place` tek başına `validation_error` döner ve adayları listeler;
-  `place_district` ile ilçe verilmelidir. Sessizce ilk eşleşme seçilmez.
-- İlçe adıyla aynı adı taşıyan mahallelerde ilçe yorumu kazanır (`Konak`
-  mahallesi değil, Konak ilçesi).
-- **Canlı trafik indeksi yoktur** (`/api/ibb/trafikyogunluk` → 404).
-  `izmir_traffic_history` yalnızca **geçmiş** segment ölçümlerini verir
-  (8 sabit koridor, 2020-06 → 2026-10); anlık yoğunluk veya ETA değildir.
-  `freshness.source_updated_at` kaynağın **en yeni yayımlanmış ölçümüdür** ve
-  `limits` bunu `en_yeni_olcum=` ile, tazelik eşiğini `stale_after_hours=` ile
-  söyler (`IZMIR_MCP_TRAFFIC_STALE_AFTER_HOURS`, varsayılan 72). Eşikten eski
-  veri `stale` döner — tazelik yeniden indirme zamanına göre iddia edilmez.
-  Filtresiz küçük `limit` tek sayfalık "en yeni önce" okuması yapar ve toplamı
-  kaynağın `total` alanından alır; `segment`/`since`/`until` filtreleri tam
-  tarama gerektirir çünkü eşleşme veri setinin herhangi bir yerinde olabilir.
-- Kaza/olay verisi ve rota planlayıcı yoktur.
-- İZSU arıza/kesinti akışı kaynakta 500 döndüğü için veri üretilmez.
-- Hava kalitesi kaynağı koordinat ve birim yayımlamaz; AQI hesabı yapılmaz.
-- Metro tarifesi istasyon çifti değil, saat aralığı ve sefer sıklığıdır.
-- İZDENİZ `day` değeri kaynağın kendi gün kimliğidir; haftanın günü olduğu
-  varsayılmaz.
-- ESHOT varış akışı **ETA/dakika yayımlamaz**; yalnızca kalan durak sayısı ve
-  anlık araç konumu döner. Yaklaşan otobüs uçları geçersiz durakta da `200` +
-  boş dizi döndüğü için boş yanıt "sefer yok" kanıtı sayılmaz; zarf uyarı taşır.
-- İZTEK ardışık yoğun isteklerde `429` döndürdü; bağlantı bu nedenle yumuşak bir
-  hız sınırıyla ve 20 saniyelik önbellekle çalışır.
-- ESHOT GTFS `calendar.txt`'teki servis penceresi **2026-10-09'da bitmiş**
-  durumdadır (doğrulama: 2026-10-28). `izmir_bus_routes` ve
-  `izmir_bus_departures` her yanıtta `calendar_end` ile "tarife güncel
-  olmayabilir" uyarısını döndürür; takvim dışı tarihlerde kalkış üretilmez.
-- `izmir_bus_routes(detail=true)` bir hattın yayımlanmış **tüm durak
-  varyantlarını** `direction_id` bazında döndürür. Aynı yönde kısa tur veya
-  farklı güzergâh varsa desenler birleştirilmez; `stop_sequence` sırası ve
-  yinelenen duraklar (halka hatları) korunur. `limit` bu modda uygulanmaz.
-  Kaynak `trip_headsign` yayımlamadığı için yön adı uydurulmaz; yalnızca
-  `direction_id` ve varsa kaynak başlığı verilir. Bu da yayımlanmış tarifedir,
-  canlı kalkış veya ETA değildir.
-- `izmir_bus_departures` ilk kalkış sorgusunda ESHOT GTFS `stop_times.txt`
-  (~2,1M satır, 85 MB) dosyasını yerel SQLite deposuna alır (doğrulanan: ~4 sn,
-  ~141 MB); sonraki sorgular indeksten okunur. `at` verilmezse bugünkü İstanbul
-  saati kullanılır. Bu **planlı tarife**dir; canlı kalkış, gecikme veya ETA
-  değildir. `pickup_type=1` (binilemeyen) satırlar elenir ve `25:xx` biçimindeki
-  GTFS saatleri doğru takvim gününe yerleştirilir.
-- `izmir_bus_departures` iki ek mod sunar ve **ikisi de tarife deposunu
-  kurmaz**: `stop_query` yalnızca durak adayları döndürür (kalkış değil;
-  `match=exact|fuzzy`), `lat`+`lon` ise yarıçaptaki (varsayılan 500 m, en yakın
-  25 durak) kalkışları tek zaman sırasında birleştirir. Yarıçapta yayımlanmış
-  durak yoksa boş yanıt + uyarı döner; `distance_m` kuş uçuşudur ve `limit`
-  tüm durak kümesi için toplamdır, durak başına değildir.
-- İZDENİZ GTFS ZIP bağlantısı `text/html` döndürdüğü için vapur GTFS kapsamı
-  yoktur; mevcut İZDENİZ sefer araçları openapi kaynaklarını kullanır.
-- Metro, tramvay ve İZBAN GTFS'leri indirilip doğrulandı ancak bağlanmadı:
-  İZBAN feed'i 2023 tarihli ve takvimi 2025-01-01'de bittiği için güncel
-  değildir.
-- Belgesiz `/api/eshot/...`, `/api/iztek/hatlar` gibi tahmini yollar `404`
-  döndüğü için kullanılmaz. `ibb/cbs/noktayayakinduraklar` projeksiyon
-  parametreleri doğrulanamadığı için bağlanmadı.
-- Semt pazarı kurulma günü yalnızca kaynağın serbest metninden (`ACIKLAMA`)
-  çıkarılır. Metinden gün çıkmayan kayıtlar `day_confidence="unknown"` ile
-  listelenir; gün uydurulmaz ve "o gün pazar yok" sonucu kanıt sayılmaz.
-- ESHOT hat duyuruları canlı gecikme/araç durumu değildir. `active` alanı
-  yalnızca duyurunun kendi başlangıç/bitiş tarihini sistem tarihiyle
-  karşılaştırır.
-- Kütüphane katmanı **koordinat yayımlamaz**; bu nedenle `distance_m` ve
-  `maps_url` null döner, yarıçap filtresi uygulanamaz. Adres ve ilçe verilir.
-- WizmirNET ve İzmirim Kart katmanlarında kaynak aynı konumu birden çok satırla
-  yayımlıyor; aynı konum/adres tekilleştirilir ve yinelenen satır sayısı uyarıda
-  bildirilir.
-- İzmirim Kart dolum noktaları **2023-08-21** tarihli statik yayımdır; nokta
-  kapanmış olabilir.
-- **Canlı trafik indeksi İzmir'de yok**: `openapi.izmir.bel.tr/api/ibb/trafikyogunluk`
-  `404` döner. Yalnızca geçmişe dönük `ana-arterler-gunluk-hiz-ve-sure-verileri`
-  (XLSX) ve 2023 tarihli `trafik-kameralari` vardır; ikisi de bağlanmadı.
-- **Metro ekipman/arıza verisi yok**: `metro/ekipmanlar` ve `metro/arizalar`
-  `404` döner. İstanbul'daki `metro_accessibility_status` aracının karşılığı yok.
-- "Sosyal tesis" adıyla yayımlanmış bir veri seti bulunmadı; upstream'deki
-  `sosyal_tesis_nearby` aracının birebir karşılığı yoktur.
-- `izmir_datastore_query` sunucu tarafı SQL değildir: yalnızca
-  `IZMIR_MCP_CKAN_SQL_ALLOWED_RESOURCE_IDS` ile açıkça izin verilen bir kaynağın
-  **tamamı** yerel SQLite kopyasına alındıktan sonra tek SELECT çalışır. Liste
-  varsayılan olarak boştur; kaynak toplamı satır/byte bütçesini aşarsa veya
-  sayfalar arasında değişirse `source_unavailable` döner ve kısmi toplam
-  üretilmez. JOIN, alt sorgu, CTE, UNION, pencere fonksiyonu ve yazma yoktur.
-  Ayrıntı: [docs/datastore-sql.md](docs/datastore-sql.md).
-- Kaynak hatası etiketleri tek yerden üretilir (`source_failure_envelope`):
-  HTTP 429 `source_rate_limited`, zaman aşımı `source_timeout`, diğer kaynak
-  arızaları `source_unavailable`. Hiçbiri exception olarak sızmaz.
-- Zarf conformance testi kaynak yanıtlarını yeniden oynatır; bu, alan şeklini ve
-  hata taksonomisini doğrular, canlı kaynağın bugün aynı şemayı döndürdüğünü
-  değil. Canlı doğrulama `scripts/smoke_live.py`'nin işidir.
-
-## Kaynak ve lisans
-
-Bu proje, [istanbulmcp](https://github.com/Batu1-1an/istanbulmcp) deposunun
-mimarisinden ve yanıt sözleşmesinden esinlenir. Zarf, doğrulama, önbellek ve MCP
-kayıt katmanındaki bazı yardımcılar o projedeki yaklaşımdan uyarlanmıştır;
-İBB/İETT/İSKİ/İSPARK konnektörlerinden kod alınmamıştır.
-
-Bu deponun kodu [MIT lisansı](LICENSE) ile yayımlanır (telif: zexy2). Upstream
-istanbulmcp deposunda bir LICENSE dosyası bulunmadığı için oradan uyarlanan
-yardımcıların yeniden kullanım koşulları belirsizdir; geniş dağıtımdan önce
-upstream sahibinden izin alınması ya da bu modüllerin yeniden yazılması önerilir.
-
-Şehir verilerinin lisansları yayıncı kurumlara aittir; açık erişim lisans izni
-anlamına gelmez. İlçe/mahalle referans noktaları OpenStreetMap katkıcılarına aittir
-(ODbL 1.0).
-
-## English
-
-İzmir MCP is a read-only [Model Context Protocol](https://modelcontextprotocol.io)
-server for İzmir open city data. It exposes 35 tools (open-data catalog and
-DataStore queries, nearby parking/on-duty pharmacies/stations, İZSU dam levels,
-air quality, metro/İZBAN/İZDENİZ timetables, ESHOT bus stops, arrivals and GTFS
-departures, district markets, transport notices, city services, neighbourhood
-profiles, road traffic history, İZBAN fares, parking tariffs, traffic camera
-locations and İZSU water production), plus discovery resources and workflow
-prompts. Every response uses one envelope with freshness, limits and warnings;
-an unavailable source is reported as a typed error, never as empty data.
-
-Quick start:
-
-```bash
-pip install izmir-mcp
-izmir-mcp-stdio            # stdio transport for desktop MCP clients
-izmir-mcp                  # Streamable HTTP on http://127.0.0.1:8000/mcp/
-docker compose up --build  # hardened local container
-```
-
-Before exposing the HTTP server publicly, set `IZMIR_MCP_API_KEYS`,
-`IZMIR_MCP_REQUIRE_AUTH=true` and `IZMIR_MCP_ALLOWED_HOSTS`. See
-[configuration](docs/configuration.md) and the [threat model](docs/security.md).
-Tool names and input schemas are stable ([policy](docs/tool-migration.md)).
-Documentation is in Turkish; tool descriptions and schemas are bilingual-friendly.
-Code is MIT-licensed; city data licences belong to the publishing institutions.
+Code is released under the [MIT License](LICENSE). Endpoint lists adapted from Apache-2.0 projects
+(halilcengel/IzmirMCP, AtaCanYmc/izmir-open-data-py) are attributed in [NOTICE](NOTICE).
+The architecture and response contract are inspired by
+[istanbulmcp](https://github.com/Batu1-1an/istanbulmcp). City data licences belong to the publishing institutions.

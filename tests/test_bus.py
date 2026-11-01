@@ -207,3 +207,36 @@ async def test_rate_limited_arrivals_return_source_rate_limited():
     assert envelope["ok"] is False
     assert envelope["error"]["code"] == "source_rate_limited"
     assert envelope["error"]["temporary"] is True
+
+
+class _UnreachableEshot:
+    """Fails loudly if the service touches the upstream at all."""
+
+    async def stops(self):  # pragma: no cover - must never run
+        raise AssertionError("upstream must not be called for invalid input")
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("radius_m", [0, -5, 10_000_000])
+async def test_bus_stops_rejects_bad_radius_before_upstream(radius_m):
+    service = BusService(settings=get_settings(), api=_UnreachableEshot())  # type: ignore[arg-type]
+    with pytest.raises(InputValidationError) as exc:
+        await service.stops(lat=38.4, lon=27.1, radius_m=radius_m)
+    assert exc.value.field == "radius_m"
+
+
+@pytest.mark.asyncio
+async def test_bus_stops_tool_radius_zero_is_typed_validation_error_offline(monkeypatch):
+    from app.connectors.eshot import EshotConnector
+
+    async def boom(self, *args, **kwargs):
+        raise AssertionError("upstream must not be called for invalid input")
+
+    monkeypatch.setattr(EshotConnector, "stops", boom)
+    from app.mcp.server import izmir_bus_stops
+
+    envelope = await izmir_bus_stops(lat=38.4, lon=27.1, radius_m=0)
+    payload = envelope if isinstance(envelope, dict) else envelope.model_dump()
+    assert payload["ok"] is False
+    assert payload["error"]["code"] == "validation_error"
+    assert payload["error"]["field"] == "radius_m"

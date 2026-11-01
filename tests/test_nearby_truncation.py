@@ -14,7 +14,7 @@ import pytest
 from app.core.settings import get_settings
 from app.services.nearby import NearbyService
 from tests.conftest import fresh
-from tests.test_nearby import FakeApi, FakeTaxis, FakeCharging
+from tests.test_nearby import FakeApi
 
 
 class CountingApi(FakeApi):

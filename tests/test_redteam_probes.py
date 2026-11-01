@@ -7,9 +7,7 @@ not, the test fails until the fix lands.
 
 from __future__ import annotations
 
-import asyncio
 import io
-import json
 import time
 import zipfile
 

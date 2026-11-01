@@ -8,8 +8,8 @@ from zoneinfo import ZoneInfo
 
 import pytest
 
-from app.connectors.http import SourceError, SourceTimeoutError
-from app.core.settings import Settings, get_settings
+from app.connectors.http import SourceTimeoutError
+from app.core.settings import Settings
 from app.core.validation import InputValidationError
 from app.services.bus import BusService
 from app.storage.gtfs_schedule import (

@@ -56,7 +56,7 @@ jobs:
         run: python -c "import app.mcp.registry, app.main, app.stdio"
       - name: Unit tests (offline)
         # Tool-surface stability is enforced by tests/test_tool_compatibility.py.
-        run: python -m pytest -q
+        run: python -m pytest -q --cov=app --cov-report=term-missing
       - name: Protocol smoke (offline)
         run: python scripts/smoke_mcp.py --verbose
       - name: Start HTTP server and probe readiness
@@ -120,8 +120,9 @@ jobs:
           docker logs izmir-ci
           docker rm -f izmir-ci
       - name: Trivy scan (HIGH/CRITICAL, fixable)
-        uses: aquasecurity/trivy-action@b6643a29fecd7f34b3597bc6acb0a98b03d33ff8 # v0.33.1
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
+          version: v0.76.1
           image-ref: izmir-mcp:ci
           severity: HIGH,CRITICAL
           ignore-unfixed: true

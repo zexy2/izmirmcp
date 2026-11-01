@@ -56,6 +56,7 @@ DEFAULT_TOOL_NAMES = (
     "izmir_parking_fees",
     "izmir_traffic_cameras",
     "izmir_water_production",
+    "izmir_plan_trip",
 )
 
 TOOL_TITLES = {
@@ -94,6 +95,7 @@ TOOL_TITLES = {
     "izmir_parking_fees": "İZELMAN otopark ücretleri",
     "izmir_traffic_cameras": "İzmir trafik kamerası konumları",
     "izmir_water_production": "İZSU su üretimi (son anlık görüntü)",
+    "izmir_plan_trip": "İzmir A→B toplu ulaşım seçenekleri (yaklaşık)",
 }
 
 

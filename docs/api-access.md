@@ -1,82 +1,83 @@
-# API erişimi ve anahtar yönetimi
+# API access and key management
 
-Varsayılan kurulum **açıktır**: kimlik doğrulama kapalıdır, yalnızca istemci
-başına hız sınırı uygulanır. Bu belge korumalı bir dağıtım için anahtar
-üretimini, rotasyonunu ve kotayı açıklar.
+The default installation is **open**: authentication is off and only a
+per-client rate limit applies. This document explains key generation,
+rotation and quotas for a protected deployment.
 
-## Anahtar üretimi
+## Key generation
 
-Anahtar 32–256 karakter, URL-güvenli (`A-Z a-z 0-9 . _ ~ -`) olmalıdır.
-Önerilen üretim:
+A key must be 32–256 characters and URL-safe (`A-Z a-z 0-9 . _ ~ -`).
+Recommended generation:
 
 ```bash
 python -c "import secrets; print(secrets.token_urlsafe(32))"
 ```
 
-Anahtarları virgülle `IZMIR_MCP_API_KEYS` değişkenine verin:
+Pass the keys, comma-separated, in `IZMIR_MCP_API_KEYS`:
 
 ```bash
 export IZMIR_MCP_API_KEYS="$(python -c 'import secrets;print(secrets.token_urlsafe(32))')"
 ```
 
-Sunucu anahtarları **yalnızca SHA-256 özeti** olarak bellekte tutar; düz metin
-hiçbir yerde saklanmaz veya loglanmaz (bkz. [privacy.md](privacy.md)).
+The server keeps keys in memory **only as SHA-256 digests**; the plain text is
+never stored or logged (see [privacy.md](privacy.md)).
 
-## İstemci tarafı
+## Client side
 
 ```http
-Authorization: Bearer <anahtar>
+Authorization: Bearer <key>
 ```
 
-Eksik veya yanlış anahtar:
+Missing or wrong key:
 
 ```http
 HTTP/1.1 401 Unauthorized
 WWW-Authenticate: Bearer realm="izmir-mcp"
 ```
 
-## Korumalı yollar
+## Protected paths
 
-| Yol | Anahtar gerekir |
+| Path | Key required |
 |---|---|
-| `GET /healthz` | ❌ (liveness probe'ları için açık) |
-| `GET /readyz` | ❌ (readiness probe'ları için açık) |
-| `GET /status` | ✅ (sayaçlar ve yapılandırma sızdırmasın) |
-| `/mcp`, `/mcp/*` | ✅ |
+| `GET /healthz` | No (open for liveness probes) |
+| `GET /readyz` | No (open for readiness probes) |
+| `GET /status` | Yes (so counters and configuration do not leak) |
+| `/mcp`, `/mcp/*` | Yes |
 
-## Günlük kota
+## Daily quota
 
-`IZMIR_MCP_API_KEY_DAILY_QUOTA` > 0 ise her anahtar için günlük istek kotası
-uygulanır ve **SQLite'ta kalıcıdır**: sunucu yeniden başlasa da sayaç sıfırlanmaz.
+When `IZMIR_MCP_API_KEY_DAILY_QUOTA` > 0, a daily request quota applies per
+key and is **persisted in SQLite**: the counter is not reset when the server
+restarts.
 
 ```http
 HTTP/1.1 429 Too Many Requests
-Retry-After: <gece yarısına kalan saniye>
+Retry-After: <seconds until midnight>
 {"ok": false, "error_code": "quota_exceeded", ...}
 ```
 
-Kota deposu okunamazsa **fail closed**: `503 quota_unavailable`. Böylece bozuk
-bir disk sınırsız erişime dönüşmez.
+If the quota store cannot be read, it **fails closed** with
+`503 quota_unavailable`, so a broken disk does not turn into unlimited access.
 
-Kota, bellek içi hız sınırından farklıdır:
+The quota is separate from the in-memory rate limit:
 
-| Koruma | Depolama | Amaç |
+| Protection | Storage | Purpose |
 |---|---|---|
-| Hız sınırı (60/sn) | Bellek | Ani patlamalar |
-| Günlük kota | SQLite | Toplam kullanım bütçesi |
+| Rate limit (60/s) | Memory | Sudden bursts |
+| Daily quota | SQLite | Total usage budget |
 
-## Rotasyon
+## Rotation
 
-1. Yeni anahtarı listeye ekle, eskisini listede bırak.
-2. İstemcileri yeni anahtara geçir.
-3. Eski anahtarı listeden çıkar ve sunucuyu yeniden başlat.
+1. Add the new key to the list and keep the old one.
+2. Move clients to the new key.
+3. Remove the old key from the list and restart the server.
 
-Kota kayıtları anahtar **özetine** bağlıdır; rotasyon yeni bir sayaç başlatır
-(beklenen davranış).
+Quota records are tied to the key **digest**; rotation starts a new counter
+(expected behaviour).
 
-## Sınırlar
+## Limits
 
-- Anahtar başına rol/izin yoktur: tüm araçlar salt okunurdur, her geçerli
-  anahtar aynı yüzeye erişir.
-- OAuth, döner token, iptal listesi yoktur; statik anahtar karşılaştırması.
-- Anahtarlar yalnızca bellekte olduğu için değişiklik yeniden başlatma gerektirir.
+- There are no per-key roles or permissions: all tools are read-only and every
+  valid key reaches the same surface.
+- No OAuth, rotating tokens or revocation list; keys are compared statically.
+- Keys live only in memory, so changes require a restart.

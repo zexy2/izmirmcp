@@ -1,7 +1,7 @@
 # AGENTS.md — İzmir MCP çalışma sözleşmesi
 
 Bu dosya her oturumun başında okunur. Talimat çelişkisi varsa bu dosya ve
-`PROGRESS.md` esastır.
+`docs/development/PROGRESS.md` esastır.
 
 ## Mission
 
@@ -12,7 +12,7 @@ eşdeğer kalitede sağlamak.
 Bu bir "her şeyi zorla kopyala" görevi değildir:
 
 - İzmir'de kaynak yoksa veya erişilemiyorsa (404/500/HTML) **yapılmaz**; neden
-  yapılmadığı README "Sınırlar" ve `PROGRESS.md` "Bilinçli boşluklar" altında
+  yapılmadığı README "Sınırlar" ve `docs/development/PROGRESS.md` "Bilinçli boşluklar" altında
   kanıtla yazılır.
 - İzmir'de upstream'den **daha iyi** veri varsa (ör. canlı otobüs konumu,
   İZDENİZ tarifesi) o üstünlük korunur.
@@ -29,11 +29,15 @@ Bu bir "her şeyi zorla kopyala" görevi değildir:
 4. **Dürüstlük:** boş sonuç "hiç yok" kanıtı değildir; bunu `warnings` içinde
    söyle. Kısmi sonuç `result_info.truncated`/`matched` ile bildirilir.
 5. **Kaynak doğrulama:** yeni bir uç bağlamadan önce canlı HTTP ile doğrula.
-   Sonucu `reports/` altına kanıtla yaz. Doğrulanmamış uç bağlanmaz.
+   Sonucu `docs/development/reports/` altına kanıtla yaz. Doğrulanmamış uç bağlanmaz.
 6. **README güncel kalır:** araç tablosu ve "Sınırlar" bölümü her değişiklikle
    birlikte güncellenir.
 7. **Commit:** her pass tek odaklı bir commit. Commit mesajı Türkçe, gövdesinde
    ne/neden yazılı. Kullanıcı istemeden push edilmez.
+8. **Dil politikası (hibrit):** araç/parametre/prompt/kaynak açıklamaları, kod
+   yorumları ve `docs/` İngilizce; kullanıcıya dönen çalışma zamanı hata, uyarı
+   ve ipucu mesajları ile araç başlıkları (`TOOL_TITLES`) Türkçe. README.md EN,
+   README.tr.md TR. Ayrıntı: `CONTRIBUTING.md` "Language policy".
 
 ## Doğrulama komutları
 
@@ -58,7 +62,7 @@ Pass bitmiş sayılması için: pytest yeşil **ve** smoke exit 0 **ve** README 
 
 ## Bilinen İzmir gerçekleri (yeniden araştırmayın)
 
-Ayrıntı ve kanıtlar `reports/` altında.
+Ayrıntı ve kanıtlar `docs/development/reports/` altında.
 
 - ESHOT GTFS takvimi **2026-10-09'da bitti** (doğrulama 2026-10-28). Her yanıt
   `calendar_end` + eskime uyarısı taşır.

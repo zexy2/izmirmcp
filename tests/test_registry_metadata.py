@@ -37,6 +37,35 @@ async def test_input_schemas_do_not_allow_arbitrary_extra_types():
             assert any(key in prop for key in ("type", "anyOf", "enum", "$ref")), (tool.name, name)
 
 
+_TURKISH_LETTERS = set("ıİşŞğĞçÇöÖüÜ")
+
+
+@pytest.mark.asyncio
+async def test_every_parameter_has_an_english_description():
+    """Language policy: parameter descriptions are English and never missing."""
+    for tool in await create_mcp_server(get_settings()).list_tools():
+        for name, prop in tool.input_schema.get("properties", {}).items():
+            description = prop.get("description", "")
+            assert len(description) >= 10, (tool.name, name)
+            # Proper nouns (İzmir, İZBAN, Tahtalı) may carry Turkish letters;
+            # common Turkish sentence words may not.
+            words = set(description.casefold().replace(".", " ").split())
+            assert not words & {"ve", "veya", "için", "ile", "olmalıdır", "değil"}, (tool.name, name)
+
+
+def test_tool_titles_are_turkish():
+    """Language policy: titles are Turkish user-facing labels."""
+    turkish = [name for name, title in TOOL_TITLES.items() if _TURKISH_LETTERS & set(title)]
+    assert len(turkish) >= len(TOOL_TITLES) // 2
+
+
+def test_boolean_rejection_message_is_turkish():
+    from app.core.types import _no_bool
+
+    with pytest.raises(ValueError, match="mantıksal değer"):
+        _no_bool(True)
+
+
 def test_server_instructions_are_present_and_bounded():
     assert SERVER_INSTRUCTIONS.strip()
     assert len(SERVER_INSTRUCTIONS.encode()) < 16_384
