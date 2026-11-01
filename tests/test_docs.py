@@ -46,6 +46,8 @@ ALL_DOCS = (
     DOCS / "development.md",
     DOCS / "security.md",
     DOCS / "tool-migration.md",
+    DOCS / "install-clients.md",
+    DOCS / "install-clients.tr.md",
 )
 
 

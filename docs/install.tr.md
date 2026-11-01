@@ -40,35 +40,12 @@ pip install -e ".[dev]"
 izmir-mcp-stdio
 ```
 
-## Claude Desktop
+## MCP istemcileri
 
-`claude_desktop_config.json` dosyasına ekleyin:
-
-```json
-{
-  "mcpServers": {
-    "izmir": { "command": "uvx", "args": ["izmir-mcp", "stdio"] }
-  }
-}
-```
-
-uvx yerine Docker ile:
-
-```json
-{
-  "mcpServers": {
-    "izmir": {
-      "command": "docker",
-      "args": ["run", "--rm", "-i", "ghcr.io/zexy2/izmir-mcp:0.1.0", "python", "-m", "app.stdio"]
-    }
-  }
-}
-```
-
-## Cursor
-
-Aynı `mcpServers` bloğunu `~/.cursor/mcp.json` veya proje içindeki
-`.cursor/mcp.json` dosyasına koyun.
+İstemciye göre yapılandırma (Codex CLI, Claude Code, Claude Desktop, Cursor,
+VS Code, Zed, Gemini CLI, Cline) [install-clients.tr.md](install-clients.tr.md)
+dosyasındadır. Oradaki Docker stdio komutu:
+`docker run -i --rm -e IZMIR_MCP_SKIP_GTFS_BUILD=1 ghcr.io/zexy2/izmir-mcp:0.1.0 izmir-mcp stdio`.
 
 ## Uzak HTTP
 
