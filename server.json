@@ -10,6 +10,21 @@
   },
   "packages": [
     {
+      "registryType": "pypi",
+      "identifier": "izmir-mcp",
+      "version": "0.1.0",
+      "runtimeHint": "uvx",
+      "packageArguments": [
+        {
+          "type": "positional",
+          "value": "stdio"
+        }
+      ],
+      "transport": {
+        "type": "stdio"
+      }
+    },
+    {
       "registryType": "oci",
       "identifier": "ghcr.io/zexy2/izmir-mcp:0.1.0",
       "runtimeHint": "docker",

@@ -40,7 +40,7 @@ jobs:
 
   pypi:
     name: Publish to PyPI
-    # Optional until the PyPI trusted publisher exists: set repo variable PUBLISH_PYPI=true.
+    # Trusted publisher (OIDC) is registered; PUBLISH_PYPI=true gates the job (and mcp-registry).
     if: vars.PUBLISH_PYPI == 'true'
     needs: build
     runs-on: ubuntu-latest
@@ -54,7 +54,7 @@ jobs:
         with:
           name: dist
           path: dist/
-      - uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086 # release/v1
+      - uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086 # v1.14.3
 
   ghcr:
     name: Build, scan and push image to GHCR
@@ -105,8 +105,8 @@ jobs:
 
   mcp-registry:
     name: Publish to MCP registry
-    # OCI-only server.json: the registry entry depends on the GHCR image, not PyPI.
-    needs: [ghcr]
+    # server.json lists the PyPI package and the GHCR image; publish only after both exist.
+    needs: [pypi, ghcr]
     runs-on: ubuntu-latest
     permissions:
       contents: read

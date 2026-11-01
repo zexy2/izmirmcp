@@ -1,12 +1,12 @@
 # İstemci kurulum rehberleri
 
 İzmir MCP için istemciye göre kurulum. Tüm örnekler sunucuyu `izmir` adıyla
-kaydeder. Birincil yol uvx; Docker PyPI olmadan bugün çalışır. Çalıştırma
+kaydeder. Birincil yol uvx; Docker GHCR imajını kullanır. Çalıştırma
 seçenekleri için [install.tr.md](install.tr.md) dosyasına bakın.
 
 ## Çalıştırma seçenekleri
 
-- **uvx** — `uvx izmir-mcp stdio` (PyPI'de yayımlandığında kullanılabilir).
+- **uvx** — `uvx izmir-mcp stdio` (PyPI, v0.1.0 ile).
 - **Docker** — GHCR imajı; `IZMIR_MCP_SKIP_GTFS_BUILD=1` GTFS tarife kurulumunu
   atlar, stdio hızlı başlar (`server.json` varsayılanı).
 - **Yerel klon** — `uv run izmir-mcp stdio` ya da venv içinde

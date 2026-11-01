@@ -1,12 +1,12 @@
 # Client setup guides
 
 Per-client setup for İzmir MCP. Every snippet registers the server under the
-name `izmir`. The uvx variant is primary; Docker works today without PyPI.
+name `izmir`. The uvx variant is primary; Docker uses the GHCR image.
 See [install.en.md](install.en.md) for the run options themselves.
 
 ## Run options
 
-- **uvx** — `uvx izmir-mcp stdio` (available once published to PyPI).
+- **uvx** — `uvx izmir-mcp stdio` (PyPI, from v0.1.0).
 - **Docker** — the GHCR image; `IZMIR_MCP_SKIP_GTFS_BUILD=1` skips the GTFS
   timetable build so stdio starts fast (the default in `server.json`).
 - **Local clone** — `uv run izmir-mcp stdio`, or `izmir-mcp-stdio` /
