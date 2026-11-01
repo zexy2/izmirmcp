@@ -205,8 +205,12 @@ def test_changelog_opens_with_current_version_and_packaging_entry():
     assert CHANGELOG.is_file()
     text = CHANGELOG.read_text(encoding="utf-8")
     version = _version()
-    first_heading = next(line for line in text.splitlines() if line.startswith("## "))
-    assert version in first_heading, first_heading
+    headings = [line for line in text.splitlines() if line.startswith("## ")]
+    # Keep a Changelog: an [Unreleased] section first, then the newest release.
+    assert headings[0] == "## [Unreleased]", headings[0]
+    first_release = next(line for line in headings if line != "## [Unreleased]")
+    assert version in first_release, first_release
+    assert f"[{version}]: " in text, "missing link reference for the current version"
     assert "Docker" in text
     assert "server.json" in text
 
@@ -264,6 +268,14 @@ def test_dockerfile_keeps_uid_healthcheck_and_mcp_label():
     assert "HEALTHCHECK" in text and "/healthz" in text
     assert 'io.modelcontextprotocol.server.name="io.github.zexy2/izmir-mcp"' in text
     assert f"ARG VERSION={_version()}" in text
+
+
+def test_dockerfile_carries_oci_metadata_labels():
+    text = DOCKERFILE.read_text(encoding="utf-8")
+    for key in ("title", "description", "version", "url", "documentation", "source", "authors", "vendor", "licenses"):
+        assert f"org.opencontainers.image.{key}=" in text, f"missing OCI label {key}"
+    description = _pyproject()["project"]["description"]
+    assert f'org.opencontainers.image.description="{description}"' in text
 
 
 def test_lockfiles_pin_every_runtime_dependency_with_hashes():

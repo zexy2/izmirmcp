@@ -15,6 +15,7 @@ concurrency:
 
 jobs:
   build:
+    name: Build distributions
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
@@ -38,6 +39,7 @@ jobs:
           path: dist/
 
   pypi:
+    name: Publish to PyPI
     # Optional until the PyPI trusted publisher exists: set repo variable PUBLISH_PYPI=true.
     if: vars.PUBLISH_PYPI == 'true'
     needs: build
@@ -55,6 +57,7 @@ jobs:
       - uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086 # release/v1
 
   ghcr:
+    name: Build, scan and push image to GHCR
     needs: build
     runs-on: ubuntu-latest
     permissions:
@@ -100,6 +103,7 @@ jobs:
           sbom: true
 
   mcp-registry:
+    name: Publish to MCP registry
     # OCI-only server.json: the registry entry depends on the GHCR image, not PyPI.
     needs: [ghcr]
     runs-on: ubuntu-latest

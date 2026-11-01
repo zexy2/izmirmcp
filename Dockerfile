@@ -37,8 +37,13 @@ FROM python:3.11-slim@sha256:673719e071ecf27434fd2635bbd8d00f49f4fdd81f243143438
 ARG VERSION=0.1.0
 LABEL io.modelcontextprotocol.server.name="io.github.zexy2/izmir-mcp" \
       org.opencontainers.image.title="izmir-mcp" \
+      org.opencontainers.image.description="Read-only MCP server for İzmir open city data: transit, buses, ferries, water, air, pharmacies." \
       org.opencontainers.image.version="${VERSION}" \
+      org.opencontainers.image.url="https://github.com/zexy2/izmirmcp" \
+      org.opencontainers.image.documentation="https://github.com/zexy2/izmirmcp#readme" \
       org.opencontainers.image.source="https://github.com/zexy2/izmirmcp" \
+      org.opencontainers.image.authors="zexy2" \
+      org.opencontainers.image.vendor="zexy2" \
       org.opencontainers.image.licenses="MIT"
 
 ENV PYTHONDONTWRITEBYTECODE=1 \

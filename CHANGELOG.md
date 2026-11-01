@@ -1,32 +1,20 @@
 # Changelog
 
-Bu proje [Semantic Versioning](https://semver.org/lang/tr/) izler.
+All notable changes to this project are documented in this file.
+The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
+this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+Entries are written in Turkish.
 
-## Yayımlanmamış (0.1.0 sonrası)
+## [Unreleased]
 
-### Değişti
-
-- Hibrit dil politikası (`CONTRIBUTING.md` "Language policy", `AGENTS.md` kural 8):
-  araç/parametre/prompt/kaynak açıklamaları İngilizce; çalışma zamanı hata/uyarı
-  mesajları ve araç başlıkları Türkçe. Boolean reddi ve prompt argüman hatası
-  Türkçeleştirildi.
-- 36 aracın tüm parametrelerine (`Annotated[..., Field(description=...)]`)
-  İngilizce açıklama eklendi. `tests/fixtures/tool_compatibility_snapshot.json`
-  bilinçli olarak yenilendi: fark yalnızca 130 eklenen `description` anahtarıdır
-  (silinen satır yok; tip, varsayılan, zorunluluk ve araç adları değişmedi).
-
-- `PROGRESS.md` ve `reports/` geliştirici belgeleri `docs/development/` altına
-  taşındı; tüm bağlantılar güncellendi.
-
-### Eklendi
+### Added
 
 - Paket metadata: anahtar kelimeler, sınıflandırıcılar (Beta, Typing :: Typed,
   `app/py.typed`), Documentation/Changelog/Issues URL'leri; `server.json` ve
   `smithery.yaml` açıklamaları README ile hizalandı.
-
 - `NOTICE`: Apache-2.0 kaynakları (halilcengel/IzmirMCP,
   AtaCanYmc/izmir-open-data-py) için atıf.
-- README: PyPI/registry/CI/lisans rozetleri, TR/EN yeni araç tablosu, rakip
+- README: registry/CI/lisans rozetleri, TR/EN yeni araç tablosu, rakip
   karşılaştırması, Claude Desktop/Cursor/VS Code `uvx` yapılandırmaları ve uzak
   HTTP barındırma notu.
 - Geliştirmede: tramvay, hat bazlı/canlı otobüs, `izmir_dam_status`, tüm
@@ -36,26 +24,43 @@ Bu proje [Semantic Versioning](https://semver.org/lang/tr/) izler.
 - `izmir_bus_departures`: `stop_id` artık opsiyonel; durak `lat`/`lon`/`radius_m`
   veya `stop_query` ile de bulunabilir (geriye uyumlu genişleme).
 
-### Yayın
+### Changed
 
-- `server.json` artık yalnızca OCI (`ghcr.io/zexy2/izmir-mcp:0.1.0`, stdio)
+- Hibrit dil politikası (`CONTRIBUTING.md` "Language policy", `AGENTS.md` kural 8):
+  araç/parametre/prompt/kaynak açıklamaları İngilizce; çalışma zamanı hata/uyarı
+  mesajları ve araç başlıkları Türkçe. Boolean reddi ve prompt argüman hatası
+  Türkçeleştirildi.
+- 36 aracın tüm parametrelerine (`Annotated[..., Field(description=...)]`)
+  İngilizce açıklama eklendi. `tests/fixtures/tool_compatibility_snapshot.json`
+  bilinçli olarak yenilendi: fark yalnızca 130 eklenen `description` anahtarıdır
+  (silinen satır yok; tip, varsayılan, zorunluluk ve araç adları değişmedi).
+- `PROGRESS.md` ve `reports/` geliştirici belgeleri `docs/development/` altına
+  taşındı; tüm bağlantılar güncellendi.
+- Yayın: `server.json` artık yalnızca OCI (`ghcr.io/zexy2/izmir-mcp:0.1.0`, stdio)
   paketini listeler; PyPI girdisi trusted publisher hazır olunca geri eklenecek.
-- `release.yml`: PyPI işi `vars.PUBLISH_PYPI` ile opsiyonel, `mcp-publisher`
+- Yayın: `release.yml`: PyPI işi `vars.PUBLISH_PYPI` ile opsiyonel, `mcp-publisher`
   v1.8.7 sha256 doğrulamalı, yayından önce `scripts/check_release_metadata.py`
   sürüm kontrolü, ön sürümlerde `latest` etiketi yok, push öncesi Trivy taraması.
+- `docs/` İngilizceye çevrildi (dil politikası); `docs/security-report.md`
+  `docs/development/reports/` altına taşındı; MCP arayüzü, registry ve araç
+  referansı belgeleri ayrıştırılıp birbirine bağlandı.
+- `ruff.toml`: Pyflakes (`F`) kuralları tamamen açıldı; kullanılmayan import ve
+  değişkenler temizlendi. CHANGELOG Keep a Changelog biçimine geçti.
+- Dockerfile OCI etiketleri (açıklama, url, belgeler, yazar, vendor) ve
+  workflow/iş adları düzenlendi.
 
-### Düzeltildi
+### Fixed
 
 - `izmir_dam_status`: İZSU JSON servisi TLS/sertifika veya bağlantı hatası
   verirse yayımlanan baraj CSV'sine otomatik düşer (`source: csv_fallback`).
   CSV tarih seçimini desteklemez; geçmiş bir `date` istenmişse bu açıkça
   uyarılır. TLS doğrulaması kapatılmadı.
 
-## 0.1.0 — 2026-10-28
+## [0.1.0] - 2026-10-28
 
 İlk sürüm. İzmir için salt okunur şehir verisi MCP sunucusu.
 
-### Eklendi
+### Added
 
 - `nobetci_eczane` prompt'u: ilçedeki nöbetçi eczaneleri mevcut `izmir_nearby`
   aracıyla listeler. Araç yüzeyi değişmedi (22 araç).
@@ -103,7 +108,7 @@ Bu proje [Semantic Versioning](https://semver.org/lang/tr/) izler.
   origin / gövde tavanı / XFF spoofing güvenlik testleri. Testler bir konnektör
   kaydı — yeniden oynatma koşumu kullanır; ağ yoktur.
 
-### Değişti
+### Changed
 
 - Kod MIT lisansıyla yayımlanır (`LICENSE`).
 - Mekânsal indeksin yaşam döngüsü (`built_at`, kapsam, yaş, yeniden kurma)
@@ -116,7 +121,7 @@ Bu proje [Semantic Versioning](https://semver.org/lang/tr/) izler.
   Filtreli sorgular tam taramada kaldı, çünkü eşleşme herhangi bir satırda
   olabilir. Soğuk `limit=2` süresi 6,87 sn → 0,34 sn (ölçüldü).
 
-### Düzeltildi
+### Fixed
 
 - `izmir_air_quality`, `izmir_transit_stations`/`izmir_transit_schedule` ve
   `izmir_water_status(kind="dams")` kaynak hatasını zarfa çevirmiyordu; MCP
@@ -140,7 +145,7 @@ Bu proje [Semantic Versioning](https://semver.org/lang/tr/) izler.
   türetiliyor, eşik `IZMIR_MCP_TRAFFIC_STALE_AFTER_HOURS` (72) ve gerekçe
   `limits`/`warnings` içinde yazılı.
 
-### Sınırlar
+### Known limitations
 
 - `izmir_bus_departures` yarıçap modunda `distance_m` kuş uçuşudur ve `limit`
   tüm durak kümesi için toplamdır, durak başına değildir.
@@ -150,7 +155,7 @@ Bu proje [Semantic Versioning](https://semver.org/lang/tr/) izler.
 - İZBAN duyuru akışı erişilemiyor; `operator="izban"` unavailable döner.
 - Lisans seçilmedi; dağıtımdan önce karar gerekir.
 
-### Güvenlik
+### Security
 
 - Upstream SSRF koruması çözülen IP'ye sabitlenir (DNS rebinding yok),
   IPv4-mapped/6to4 adresleri reddedilir, `trust_env=False`.
@@ -158,3 +163,6 @@ Bu proje [Semantic Versioning](https://semver.org/lang/tr/) izler.
   host soğuma tablosu sınırlı.
 - Gelen istekte gövde tavanı ve Host allowlist (`IZMIR_MCP_ALLOWED_HOSTS`,
   boşsa yalnızca uyarı); `IZMIR_MCP_REQUIRE_AUTH` ile fail-closed açılış.
+
+[Unreleased]: https://github.com/zexy2/izmirmcp/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/zexy2/izmirmcp/releases/tag/v0.1.0

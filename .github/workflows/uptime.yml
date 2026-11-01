@@ -26,6 +26,7 @@ concurrency:
 
 jobs:
   probe:
+    name: Probe public endpoint
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
