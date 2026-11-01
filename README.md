@@ -34,7 +34,7 @@ This README is the primary English document; a full Turkish version is in [READM
 
 ## Quick start
 
-`uvx` (the PyPI release is pending; until then install from source):
+`uvx` (PyPI, from v0.1.0):
 
 ```bash
 uvx izmir-mcp stdio

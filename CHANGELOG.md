@@ -9,6 +9,8 @@ Entries are written in Turkish.
 
 ### Added
 
+- Yayın: PyPI trusted publishing yeniden etkin; `server.json` PyPI (`uvx izmir-mcp stdio`)
+  ve OCI paketlerini birlikte listeler; `mcp-registry` işi `pypi` ve `ghcr` başarılı olunca çalışır.
 - Paket metadata: anahtar kelimeler, sınıflandırıcılar (Beta, Typing :: Typed,
   `app/py.typed`), Documentation/Changelog/Issues URL'leri; `server.json` ve
   `smithery.yaml` açıklamaları README ile hizalandı.

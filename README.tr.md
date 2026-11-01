@@ -28,7 +28,7 @@
 
 ## Hızlı başlangıç
 
-`uvx` (PyPI yayını bekleniyor; o zamana kadar kaynaktan kurun):
+`uvx` (PyPI, v0.1.0 ile):
 
 ```bash
 uvx izmir-mcp stdio

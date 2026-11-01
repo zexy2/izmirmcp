@@ -118,13 +118,17 @@ def test_server_json_matches_registry_schema_and_package_version():
     assert manifest["description"] == _pyproject()["project"]["description"]
 
 
-def test_server_json_is_oci_only_with_stdio_transport():
-    """Until PyPI trusted publishing exists the registry entry is the GHCR image only."""
+def test_server_json_lists_pypi_and_oci_with_stdio_transport():
     manifest = json.loads(SERVER_JSON.read_text(encoding="utf-8"))
     packages = manifest["packages"]
-    assert isinstance(packages, list) and packages
-    assert {package["registryType"] for package in packages} == {"oci"}
-    oci = packages[0]
+    assert isinstance(packages, list) and len(packages) == 2
+    by_type = {package["registryType"]: package for package in packages}
+    assert set(by_type) == {"pypi", "oci"}
+    pypi = by_type["pypi"]
+    assert pypi["identifier"] == "izmir-mcp"
+    assert pypi["version"] == _version()
+    assert pypi["transport"]["type"] == "stdio"
+    oci = by_type["oci"]
     assert oci["transport"]["type"] == "stdio"
     assert [arg["value"] for arg in oci["packageArguments"]] == ["izmir-mcp", "stdio"]
     env = {item["name"]: item.get("default") for item in oci.get("environmentVariables", [])}
@@ -157,7 +161,9 @@ def test_release_workflow_pins_publisher_and_gates_pypi():
     assert "releases/latest" not in text
     assert "sha256sum -c" in text
     assert "vars.PUBLISH_PYPI == 'true'" in text
-    assert "needs: [ghcr]" in text
+    assert "needs: [pypi, ghcr]" in text
+    assert "pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086" in text
+    assert "id-token: write" in text and "name: pypi" in text
     assert "latest=auto" in text
     assert "type=raw,value=latest" not in text
     assert "aquasecurity/trivy-action@" in text and "ignore-unfixed: true" in text
@@ -323,11 +329,10 @@ def test_server_json_packages_use_valid_runtime_hints():
     manifest = json.loads(SERVER_JSON.read_text(encoding="utf-8"))
     by_type = {package["registryType"]: package for package in manifest["packages"]}
     oci = by_type["oci"]
-    pypi = by_type.get("pypi")
-    if pypi is not None:  # re-added once PyPI trusted publishing is live
-        assert pypi["identifier"] == _pyproject()["project"]["name"]
-        assert pypi["runtimeHint"] == "uvx"
-        assert [arg["value"] for arg in pypi["packageArguments"]] == ["stdio"]
+    pypi = by_type["pypi"]
+    assert pypi["identifier"] == _pyproject()["project"]["name"]
+    assert pypi["runtimeHint"] == "uvx"
+    assert [arg["value"] for arg in pypi["packageArguments"]] == ["stdio"]
     assert oci["identifier"] == f"ghcr.io/zexy2/izmir-mcp:{_version()}"
     assert oci["runtimeHint"] == "docker"
     for package in manifest["packages"]:
