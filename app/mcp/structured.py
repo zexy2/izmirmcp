@@ -1,3 +1,5 @@
+# Portions adapted from istanbulmcp (https://github.com/Batu1-1an/istanbulmcp),
+# MIT License, Copyright (c) 2026 Kerim Batuhan Baran. See NOTICE.
 """Validate MCP output without changing the bare-dict Python handler contract."""
 
 from __future__ import annotations

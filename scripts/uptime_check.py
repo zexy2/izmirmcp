@@ -1,3 +1,5 @@
+# Portions adapted from istanbulmcp (https://github.com/Batu1-1an/istanbulmcp),
+# MIT License, Copyright (c) 2026 Kerim Batuhan Baran. See NOTICE.
 """Probe the public endpoint the way an MCP client does; used by the uptime workflow.
 
 Healthy means /healthz answers {"ok": true} and an MCP initialize + tools/list

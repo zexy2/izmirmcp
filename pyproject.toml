@@ -9,7 +9,7 @@ description = "Read-only MCP server for İzmir open city data: transit, buses, f
 keywords = ["mcp", "model-context-protocol", "izmir", "turkey", "open-data", "transit", "smart-city", "llm"]
 readme = "README.md"
 license = "MIT"
-license-files = ["LICENSE"]
+license-files = ["LICENSE", "NOTICE"]
 authors = [{ name = "zexy2" }]
 requires-python = ">=3.11"
 classifiers = [

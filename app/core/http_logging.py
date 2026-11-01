@@ -1,3 +1,5 @@
+# Portions adapted from istanbulmcp (https://github.com/Batu1-1an/istanbulmcp),
+# MIT License, Copyright (c) 2026 Kerim Batuhan Baran. See NOTICE.
 """One structured JSON line per HTTP request.
 
 Logs method, path, status and duration. Query strings, bodies, headers and API
