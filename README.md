@@ -54,7 +54,7 @@ python3.11 -m venv .venv && .venv/bin/pip install -e ".[dev]"
 .venv/bin/python -m app.stdio   # or: python -m app.main (Streamable HTTP, http://127.0.0.1:8000/mcp/)
 ```
 
-Claude Desktop (`claude_desktop_config.json`) and Cursor (`~/.cursor/mcp.json`):
+Generic stdio config (most clients use this `mcpServers` shape):
 
 ```json
 {
@@ -64,17 +64,18 @@ Claude Desktop (`claude_desktop_config.json`) and Cursor (`~/.cursor/mcp.json`):
 }
 ```
 
-VS Code (`.vscode/mcp.json`):
+| Client | Config location | Guide |
+|---|---|---|
+| OpenAI Codex CLI | `~/.codex/config.toml` · `codex mcp add` | [setup](docs/install-clients.md#openai-codex-cli) |
+| Claude Code | `claude mcp add` · `.mcp.json` | [setup](docs/install-clients.md#claude-code) |
+| Claude Desktop | `claude_desktop_config.json` | [setup](docs/install-clients.md#claude-desktop) |
+| Cursor | `~/.cursor/mcp.json` · `.cursor/mcp.json` | [setup](docs/install-clients.md#cursor) |
+| VS Code / Copilot | `.vscode/mcp.json` (`servers` key) | [setup](docs/install-clients.md#vs-code--github-copilot) |
+| Zed | `settings.json` (`context_servers`) | [setup](docs/install-clients.md#zed) |
+| Gemini CLI | `~/.gemini/settings.json` · `gemini mcp add` | [setup](docs/install-clients.md#gemini-cli) |
+| Cline | `cline_mcp_settings.json` | [setup](docs/install-clients.md#cline) |
 
-```json
-{
-  "servers": {
-    "izmir": { "type": "stdio", "command": "uvx", "args": ["izmir-mcp", "stdio"] }
-  }
-}
-```
-
-More options: [install guide](docs/install.en.md).
+More options: [install guide](docs/install.en.md), [client setup guides](docs/install-clients.md) ([TR](docs/install-clients.tr.md)).
 
 ## Tools
 
