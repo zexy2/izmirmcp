@@ -1,23 +1,96 @@
 izmir-mcp
 Copyright (c) zexy2. Licensed under the MIT License (see LICENSE).
 
-This product adapts endpoint lists (paths, layer names and parameter formats)
-from the following Apache License 2.0 projects. No other source code is copied.
+This product includes material derived from the third-party projects listed
+below. Each is used under the terms of its own license, reproduced or referenced
+here as that license requires. City data is not covered by any of these
+licenses; see "Data" at the end of this file.
 
-1. halilcengel/IzmirMCP — https://github.com/halilcengel/IzmirMCP
-   Apache License 2.0. Used for: tram and ESHOT live bus position
-   endpoint paths (app/connectors/izmir_api.py, app/connectors/eshot.py).
+===============================================================================
+Third-party notices
+===============================================================================
 
-2. AtaCanYmc/izmir-open-data-py — https://github.com/AtaCanYmc/izmir-open-data-py
-   Apache License 2.0. Used for: the ibb/cbs layer allowlist and the events,
-   wholesale market and pharmacy endpoint paths (app/connectors/ibb_cbs.py,
-   app/services/cbs.py).
+1. istanbulmcp
+   https://github.com/Batu1-1an/istanbulmcp
+   License: MIT
+   Copyright (c) 2026 Kerim Batuhan Baran
 
-A copy of the Apache License 2.0 is available at
-https://www.apache.org/licenses/LICENSE-2.0
+   Adapted (code derived from istanbulmcp and modified for İzmir; each file
+   carries a header pointing here):
+     - app/core/envelope.py          response envelope helpers
+     - app/core/loop_watchdog.py     event-loop watchdog
+     - app/core/http_logging.py      structured per-request logging
+     - app/core/cors.py              Origin allowlist / CORS handling
+     - app/mcp/structured.py         structured MCP output validation
+     - app/services/datastore_sql.py bounded SQL over a DataStore snapshot
+     - app/storage/guarded_sql.py    read-only isolated SQLite engine
+     - scripts/uptime_check.py       MCP uptime probe
+     - tests/conformance/package.json, tests/conformance/profile.json
+                                     MCP conformance runner configuration
+
+   Inspired by (design or approach only, independently implemented): the
+   overall architecture and response contract, source cache, per-host upstream
+   cooldown, tool evaluation harness, registry metadata tests, MCP conformance
+   checker and uptime workflow.
+
+   The MIT License requires the following notice to be included:
+
+   MIT License
+
+   Copyright (c) 2026 Kerim Batuhan Baran
+
+   Permission is hereby granted, free of charge, to any person obtaining a copy
+   of this software and associated documentation files (the "Software"), to deal
+   in the Software without restriction, including without limitation the rights
+   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+   copies of the Software, and to permit persons to whom the Software is
+   furnished to do so, subject to the following conditions:
+
+   The above copyright notice and this permission notice shall be included in all
+   copies or substantial portions of the Software.
+
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+   SOFTWARE.
+
+2. halilcengel/IzmirMCP
+   https://github.com/halilcengel/IzmirMCP
+   License: Apache-2.0
+   Used for: tram and ESHOT live bus position endpoint paths
+   (app/connectors/izmir_api.py, app/connectors/eshot.py).
+   Modifications: only endpoint paths were taken; the client code around them
+   is original to izmir-mcp.
+
+3. AtaCanYmc/izmir-open-data-py
+   https://github.com/AtaCanYmc/izmir-open-data-py
+   License: Apache-2.0
+   Used for: the ibb/cbs layer allowlist and the events, wholesale market and
+   pharmacy endpoint paths (app/connectors/ibb_cbs.py, app/services/cbs.py).
+   Modifications: only endpoint paths, layer names and parameter formats were
+   taken; the client code around them is original to izmir-mcp.
+
+   A copy of the Apache License 2.0 is available at
+   https://www.apache.org/licenses/LICENSE-2.0
+   Neither Apache-2.0 project ships a NOTICE file of its own.
+
+4. MCP Registry server.json schema
+   https://github.com/modelcontextprotocol/registry
+   License: MIT / Apache-2.0 (the MCP project is relicensing from MIT to
+   Apache-2.0; see its LICENSE)
+   Copyright (c) Model Context Protocol a Series of LF Projects, LLC.
+   Used for: tests/fixtures/mcp_registry/server-2025-12-11.schema.json,
+   included unmodified as a test fixture.
 
 The İZSU DamWaterStatus endpoint (izsu.gov.tr) was identified independently;
 no code was taken from unlicensed projects (IzmirDamMcp, izmir-ulasim-mcp).
+
+===============================================================================
+Data
+===============================================================================
 
 City data belongs to the publishing institutions (İzmir Büyükşehir Belediyesi,
 ESHOT, İZSU, İZBAN, İZDENİZ, İzmir Metro). OpenStreetMap reference points are

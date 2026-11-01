@@ -1,3 +1,5 @@
+# Portions adapted from istanbulmcp (https://github.com/Batu1-1an/istanbulmcp),
+# MIT License, Copyright (c) 2026 Kerim Batuhan Baran. See NOTICE.
 """Bounded SQL over a complete CKAN DataStore snapshot.
 
 İzmir's CKAN does not expose ``datastore_search_sql``. The upstream Istanbul

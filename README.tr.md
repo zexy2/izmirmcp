@@ -197,7 +197,11 @@ tarama sonuçları: [docs/development/reports/security-report.md](docs/developme
 
 ## Lisans ve teşekkür
 
-Kod [MIT lisansı](LICENSE) ile yayımlanır. Apache-2.0 projelerden (halilcengel/IzmirMCP,
-AtaCanYmc/izmir-open-data-py) uyarlanan uç listelerinin atfı [NOTICE](NOTICE) içindedir.
-Mimari ve yanıt sözleşmesi [istanbulmcp](https://github.com/Batu1-1an/istanbulmcp)'den esinlenmiştir.
+Kod [MIT lisansı](LICENSE) ile yayımlanır.
+
+Mimari, yanıt zarfı ve bazı dayanıklılık bileşenleri Kerim Batuhan Baran'ın
+[istanbulmcp](https://github.com/Batu1-1an/istanbulmcp) projesinden (MIT) uyarlanmıştır.
+Bazı uç noktası referansları [IzmirMCP](https://github.com/halilcengel/IzmirMCP) ve
+[izmir-open-data-py](https://github.com/AtaCanYmc/izmir-open-data-py) (Apache-2.0) projelerine dayanır.
+Uyarlanan dosyaların listesi dahil tüm bildirimler: [NOTICE](NOTICE).
 Şehir verilerinin lisansları yayıncı kurumlara aittir.

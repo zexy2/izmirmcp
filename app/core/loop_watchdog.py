@@ -1,3 +1,5 @@
+# Portions adapted from istanbulmcp (https://github.com/Batu1-1an/istanbulmcp),
+# MIT License, Copyright (c) 2026 Kerim Batuhan Baran. See NOTICE.
 """Restart the process when the event loop stops answering.
 
 A single-process server with a frozen loop (a spin or a blocking call) keeps

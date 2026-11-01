@@ -1,3 +1,5 @@
+# Portions adapted from istanbulmcp (https://github.com/Batu1-1an/istanbulmcp),
+# MIT License, Copyright (c) 2026 Kerim Batuhan Baran. See NOTICE.
 """Origin allowlist and CORS headers for the MCP endpoint.
 
 The endpoint is open by default (no ``Origin`` header, e.g. CLI MCP clients).

@@ -203,7 +203,11 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) and the [Code of Conduct](CODE_OF_CONDUCT
 
 ## License and acknowledgements
 
-Code is released under the [MIT License](LICENSE). Endpoint lists adapted from Apache-2.0 projects
-(halilcengel/IzmirMCP, AtaCanYmc/izmir-open-data-py) are attributed in [NOTICE](NOTICE).
-The architecture and response contract are inspired by
-[istanbulmcp](https://github.com/Batu1-1an/istanbulmcp). City data licences belong to the publishing institutions.
+Code is released under the [MIT License](LICENSE).
+
+The architecture, the response envelope and several resilience components are adapted from
+[istanbulmcp](https://github.com/Batu1-1an/istanbulmcp) by Kerim Batuhan Baran (MIT).
+Some endpoint references follow [IzmirMCP](https://github.com/halilcengel/IzmirMCP) and
+[izmir-open-data-py](https://github.com/AtaCanYmc/izmir-open-data-py) (Apache-2.0).
+Full notices, including the list of adapted files: [NOTICE](NOTICE).
+City data licences belong to the publishing institutions.

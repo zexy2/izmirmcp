@@ -1,3 +1,5 @@
+# Portions adapted from istanbulmcp (https://github.com/Batu1-1an/istanbulmcp),
+# MIT License, Copyright (c) 2026 Kerim Batuhan Baran. See NOTICE.
 """Read-only SQLite over one isolated in-memory table, never the app database.
 
 CKAN's DataStore has no server-side SQL on İzmir's portal. This module makes the

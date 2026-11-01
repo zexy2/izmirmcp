@@ -24,7 +24,7 @@ WORKDIR /build
 COPY requirements.lock ./
 RUN pip install --require-hashes --no-deps -r requirements.lock
 
-COPY pyproject.toml README.md LICENSE ./
+COPY pyproject.toml README.md LICENSE NOTICE ./
 COPY app ./app
 # setuptools is only the build backend; its vendored jaraco.context/wheel carry
 # HIGH CVEs (trivy) and nothing imports it at run time.
@@ -60,6 +60,7 @@ WORKDIR /app
 # Container tooling (downloads the GTFS archive, writes /data). Ships with
 # python:slim, no extra package needed.
 COPY docker ./docker
+COPY LICENSE NOTICE ./
 
 # Same for the base image's system interpreter: the app runs from /opt/venv.
 RUN /usr/local/bin/python -m pip uninstall -y --no-cache-dir setuptools wheel \
