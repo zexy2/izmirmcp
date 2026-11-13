@@ -10,7 +10,7 @@
 # 2026-10-28) so a rebuild of this Dockerfile is reproducible.
 
 # --- builder: hashed, locked dependencies into a venv, then the app wheel ----
-FROM python:3.11-slim@sha256:673719e071ecf27434fd2635bbd8d00f49f4fdd81f243143438a42ced8bedf60 AS builder
+FROM python:3.15-slim@sha256:65a65fc7b30b06cb6df4930fd4650697cb23f4c2698ab81fc87e4b031bc36928 AS builder
 
 ENV PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1
@@ -32,7 +32,7 @@ RUN pip install --no-deps . \
     && pip uninstall -y setuptools
 
 # --- runtime: venv + container tooling only, non-root ------------------------
-FROM python:3.11-slim@sha256:673719e071ecf27434fd2635bbd8d00f49f4fdd81f243143438a42ced8bedf60
+FROM python:3.15-slim@sha256:65a65fc7b30b06cb6df4930fd4650697cb23f4c2698ab81fc87e4b031bc36928
 
 ARG VERSION=0.1.0
 LABEL io.modelcontextprotocol.server.name="io.github.zexy2/izmir-mcp" \
