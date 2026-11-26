@@ -8,6 +8,12 @@
 [![MCP](https://img.shields.io/badge/MCP-io.github.zexy2%2Fizmir--mcp-blue)](https://registry.modelcontextprotocol.io/?q=io.github.zexy2/izmir-mcp)
 [![Tools](https://img.shields.io/badge/tools-36-orange.svg)](docs/tool-reference.md)
 
+<p align="center">
+  <img src="docs/images/codex-plan-trip.png" width="600" alt="Codex CLI, Konak'tan Karşıyaka'ya nasıl gidileceği sorusunda izmir.izmir_plan_trip aracını çağırıyor ve otobüsle yaklaşık 34, vapurla yaklaşık 37 dakika yanıtını veriyor; sürelerin canlı sefer bilgisi olmadığını belirtiyor">
+</p>
+
+<p align="center"><sub>Yayındaki paketle (<code>uvx izmir-mcp stdio</code>) yapılmış gerçek bir Codex CLI oturumu, 4 Kasım 2026.<br>Tek bir <code>izmir_plan_trip</code> çağrısı: otobüs ≈34 dk, vapur ≈37 dk; süreler canlı sefer değil, tahmin olarak işaretli.</sub></p>
+
 **Dil:** [English](README.md) · Türkçe
 
 ## İçindekiler
