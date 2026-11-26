@@ -62,8 +62,13 @@ WORKDIR /app
 COPY docker ./docker
 COPY LICENSE NOTICE ./
 
-# Same for the base image's system interpreter: the app runs from /opt/venv.
-RUN /usr/local/bin/python -m pip uninstall -y --no-cache-dir setuptools wheel \
+# Pull Debian security fixes that are newer than the pinned base digest (the
+# Trivy gate fails on fixable HIGH/CRITICAL OS advisories). Same for the base
+# image's system interpreter: the app runs from /opt/venv.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends --only-upgrade libzstd1 \
+    && rm -rf /var/lib/apt/lists/* \
+    && /usr/local/bin/python -m pip uninstall -y --no-cache-dir setuptools wheel \
     && useradd --create-home --uid 10001 --shell /usr/sbin/nologin izmir \
     && mkdir -p /data \
     && chown izmir:izmir /data
