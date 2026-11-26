@@ -7,10 +7,10 @@
 # timetable is baked into a layer.
 #
 # Both stages are pinned by digest (multi-arch python:3.11-slim index, resolved
-# 2026-10-28) so a rebuild of this Dockerfile is reproducible.
+# 2026-11-24) so a rebuild of this Dockerfile is reproducible.
 
 # --- builder: hashed, locked dependencies into a venv, then the app wheel ----
-FROM python:3.11-slim@sha256:673719e071ecf27434fd2635bbd8d00f49f4fdd81f243143438a42ced8bedf60 AS builder
+FROM python:3.11-slim@sha256:61e01f72680f86a5279ad510818ab7b2ee9f049822589d4e34e33e044360356c AS builder
 
 ENV PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1
@@ -32,7 +32,7 @@ RUN pip install --no-deps . \
     && pip uninstall -y setuptools
 
 # --- runtime: venv + container tooling only, non-root ------------------------
-FROM python:3.11-slim@sha256:673719e071ecf27434fd2635bbd8d00f49f4fdd81f243143438a42ced8bedf60
+FROM python:3.11-slim@sha256:61e01f72680f86a5279ad510818ab7b2ee9f049822589d4e34e33e044360356c
 
 ARG VERSION=0.1.0
 LABEL io.modelcontextprotocol.server.name="io.github.zexy2/izmir-mcp" \
