@@ -11,6 +11,12 @@
 [![MCP](https://img.shields.io/badge/MCP-io.github.zexy2%2Fizmir--mcp-blue)](https://registry.modelcontextprotocol.io/?q=io.github.zexy2/izmir-mcp)
 [![Tools](https://img.shields.io/badge/tools-36-orange.svg)](docs/tool-reference.md)
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/zexy2/izmirmcp/main/docs/images/codex-plan-trip.png" width="600" alt="Codex CLI asked in Turkish how to get from Konak to Karşıyaka calls izmir.izmir_plan_trip and answers: bus about 34 minutes, ferry about 37 minutes, times are estimates and not live departures">
+</p>
+
+<p align="center"><sub>A real Codex CLI session using the published package (<code>uvx izmir-mcp stdio</code>), recorded 4 November 2026.<br>"How do I get from Konak to Karşıyaka?" → one <code>izmir_plan_trip</code> call → bus ≈34 min, ferry ≈37 min, flagged as estimates rather than live departures.</sub></p>
+
 **Language:** English · [Türkçe](README.tr.md)
 
 ## Contents
